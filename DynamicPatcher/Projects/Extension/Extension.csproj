@@ -59,6 +59,7 @@
     <Compile Include="EventSystems\EventSystem.cs" />
     <Compile Include="EventSystems\EventSystems.cs" />
     <Compile Include="EventSystems\GeneralEventSystem.cs" />
+    <Compile Include="EventSystems\GScreenEventSystem.cs" />
     <Compile Include="EventSystems\PointerExpireEventSystem.cs" />
     <Compile Include="EventSystems\SaveGameEventSystem.cs" />
     <Compile Include="Ext\CommonExtension.cs" />

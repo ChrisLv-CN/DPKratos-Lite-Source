@@ -1,22 +1,29 @@
 
 using System;
-using System.Threading;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
+using Extension.EventSystems;
 
 namespace ExtensionHooks
 {
     public class GScreenExtHook
     {
+
+        static GScreenExtHook()
+        {
+            EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, Kratos.SendActiveMessage);
+            EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.SidebarRenderEvent, Kratos.DrawVersionText);
+
+            // EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, PrintTextManager.PrintText);
+        }
+
         // [Hook(HookType.AresHook, Address = 0x4F4497, Size = 6)] // GScreenClass_Render
         [Hook(HookType.AresHook, Address = 0x4F4583, Size = 6)] // GScreenClass_Render
         public static unsafe UInt32 GScreenClass_Render(REGISTERS* R)
         {
-            // Logger.Log($"{Game.CurrentFrame} GScreenClass_Render call");
-            PrintTextManager.PrintText();
+            EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, EventArgs.Empty);
+
             return 0;
         }
 
@@ -24,7 +31,8 @@ namespace ExtensionHooks
         public static unsafe UInt32 SidebarClass_Draw_It(REGISTERS* R)
         {
             // Logger.Log($"{Game.CurrentFrame} SidebarClass_Draw_It call"); // before GScreen
-            Kratos.DrawActiveMessage();
+            EventSystem.GScreen.Broadcast(EventSystem.GScreen.SidebarRenderEvent, EventArgs.Empty);
+
             return 0;
         }
 
