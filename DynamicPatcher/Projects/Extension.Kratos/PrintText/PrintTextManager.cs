@@ -1,23 +1,18 @@
-using System.Drawing;
-using System.Collections;
-using DynamicPatcher;
-using Extension.Ext;
-using Extension.Utilities;
-using PatcherYRpp;
-using PatcherYRpp.FileFormats;
-using PatcherYRpp.Utilities;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DynamicPatcher;
+using PatcherYRpp;
+using PatcherYRpp.FileFormats;
+using Extension.EventSystems;
 
 namespace Extension.Ext
 {
 
     [Serializable]
-    public class PrintTextManager
+    public static class PrintTextManager
     {
+
         private static Point2D fontSize = default;
         public static Point2D FontSize
         {
@@ -38,7 +33,7 @@ namespace Extension.Ext
 
         private static Queue<RollingText> rollingTextQueue = new Queue<RollingText>();
 
-        public static void Clear()
+        public static void Clear(object sender, EventArgs args)
         {
             rollingTextQueue.Clear();
         }
@@ -49,7 +44,7 @@ namespace Extension.Ext
             PrintTextManager.rollingTextQueue.Enqueue(rollingText);
         }
 
-        public static void PrintText()
+        public static void PrintText(object sender, EventArgs args)
         {
             // 打印滚动文字
             for (int i = 0; i < rollingTextQueue.Count; i++)

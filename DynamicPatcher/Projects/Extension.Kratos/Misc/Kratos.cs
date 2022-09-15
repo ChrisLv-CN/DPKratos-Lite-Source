@@ -1,25 +1,26 @@
-using System.Globalization;
-using System.Net.Mime;
-using DynamicPatcher;
-using Extension.Utilities;
-using PatcherYRpp;
+
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-using System.Threading.Tasks;
+using DynamicPatcher;
+using Extension.EventSystems;
+using Extension.INI;
+using PatcherYRpp;
 
 namespace Extension.Ext
 {
 
     public class Kratos
     {
+        static Kratos()
+        {
+            bool disable = false;
+            if (Ini.Read<bool>(Ini.GetDependency("uimd.ini"), "UISettings", "DisableKratosVersionText", ref disable))
+            {
+                disableVersionText = disable;
+            }
+        }
 
         private static string version;
-
         public static string Version
         {
             get
@@ -41,38 +42,35 @@ namespace Extension.Ext
             }
         }
 
+        private static bool disableVersionText;
+
         private static TimerStruct showTextTimer = new TimerStruct(150);
 
-        private static bool showMsgFlag = false;
-
-        public static void NewGame(object sender, EventArgs e)
+        public static void SendActiveMessage(object sender, EventArgs args)
         {
-            showMsgFlag = false;
-            showTextTimer.Start(150);
+            string label = "DP-Kratos";
+            string message = "build " + Version + " is active, have fun.";
+            MessageListClass.Instance.PrintMessage(label, message, ColorSchemeIndex.Red, 150, true);
+            EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.GScreenRenderEvent, SendActiveMessage);
         }
 
-        public static void DrawActiveMessage()
+        public static void DrawVersionText(object sender, EventArgs args)
         {
-            if (!showMsgFlag)
-            {
-                showMsgFlag = true;
-                string label = "DP-Kratos";
-                string message = "build " + Version + " is active, have fun.";
-                MessageListClass.Instance.PrintMessage(label, message, ColorSchemeIndex.Red, 150, true);
-            }
-
             string text = "DP-Kratos build " + Version;
             RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
             RectangleStruct sidebarRect = Surface.Sidebar.Ref.GetRect();
             int x = sidebarRect.Width / 2 - textRect.Width / 2;
             int y = sidebarRect.Height - textRect.Height;
             Point2D pos = new Point2D(x, y);
-            // if (showTextTimer.InProgress())
-            // {
+            
             Surface.Sidebar.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
             // Surface.Current.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
             // Surface.Primary.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
-            // }
+            
+            if (disableVersionText && showTextTimer.Expired())
+            {
+                EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.SidebarRenderEvent, DrawVersionText);
+            }
         }
     }
 

@@ -16,7 +16,7 @@ namespace GeneralHooks
         static General()
         {
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, MathExHandler);
-            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, Kratos.NewGame);
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, PrintTextManager.Clear);
         }
 
         private static void MathExHandler(object sender, EventArgs e)
