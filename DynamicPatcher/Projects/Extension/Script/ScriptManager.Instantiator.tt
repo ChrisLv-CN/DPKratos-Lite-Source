@@ -1,0 +1,98 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ output extension=".g.cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+
+using Extension.Components;
+
+
+namespace Extension.Script
+{
+    public partial class ScriptManager
+    {
+
+        private static Dictionary<string, object> ScriptCtors = new Dictionary<string, object>();
+
+<#
+    const int MAX_COUNT = 16;
+
+    List<string> methodDeclarations = new();
+
+    for (int count = 0; count < MAX_COUNT; count++) {
+        StringBuilder decl = new();
+
+        decl.Append("public static ScriptComponent CreateScriptable");
+        if (count > 0) {
+            decl.Append($"<{string.Join(", ", Enumerable.Range(1, count).Select(i => $"T{i}"))}>");
+        }
+        decl.Append("(Script script");
+        if (count > 0) {
+            decl.Append($", {string.Join(", ",  Enumerable.Range(1, count).Select(i => $"T{i} p{i}"))}");
+        }
+        decl.Append(")");
+
+        methodDeclarations.Add(decl.ToString());
+    }
+#>
+
+<#
+for (int idx = 0; idx < MAX_COUNT; idx++) {
+#>
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        <#= methodDeclarations[idx].Replace("CreateScriptable", "CreateScriptableTo").Replace("Script script", "Component root, Script script")#>
+        {
+            if (script == null)
+                return null;
+
+            var scriptComponent = CreateScriptable(script<#= (idx > 0 ? ", " : "") + string.Join(", ", Enumerable.Range(1, idx).Select(i => $"p{i}"))#>);
+            scriptComponent.AttachToComponent(root);
+            return scriptComponent;
+        }
+<#
+}
+#>
+
+<#
+for (int idx = 0; idx < MAX_COUNT; idx++) {
+#>
+        <#= methodDeclarations[idx]#>
+        {
+            if (script == null)
+                return null;
+                
+            string uniqueCtorName = script.ScriptableType.FullName;
+            if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
+            {
+                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
+                    { <#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"Expression.Parameter(typeof(T{i}), \"t{i}\")"))#> };
+
+                var constructor = script.ScriptableType.GetConstructors()[0];
+                NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
+                var expression = Expression.Lambda<Func<<#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"T{i}")) + (idx > 0 ? ", " : "")#>ScriptComponent>>(ctorExpression, parameterExpressions);
+                var lambda = expression.Compile();
+                ScriptCtors.Add(uniqueCtorName, lambda);
+
+                func = lambda;
+            }
+
+            var ctor = func as Func<<#= idx > 0 ? string.Join(", ", Enumerable.Range(1, idx).Select(i => $"T{i}")) + ", " : ""#>ScriptComponent>;
+
+            var scriptable = ctor(<#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"p{i}"))#>);
+            scriptable.Script = script;
+            return scriptable;
+        }
+
+<#
+}
+#>
+    }
+}

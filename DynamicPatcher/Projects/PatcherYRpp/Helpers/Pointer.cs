@@ -69,7 +69,18 @@ namespace PatcherYRpp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Pointer<TTo> Convert<TTo>()
         {
+            return Cast<TTo>();
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Pointer<TTo> Cast<TTo>()
+        {
             return new Pointer<TTo>(Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IntPtr RawOffset(int offset)
+        {
+            return new IntPtr((int)Value + offset);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

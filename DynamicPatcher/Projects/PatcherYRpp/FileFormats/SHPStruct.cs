@@ -10,9 +10,9 @@ namespace PatcherYRpp.FileFormats
     [StructLayout(LayoutKind.Sequential)]
     public struct SHPStruct
     {
-        public static unsafe void Destructor(Pointer<SHPReference> pThis)
+        public static unsafe void Destructor(Pointer<SHPStruct> pThis)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref SHPReference, void>)Helpers.GetVirtualFunctionPointer(pThis, 0);
+            var func = (delegate* unmanaged[Thiscall]<ref SHPStruct, void>)Helpers.GetVirtualFunctionPointer(pThis, 0);
             func(ref pThis.Ref);
         }
         public unsafe void Load()

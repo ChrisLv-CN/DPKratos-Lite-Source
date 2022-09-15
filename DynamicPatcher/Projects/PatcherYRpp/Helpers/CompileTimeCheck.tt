@@ -1,0 +1,40 @@
+﻿<#@ template debug="true" hostspecific="true" language="C#" #>
+<#@ output extension=".g.cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace PatcherYRpp
+{
+<#
+	string projectDir = Host.ResolveAssemblyReference("$(ProjectDir)");
+	var files = Directory.GetFiles(projectDir, "*Class.cs");
+	List<string> checkList = files.Select(f => Path.GetFileNameWithoutExtension(f)).ToList();
+
+	checkList.Remove("ArrayClass");
+
+	checkList.AddRange(new[]{ 
+		"Surface",
+
+		"DynamicVectorClass<int>",
+		"Pointer<int>",
+	});
+#>
+	internal static class CompileTimeCheck
+	{
+		private static void Check<T>() where T : unmanaged { }
+
+		private static void CheckAll() 
+		{
+<# foreach (string type in checkList) {#>
+			Check<<#=type#>>();
+<# } #>
+		}
+	}
+}

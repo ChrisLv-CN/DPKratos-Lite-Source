@@ -17,7 +17,7 @@ namespace PatcherYRpp.Utilities
         public static bool operator ==(ObjectBlockID id1, ObjectBlockID id2) => id1.X == id2.X && id1.Y == id2.Y;
         public static bool operator !=(ObjectBlockID id1, ObjectBlockID id2) => !(id1 == id2);
         public override int GetHashCode() => X.GetHashCode() + Y.GetHashCode();
-        public override bool Equals(object obj) => this == (ObjectBlockID)obj;
+        public override bool Equals(object obj) => obj is ObjectBlockID other && this == other;
 
         public int X;
         public int Y;

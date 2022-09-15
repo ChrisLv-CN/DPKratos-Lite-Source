@@ -48,7 +48,6 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public VocClassHeader Header;
-
         [FieldOffset(108)] public string Name;
 
     }

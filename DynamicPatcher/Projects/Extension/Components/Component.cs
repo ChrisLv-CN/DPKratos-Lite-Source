@@ -6,44 +6,44 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicPatcher;
 
 namespace Extension.Components
 {
     [Serializable]
-    public abstract class Component : IHaveComponent, IReloadable
+    public abstract class Component : IReloadable
     {
         public const int NO_ID = -1;
-        public Component()
+
+        protected Component()
         {
             ID = NO_ID;
             _transform = new Transform();
         }
 
-        public Component(bool withoutTransform = false)
+        protected Component(bool withoutTransform = false)
         {
             ID = NO_ID;
             _transform = withoutTransform ? null : new Transform();
         }
 
-        public Component(int id) : this()
+        protected Component(int id) : this()
         {
             ID = id;
         }
 
-        public int ID { get; internal set; }
+        [Obsolete("don't use")]
+        public int ID { get; set; }
 
         public string Name { get; set; }
         public string Tag { get; set; }
         
-        public Component Parent { get => _parent; }
-        public Component Root { get => GetRoot(); }
-
-        /// <summary>
-        /// don't use before finish
-        /// </summary>
+        public Component Parent => _parent;
+        public Component Root => GetRoot();
+        public GameObject GameObject => Root as GameObject;
+        
+        [Obsolete("don't use before finish")]
         public Transform Transform { get; }
-
-        public Component AttachedComponent => this;
 
         public Component GetRoot()
         {
@@ -55,10 +55,14 @@ namespace Extension.Components
 
         public void AttachToComponent(Component component)
         {
+            if (_parent == component)
+                return;
+
             DetachFromParent();
 
-            component.AddComponent(this);
             _parent = component;
+            component.AddComponent(this);
+            GameObject?.AddComponentEx(this, component);
         }
 
         public void DetachFromParent()
@@ -152,7 +156,7 @@ namespace Extension.Components
 
         public Component GetComponentInChildren(Type type)
         {
-            return GetComponentInChildren(c => type.IsAssignableFrom(c.GetType()));
+            return GetComponentInChildren(type.IsInstanceOfType);
         }
 
         public TComponent GetComponentInChildren<TComponent>() where TComponent : Component
@@ -184,7 +188,7 @@ namespace Extension.Components
 
         public Component[] GetComponentsInChildren(Type type)
         {
-            return GetComponentsInChildren(c => type.IsAssignableFrom(c.GetType())).ToArray();
+            return GetComponentsInChildren(type.IsInstanceOfType).ToArray();
         }
         public TComponent[] GetComponentsInChildren<TComponent>() where TComponent : Component
         {
@@ -219,7 +223,7 @@ namespace Extension.Components
 
         public Component GetComponentInParent(Type type)
         {
-            return GetComponentInParent(c => type.IsAssignableFrom(c.GetType()));
+            return GetComponentInParent(type.IsInstanceOfType);
         }
 
         public TComponent GetComponentInParent<TComponent>() where TComponent : Component
@@ -248,7 +252,7 @@ namespace Extension.Components
 
         public Component[] GetComponentsInParent(Type type)
         {
-            return GetComponentsInParent(c => type.IsAssignableFrom(c.GetType())).ToArray();
+            return GetComponentsInParent(type.IsInstanceOfType).ToArray();
         }
         public TComponent[] GetComponentsInParent<TComponent>() where TComponent : Component
         {
@@ -281,6 +285,9 @@ namespace Extension.Components
         {
         }
         public virtual void OnUpdate()
+        {
+        }
+        public virtual void OnLateUpdate()
         {
         }
         public virtual void OnRender()
@@ -333,6 +340,10 @@ namespace Extension.Components
             SetParent(this);
         }
 
+        /// <summary>
+        /// execute action for each components in root (include itself)
+        /// </summary>
+        /// <param name="action"></param>
         public void Foreach(Action<Component> action)
         {
             ForeachComponents(this, action);
@@ -346,7 +357,14 @@ namespace Extension.Components
         {
             foreach (var component in components)
             {
-                action(component);
+                try
+                {
+                    action(component);
+                }
+                catch (Exception e)
+                {
+                    Logger.PrintException(e);
+                }
             }
         }
         /// <summary>
@@ -356,7 +374,14 @@ namespace Extension.Components
         /// <param name="action">the action to executed</param>
         public static void ForeachComponents(Component root, Action<Component> action)
         {
-            action(root);
+            try
+            {
+                action(root);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
             root.ForeachChild(action);
         }
 
@@ -366,7 +391,7 @@ namespace Extension.Components
         /// <param name="component"></param>
         public static void Destroy(Component component)
         {
-            component.Foreach(c => c.OnDestroy());
+            component.Destroy();
             component.DetachFromParent();
         }
 
@@ -375,6 +400,7 @@ namespace Extension.Components
             if (!_awaked)
             {
                 Awake();
+                ForeachChild(c => c.EnsureAwaked());
                 _awaked = true;
             }
         }
@@ -384,8 +410,28 @@ namespace Extension.Components
             if (!_started)
             {
                 Start();
+                ForeachChild(c => c.EnsureStarted());
                 _started = true;
             }
+        }
+
+        private void Destroy()
+        {
+            foreach (Component child in _children)
+            {
+                child.Destroy();
+            }
+
+            try
+            {
+                OnDestroy();
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+
+            _children.Clear();
         }
 
         protected Transform _transform;

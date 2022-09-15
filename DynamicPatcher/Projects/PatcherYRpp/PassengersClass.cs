@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -35,9 +35,7 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public int NumPassengers;
-
         [FieldOffset(4)] public IntPtr firstPassenger;
         public Pointer<FootClass> FirstPassenger { get => firstPassenger; set => firstPassenger = value; }
-
     }
 }

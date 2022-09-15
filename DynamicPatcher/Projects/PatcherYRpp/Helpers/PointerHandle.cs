@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace PatcherYRpp
 {
+    [DebuggerDisplay("[{fixedPointer.Value}]={Pointer.Value}")]
     public class PointerHandle<T> : CriticalFinalizerObject, IDisposable
     {
         private Pointer<Pointer<T>> fixedPointer;

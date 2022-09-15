@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +12,7 @@ namespace PatcherYRpp
 {
     public static class YRPP
     {
-        public class GLOBAL_DVC_ARRAY<T>
+        public class GLOBAL_DVC_ARRAY<T> : IEnumerable<Pointer<T>>
         {
             public Pointer<DynamicVectorClass<Pointer<T>>> Pointer;
             public ref DynamicVectorClass<Pointer<T>> Array { get => ref Pointer.Ref; }
@@ -47,6 +48,10 @@ namespace PatcherYRpp
                 }
                 return -1;
             }
+
+            public IEnumerator<Pointer<T>> GetEnumerator() => Array.GetEnumerator();
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
         public static Pointer<T>[] Finds<T>(this GLOBAL_DVC_ARRAY<T> dvc, IEnumerable<string> ts)

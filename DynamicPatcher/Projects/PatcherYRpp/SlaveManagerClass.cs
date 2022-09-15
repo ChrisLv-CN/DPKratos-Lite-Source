@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -21,23 +21,15 @@ namespace PatcherYRpp
 
         [FieldOffset(36)] public IntPtr owner;
         public Pointer<TechnoClass> Owner { get => owner; set => owner = value; }
-
         [FieldOffset(40)] public IntPtr slaveType;
         public Pointer<InfantryTypeClass> SlaveType { get => slaveType; set => slaveType = value; }
-
         [FieldOffset(44)] public int SpawnCount;
-
         [FieldOffset(48)] public int RegenRate;
-
         [FieldOffset(52)] public int ReloadRate;
-
         [FieldOffset(56)] public byte slaveNodes;
         public ref DynamicVectorClass<Pointer<SlaveControl>> SlaveNodes => ref Pointer<byte>.AsPointer(ref slaveNodes).Convert<DynamicVectorClass<Pointer<SlaveControl>>>().Ref;
-
         [FieldOffset(80)] public TimerStruct RespawnTimer;
-
         [FieldOffset(92)] public SlaveManagerState State;
-
         [FieldOffset(96)] public int LastScanFrame;
 
 

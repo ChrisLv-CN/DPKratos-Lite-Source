@@ -7,6 +7,53 @@ using System.Threading.Tasks;
 
 namespace PatcherYRpp
 {
+    [StructLayout(LayoutKind.Explicit, Size = 32)]
+    public struct MissionControlClass
+    {
+        public static Pointer<MissionControlClass> Array()
+        {
+            return new Pointer<MissionControlClass>(0xA8E3A8);
+        }
+        public static Pointer<AnsiStringPointer> Names()
+        {
+            return new Pointer<AnsiStringPointer>(0x816CAC);
+        }
+
+        public static unsafe Mission Find(AnsiString name)
+        {
+            var func = (delegate* unmanaged[Fastcall]<IntPtr, Mission>)0x5B3910;
+            return func(name);
+        }
+
+        public static unsafe void Constructor(Pointer<MissionControlClass> pThis)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionControlClass, void>)0x5B3700;
+            func(ref pThis.Ref);
+        }
+
+        public unsafe string GetName()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionControlClass, AnsiStringPointer>)0x5B3740;
+            return func(ref this);
+        }
+
+        public unsafe void LoadFromINI(Pointer<CCINIClass> pINI)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref MissionControlClass, IntPtr, void>)0x5B3760;
+            func(ref this, pINI);
+        }
+
+        [FieldOffset(0)] public int ArrayIndex;
+        [FieldOffset(4)] public bool NoThreat;
+        [FieldOffset(5)] public bool Zombie;
+        [FieldOffset(6)] public bool Recruitable;
+        [FieldOffset(7)] public bool Paralyzed;
+        [FieldOffset(8)] public bool Retaliate;
+        [FieldOffset(9)] public bool Scatter;
+        [FieldOffset(16)] public double Rate; //default 0.016
+        [FieldOffset(24)] public double AARate; //default 0.016
+    }
+
     [StructLayout(LayoutKind.Explicit, Size = 212)]
     public struct MissionClass
     {
@@ -164,10 +211,8 @@ namespace PatcherYRpp
         [FieldOffset(172)] public Mission CurrentMission;
         [FieldOffset(176)] public Mission unknown_mission_B0;
         [FieldOffset(180)] public Mission QueuedMission;
-
         [FieldOffset(188)] public int MissionStatus;
         [FieldOffset(192)] public int CurrentMissionStartTime;    //in frames
-
         [FieldOffset(200)] public TimerStruct UpdateTimer;
     }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -13,11 +13,8 @@ namespace PatcherYRpp
     public struct SlaveControl
     {
         [FieldOffset(0)] public Pointer<InfantryClass> Slave;
-
         [FieldOffset(4)] public SlaveStatus State;
-
         [FieldOffset(8)] public TimerStruct RespawnTimer;
-
     }
 
     public enum SlaveStatus

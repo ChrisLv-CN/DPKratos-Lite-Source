@@ -123,7 +123,7 @@ namespace PatcherYRpp
 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Pointer<T> GetThisPointer<T>(ref this T pThis) where T : struct
+        public static Pointer<T> GetThisPointer<T>(ref this T pThis) where T : unmanaged
         {
             return Pointer<T>.AsPointer(ref pThis);
         }

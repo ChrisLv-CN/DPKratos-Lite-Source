@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -11,12 +11,6 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Explicit, Size = 1728)]
     public struct FootClass
     {
-
-        public unsafe Pointer<CoordStruct> GetCoords_Position0(ref CoordStruct coord)
-        {
-            var func = (delegate* unmanaged[Thiscall]<ref FootClass, IntPtr, IntPtr>)this.GetVirtualFunctionPointer(319);
-            return func(ref this, Pointer<CoordStruct>.AsPointer(ref coord));
-        }
 
         public unsafe bool MoveTo(CoordStruct where)
         {
@@ -109,6 +103,10 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public TechnoClass Base;
+        [FieldOffset(0)] public RadioClass BaseRadio;
+        [FieldOffset(0)] public MissionClass BaseMission;
+        [FieldOffset(0)] public ObjectClass BaseObject;
+        [FieldOffset(0)] public AbstractClass BaseAbstract;
 
         [FieldOffset(1368)] public CellStruct CurrentMapCoords;
         [FieldOffset(1372)] public CellStruct LastMapCoords;
@@ -123,7 +121,15 @@ namespace PatcherYRpp
         [FieldOffset(1628)] public TimerStruct SightTimer;
         [FieldOffset(1640)] public TimerStruct BlockagePathTimer;
         [FieldOffset(1652)] public COMPtr<ILocomotion> locomotor;
-        public ILocomotion Locomotor { get => locomotor.Object; set => locomotor.Object = value; }
+        public ILocomotion Locomotor
+        {
+            get => locomotor.Object;
+            set
+            {
+                locomotor.Release();
+                locomotor.Object = value;
+            }
+        }
         [FieldOffset(1684)] public IntPtr parasiteEatingMe;
         public Pointer<FootClass> ParasiteEatingMe => parasiteEatingMe;
         [FieldOffset(1711)] public Bool FacingChanging;

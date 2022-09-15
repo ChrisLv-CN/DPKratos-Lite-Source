@@ -10,14 +10,22 @@
 
     "PatcherYRpp.dll",
     "PatcherYRpp.Utilities.dll",
+    "ScriptUniversal.dll",
     "Extension.dll",
+    "Extension.Ext.dll",
+    "Extension.Script.dll",
     "Extension.FX.dll",
+    "Extension.Kratos.dll",
 
     "Microsoft.VisualStudio.Interop.dll"
   ],
   "preprocessor_symbols": [
+    "_USE_ANIM_EXT",
+    "_USE_CELL_EXT",
+
     "REALTIME_INI",
-    "FX_ENABLE",
+
+    "_FX_ENABLE",
     "_FX_USED3D",
     "_FX_TOFIX",
     "_FX_CNCDDRAW"
@@ -27,6 +35,5 @@
   "emit_pdb": true,
   "force_compile": false,
   "pack_assembly": true,
-  "copy_logs": false,
   "optimization_level": "debug"
 }

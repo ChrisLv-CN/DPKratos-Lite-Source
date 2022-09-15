@@ -115,11 +115,12 @@ namespace PatcherYRpp
             return func(ref this, ref pCrd, unknown);
         }
 
-        public unsafe Pointer<CoordStruct> GetFLH(ref CoordStruct dest, int idxWeapon, CoordStruct baseCoords)
+        public unsafe CoordStruct GetFLH(int idxWeapon, CoordStruct baseCoords)
         {
-            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, int, CoordStruct, IntPtr>)
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, out CoordStruct, int, CoordStruct, IntPtr>)
                 this.GetVirtualFunctionPointer(44);
-            return func(ref this, ref dest, idxWeapon, baseCoords);
+            func(ref this, out CoordStruct result, idxWeapon, baseCoords);
+            return result;
         }
 
         public unsafe bool IsDisguised()
@@ -172,6 +173,20 @@ namespace PatcherYRpp
             func(ref this, permanently);
         }
 
+        public unsafe void RegisterDestruction(Pointer<TechnoClass> Destroyer)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, IntPtr, void>)
+                this.GetVirtualFunctionPointer(56);
+            func(ref this, Destroyer);
+        }
+
+        public unsafe void RegisterKill(Pointer<HouseClass> Destroyer)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, IntPtr, void>)
+                this.GetVirtualFunctionPointer(57);
+            func(ref this, Destroyer);
+        }
+
         public unsafe bool SpawnParachuted(CoordStruct where)
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, Bool>)
@@ -179,11 +194,39 @@ namespace PatcherYRpp
             return func(ref this, ref where);
         }
 
+        public unsafe void DropAsBomb()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, void>)
+                this.GetVirtualFunctionPointer(59);
+            func(ref this);
+        }
+
+        public unsafe void MarkAllOccupationBits(CoordStruct coord)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, void>)
+                this.GetVirtualFunctionPointer(60);
+            func(ref this, ref coord);
+        }
+
+        public unsafe void UnmarkAllOccupationBits(CoordStruct coord)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, ref CoordStruct, void>)
+                this.GetVirtualFunctionPointer(61);
+            func(ref this, ref coord);
+        }
+
         public unsafe bool UnInit()
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 this.GetVirtualFunctionPointer(62);
             return func(ref this);
+        }
+
+        public unsafe void Reveal()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, void>)
+                this.GetVirtualFunctionPointer(63);
+            func(ref this);
         }
 
         public unsafe int KickOutUnit(Pointer<TechnoClass> pTechno, CellStruct cell)
@@ -207,11 +250,31 @@ namespace PatcherYRpp
             return func(ref this, type);
         }
 
+        public unsafe void Undiscover()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, void>)
+                this.GetVirtualFunctionPointer(71);
+            func(ref this);
+        }
+        public unsafe void See(uint dwUnk, uint dwUnk2)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, uint, uint, void>)
+                this.GetVirtualFunctionPointer(72);
+            func(ref this, dwUnk, dwUnk2);
+        }
+
         public unsafe bool Mark(MarkType type)
         {
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, MarkType, Bool>)
                 this.GetVirtualFunctionPointer(73);
             return func(ref this, type);
+        }
+
+        public unsafe void DrawRadialIndicator(uint dwUnk)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, uint, void>)
+                this.GetVirtualFunctionPointer(76);
+            func(ref this, dwUnk);
         }
 
         public unsafe void MarkForRedraw()
@@ -233,6 +296,20 @@ namespace PatcherYRpp
             var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Bool>)
                 this.GetVirtualFunctionPointer(79);
             return func(ref this);
+        }
+
+        public unsafe bool ClickedAction(Action action, Pointer<ObjectClass> pTarget, bool bUnk)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, Action, IntPtr, Bool, Bool>)
+                this.GetVirtualFunctionPointer(81);
+            return func(ref this, action, pTarget, bUnk);
+        }
+
+        public unsafe void Flash(int duration)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref ObjectClass, int, void>)
+                this.GetVirtualFunctionPointer(82);
+            func(ref this, duration);
         }
 
         public unsafe void Select()
@@ -439,34 +516,22 @@ namespace PatcherYRpp
             return Math.Round((double)Health / Type.Ref.Strength, 2);
         }
 
-        public CoordStruct GetFLH(int idxWeapon, CoordStruct baseCoords)
-        {
-            CoordStruct pos = new CoordStruct();
-            GetFLH(ref pos, idxWeapon, baseCoords);
-            return pos;
-        }
-
-
         [FieldOffset(0)]
         public AbstractClass Base;
 
         [FieldOffset(44)] public int FallRate; //how fast is it falling down? only works if FallingDown is set below, and actually positive numbers will move the thing UPWARDS
         [FieldOffset(48)] private IntPtr nextObject;    //Next Object in the same cell or transport. This is a linked list of Objects.
         public Pointer<ObjectClass> NextObject { get => nextObject; set => nextObject = value; }
-
         [FieldOffset(100)] public int CustomSound;
         [FieldOffset(104)] public Bool BombVisible; // In range of player's bomb seeing units, so should draw it
-
         [FieldOffset(108)] public int Health;     //The current Health.
         [FieldOffset(112)] public int EstimatedHealth; // used for auto-targeting threat estimation
         [FieldOffset(116)] public Bool IsOnMap; // has this object been placed on the map?
-
         [FieldOffset(128)] public Bool NeedsRedraw;
         [FieldOffset(129)] public Bool InLimbo; // act as if it doesn't exist - e.g., post mortem state before being deleted
         [FieldOffset(130)] public Bool InOpenToppedTransport;
         [FieldOffset(131)] public Bool IsSelected;    //Has the player selected this Object?
         [FieldOffset(132)] public Bool HasParachute;  //Is this Object parachuting?
-
         [FieldOffset(136)] private IntPtr parachute;       //Current parachute Anim.
         public Pointer<AnimClass> Parachute { get => parachute; set => parachute = value; }
         [FieldOffset(140)] public Bool OnBridge;
@@ -474,11 +539,9 @@ namespace PatcherYRpp
         [FieldOffset(142)] public Bool WasFallingDown; // last falling state when FootClass::Update executed. used to find out whether it changed.
         [FieldOffset(143)] public Bool IsABomb; // if set, will explode after FallingDown brings it to contact with the ground
         [FieldOffset(144)] public Bool IsAlive;       //Self-explanatory.
-
         [FieldOffset(148)] public Layer LastLayer;
         [FieldOffset(152)] public Bool IsInLogic; // has this object been added to the logic collection?
         [FieldOffset(153)] public Bool IsVisible; // was this object in viewport when drawn?
-
         [FieldOffset(156)] public CoordStruct Location; //Absolute current 3D location (in leptons)
     }
 }

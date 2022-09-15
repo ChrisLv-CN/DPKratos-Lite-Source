@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -46,38 +46,27 @@ namespace PatcherYRpp
             return func(ref this, pOwner);
         }
 
-        [FieldOffset(0)]
-        public AbstractTypeClass Base;
+        [FieldOffset(0)] public AbstractTypeClass Base;
 
         [FieldOffset(156)] public Armor Armor;
-
         [FieldOffset(160)] public int Strength;
-
         [FieldOffset(164)] public Pointer<SHPStruct> Image;
-
         [FieldOffset(168)] public Bool ImageAllocated;
-
         [FieldOffset(172)] public Pointer<SHPStruct> AlphaImage;
-
         [FieldOffset(176)] public VoxelStruct MainVoxel;
-
         [FieldOffset(184)] public VoxelStruct TurretVoxel;
-
         [FieldOffset(192)] public VoxelStruct BarrelVoxel;
-
         [FieldOffset(200)] public VoxelStruct chargerTurrets_first;
         public Pointer<VoxelStruct> ChargeTurrets => Pointer<VoxelStruct>.AsPointer(ref chargerTurrets_first);
-
         [FieldOffset(344)] public VoxelStruct chargerBarrels_first;
         public Pointer<VoxelStruct> ChargerBarrels => Pointer<VoxelStruct>.AsPointer(ref chargerBarrels_first);
-
         [FieldOffset(488)] public Bool NoSpawnAlt;
-
+        [FieldOffset(504)] public byte ImageFile_first;
+        public AnsiStringPointer ImageFile => Pointer<byte>.AsPointer(ref ImageFile_first);
+        [FieldOffset(531)] public byte AlphaImageFile_first;
+        public AnsiStringPointer AlphaImageFile => Pointer<byte>.AsPointer(ref AlphaImageFile_first);
         [FieldOffset(560)] public Bool Selectable;
-
         [FieldOffset(562)] public Bool Insignificant;
-
         [FieldOffset(563)] public Bool Immune;
-
     }
 }

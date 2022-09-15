@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -15,6 +15,7 @@ namespace PatcherYRpp
         public static ref SessionClass Instance { get => ref instance.Convert<SessionClass>().Ref; }
 
         [FieldOffset(0)] public GameMode GameMode;
+        [FieldOffset(4)] public Pointer<MPGameModeClass> MPGameMode;
 
     }
 }

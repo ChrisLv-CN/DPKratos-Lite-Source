@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -13,9 +13,7 @@ namespace PatcherYRpp
     public struct SpawnNode
     {
         [FieldOffset(0)] public Pointer<TechnoClass> Unit;
-
         [FieldOffset(4)] public int Status;
-
         [FieldOffset(20)] public Bool IsSpawnMissile;
 
     }

@@ -20,6 +20,18 @@ namespace PatcherYRpp
 
         public const int CellSize = 256;
 
+        // Note: SomeMutex has been renamed to this because it reflects the usage better
+        private static IntPtr iKnowWhatImDoing = new IntPtr(0xA8E7AC); // you should not change it
+        public static int IKnowWhatImDoing { get => iKnowWhatImDoing.Convert<int>().Data; set => iKnowWhatImDoing.Convert<int>().Ref = value; }
+
+        private static IntPtr currentSWType = new IntPtr(0x8809A0);
+        public static int CurrentSWType { get => currentSWType.Convert<int>().Data; set => currentSWType.Convert<int>().Ref = value; }
+
+        public static unsafe bool HasDirtyArea()
+        {
+            var func = (delegate* unmanaged[Stdcall]<Bool>)0x53BAE0;
+            return func();
+        }
         /*
          * This thing is ridiculous
          * all xxTypeClass::Create functions use it:
@@ -76,9 +88,6 @@ namespace PatcherYRpp
 
           and so on...
          */
-        // Note: SomeMutex has been renamed to this because it reflects the usage better
-        private static IntPtr pIKnowWhatImDoing = new IntPtr(0xA8E7AC);
-        public static int IKnowWhatImDoing { get => pIKnowWhatImDoing.Convert<int>().Data; set => pIKnowWhatImDoing.Convert<int>().Ref = value; }
 
         /*
         public static unsafe Vector3D<float> MatrixMultiply(ref Vector3D<float> ret, Matrix3DStruct matrix3DStruct, Vector3D<float> vec)

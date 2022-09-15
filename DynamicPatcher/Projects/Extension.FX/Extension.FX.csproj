@@ -94,20 +94,63 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <Compile Remove="obj\**\*.*" />
+    <Compile Include="Definitions\Color.cs" />
+    <Compile Include="Definitions\FXEnum.cs" />
+    <Compile Include="Definitions\Transform.cs" />
+    <Compile Include="FXDependency.cs" />
+    <Compile Include="FXEmitter.cs" />
+    <Compile Include="FXEngine.cs" />
+    <Compile Include="FXMap.cs" />
+    <Compile Include="FXModule.cs" />
+    <Compile Include="FXParameter.cs" />
+    <Compile Include="FXParameterMap.cs" />
+    <Compile Include="FXParticle.cs" />
+    <Compile Include="FXRenderer.cs" />
+    <Compile Include="FXScript.cs" />
+    <Compile Include="FXSpawn.cs" />
+    <Compile Include="FXSystem.cs" />
+    <Compile Include="Graphic\D3D9.cs" />
+    <Compile Include="Graphic\DirectDraw.cs" />
+    <Compile Include="Graphic\FXDrawObject.cs" />
+    <Compile Include="Graphic\FXGraphic.cs" />
+    <Compile Include="Graphic\ResourceLoader.cs" />
+    <Compile Include="Graphic\VS_INPUT.cs" />
+    <Compile Include="Graphic\YRGraphic.cs" />
+    <Compile Include="Graphic\ZBuffer.cs" />
+    <Compile Include="Parameters\FXDynamicParameter.cs" />
+    <Compile Include="Parameters\FXLinkParameter.cs" />
+    <Compile Include="Parameters\FXRandomRangeFloat.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renders\FXLaserRender.cs" />
+    <Compile Include="Renders\FXRibbonRenderer.cs" />
+    <Compile Include="Renders\FXSHPRenderer.cs" />
+    <Compile Include="Renders\FXSpriteRenderer.cs" />
+    <Compile Include="Scripts\Emitter\FXEmitterState.cs" />
+    <Compile Include="Scripts\Emitter\FXSpawnBurstInstantaneous.cs" />
+    <Compile Include="Scripts\Emitter\FXSpawnRate.cs" />
+    <Compile Include="Scripts\Particle\FXAddVelocityFromPoint.cs" />
+    <Compile Include="Scripts\Particle\FXBoxLocation.cs" />
+    <Compile Include="Scripts\Particle\FXCollision.cs" />
+    <Compile Include="Scripts\Particle\FXDrag.cs" />
+    <Compile Include="Scripts\Particle\FXGravityForce.cs" />
+    <Compile Include="Scripts\Particle\FXInitializeParticle.cs" />
+    <Compile Include="Scripts\Particle\FXParticleState.cs" />
+    <Compile Include="Scripts\Particle\FXSolveForcesAndVelocity.cs" />
+    <Compile Include="Scripts\Particle\FXSphereLocation.cs" />
+    <Compile Include="Scripts\System\FXSystemState.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="LICENSE" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PatcherYRpp.Utilities\PatcherYRpp.Utilities.csproj">
+      <Project>{ae6121ff-74cf-472a-bf7d-4543a78e7d50}</Project>
+      <Name>PatcherYRpp.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PatcherYRpp\PatcherYRpp.csproj">
       <Project>{4c392077-a5ed-46cc-bc94-e1449610105c}</Project>
       <Name>PatcherYRpp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PatcherYRpp.Utilities\PatcherYRpp.Utilities.csproj">
-      <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
-      <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

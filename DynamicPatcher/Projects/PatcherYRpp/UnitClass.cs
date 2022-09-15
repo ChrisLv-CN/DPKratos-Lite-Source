@@ -8,10 +8,13 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 2280)]
-    public struct UnitClass
+    public struct UnitClass : IOwnAbstractType<UnitTypeClass>
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0x8B4108);
         public static ref DynamicVectorClass<Pointer<UnitClass>> Array { get => ref DynamicVectorClass<Pointer<UnitClass>>.GetDynamicVector(ArrayPointer); }
+
+        Pointer<UnitTypeClass> IOwnAbstractType<UnitTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
 
         public unsafe void DrawIt(Point2D point, RectangleStruct bound)
         {

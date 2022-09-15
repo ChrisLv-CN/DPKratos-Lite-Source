@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using Extension.Serialization;
 
 namespace Extension.Utilities
 {
@@ -24,7 +25,7 @@ namespace Extension.Utilities
             if (isNull == false)
             {
                 MemoryStream memory = new MemoryStream();
-                Serialization.Serialize(memory, obj);
+                MainSerializer.Serialize(memory, obj);
 
                 byte[] buffer = memory.ToArray();
                 written += stream.Write(buffer.Length);
@@ -53,7 +54,7 @@ namespace Extension.Utilities
                 written += stream.Read(buffer);
 
                 MemoryStream memory = new MemoryStream(buffer);
-                obj = Serialization.Deserialize<T>(memory);
+                obj = MainSerializer.Deserialize<T>(memory);
             }
 
             return written;
@@ -92,7 +93,7 @@ namespace Extension.Utilities
         public static IContainer GetContainer<TExt>()
         {
             Type type = typeof(TExt);
-            FieldInfo member = type.GetField("ExtMap");
+            FieldInfo member = type.GetField("ExtMap", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
             return (IContainer)member.GetValue(null);
         }
     }

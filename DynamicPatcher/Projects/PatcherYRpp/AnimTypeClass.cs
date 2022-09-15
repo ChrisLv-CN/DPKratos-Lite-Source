@@ -21,7 +21,6 @@ namespace PatcherYRpp
         [FieldOffset(668)] public int MiddleFrameWidth;
         [FieldOffset(672)] public int MiddleFrameHeight;
         [FieldOffset(676)] public byte unknown_2A4;
-
         [FieldOffset(680)] public double Damage;
         [FieldOffset(688)] public int Rate;
         [FieldOffset(692)] public int Start;

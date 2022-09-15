@@ -40,7 +40,6 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public Bool unknown_00;
-
         [FieldOffset(4)] public int Next1;
         [FieldOffset(8)] public int Next2;
         // [FieldOffset(12)] public long[] Table[0xFA];

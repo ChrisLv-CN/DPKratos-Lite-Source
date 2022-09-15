@@ -59,17 +59,12 @@ namespace PatcherYRpp
 
         [FieldOffset(36)] public IntPtr owner;
         public Pointer<TechnoClass> Owner {get => owner; set => this.owner = value; }
-
         [FieldOffset(40)] public IntPtr target;
         public Pointer<TechnoClass> Target {get => target; set => this.target = value; }
-
         [FieldOffset(44)] public TimerStruct LifeTimer;
-
         [FieldOffset(60)] public IntPtr sourceSW;
         public Pointer<SuperClass> SourceSW {get => sourceSW; set => this.sourceSW = value; }
-
         [FieldOffset(72)] public int WarpRemaining;
-
         [FieldOffset(76)] public int WarpPerStep;
 
     }

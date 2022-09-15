@@ -22,7 +22,7 @@ namespace PatcherYRpp
                 (a.pAnything == b.pAnything);
         }
         public static bool operator !=(SwizzlePointerClass a, SwizzlePointerClass b) => !(a == b);
-        public override bool Equals(object obj) => this == (SwizzlePointerClass)obj;
+        public override bool Equals(object obj) => obj is SwizzlePointerClass other && this == other;
         public override int GetHashCode() => base.GetHashCode();
     };
 
@@ -31,7 +31,7 @@ namespace PatcherYRpp
     public struct SwizzleManagerClass
     {
         private static IntPtr instance = new IntPtr(0xB0C110);
-        public static ref SwizzleManagerClass Instance { get => ref instance.Convert<SwizzleManagerClass>().Ref; }
+        static public ref SwizzleManagerClass Instance { get => ref instance.Convert<SwizzleManagerClass>().Ref; }
         public unsafe HRESULT Reset()
         {
             var func = (delegate* unmanaged[Stdcall]<ref SwizzleManagerClass, HRESULT>)this.GetVirtualFunctionPointer(3);

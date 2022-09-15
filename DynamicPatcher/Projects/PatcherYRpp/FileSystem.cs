@@ -40,20 +40,22 @@ namespace PatcherYRpp
 
         private static IntPtr ppCAMEO_PAL = new IntPtr(0x87F6B0);
         private static IntPtr ppUNITx_PAL = new IntPtr(0x87F6B4);
+        private static IntPtr ppPALETTE_PAL = new IntPtr(0x886380);
         private static IntPtr ppx_PAL = new IntPtr(0x87F6B8);
         private static IntPtr ppGRFTXT_TIBERIUM_PAL = new IntPtr(0x87F6BC);
         private static IntPtr ppANIM_PAL = new IntPtr(0x87F6C0);
-        private static IntPtr ppPALETTE_PAL = new IntPtr(0x87F6C4);
+        private static IntPtr ppTHEATER_PAL = new IntPtr(0x87F6C4);
         private static IntPtr ppMOUSE_PAL = new IntPtr(0x87F6C8);
         private static IntPtr ppSIDEBAR_PAL = new IntPtr(0x87F6CC);
         private static IntPtr ppGRFXTXT_Convert = new IntPtr(0xA8F798);
 
         public static ref Pointer<ConvertClass> CAMEO_PAL => ref ppCAMEO_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> UNITx_PAL => ref ppUNITx_PAL.Convert<Pointer<ConvertClass>>().Ref;
+        public static ref Pointer<ConvertClass> PALETTE_PAL => ref ppPALETTE_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> x_PAL => ref ppx_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> GRFTXT_TIBERIUM_PAL => ref ppGRFTXT_TIBERIUM_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> ANIM_PAL => ref ppANIM_PAL.Convert<Pointer<ConvertClass>>().Ref;
-        public static ref Pointer<ConvertClass> PALETTE_PAL => ref ppPALETTE_PAL.Convert<Pointer<ConvertClass>>().Ref;
+        public static ref Pointer<ConvertClass> THEATER_PAL => ref ppTHEATER_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> MOUSE_PAL => ref ppMOUSE_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> SIDEBAR_PAL => ref ppSIDEBAR_PAL.Convert<Pointer<ConvertClass>>().Ref;
         public static ref Pointer<ConvertClass> GRFXTXT_Convert => ref ppGRFXTXT_Convert.Convert<Pointer<ConvertClass>>().Ref;

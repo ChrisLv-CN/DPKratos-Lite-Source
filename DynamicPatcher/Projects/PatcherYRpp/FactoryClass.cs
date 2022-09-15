@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -18,6 +18,5 @@ namespace PatcherYRpp
         [FieldOffset(108)] public Pointer<HouseClass> Owner;
         [FieldOffset(112)] public byte IsSuspended;
         [FieldOffset(113)] public byte IsManual;
-
     }
 }

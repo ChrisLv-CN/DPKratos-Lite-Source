@@ -18,6 +18,7 @@ namespace Extension.Decorators
 
         protected DecoratorMap(SerializationInfo info, StreamingContext context) : base(info, context)
         {
+            pairs = new EnumerableBuffer<PairDecorator>(this);
         }
 
         [SecurityPermission(SecurityAction.LinkDemand,
@@ -88,6 +89,7 @@ namespace Extension.Decorators
             }
         }
 
+        [NonSerialized]
         EnumerableBuffer<PairDecorator> pairs;
     }
 }

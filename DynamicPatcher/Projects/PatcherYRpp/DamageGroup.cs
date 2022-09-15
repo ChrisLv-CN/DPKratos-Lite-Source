@@ -12,8 +12,6 @@ namespace PatcherYRpp
     public struct DamageGroup
     {
         [FieldOffset(0)] public Pointer<TechnoClass> Target;
-
         [FieldOffset(4)] public double Distance;
-
     }
 }

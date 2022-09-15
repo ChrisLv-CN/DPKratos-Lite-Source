@@ -10,36 +10,15 @@ using System.Threading.Tasks;
 
 namespace Extension.Script
 {
-    public interface IAbstractScriptable
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    public sealed class GlobalScriptableAttribute : Attribute
     {
-        public void OnInit();
-        public void OnUpdate();
-        public void OnUnInit();
-    }
+        public GlobalScriptableAttribute(params Type[] types)
+        {
+            Types = types;
+        }
 
-    public interface IObjectScriptable : IAbstractScriptable
-    {
-        public void OnPut(CoordStruct pCoord, short faceDirValue8);
-        public void OnRemove();
-        public void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-            Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
-        public void OnDestroy();
-    }
-
-    public interface IBulletScriptable : IObjectScriptable
-    {
-        public void OnDetonate(Pointer<CoordStruct> location);
-    }
-
-    public interface ITechnoScriptable : IObjectScriptable
-    {
-        public void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
-        public void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire);
-        public void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex);
-
-        public void OnSelect(ref bool selectable);
-        public void OnGuardCommand();
-        public void OnStopCommand();
+        public Type[] Types { get; }
     }
 
     public interface IScriptable : IReloadable
@@ -50,52 +29,11 @@ namespace Extension.Script
     public abstract class Scriptable<T> : ScriptComponent, IScriptable
     {
         public T Owner { get; protected set; }
-        public Scriptable(T owner)
+
+        protected Scriptable(T owner) : base()
         {
             Owner = owner;
         }
     }
 
-    [Serializable]
-    public class TechnoScriptable : Scriptable<TechnoExt>, ITechnoScriptable
-    {
-        public TechnoScriptable(TechnoExt owner) : base(owner) { }
-
-        public virtual void OnInit() { }
-        public virtual void OnUnInit() { }
-
-        public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
-
-        public virtual void OnPut(CoordStruct pCoord, short faceDirValue8) { }
-        public virtual void OnRemove() { }
-
-        public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-            Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
-        { }
-
-        public virtual void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire) { }
-        public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }
-
-        public virtual void OnSelect(ref bool selectable) { }
-        public virtual void OnGuardCommand() { }
-        public virtual void OnStopCommand() { }
-    }
-
-    [Serializable]
-    public class BulletScriptable : Scriptable<BulletExt>, IBulletScriptable
-    {
-        public BulletScriptable(BulletExt owner) : base(owner) { }
-
-        public virtual void OnInit() { }
-        public virtual void OnUnInit() { }
-
-        public virtual void OnDetonate(Pointer<CoordStruct> location) { }
-
-        public virtual void OnPut(CoordStruct pCoord, short faceDirValue8) { }
-        public virtual void OnRemove() { }
-
-        public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-            Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
-        { }
-    }
 }

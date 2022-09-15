@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 224)]
-    public struct TerrainClass
+    public struct TerrainClass : IOwnAbstractType<TerrainTypeClass>
     {
+        Pointer<TerrainTypeClass> IOwnAbstractType<TerrainTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
+
         [FieldOffset(0)] public ObjectClass Base;
 
         [FieldOffset(172)] public ProgressTimer Animation;

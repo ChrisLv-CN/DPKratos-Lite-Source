@@ -48,14 +48,12 @@ namespace PatcherYRpp
         [FieldOffset(679)] public Bool Bouncy;
         [FieldOffset(680)] public Bool AnimPalette;
         [FieldOffset(681)] public Bool FirersPalette;
-
         [FieldOffset(684)] public int Cluster;
         [FieldOffset(688)] public Pointer<WeaponTypeClass> AirburstWeapon;
         [FieldOffset(692)] public Pointer<WeaponTypeClass> ShrapnelWeapon;
         [FieldOffset(696)] public int ShrapnelCount;
         [FieldOffset(700)] public int DetonationAltitude;
         [FieldOffset(704)] public Bool Vertical;
-
         [FieldOffset(712)] public double Elasticity;
         [FieldOffset(720)] public int Acceleration;
         [FieldOffset(724)] public Pointer<ColorScheme> Color;
@@ -65,7 +63,6 @@ namespace PatcherYRpp
         [FieldOffset(740)] public int SpawnDelay;
         [FieldOffset(744)] public int ScaledSpawnDelay;
         [FieldOffset(748)] public Bool Scalable;
-
         [FieldOffset(752)] public int Arm;
         [FieldOffset(756)] public byte AnimLow;  // not bool
         [FieldOffset(757)] public byte AnimHigh; // not bool

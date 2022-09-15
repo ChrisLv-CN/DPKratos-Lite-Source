@@ -28,7 +28,7 @@ namespace Extension.Decorators
 
         public static bool operator ==(DecoratorId left, DecoratorId right) => left.id == right.id;
         public static bool operator !=(DecoratorId left, DecoratorId right) => !(left == right);
-        public override bool Equals(object obj) => this == (DecoratorId)obj;
+        public override bool Equals(object obj) => obj is DecoratorId other && this == other;
         public override int GetHashCode() => id.GetHashCode();
         public override string ToString() => id.ToString();
 

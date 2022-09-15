@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -104,7 +104,7 @@ namespace PatcherYRpp
         }
 
         // get content objects
-        public unsafe Pointer<ObjectClass> FindObjectNearestTo(Point2D offsetPixel, bool alt, Pointer<ObjectClass> pExcludeThis)
+        public unsafe Pointer<ObjectClass> FindTechnoNearestTo(Point2D offsetPixel, bool alt, Pointer<ObjectClass> pExcludeThis)
         {
             var func = (delegate* unmanaged[Thiscall]<ref CellClass, ref Point2D, Bool, IntPtr, IntPtr>)0x47C3D0;
             return func(ref this, ref offsetPixel, alt, pExcludeThis);
@@ -169,20 +169,33 @@ namespace PatcherYRpp
             return func(ref this, direction);
         }
 
+        public unsafe int GetFloorHeight(Point2D subCoords)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, ref Point2D, int>)0x47B3A0;
+            return func(ref this, ref subCoords);
+        }
+
+        public unsafe CoordStruct GetCenterCoords()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, out CoordStruct, IntPtr>)0x480A30;
+            func(ref this, out CoordStruct centerCoords);
+            return centerCoords;
+        }
+
+        public bool ContainsBridge()
+        {
+            return this.Flags.HasFlag(CellFlags.Bridge);
+        }
+
         public unsafe bool CanEnterCell()
         {
             var func = (delegate* unmanaged[Thiscall]<ref CellClass, Bool>)0x486FF0;
             return func(ref this);
         }
 
-        public bool ContainsBridge()
-        {
-            return (Flags & CellFlags.Bridge) != 0;
-        }
-
         public Pointer<ObjectClass> GetContent()
         {
-            return ContainsBridge() ? AltObject : FirstObject;
+            return this.ContainsBridge() ? this.AltObject : this.FirstObject;
         }
 
         public int GetLevel()
@@ -192,27 +205,31 @@ namespace PatcherYRpp
 
         public static CoordStruct Cell2Coord(CellStruct cell, int z = 0)
         {
-            return new CoordStruct(cell.X * 256 + 128, cell.Y * 256 + 128, z);
+            return new CoordStruct(cell.X * Game.CellSize + 128, cell.Y * Game.CellSize + 128, z);
         }
-
         public static CellStruct Coord2Cell(CoordStruct crd)
         {
-            return new CellStruct(crd.X / 256, crd.Y / 256);
+            return new CellStruct(crd.X / Game.CellSize, crd.Y / Game.CellSize);
         }
 
-        public ref CoordStruct FixHeight(ref CoordStruct pCrd)
+        public CoordStruct FixHeight(CoordStruct crd)
         {
             if (this.ContainsBridge())
             {
-                pCrd.Z += Game.BridgeHeight;
+                crd.Z += Game.BridgeHeight;
             }
-            return ref pCrd;
+            return crd;
         }
 
         public CoordStruct GetCoordsWithBridge()
         {
-            CoordStruct buffer = this.Base.GetCoords();
-            return FixHeight(ref buffer);
+            return this.FixHeight(this.Base.GetCoords());
+        }
+
+        public unsafe bool TryAssignJumpjet(Pointer<FootClass> pObject)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref CellClass, IntPtr, Bool>)0x487D70;
+            return func(ref this, pObject);
         }
 
         public unsafe bool TileIs(TileType tileType)
@@ -250,49 +267,36 @@ namespace PatcherYRpp
         [FieldOffset(0)] public AbstractClass Base;
 
         [FieldOffset(36)] public CellStruct MapCoords;   //Where on the map does this Cell lie?
-
         [FieldOffset(44)] private IntPtr bridgeOwnerCell;
         public Pointer<CellClass> BridgeOwnerCell { get => bridgeOwnerCell; set => bridgeOwnerCell = value; }
-
         [FieldOffset(56)] public int IsoTileTypeIndex;   //What tile is this Cell?
         [FieldOffset(60)] public Pointer<TagClass> AttachedTag;          // The cell tag
         [FieldOffset(64)] public Pointer<BuildingTypeClass> Rubble;              // The building type that provides the rubble image
         [FieldOffset(68)] public int OverlayTypeIndex;   //What Overlay lies on this Cell?
         [FieldOffset(72)] public int SmudgeTypeIndex;    //What Smudge lies on this Cell?
-
         [FieldOffset(80)] public int WallOwnerIndex; // Which House owns the wall placed in this Cell? // Determined by finding the nearest BuildingType and taking its owner
         [FieldOffset(84)] public int InfantryOwnerIndex;
         [FieldOffset(88)] public int AltInfantryOwnerIndex;
-
         [FieldOffset(120)] public uint CloakedByHouses;
-
         [FieldOffset(224)] public Pointer<FootClass> Jumpjet; // a jumpjet occupying this cell atm
         [FieldOffset(228)] public Pointer<ObjectClass> FirstObject;   //The first Object on this Cell. NextObject functions as a linked list.
         [FieldOffset(232)] public Pointer<ObjectClass> AltObject;
         [FieldOffset(236)] public LandType LandType;  //What type of floor is this Cell?
         [FieldOffset(240)] public double RadLevel;  //The level of radiation on this Cell.
-
         [FieldOffset(256)] public int OccupyHeightsCoveringMe;
-
         [FieldOffset(282)] public byte Height;
         [FieldOffset(283)] public byte Level;
         [FieldOffset(284)] public byte SlopeIndex;  // this + 2 == cell's slope shape as reflected by PLACE.SHP
-
         [FieldOffset(286)] public byte Powerup; //The crate type on this cell. Also indicates some other weird properties
-
         [FieldOffset(288)] public byte Shroudedness; // trust me, you don't wanna know... if you do, see 0x7F4194 and cry
         [FieldOffset(289)] public byte Foggedness; // same value as above: -2: Occluded completely, -1: Visible, 0...48: frame in fog.shp or shroud.shp
         [FieldOffset(290)] public byte BlockedNeighbours; // number of somehow occupied cells next to this
-
         [FieldOffset(292)] public OccupationFlags OccupationFlags; // 0x1F: infantry subpositions: center, TL, TR, BL, BR
         [FieldOffset(296)] public int AltOccupationFlags; // 0x20: Units, 0x40: Objects, Aircraft, Overlay, 0x80: Building
-
         [FieldOffset(300)] public AltCellFlags AltFlags; // related to Flags below
-
         [FieldOffset(304)] public int ShroudCounter;
         [FieldOffset(308)] public uint GapsCoveringThisCell; // actual count of gapgens in this cell, no idea why they need a second layer
         [FieldOffset(312)] public Bool VisibilityChanged;
-
         [FieldOffset(320)] public CellFlags Flags;
     }
 

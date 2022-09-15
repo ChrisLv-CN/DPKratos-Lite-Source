@@ -38,7 +38,6 @@ namespace PatcherYRpp
             func(ref this, ref ret, ref client);
             return ret;
         }
-
         public unsafe Point2D AdjustForZShapeMove(Point2D client)
         {
             Point2D ret = default;

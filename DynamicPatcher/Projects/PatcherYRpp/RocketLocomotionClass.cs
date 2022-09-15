@@ -12,13 +12,9 @@ namespace PatcherYRpp
     public struct RocketLocomotionClass
     {
         [FieldOffset(24)] public CoordStruct Destination;
-
         [FieldOffset(36)] public Timer24 Timer24;
-
         [FieldOffset(52)] public Timer34 Timer34; // 飞行轨迹阶段，0x66231F
-
         [FieldOffset(68)] public int Speed; // 0x44
-
         [FieldOffset(81)] public Bool UseElite;
     }
 

@@ -43,9 +43,7 @@ namespace PatcherYRpp
 
         [FieldOffset(12)] public int FilePointer;
         [FieldOffset(16)] public int FileSize;
-
         [FieldOffset(24)] public AnsiStringPointer FileName;
-
         [FieldOffset(32)] public Bool FileNameAllocated;
     }
 }

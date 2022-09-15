@@ -1,4 +1,4 @@
-
+﻿
 # C# Style YRpp
 
 [![license](https://www.gnu.org/graphics/gplv3-or-later.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)
@@ -35,7 +35,7 @@ public struct YourClass
   // your virtual function
   public unsafe void function()
   {
-      var func = (delegate* unmanaged[Thiscall]<ref YourClass, void>)this.GetVirtualFunctionPointer(Pointer<YourClass>.AsPointer(ref this), virtual_function_index);
+      var func = (delegate* unmanaged[Thiscall]<ref YourClass, void>)Helpers.GetVirtualFunctionPointer(Pointer<YourClass>.AsPointer(ref this), virtual_function_index);
       func(ref this);
   }
 
@@ -48,11 +48,11 @@ public struct YourClass
   }
 
   // YR's class DVC
-  public static readonly IntPtr ArrayPointer = new IntPtr(DVC_address);
-  public static ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
+  static public readonly IntPtr ArrayPointer = new IntPtr(DVC_address);
+  static public ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
 
   // for xxxTypeClass
-	public static YRPP.ABSTRACTTYPE_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.ABSTRACTTYPE_ARRAY<YourClass>(ArrayPointer);
+	static public YRPP.ABSTRACTTYPE_ARRAY<YourClass> ABSTRACTTYPE_ARRAY = new YRPP.ABSTRACTTYPE_ARRAY<YourClass>(ArrayPointer);
 
   // your member
   [FieldOffset(member_offset)] public TMember Member;

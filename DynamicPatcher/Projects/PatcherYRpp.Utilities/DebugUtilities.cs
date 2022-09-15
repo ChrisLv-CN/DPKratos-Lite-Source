@@ -15,7 +15,7 @@ namespace PatcherYRpp.Utilities
             ColorStruct outerColor = new ColorStruct(color.R / 2, color.G / 2, color.B / 2);
             ColorStruct outerSpread = new ColorStruct(color.R / 4, color.G / 4, color.B / 4);
 
-            Pointer<LaserDrawClass> pMarkLaser = YRMemory.Create<LaserDrawClass>(location, location + new CoordStruct(0, 0, beamHeight), innerColor, outerColor, outerSpread, duration);
+            Pointer<LaserDrawClass> pMarkLaser = YRMemory.Allocate<LaserDrawClass>().Construct(location, location + new CoordStruct(0, 0, beamHeight), innerColor, outerColor, outerSpread, duration);
             pMarkLaser.Ref.Thickness = thickness;
             pMarkLaser.Ref.IsHouseColor = true;
         }
@@ -37,7 +37,7 @@ namespace PatcherYRpp.Utilities
                 ColorStruct outerColor = new ColorStruct(color.R / 2, color.G / 2, color.B / 2);
                 ColorStruct outerSpread = new ColorStruct(color.R / 4, color.G / 4, color.B / 4);
 
-                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Create<LaserDrawClass>(from, to, innerColor, outerColor, outerSpread, duration);
+                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Allocate<LaserDrawClass>().Construct(from, to, innerColor, outerColor, outerSpread, duration);
                 pMarkLaser.Ref.Thickness = thickness;
                 pMarkLaser.Ref.IsHouseColor = true;
             }
@@ -71,7 +71,7 @@ namespace PatcherYRpp.Utilities
                 ColorStruct outerColor = new ColorStruct(color.R / 2, color.G / 2, color.B / 2);
                 ColorStruct outerSpread = new ColorStruct(color.R / 4, color.G / 4, color.B / 4);
 
-                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Create<LaserDrawClass>(from, to, innerColor, outerColor, outerSpread, duration);
+                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Allocate<LaserDrawClass>().Construct(from, to, innerColor, outerColor, outerSpread, duration);
                 pMarkLaser.Ref.Thickness = thickness;
                 pMarkLaser.Ref.IsHouseColor = true;
             }
@@ -99,7 +99,7 @@ namespace PatcherYRpp.Utilities
                 ColorStruct outerColor = new ColorStruct(color.R / 2, color.G / 2, color.B / 2);
                 ColorStruct outerSpread = new ColorStruct(color.R / 4, color.G / 4, color.B / 4);
 
-                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Create<LaserDrawClass>(from, to, innerColor, outerColor, outerSpread, duration);
+                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Allocate<LaserDrawClass>().Construct(from, to, innerColor, outerColor, outerSpread, duration);
                 pMarkLaser.Ref.Thickness = thickness;
                 pMarkLaser.Ref.IsHouseColor = true;
             }
@@ -119,7 +119,7 @@ namespace PatcherYRpp.Utilities
                 ColorStruct outerColor = new ColorStruct(color.R / 2, color.G / 2, color.B / 2);
                 ColorStruct outerSpread = new ColorStruct(color.R / 4, color.G / 4, color.B / 4);
 
-                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Create<LaserDrawClass>(_from, _to, innerColor, outerColor, outerSpread, duration);
+                Pointer<LaserDrawClass> pMarkLaser = YRMemory.Allocate<LaserDrawClass>().Construct(_from, _to, innerColor, outerColor, outerSpread, duration);
                 pMarkLaser.Ref.Thickness = thickness;
                 pMarkLaser.Ref.IsHouseColor = true;
             }

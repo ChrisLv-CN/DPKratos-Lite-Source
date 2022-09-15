@@ -15,19 +15,19 @@ namespace FXHooks
     public class FXEngineHooks
     {
         [Hook(HookType.AresHook, Address = 0x55B294, Size = 6)]
-        public static unsafe UInt32 FXEngine_Update(REGISTERS* R)
+        static public unsafe UInt32 FXEngine_Update(REGISTERS* R)
         {
             FXEngine.Update();
             return 0;
         }
         [Hook(HookType.AresHook, Address = 0x4F45A3, Size = 5)]
-        public static unsafe UInt32 FXEngine_Render(REGISTERS* R)
+        static public unsafe UInt32 FXEngine_Render(REGISTERS* R)
         {
             FXEngine.Render();
             return 0;
         }
 
-        public static unsafe UInt32 FXEngine_Present(REGISTERS* R)
+        static public unsafe UInt32 FXEngine_Present(REGISTERS* R)
         {
             FXEngine.Present();
             return 0;
@@ -35,7 +35,7 @@ namespace FXHooks
 
 #if FX_CNCDDRAW
         [DllImport("d3d9.dll")]
-        extern public static IntPtr Direct3DCreate9(uint SDKVersion);
+        extern static public IntPtr Direct3DCreate9(uint SDKVersion);
 
         delegate UInt32 IDirect3D9_CreateDeviceDelegate(IntPtr pD3D, uint Adapter, uint DeviceType, uint hFocusWindow, uint BehaviorFlags, IntPtr pPresentationParameters, IntPtr ppReturnedDeviceInterface);
         static IntPtr IDirect3D9_CreateDevice;
@@ -56,7 +56,7 @@ namespace FXHooks
         }
 
         [Hook(HookType.ExportTableHook, "d3d9.dll", TargetName = "Direct3DCreate9")]
-        public static IntPtr D3D9_Direct3DCreate9(uint SDKVersion)
+        static public IntPtr D3D9_Direct3DCreate9(uint SDKVersion)
         {
             Pointer<IntPtr> pDirect9 = Direct3DCreate9(SDKVersion);
             Pointer<IntPtr> pDirect9Impl = pDirect9[0];
@@ -66,7 +66,7 @@ namespace FXHooks
             return pDirect9;
         }
 
-        public static unsafe UInt32 D3D9_IDirect3D9_CreateDevice(IntPtr pD3D, uint Adapter, uint DeviceType, uint hFocusWindow, uint BehaviorFlags, IntPtr pPresentationParameters, IntPtr ppReturnedDeviceInterface)
+        static public unsafe UInt32 D3D9_IDirect3D9_CreateDevice(IntPtr pD3D, uint Adapter, uint DeviceType, uint hFocusWindow, uint BehaviorFlags, IntPtr pPresentationParameters, IntPtr ppReturnedDeviceInterface)
         {
             var func = (delegate* unmanaged[Stdcall]<IntPtr, uint, uint, uint, uint, IntPtr, IntPtr, uint>)IDirect3D9_CreateDevice;
             var ret = func(pD3D, Adapter, DeviceType, hFocusWindow, BehaviorFlags, pPresentationParameters, ppReturnedDeviceInterface);
@@ -79,7 +79,7 @@ namespace FXHooks
             return ret;
         }
 
-        public static unsafe UInt32 D3D9_IDirect3DDevice9_Present(IntPtr pDevice, IntPtr pSourceRect, IntPtr pDestRect, uint hDestWindowOverride, IntPtr pDirtyRegion)
+        static public unsafe UInt32 D3D9_IDirect3DDevice9_Present(IntPtr pDevice, IntPtr pSourceRect, IntPtr pDestRect, uint hDestWindowOverride, IntPtr pDirtyRegion)
         {
             var func = (delegate* unmanaged[Stdcall]<IntPtr, IntPtr, IntPtr, uint, IntPtr, uint>)IDirect3DDevice9_Present;
             uint ret = 0;

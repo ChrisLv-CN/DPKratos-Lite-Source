@@ -4,12 +4,11 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using DynamicPatcher;
 
 namespace PatcherYRpp
 {
-    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct TimerStruct
     {
         public TimerStruct(int duration) : this() { this.Start(duration); }
@@ -95,8 +94,8 @@ namespace PatcherYRpp
         public int TimeLeft;
     }
 
-    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct RepeatableTimerStruct
     {
         public RepeatableTimerStruct(int duration) : this()
@@ -126,8 +125,8 @@ namespace PatcherYRpp
     }
 
 
-    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct ProgressTimer
     {
         public ProgressTimer(int duration)
@@ -203,8 +202,8 @@ namespace PatcherYRpp
         }
     }
 
-    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct DirStruct
     {
         public DirStruct(int value)
@@ -341,114 +340,106 @@ namespace PatcherYRpp
             return a.Value == b.Value;
         }
         public static bool operator !=(DirStruct a, DirStruct b) => !(a == b);
-        public override bool Equals(object obj) => this == (DirStruct)obj;
+        public override bool Equals(object obj) => obj is DirStruct other && this == other;
         public override int GetHashCode() => Value.GetHashCode();
 
         public short Value;
         ushort unused_2;
-
     }
 
-    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
+    [Serializable]
     public struct FacingStruct
     {
+        FacingStruct(short rot) : this()
+        {
+            Timer = new TimerStruct(0);
+            this.turn_rate(rot);
+        }
 
         public short turn_rate()
         {
             return this.ROT.value();
         }
 
-        public void turn_rate(short rot)
+        public void turn_rate(short value)
         {
-            if (rot > 127)
-                rot = 127;
-            this.ROT.value8(rot);
+            if (value > 127)
+            {
+                value = 127;
+            }
+
+            this.ROT.SetValue(value, 8);
         }
 
         public bool in_motion()
         {
-            return this.turn_rate() > 0 && this.Timer.GetTimeLeft() > 0;
+            return this.turn_rate() > 0 && this.Timer.GetTimeLeft() != 0;
         }
 
         public DirStruct target()
         {
-            return Value;
+            return this.Value;
         }
 
-        public DirStruct current(int offset = 0)
+        public DirStruct current()
         {
-            DirStruct ret = this.Value;
+            var ret = this.Value;
+
             if (this.in_motion())
             {
                 var diff = this.difference();
-                var num_steps = this.num_steps();
+                var num_steps = (short)(this.num_steps());
+
                 if (num_steps > 0)
                 {
-                    var steps_left = this.Timer.GetTimeLeft() - offset;
-                    ret.Value -= (short)(steps_left * diff / num_steps);
+                    var steps_left = this.Timer.GetTimeLeft();
+                    ret.value((short)(ret.value() - steps_left * diff / num_steps));
                 }
             }
+
             return ret;
         }
-
-        // public DirStruct next()
-        // {
-        //     return current(1);
-        // }
 
         public bool set(DirStruct value)
         {
             bool ret = (this.current() != value);
+
             if (ret)
             {
                 this.Value = value;
                 this.Initial = value;
             }
+
             this.Timer.Start(0);
+
             return ret;
         }
 
         public bool turn(DirStruct value)
         {
             if (this.Value == value)
+            {
                 return false;
+            }
+
             this.Initial = this.current();
             this.Value = value;
+
             if (this.turn_rate() > 0)
             {
                 this.Timer.Start(this.num_steps());
             }
+
             return true;
         }
 
-        // private int difference(bool flip)
-        // {
-        //     // return Math.Abs((int)this.Value.value()) - Math.Abs((int)this.Initial.value());
-        //     // return this.Value.value() - this.Initial.value();
-        //     int v = this.Value.value();
-        //     if (v < 0)
-        //         v = 65536 - -v;
-        //     int i = this.Initial.value();
-        //     if (i < 0)
-        //         i = 65536 - -i;
-        //     int a = v - i;
-        //     int b = this.Value.value() - this.Initial.value();
-        //     int diff = Math.Abs(a) < Math.Abs(b) ? a : b;
-        //     if (!flip)
-        //     {
-        //         return diff;
-        //     }
-        //     int flipDiff = 65536 - Math.Abs(diff);
-        //     return diff < 0 ? flipDiff : -flipDiff;
-        // }
-
-        private int difference()
+        public short difference()
         {
             return (short)(this.Value.value() - this.Initial.value());
         }
 
-        private int num_steps()
+        public int num_steps()
         {
             return Math.Abs(this.difference()) / this.turn_rate();
         }
@@ -457,13 +448,12 @@ namespace PatcherYRpp
         {
             return string.Format("{{\"Value\":{0}, \"Initial\":{1}, \"Timer\":{2}, \"ROT\":{3}}}", Value, Initial, Timer, ROT);
         }
+
         public DirStruct Value; // target facing
         public DirStruct Initial; // rotation started here
         public TimerStruct Timer; // counts rotation steps
         public DirStruct ROT; // Rate of Turn. INI Value * 256
-
     }
-
 
     [Serializable]
     [StructLayout(LayoutKind.Explicit, Size = 828)]
@@ -478,9 +468,9 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Sequential)]
     public struct TintStruct
     {
-        int Red;
-        int Green;
-        int Blue;
+        public int Red;
+        public int Green;
+        public int Blue;
     };
 
     [Serializable]

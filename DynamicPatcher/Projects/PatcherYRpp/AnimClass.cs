@@ -8,11 +8,13 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 456)]
-    public struct AnimClass
+    public struct AnimClass : IOwnAbstractType<AnimTypeClass>
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8E9A8);
+        public static ref DynamicVectorClass<Pointer<AnimClass>> Array => ref DynamicVectorClass<Pointer<AnimClass>>.GetDynamicVector(ArrayPointer);
 
-        public static ref DynamicVectorClass<Pointer<AnimClass>> Array { get => ref DynamicVectorClass<Pointer<AnimClass>>.GetDynamicVector(ArrayPointer); }
+        Pointer<AnimTypeClass> IOwnAbstractType<AnimTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
 
 
         public unsafe void SetOwnerObject(Pointer<ObjectClass> pOwner)
@@ -68,13 +70,11 @@ namespace PatcherYRpp
         [FieldOffset(283)] public Bool Unpaused; // set when unpaused
         [FieldOffset(284)] public int PausedAnimFrame; // the animation value when paused
         [FieldOffset(288)] public Bool Reverse; // anim is forced to be played from end to start
-
         [FieldOffset(296)] public BounceClass Bounce;
         [FieldOffset(376)] public byte TranslucencyLevel; // on a scale of 1 - 100
         [FieldOffset(377)] public Bool TimeToDie; // or something to that effect, set just before UnInit
         [FieldOffset(380)] private IntPtr attachedBullet;
         public Pointer<BulletClass> AttachedBullet { get => attachedBullet; set => attachedBullet = value; }
-
         [FieldOffset(384)] public Pointer<HouseClass> Owner; //Used for remap (AltPalette).
         [FieldOffset(388)] public int LoopDelay; // randomized value, depending on RandomLoopDelay
         [FieldOffset(392)] public double Damage; // defaults to 1.0 , added to Type->Damage in some cases
@@ -90,9 +90,7 @@ namespace PatcherYRpp
         [FieldOffset(412)] public Bool SkipProcessOnce; // set in constructor, cleared during Update. skips damage, veins, tiberium chain reaction and animation progress
         [FieldOffset(413)] public Bool Invisible; // don't draw, but Update state anyway
         [FieldOffset(414)] public Bool PowerOff; // powered animation has no power
-
         //[FieldOffset(416)] public AudioController Audio3;
         //[FieldOffset(436)] public AudioController Audio4;
-
     }
 }

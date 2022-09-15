@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 1824)]
-    public struct BuildingClass
+    public struct BuildingClass : IOwnAbstractType<BuildingTypeClass>
     {
+        Pointer<BuildingTypeClass> IOwnAbstractType<BuildingTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
+
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8EB40);
         public static ref DynamicVectorClass<Pointer<BuildingClass>> Array { get => ref DynamicVectorClass<Pointer<BuildingClass>>.GetDynamicVector(ArrayPointer); }
 
@@ -20,13 +23,9 @@ namespace PatcherYRpp
         [FieldOffset(0)] public AbstractClass BaseAbstract;
 
         [FieldOffset(1312)] public Pointer<BuildingTypeClass> Type;
-
         [FieldOffset(1316)] public Pointer<FactoryClass> Factory;
-
         [FieldOffset(1632)] public Bool HasPower;
-
         [FieldOffset(1633)] public Bool IsOverpowered;
-
         [FieldOffset(1757)] public Bool unknown_bool_6DD;
     }
 }

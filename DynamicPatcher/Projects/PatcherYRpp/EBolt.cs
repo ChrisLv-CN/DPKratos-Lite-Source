@@ -25,17 +25,11 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public CoordStruct Point1;
-
         [FieldOffset(12)] public CoordStruct Point2;
-
         [FieldOffset(28)] public int Random; //Random number between 0 and 256
-
         [FieldOffset(32)] public Pointer<TechnoClass> Owner; //ingame this is a UnitClass but needed to circumvent some issues
-
         [FieldOffset(36)] public int WeaponSlot; // which weapon # to use from owner
-
         [FieldOffset(40)] public int Lifetime; // this is >>= 1 each time DrawAll() is called, 0 => dtor (inline). Hi, welcome to dumb ideas.
-
         [FieldOffset(44)] public Bool AlternateColor;
     }
 }

@@ -13,6 +13,8 @@
     <LangVersion>latest</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,30 +39,132 @@
     <Reference Include="DynamicPatcher">
       <HintPath>..\..\..\DynamicPatcher.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PatcherYRpp\PatcherYRpp.csproj">
-      <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
-      <Name>PatcherYRpp</Name>
-    </ProjectReference>
+    <Compile Include="Components\Component.cs" />
+    <Compile Include="Components\ComponentManager.cs" />
+    <Compile Include="Components\GameObject.cs" />
+    <Compile Include="Coroutines\Coroutine.cs" />
+    <Compile Include="Coroutines\WaitCondition.cs" />
+    <Compile Include="Coroutines\YieldInstruction.cs" />
+    <Compile Include="EventSystems\EventSystem.cs" />
+    <Compile Include="EventSystems\EventSystems.cs" />
+    <Compile Include="EventSystems\GeneralEventSystem.cs" />
+    <Compile Include="EventSystems\PointerExpireEventSystem.cs" />
+    <Compile Include="EventSystems\SaveGameEventSystem.cs" />
+    <Compile Include="Ext\CommonExtension.cs" />
+    <Compile Include="Ext\ECSInstanceExtension.cs" />
+    <Compile Include="Ext\ExtensionFactory.cs" />
+    <Compile Include="Ext\GOInstanceExtension.cs" />
+    <Compile Include="Ext\Extension.cs" />
+    <Compile Include="Ext\InstanceExtension.cs" />
+    <Compile Include="Ext\MapContainer.cs" />
+    <Compile Include="Ext\TypeExtension.cs" />
+    <Compile Include="GlobalVars.cs" />
+    <Compile Include="INI\BasicStructureParser.cs" />
+    <Compile Include="INI\EnumParser.cs" />
+    <Compile Include="INI\Ini.cs" />
+    <Compile Include="INI\INIBuffer.cs" />
+    <Compile Include="INI\INIBufferReader.cs" />
+    <Compile Include="INI\INIComponent.cs" />
+    <Compile Include="Components\RequireComponent.cs" />
+    <Compile Include="Components\Transform.cs" />
+    <Compile Include="Coroutines\CoroutineSystem.cs" />
+    <Compile Include="Coroutines\CoroutineWaiter.cs" />
+    <Compile Include="Coroutines\WaitForFrames.cs" />
+    <Compile Include="Decorators\DecoratorComponent.cs" />
+    <Compile Include="Decorators\DecoratorId.cs" />
+    <Compile Include="Decorators\DecoratorMap.cs" />
+    <Compile Include="Decorators\IDecorative.cs" />
+    <Compile Include="Ext\Container.cs" />
+    <Compile Include="INI\INIComponentManager.cs" />
+    <Compile Include="INI\INIComponentWith.cs" />
+    <Compile Include="INI\INIConfig.cs" />
+    <Compile Include="INI\INIConstant.cs" />
+    <Compile Include="INI\INIFileBuffer.cs" />
+    <Compile Include="INI\INIFileReader.cs" />
+    <Compile Include="INI\NormalParser.cs" />
+    <Compile Include="INI\Parser.cs" />
+    <Compile Include="INI\Parsers.cs" />
+    <Compile Include="INI\ScriptParser.cs" />
+    <Compile Include="INI\YRParsers.cs" />
+    <Compile Include="INI\FindTypeParser.cs" />
+    <Compile Include="INI\YRParsers.g.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>YRParsers.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Script\Script.cs" />
+    <Compile Include="Script\Scriptable.cs" />
+    <Compile Include="Script\ScriptComponent.cs" />
+    <Compile Include="Script\ScriptComponentHelpers.g.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScriptComponentHelpers.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Script\ScriptManager.Instantiator.g.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ScriptManager.Instantiator.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Serialization\CoroutineSurrogate.cs" />
+    <Compile Include="Serialization\DefaultSerializationSurrogate.cs" />
+    <Compile Include="Serialization\DelegateSurrogate.cs" />
+    <Compile Include="Serialization\EnhancedFormatter.cs" />
+    <Compile Include="Serialization\GlobalSerializer.cs" />
+    <Compile Include="Serialization\IGameSerializer.cs" />
+    <Compile Include="Serialization\MainSerializer.cs" />
+    <Compile Include="Serialization\SerializationChecker.cs" />
+    <Compile Include="Serialization\SerializationHelper.cs" />
+    <Compile Include="Utilities\ContainerHelper.cs" />
+    <Compile Include="Decorators\Decorator.cs" />
+    <Compile Include="Utilities\ExtensionReference.cs" />
+    <Compile Include="INI\INIReader.cs" />
+    <Compile Include="Utilities\IReloadable.cs" />
+    <Compile Include="Utilities\PartialHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Script\ScriptManager.cs" />
+    <Compile Include="Utilities\SwizzleablePointer.cs" />
+    <Compile Include="World.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\PatcherYRpp.Utilities\PatcherYRpp.Utilities.csproj">
       <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
       <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PatcherYRpp\PatcherYRpp.csproj">
+      <Project>{4c392077-a5ed-46cc-bc94-e1449610105c}</Project>
+      <Name>PatcherYRpp</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <Compile Remove="obj\**\*.*" />
+    <None Include="app.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="INI\YRParsers.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>YRParsers.g.cs</LastGenOutput>
+    </Content>
+    <Content Include="Script\ScriptComponentHelpers.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ScriptComponentHelpers.g.cs</LastGenOutput>
+    </Content>
+    <Content Include="Script\ScriptManager.Instantiator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ScriptManager.Instantiator.g.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

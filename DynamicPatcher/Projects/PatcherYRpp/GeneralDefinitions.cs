@@ -331,6 +331,13 @@ namespace PatcherYRpp
         PostMortem = 5
     }
 
+    public enum KickOutResult
+    {
+        Failed = 0,
+        Busy = 1,
+        Succeeded = 2
+    }
+
     public enum Direction
     {
         N = 0x0,
@@ -373,9 +380,10 @@ namespace PatcherYRpp
         MAX = 255
     }
 
+    // this is how game's enums are to be defined from now on
     public enum FireError
     {
-        NotAValue = 0xFF,
+        NONE = -1,
         OK = 0, // no problem, can fire
         AMMO = 1, // no ammo
         FACING = 2, // bad facing
@@ -410,6 +418,8 @@ namespace PatcherYRpp
     public enum GameMode
     {
         Campaign = 0x0,
+        Modem = 0x1,		// modem game
+        NullModem = 0x2,	// NULL-modem
         LAN = 0x3,
         Internet = 0x4,
         Skirmish = 0x5,
@@ -513,6 +523,63 @@ namespace PatcherYRpp
         PsychicReveal = 11
     }
 
+    [Flags]
+    public enum BlitterFlags
+    {
+        None = 0x0,
+        Darken = 0x1,
+        TransLucent25 = 0x2,
+        TransLucent50 = 0x4,
+        TransLucent75 = 0x6,
+        Warp = 0x8,
+        ZRemap = 0x10,
+        Plain = 0x20,
+        bf_040 = 0x40,
+        bf_080 = 0x80,
+        MultiPass = 0x100,
+        Centered = 0x200,
+        bf_400 = 0x400,
+        Alpha = 0x800,
+        bf_1000 = 0x1000,
+        Flat = 0x2000,
+        ZRead = 0x3000,
+        ZReadWrite = 0x4000,
+        bf_8000 = 0x8000,
+        Zero = 0x10000,
+        Nonzero = 0x20000
+    }
+
+    public enum VisualType
+    {
+        Normal = 0,
+        Indistinct = 1,
+        Darken = 2,
+        Shadowy = 3,
+        Ripple = 4,
+        Hidden = 5
+    }
+
+    public enum Move
+    {
+        OK = 0,
+        Cloak = 1,
+        MovingBlock = 2,
+        ClosedGate = 3,
+        FriendlyDestroyable = 4,
+        Destroyable = 5,
+        Temp = 6,
+        No = 7
+    }
+
+    public enum ZGradient
+    {
+        None = -1,
+        Ground = 0,
+        Deg45 = 1,
+        Deg90 = 2,
+        Deg135 = 3
+    }
+
     public enum RadBeamType
     {
         Temporal = 0x0,
@@ -526,6 +593,37 @@ namespace PatcherYRpp
         Elite = 0,
         Veteran = 1,
         Rookie = 2
+    }
+
+    public enum SpeedType
+    {
+        None = -1,
+        Foot = 0,
+        Track = 1,
+        Wheel = 2,
+        Hover = 3,
+        Winged = 4,
+        Float = 5,
+        Amphibious = 6,
+        FloatBeach = 7
+    }
+
+    public enum MovementZone
+    {
+        None = -1,
+        Normal = 0,
+        Crusher = 1,
+        Destroyer = 2,
+        AmphibiousDestroyer = 3,
+        AmphibiousCrusher = 4,
+        Amphibious = 5,
+        Subterrannean = 6,
+        Infantry = 7,
+        InfantryDestroyer = 8,
+        Fly = 9,
+        Water = 10,
+        WaterBeach = 11,
+        CrusherAll = 12
     }
 
     public enum Mission
@@ -565,24 +663,6 @@ namespace PatcherYRpp
         SpyplaneOverfly = 31
     }
 
-    public enum MovementZone
-    {
-        None = -1,
-        Normal = 0,
-        Crusher = 1,
-        Destroyer = 2,
-        AmphibiousDestroyer = 3,
-        AmphibiousCrusher = 4,
-        Amphibious = 5,
-        Subterrannean = 6,
-        Infantry = 7,
-        InfantryDestroyer = 8,
-        Fly = 9,
-        Water = 10,
-        WaterBeach = 11,
-        CrusherAll = 12
-    }
-
     public enum TargetType
     {
         None = 0,
@@ -598,7 +678,8 @@ namespace PatcherYRpp
         Occupiable = 10,
         TechBuildings = 11
     }
-
+    
+    [Flags]
     public enum TargetFlags
     {
         None = 0x0,
@@ -665,52 +746,55 @@ namespace PatcherYRpp
         QueryCanTote = 36, // Want ride
     }
 
-    [Flags]
-    public enum BlitterFlags
+    public enum NetworkEvents
     {
-        None = 0x0,
-        Darken = 0x1,
-        TransLucent25 = 0x2,
-        TransLucent50 = 0x4,
-        TransLucent75 = 0x6,
-        Warp = 0x8,
-        ZRemap = 0x10,
-        Plain = 0x20,
-        bf_040 = 0x40,
-        bf_080 = 0x80,
-        MultiPass = 0x100,
-        Centered = 0x200,
-        bf_400 = 0x400,
-        Alpha = 0x800,
-        bf_1000 = 0x1000,
-        Flat = 0x2000,
-        ZRead = 0x3000,
-        ZReadWrite = 0x4000,
-        bf_8000 = 0x8000,
-        Zero = 0x10000,
-        Nonzero = 0x20000
-    }
-
-    public enum Move
-    {
-        OK = 0,
-        Cloak = 1,
-        MovingBlock = 2,
-        ClosedGate = 3,
-        FriendlyDestroyable = 4,
-        Destroyable = 5,
-        Temp = 6,
-        No = 7
-    }
-
-
-    public enum ZGradient
-    {
-        None = -1,
-        Ground = 0,
-        Deg45 = 1,
-        Deg90 = 2,
-        Deg135 = 3
+        Empty = 0x0,
+        PowerOn = 0x1,
+        PowerOff = 0x2,
+        Ally = 0x3,
+        MegaMission = 0x4,
+        MegaMissionF = 0x5,
+        Idle = 0x6,
+        Scatter = 0x7,
+        Destruct = 0x8,
+        Deploy = 0x9,
+        Detonate = 0xA,
+        Place = 0xB,
+        Options = 0xC,
+        GameSpeed = 0xD,
+        Produce = 0xE,
+        Suspend = 0xF,
+        Abandon = 0x10,
+        Primary = 0x11,
+        SpecialPlace = 0x12,
+        Exit = 0x13,
+        Animation = 0x14,
+        Repair = 0x15,
+        Sell = 0x16,
+        SellCell = 0x17,
+        Special = 0x18,
+        FrameSync = 0x19,
+        Message = 0x1A,
+        ResponseTime = 0x1B,
+        FrameInfo = 0x1C,
+        SaveGame = 0x1D,
+        Archive = 0x1E,
+        AddPlayer = 0x1F,
+        Timing = 0x20,
+        ProcessTime = 0x21,
+        PageUser = 0x22,
+        RemovePlayer = 0x23,
+        LatencyFudge = 0x24,
+        MegaFrameInfo = 0x25,
+        PacketTiming = 0x26,
+        AboutToExit = 0x27,
+        FallbackHost = 0x28,
+        AddressChange = 0x29,
+        PlanConnect = 0x2A,
+        PlanCommit = 0x2B,
+        PlanNodeDelete = 0x2C,
+        AllCheer = 0x2D,
+        AbandonAll = 0x2E
     }
 
     public enum ParasiteState
@@ -768,29 +852,6 @@ namespace PatcherYRpp
         SecondaryFire = 40,
         SecondaryProne = 41,
         NOTHING = -1
-    }
-
-    public enum SpeedType
-    {
-        None = -1,
-        Foot = 0,
-        Track = 1,
-        Wheel = 2,
-        Hover = 3,
-        Winged = 4,
-        Float = 5,
-        Amphibious = 6,
-        FloatBeach = 7
-    }
-
-    public enum VisualType
-    {
-        Normal = 0,
-        Indistinct = 1,
-        Darken = 2,
-        Shadowy = 3,
-        Ripple = 4,
-        Hidden = 5
     }
 
     public enum MarkType

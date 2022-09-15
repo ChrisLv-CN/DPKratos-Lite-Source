@@ -10,7 +10,7 @@ using DynamicPatcher;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 1312)]
-    public struct TechnoClass
+    public struct TechnoClass : IOwnAbstractType<TechnoTypeClass>
     {
         public static readonly IntPtr ArrayPointer = new IntPtr(0xA8EC78);
         public static ref DynamicVectorClass<Pointer<TechnoClass>> Array { get => ref DynamicVectorClass<Pointer<TechnoClass>>.GetDynamicVector(ArrayPointer); }
@@ -23,6 +23,9 @@ namespace PatcherYRpp
                 return func(ref this);
             }
         }
+
+        Pointer<TechnoTypeClass> IOwnAbstractType<TechnoTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
 
         public unsafe Pointer<TechnoTypeClass> GetTechnoType()
         {
@@ -39,6 +42,12 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, ref FacingStruct, IntPtr>)this.GetVirtualFunctionPointer(170);
             return func(ref this, ref facing);
+        }
+
+        public unsafe bool CanReachLocation(CoordStruct destCoords)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, ref CoordStruct, Bool>)this.GetVirtualFunctionPointer(179);
+            return func(ref this, ref destCoords);
         }
 
         public unsafe Pointer<FacingStruct> GetRealFacing(ref FacingStruct facing)
@@ -59,6 +68,12 @@ namespace PatcherYRpp
             return func(ref this, pTarget);
         }
 
+        public unsafe int SelectNavalTargeting(Pointer<AbstractClass> pTarget)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int>)this.GetVirtualFunctionPointer(186);
+            return func(ref this, pTarget);
+        }
+
         public unsafe int GetZAdjustment()
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int>)this.GetVirtualFunctionPointer(187);
@@ -69,6 +84,12 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int>)this.GetVirtualFunctionPointer(188);
             return func(ref this);
+        }
+
+        public unsafe int GetGuardRange(int dwUnk)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, int>)this.GetVirtualFunctionPointer(199);
+            return func(ref this, dwUnk);
         }
 
         public unsafe bool IsEngineer()
@@ -119,10 +140,27 @@ namespace PatcherYRpp
             func(ref this);
         }
 
+        public unsafe void AddPassenger(Pointer<FootClass> pPassenger)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, void>)this.GetVirtualFunctionPointer(229);
+            func(ref this, pPassenger);
+        }
+
         public unsafe bool IsCloseEnough(Pointer<AbstractClass> pTarget, int weaponIdx)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, Bool>)this.GetVirtualFunctionPointer(234);
             return func(ref this, pTarget, weaponIdx);
+        }
+
+        public unsafe bool IsCloseEnoughToAttack(Pointer<AbstractClass> pTarget)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, Bool>)this.GetVirtualFunctionPointer(235);
+            return func(ref this, pTarget);
+        }
+        public unsafe bool IsCloseEnoughToAttackCoords(CoordStruct coords)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, ref CoordStruct, Bool>)this.GetVirtualFunctionPointer(236);
+            return func(ref this, ref coords);
         }
 
         public unsafe int Destroyed(Pointer<ObjectClass> pKiller)
@@ -137,10 +175,16 @@ namespace PatcherYRpp
             return func(ref this, pTarget, weaponIndex);
         }
 
-        public unsafe FireError GetFireError(Pointer<AbstractClass> pTarget, int weaponIndex, Bool checkRange)
+        public unsafe FireError GetFireError(Pointer<AbstractClass> pTarget, int weaponIndex, bool ignoreRange)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int, Bool, FireError>)this.GetVirtualFunctionPointer(240);
-            return func(ref this, pTarget, weaponIndex, checkRange);
+            return func(ref this, pTarget, weaponIndex, ignoreRange);
+        }
+
+        public unsafe Pointer<TechnoClass> SelectAutoTarget(TargetFlags TargetFlags, CoordStruct TargetCoord, bool OnlyTargetHouseEnemy)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, TargetFlags, ref CoordStruct, Bool, IntPtr>)this.GetVirtualFunctionPointer(241);
+            return func(ref this, TargetFlags, ref TargetCoord, OnlyTargetHouseEnemy);
         }
 
         public unsafe void SetTarget(Pointer<AbstractClass> pTarget)
@@ -167,6 +211,42 @@ namespace PatcherYRpp
             return func(ref this, pTarget, idxWeapon);
         }
 
+        public unsafe void Guard()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, void>)this.GetVirtualFunctionPointer(244);
+            func(ref this);
+        }
+
+        public unsafe bool SetOwningHouse(Pointer<HouseClass> pHouse, bool announce = true)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, Bool, Bool>)this.GetVirtualFunctionPointer(245);
+            return func(ref this, pHouse, announce);
+        }
+
+        public unsafe void UpdateRockingState(CoordStruct rockingCoord, float rockerValue, bool halfEffect)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, ref CoordStruct, float, Bool, void>)this.GetVirtualFunctionPointer(246);
+            func(ref this, ref rockingCoord, rockerValue, halfEffect);
+        }
+
+        public unsafe bool Crash(Pointer<ObjectClass> pKiller)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, Bool>)this.GetVirtualFunctionPointer(247);
+            return func(ref this, pKiller);
+        }
+
+        public unsafe Pointer<WeaponStruct> GetDeployWeapon()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr>)this.GetVirtualFunctionPointer(252);
+            return func(ref this);
+        }
+
+        public unsafe Pointer<WeaponStruct> GetTurretWeapon()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr>)this.GetVirtualFunctionPointer(253);
+            return func(ref this);
+        }
+
         public unsafe Pointer<WeaponStruct> GetWeapon(int i)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int, IntPtr>)this.GetVirtualFunctionPointer(254);
@@ -183,6 +263,31 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, void>)this.GetVirtualFunctionPointer(265);
             func(ref this);
+        }
+
+        public unsafe bool CanOccupyFire()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)this.GetVirtualFunctionPointer(256);
+            return func(ref this);
+        }
+
+        public unsafe int GetOccupyRangeBonus()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int>)this.GetVirtualFunctionPointer(257);
+            return func(ref this);
+        }
+
+        public unsafe int GetOccupantCount()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, int>)this.GetVirtualFunctionPointer(258);
+            return func(ref this);
+        }
+
+        public unsafe CoordStruct GetTargetCoords()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, out CoordStruct, Bool>)this.GetVirtualFunctionPointer(267);
+            func(ref this, out CoordStruct tmp);
+            return tmp;
         }
 
         public unsafe void SetDestination(Pointer<AbstractClass> pDest, bool unknow = true)
@@ -252,6 +357,24 @@ namespace PatcherYRpp
             return func(ref this);
         }
 
+        public unsafe bool CanBePermMindControlled()
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, Bool>)0x53C450;
+            return func(ref this);
+        }
+
+        public unsafe int GetDistanceToTarget(Pointer<AbstractClass> pTarget)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, int>)0x5F6360;
+            return func(ref this, pTarget);
+        }
+
+        public unsafe void EnteredOpenTopped(Pointer<TechnoClass> pWho)
+        {
+            var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, IntPtr, void>)0x710470;
+            func(ref this, pWho);
+        }
+
         public unsafe void DrawALinkTo(CoordStruct from, CoordStruct to, ColorStruct color)
         {
             var func = (delegate* unmanaged[Thiscall]<ref TechnoClass, CoordStruct, CoordStruct, ColorStruct, void>)0x704E40;
@@ -310,225 +433,136 @@ namespace PatcherYRpp
         [FieldOffset(0)] public MissionClass BaseMission;
         [FieldOffset(0)] public ObjectClass Base;
         [FieldOffset(0)] public AbstractClass BaseAbstract;
-
         [FieldOffset(240)] public FlashData Flashing;
-
         [FieldOffset(248)] public ProgressTimer Animtaion;
-
         [FieldOffset(276)] public PassengersClass Passengers;
-
         [FieldOffset(284)] public IntPtr transporter; // unit carrying me
         public Pointer<TechnoClass> Transporter { get => transporter; set => transporter = value; }
-
         [FieldOffset(292)] public int CurrentTurretNumber; // for IFV/gattling/charge turrets
-
         [FieldOffset(308)] public Bool InAir;
-
         [FieldOffset(312)] public int CurrentWeaponNumber; // for IFV/gattling
-
         [FieldOffset(316)] public Rank CurrentRanking; // only used for promotion detection
-
         [FieldOffset(320)] public int CurrentGattlingStage;
-
         [FieldOffset(324)] public int GattlingValue; // sum of RateUps and RateDowns
-
         [FieldOffset(336)] public VeterancyStruct Veterancy;
-
         [FieldOffset(344)] public double ArmorMultiplier;
-
         [FieldOffset(352)] public double FirepowerMultiplier;
-
         [FieldOffset(360)] public TimerStruct IdleActionTimer;
-
         [FieldOffset(372)] public TimerStruct RadarFlashTimer;
-
         [FieldOffset(384)] public TimerStruct TargetingTimer; //Duration = 45 on init!
-
         [FieldOffset(396)] public TimerStruct IronCurtainTimer;
-
         [FieldOffset(408)] public TimerStruct IronTintTimer; // how often to alternate the effect color
-
         [FieldOffset(420)] public int IronTintStage;
-
         [FieldOffset(424)] public TimerStruct AirstrikeTimer;
-
         [FieldOffset(436)] public TimerStruct AirstrikeTintTimer; // tracks alternation of the effect color
-
         [FieldOffset(448)] public int AirstrikeTintStage;
-
         [FieldOffset(452)] public int ForceShielded; //0 or 1, NOT a bool - is this under ForceShield as opposed to IC?
         public bool IsForceShilded { get => ForceShielded != 0; }
-
         [FieldOffset(456)] public Bool Deactivated; //Robot Tanks without power for instance
-
         [FieldOffset(460)] public IntPtr drainTarget; // eg Disk . PowerPlant, this points to PowerPlant
         public Pointer<TechnoClass> DrainTarget { get => drainTarget; set => drainTarget = value; }
-
         [FieldOffset(464)] public IntPtr drainingMe; // eg Disk . PowerPlant, this points to Disk
         public Pointer<TechnoClass> DrainingMe { get => drainingMe; set => drainingMe = value; }
-
         [FieldOffset(468)] public IntPtr drainAnim;
         public Pointer<AnimClass> DrainAnim { get => drainAnim; set => drainAnim = value; }
-
         [FieldOffset(480)] public TimerStruct InfantryBlinkTimer; // Rules->InfantryBlinkDisguiseTime , detects mirage firing per description
-
         [FieldOffset(492)] public TimerStruct DisguiseBlinkTimer; // disguise disruption timer
-
         [FieldOffset(508)] public TimerStruct ReloadTimer;
-
         [FieldOffset(532)] public int Group;
-
         [FieldOffset(536)] public IntPtr focus;
         public Pointer<AbstractClass> Focus { get => focus; set => focus = value; }
-
         [FieldOffset(540)] private IntPtr owner;
         public Pointer<HouseClass> Owner { get => owner; set => owner = value; }
-
         [FieldOffset(544)] public CloakStates CloakStates;
-
         [FieldOffset(548)] public ProgressTimer CloakProgress; // phase from [opaque] -> [fading] -> [transparent] , [General]CloakingStages= long
-
         [FieldOffset(576)] public TimerStruct CloakDelayTimer; // delay before cloaking again
-
         [FieldOffset(588)] public float WarpFactor; // don't ask! set to 0 in CTOR, never modified, only used as ((this->Fetch_ID) + this->WarpFactor) % 400 for something in cloak ripple
-
         [FieldOffset(624)] public Bool BeingWarpedOut; // is being warped by CLEG
-
         [FieldOffset(625)] public Bool WarpingOut; // phasing in after chrono-jump
-
         [FieldOffset(628)] public IntPtr temporalImUsing; // CLEG attacking Power Plant : CLEG's this
         public Pointer<TemporalClass> TemporalImUsing { get => temporalImUsing; set => temporalImUsing = value; }
-
         [FieldOffset(632)] public IntPtr temporalTargetingMe; // CLEG attacking Power Plant : PowerPlant's this
         public Pointer<TemporalClass> TemporalTargetingMe { get => temporalTargetingMe; set => temporalTargetingMe = value; }
-
         [FieldOffset(636)] public Bool IsImmobilized; // by chrono aftereffects
-
         [FieldOffset(644)] public int ChronoLockRemaining; // countdown after chronosphere warps things around
-
         [FieldOffset(648)] public CoordStruct ChronoDestCoords; // teleport loco and chsphere set this
-
         [FieldOffset(664)] public Bool Berzerk;
-
         [FieldOffset(680)] public IntPtr directRockerLinkedUnit;
         public Pointer<FootClass> DirectRockerLinkedUnit { get => directRockerLinkedUnit; set => directRockerLinkedUnit = value; }
-
         [FieldOffset(684)] public IntPtr locomotorTarget; // mag->LocoTarget = victim
         public Pointer<FootClass> LocomotorTarget { get => locomotorTarget; set => locomotorTarget = value; }
-
         [FieldOffset(688)] public IntPtr locomotorSource; // victim->LocoSource = mag
         public Pointer<FootClass> LocomotorSource { get => locomotorSource; set => locomotorSource = value; }
-
         [FieldOffset(692)] public Pointer<AbstractClass> Target;
-
         [FieldOffset(696)] public Pointer<AbstractClass> LastTarget;
-
+        [FieldOffset(700)] public IntPtr captureManager;
+        public Pointer<CaptureManagerClass> CaptureManager { get => captureManager; set => captureManager = value; }
+        [FieldOffset(704)] public IntPtr mindControlledBy;
+        public Pointer<TechnoClass> MindControlledBy { get => mindControlledBy; set => mindControlledBy = value; }
+        [FieldOffset(708)] public Bool MindControlledByAUnit;
+        [FieldOffset(712)] public IntPtr mindControlRingAnim;
+        public Pointer<AnimClass> MindControlRingAnim { get => mindControlRingAnim; set => mindControlRingAnim = value; }
+        [FieldOffset(716)] public IntPtr mindControlledByHouse;
+        public Pointer<AnimClass> MindControlledByHouse { get => mindControlledByHouse; set => mindControlledByHouse = value; }
         [FieldOffset(720)] public IntPtr spawnManager;
         public Pointer<SpawnManagerClass> SpawnManager { get => spawnManager; set => spawnManager = value; }
-
         [FieldOffset(724)] public IntPtr spawnOwner;
         public Pointer<TechnoClass> SpawnOwner { get => spawnOwner; set => spawnOwner = value; }
-
         [FieldOffset(728)] public IntPtr slaveManager;
         public Pointer<SlaveManagerClass> SlaveManager { get => slaveManager; set => slaveManager = value; }
-
-
         [FieldOffset(732)] public IntPtr slaveOwner;
         public Pointer<TechnoClass> SlaveOwner { get => slaveOwner; set => slaveOwner = value; }
-
-
         [FieldOffset(744)] public float PitchAngle; // not exactly, and it doesn't affect the drawing, only internal state of a dropship
-
         [FieldOffset(764)] public int Ammo;
-
         // rocking effect
         [FieldOffset(808)] public float AngleRotatedSideways; // in this frame, in radians - if abs() exceeds pi/2, it dies
-
         [FieldOffset(812)] public float AngleRotatedForwards; // same
-
         // set these and leave the previous two alone!
         // if these are set, the unit will roll up to pi/4, by this step each frame, and balance back
         [FieldOffset(816)] public float RockingSidewaysPerFrame; // left to right - positive pushes left side up
-
         [FieldOffset(820)] public float RockingForwardsPerFrame; // back to front - positive pushes ass up
-
         [FieldOffset(824)] public int HijackerInfantryType; // mutant hijacker
-
         [FieldOffset(828)] public OwnedTiberiumStruct Tiberium;
-
         [FieldOffset(880)] public FacingStruct BarrelFacing;
-
         [FieldOffset(904)] public FacingStruct Facing;
-
         [FieldOffset(928)] public FacingStruct TurretFacing;
-
         [FieldOffset(952)] public int CurrentBurstIndex;
-
         [FieldOffset(956)] public TimerStruct TargetLaserTimer;
-
         [FieldOffset(970)] public short Shipsink_3CA;
-
+        [FieldOffset(972)] public Bool CountedAsOwned; // is this techno contained in OwningPlayer.Owned... counts?
         [FieldOffset(973)] public Bool IsSinking;
-
         [FieldOffset(974)] public Bool WasSinkingAlready; // if(IsSinking && !WasSinkingAlready) { play SinkingSound; WasSinkingAlready = 1; }
-
         [FieldOffset(977)] public Bool HasBeenAttacked; // ReceiveDamage when not HouseClass_IsAlly
-
         [FieldOffset(978)] public Bool Cloakable;
-
         [FieldOffset(979)] public Bool IsPrimaryFactory; // doubleclicking a warfac/barracks sets it as primary
-
         [FieldOffset(980)] public Bool Spawned;
-
         [FieldOffset(981)] public Bool IsInPlayfield;
-
         [FieldOffset(1050)] public Bool IsHumanControlled;
-
         [FieldOffset(1051)] public Bool DiscoveredByPlayer;
-
         [FieldOffset(1052)] public Bool DiscoveredByComputer;
-
         [FieldOffset(1056)] public byte SightIncrease;
-
         [FieldOffset(1059)] public Bool IsRadarTracked;
-
         [FieldOffset(1060)] public Bool IsOnCarryall;
-
         [FieldOffset(1061)] public Bool IsCrashing;
-
         [FieldOffset(1062)] public Bool WasCrashingAlready;
-
         [FieldOffset(1063)] public Bool IsBeingManipulated;
-
         [FieldOffset(1064)] public IntPtr beingManipulatedBy;
         public Pointer<TechnoClass> BeingManipulatedBy { get => beingManipulatedBy; set => beingManipulatedBy = value; }
-
         [FieldOffset(1068)] public IntPtr chronoWarpedByHouse;
         public Pointer<HouseClass> ChronoWarpedByHouse { get => chronoWarpedByHouse; set => chronoWarpedByHouse = value; }
-
         [FieldOffset(1073)] public Bool IsMouseHovering;
-
         [FieldOffset(1088)] public DynamicVectorClass<int> CurrentTargetThreatValues;
-
         [FieldOffset(1112)] public DynamicVectorClass<Pointer<AbstractClass>> CurrentTargets;
-
         // if DistributedFire=yes, this is used to determine which possible targets should be ignored in the latest threat scan
         [FieldOffset(1136)] public DynamicVectorClass<Pointer<AbstractClass>> AttackedTargets;
-
         [FieldOffset(1184)] public Bool TurretFacingChanging;
-
         [FieldOffset(1284)] public int EMPLockRemaining;
-
         [FieldOffset(1288)] public int ThreatPosed;
-
         [FieldOffset(1292)] public int ShouldLoseTargetNow;
-
         [FieldOffset(1304)] public IntPtr disguise;
         public Pointer<ObjectTypeClass> Disguise { get => disguise; set => disguise = value; }
-
         [FieldOffset(1308)] public IntPtr disguisedAsHouse;
         public Pointer<HouseClass> DisguisedAsHouse { get => disguisedAsHouse; set => disguisedAsHouse = value; }
-
 
         public FacingStruct GetTurretFacing()
         {

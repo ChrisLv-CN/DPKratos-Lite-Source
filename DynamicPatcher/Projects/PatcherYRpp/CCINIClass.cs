@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -10,7 +11,13 @@ namespace PatcherYRpp
     [StructLayout(LayoutKind.Explicit, Size = 88)]
     public struct INIClass
     {
+        [StructLayout(LayoutKind.Explicit, Size = 68)]
+        public struct INISection
+        {
+            [FieldOffset(0)] public GenericNode Base;
 
+            [FieldOffset(12)] public AnsiStringPointer Name;
+        }
     }
 
     [StructLayout(LayoutKind.Explicit, Size = 88)]
@@ -68,7 +75,7 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public INIClass Base;
-
+        [FieldOffset(12)] public YRList<INIClass.INISection> Sections;
         [FieldOffset(64)] public Bool Digested;
     }
 }

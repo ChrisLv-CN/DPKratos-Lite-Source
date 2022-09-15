@@ -69,12 +69,148 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <Compile Remove="obj\**\*.*" />
+    <Compile Include="AbstractClass.cs" />
+    <Compile Include="AbstractTypeClass.cs" />
+    <Compile Include="AircraftClass.cs" />
+    <Compile Include="AircraftTypeClass.cs" />
+    <Compile Include="AirstrikeClass.cs" />
+    <Compile Include="AnimClass.cs" />
+    <Compile Include="AnimTypeClass.cs" />
+    <Compile Include="ArrayClass.cs" />
+    <Compile Include="Audio.cs" />
+    <Compile Include="BasicStructures.cs" />
+    <Compile Include="Blitters.cs" />
+    <Compile Include="BounceClass.cs" />
+    <Compile Include="BuildingClass.cs" />
+    <Compile Include="BuildingTypeClass.cs" />
+    <Compile Include="BulletClass.cs" />
+    <Compile Include="BulletTypeClass.cs" />
+    <Compile Include="CaptureManagerClass.cs" />
+    <Compile Include="CCFileClass.cs" />
+    <Compile Include="CCINIClass.cs" />
+    <Compile Include="CellClass.cs" />
+    <Compile Include="Checksummer.cs" />
+    <Compile Include="ColorScheme.cs" />
+    <Compile Include="ConvertClass.cs" />
+    <Compile Include="DamageGroup.cs" />
+    <Compile Include="Dependencies\DirectDraw.cs" />
+    <Compile Include="DisplayClass.cs" />
+    <Compile Include="Drawing.cs" />
+    <Compile Include="DriveLocomotionClass.cs" />
+    <Compile Include="EBolt.cs" />
+    <Compile Include="FactoryClass.cs" />
+    <Compile Include="FileFormats\HVA.cs" />
+    <Compile Include="FileFormats\SHPStruct.cs" />
+    <Compile Include="FileFormats\VoxelStruct.cs" />
+    <Compile Include="FileFormats\VXL.cs" />
+    <Compile Include="FileSystem.cs" />
+    <Compile Include="FlyLocomotionClass.cs" />
+    <Compile Include="FootClass.cs" />
+    <Compile Include="GameOptionsClass.cs" />
+    <Compile Include="GeneralDefinitions.cs" />
+    <Compile Include="GeneralStructures.cs" />
+    <Compile Include="GenericList.cs" />
+    <Compile Include="Helpers\Bool.cs" />
+    <Compile Include="Helpers\Cast.cs" />
+    <Compile Include="Helpers\COMHelpers.cs" />
+    <Compile Include="Helpers\CompileTimeCheck.g.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CompileTimeCheck.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Helpers\Helpers.cs" />
+    <Compile Include="Helpers\Pointer.cs" />
+    <Compile Include="Helpers\PointerEnumerator.cs" />
+    <Compile Include="Helpers\PointerHandle.cs" />
+    <Compile Include="Helpers\String.cs" />
+    <Compile Include="Helpers\YRClassHandle.cs" />
+    <Compile Include="HouseClass.cs" />
+    <Compile Include="HouseTypeClass.cs" />
+    <Compile Include="HoverLocomotionClass.cs" />
+    <Compile Include="InfantryClass.cs" />
+    <Compile Include="InfantryTypeClass.cs" />
+    <Compile Include="Interfaces.cs" />
+    <Compile Include="JumpjetLocomotionClass.cs" />
+    <Compile Include="KamikazeControl.cs" />
+    <Compile Include="LaserDrawClass.cs" />
+    <Compile Include="LocomotionClass.cs" />
+    <Compile Include="MapClass.cs" />
+    <Compile Include="MechLocomotionClass.cs" />
+    <Compile Include="MessageListClass.cs" />
+    <Compile Include="MissionClass.cs" />
+    <Compile Include="MixFileClass.cs" />
+    <Compile Include="MPGameModeClass.cs" />
+    <Compile Include="MPTeams.cs" />
+    <Compile Include="ObjectClass.cs" />
+    <Compile Include="ObjectTypeClass.cs" />
+    <Compile Include="OverlayClass.cs" />
+    <Compile Include="OverlayTypeClass.cs" />
+    <Compile Include="ParasiteClass.cs" />
+    <Compile Include="ParticleSystemClass.cs" />
+    <Compile Include="ParticleSystemTypeClass.cs" />
+    <Compile Include="PassengersClass.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RadBeam.cs" />
+    <Compile Include="RadioClass.cs" />
+    <Compile Include="Randomizer.cs" />
+    <Compile Include="RocketLocomotionClass.cs" />
+    <Compile Include="RulesClass.cs" />
+    <Compile Include="ScenarioClass.cs" />
+    <Compile Include="SessionClass.cs" />
+    <Compile Include="ShipLocomotionClass.cs" />
+    <Compile Include="SideClass.cs" />
+    <Compile Include="SlaveControl.cs" />
+    <Compile Include="SlaveManagerClass.cs" />
+    <Compile Include="SpawnManagerClass.cs" />
+    <Compile Include="SpawnNode.cs" />
+    <Compile Include="SuperClass.cs" />
+    <Compile Include="SuperWeaponTypeClass.cs" />
+    <Compile Include="Surface.cs" />
+    <Compile Include="SwizzleManagerClass.cs" />
+    <Compile Include="TacticalClass.cs" />
+    <Compile Include="TagClass.cs" />
+    <Compile Include="TechnoClass.cs" />
+    <Compile Include="TechnoTypeClass.cs" />
+    <Compile Include="TeleportLocomotionClass.cs" />
+    <Compile Include="TemporalClass.cs" />
+    <Compile Include="TerrainClass.cs" />
+    <Compile Include="TerrainTypeClass.cs" />
+    <Compile Include="UnitClass.cs" />
+    <Compile Include="UnitTypeClass.cs" />
+    <Compile Include="Unsorted.cs" />
+    <Compile Include="VocClass.cs" />
+    <Compile Include="VocClassHeader.cs" />
+    <Compile Include="WalkLocomotionClass.cs" />
+    <Compile Include="WarheadTypeClass.cs" />
+    <Compile Include="WeaponTypeClass.cs" />
+    <Compile Include="WWMouseClass.cs" />
+    <Compile Include="YRMathVector.cs" />
+    <Compile Include="YRMemory.cs" />
+    <Compile Include="YRMemory.Instantiator.g.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>YRMemory.Instantiator.tt</DependentUpon>
+    </Compile>
+    <Compile Include="YRPP.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Helpers\CompileTimeCheck.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CompileTimeCheck.g.cs</LastGenOutput>
+    </None>
     <None Include="LICENSE" />
     <None Include="README.md" />
+    <None Include="workspace.code-workspace" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="YRMemory.Instantiator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>YRMemory.Instantiator.g.cs</LastGenOutput>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -27,43 +27,94 @@ namespace PatcherYRpp
             return Helpers.GetSpan<T>(Items, Count);
         }
 
-        class Enumerator : IEnumerator<T>, IEnumerator
+
+        public unsafe bool OperatorEqual(Pointer<DynamicVectorClass<T>> pOther)
         {
-            internal Enumerator(Pointer<T> items, int count)
-            {
-                this.items = items;
-                this.count = count;
-                Reset();
-            }
-
-            public void Dispose() { }
-
-            public bool MoveNext()
-            {
-                if (index < count)
-                {
-                    current = items[index];
-                    index++;
-                    return true;
-                }
-                return false;
-            }
-
-            public T Current => current;
-
-            object IEnumerator.Current => Current;
-
-            public void Reset()
-            {
-                index = 0;
-                current = default(T);
-            }
-
-            private Pointer<T> items;
-            private int count;
-            private int index;
-            private T current;
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, IntPtr, Bool>)this.GetVirtualFunctionPointer(1);
+            return func(this.GetThisPointer(), pOther);
         }
+
+        public unsafe bool SetCapacity(int capacity, Pointer<T> pMem = default)
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, int, IntPtr, Bool>)this.GetVirtualFunctionPointer(2);
+            return func(this.GetThisPointer(), capacity, pMem);
+        }
+        public unsafe void Clear()
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, void>)this.GetVirtualFunctionPointer(3);
+            func(this.GetThisPointer());
+        }
+        public unsafe int FindItemIndex(Pointer<T> pItem)
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, IntPtr, int>)this.GetVirtualFunctionPointer(4);
+            return func(this.GetThisPointer(), pItem);
+        }
+        public unsafe int GetItemIndex(Pointer<T> pItem)
+        {
+            var func = (delegate* unmanaged[Thiscall]<IntPtr, IntPtr, int>)this.GetVirtualFunctionPointer(5);
+            return func(this.GetThisPointer(), pItem);
+        }
+
+        public bool AddItem(T item)
+        {
+            if (Count >= Capacity)
+            {
+                if (!IsAllocated && Capacity != 0)
+                    return false;
+
+                if (CapacityIncrement <= 0)
+                    return false;
+
+                if (!SetCapacity(Capacity + CapacityIncrement))
+                    return false;
+            }
+
+            this[Count++] = item;
+            return true;
+        }
+        public bool AddUnique(Pointer<T> pItem)
+        {
+            int idx = FindItemIndex(pItem);
+            return idx < 0 && AddItem(pItem.Ref);
+        }
+
+        class Enumerator : IEnumerator<T>, IEnumerator
+		{
+			internal Enumerator(Pointer<T> items, int count)
+			{
+				this.items = items;
+				this.count = count;
+                Reset();
+			}
+
+			public void Dispose() { }
+
+			public bool MoveNext()
+			{
+				if (index < count)
+				{
+					current = items[index];
+					index++;
+					return true;
+				}
+				return false;
+			}
+
+			public T Current => current;
+
+			object IEnumerator.Current => Current;
+
+			public void Reset()
+			{
+				index = 0;
+				current = default(T);
+			}
+
+			private Pointer<T> items;
+			private int count;
+			private int index;
+			private T current;
+		}
 
         public IEnumerator<T> GetEnumerator()
         {

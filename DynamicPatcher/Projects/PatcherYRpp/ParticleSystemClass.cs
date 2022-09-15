@@ -8,8 +8,11 @@ using System.Threading.Tasks;
 namespace PatcherYRpp
 {
     [StructLayout(LayoutKind.Explicit, Size = 256)]
-    public struct ParticleSystemClass
+    public struct ParticleSystemClass : IOwnAbstractType<ParticleSystemTypeClass>
     {
+
+        Pointer<ParticleSystemTypeClass> IOwnAbstractType<ParticleSystemTypeClass>.OwnType => Type;
+        Pointer<AbstractTypeClass> IOwnAbstractType.AbstractType => Type.Convert<AbstractTypeClass>();
 
         public static unsafe void Constructor(Pointer<ParticleSystemClass> pThis, Pointer<ParticleSystemTypeClass> pType, CoordStruct sourcePos, CoordStruct targetPos)
         {
@@ -38,8 +41,6 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(0)] public ObjectClass Base;
-
         [FieldOffset(172)] public Pointer<ParticleSystemTypeClass> Type;
-
     }
 }

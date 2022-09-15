@@ -23,7 +23,7 @@ namespace PatcherYRpp
 
         public unsafe void PrintMessage(string message, ColorSchemeIndex colorSchemeIndex = ColorSchemeIndex.Yellow, int duration = 0x96, bool silent = false)
         {
-            PrintMessage(null, 0, message, colorSchemeIndex, 0x4046, duration, silent);
+            PrintMessage(IntPtr.Zero, 0, message, colorSchemeIndex, 0x4046, duration, silent);
         }
 
         public unsafe void PrintMessage(string label, string message, ColorSchemeIndex ColorSchemeIndex = ColorSchemeIndex.Yellow, int duration = 0x96, bool silent = false)

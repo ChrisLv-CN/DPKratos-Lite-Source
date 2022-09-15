@@ -12,7 +12,6 @@ namespace PatcherYRpp.FileFormats
     public struct VoxelStruct
     {
         [FieldOffset(0)] public Pointer<VoxLib> VXL;
-
         [FieldOffset(4)] public Pointer<MotLib> HVA;
     }
 }

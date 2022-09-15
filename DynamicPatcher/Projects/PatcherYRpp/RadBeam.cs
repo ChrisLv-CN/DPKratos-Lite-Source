@@ -34,17 +34,11 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(4)] public Pointer<TechnoClass> Owner;
-
         [FieldOffset(16)] public RadBeamType Type;
-
         [FieldOffset(32)] public ColorStruct Color;
-
         [FieldOffset(36)] public CoordStruct SourceLocation;
-
         [FieldOffset(48)] public CoordStruct TargetLocation;
-
         [FieldOffset(60)] public int Period;
-
         [FieldOffset(64)] public double Amplitude;
     }
 }

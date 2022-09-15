@@ -13,15 +13,10 @@ namespace PatcherYRpp
     {
 
         [FieldOffset(24)] public Bool Piggy;
-
         [FieldOffset(28)] public CoordStruct Destination;
-
         [FieldOffset(40)] public CoordStruct HeadToCoord;
-
         [FieldOffset(52)] public Bool IsMoving;
-
         [FieldOffset(54)] public Bool IsReallyMoving;
-
         [FieldOffset(56)] public Bool Piggyback;
     }
 }

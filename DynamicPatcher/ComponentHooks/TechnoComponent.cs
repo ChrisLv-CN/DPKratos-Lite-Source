@@ -12,16 +12,15 @@ namespace ComponentHooks
 {
     public class TechnoComponentHooks
     {
-        // Kratos moved to ExtensionHook
-        // [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
-        public static unsafe UInt32 TechnoClass_Update_Components(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
+        static public unsafe UInt32 TechnoClass_Update_Components(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.AttachedComponent.Foreach(c => c.OnUpdate());
+                ext.GameObject.Foreach(c => c.OnUpdate());
 
                 return 0;
             }
@@ -31,19 +30,36 @@ namespace ComponentHooks
                 return 0;
             }
         }
+        [Hook(HookType.AresHook, Address = 0x6FAFFD, Size = 7)]
+        [Hook(HookType.AresHook, Address = 0x6FAF7A, Size = 7)]
+        static public unsafe UInt32 TechnoClass_LateUpdate_Components(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
 
-        // Kratos moved to ExtensionHook
-        // [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
-        public static unsafe UInt32 TechnoClass_Put_Components(REGISTERS* R)
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => c.OnLateUpdate());
+
+                return 0;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+                return 0;
+            }
+        }
+        [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
+        static public unsafe UInt32 TechnoClass_Put_Components(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 var pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
-                var faceDirValue8 = R->Stack<short>(0x8);
+                var faceDir = R->Stack<Direction>(0x8);
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.AttachedComponent.Foreach(c => (c as IObjectScriptable)?.OnPut(pCoord.Data, faceDirValue8));
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnPut(pCoord.Data, faceDir));
 
                 return 0;
             }
@@ -53,19 +69,17 @@ namespace ComponentHooks
                 return 0;
             }
         }
-
         // avoid hook conflict with phobos feature -- shield
         //[Hook(HookType.AresHook, Address = 0x6F6AC0, Size = 5)]
-        // Kratos moved to ExtensionHook
-        // [Hook(HookType.AresHook, Address = 0x6F6AC4, Size = 5)]
-        public static unsafe UInt32 TechnoClass_Remove_Components(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x6F6AC4, Size = 5)]
+        static public unsafe UInt32 TechnoClass_Remove_Components(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.AttachedComponent.Foreach(c => (c as IObjectScriptable)?.OnRemove());
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnRemove());
 
                 return 0;
             }
@@ -75,10 +89,8 @@ namespace ComponentHooks
                 return 0;
             }
         }
-
-        // Kratos moved to ExtensionHook
-        // [Hook(HookType.AresHook, Address = 0x701900, Size = 6)]
-        public static unsafe UInt32 TechnoClass_ReceiveDamage_Components(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x701900, Size = 6)]
+        static public unsafe UInt32 TechnoClass_ReceiveDamage_Components(REGISTERS* R)
         {
             try
             {
@@ -92,7 +104,7 @@ namespace ComponentHooks
                 var pAttackingHouse = R->Stack<Pointer<HouseClass>>(0x1C);
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.AttachedComponent.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
 
                 return 0;
             }
@@ -102,10 +114,8 @@ namespace ComponentHooks
                 return 0;
             }
         }
-
-        // Kratos moved to ExtensionHook
-        // [Hook(HookType.AresHook, Address = 0x6FDD50, Size = 6)]
-        public static unsafe UInt32 TechnoClass_Fire_Components(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x6FDD50, Size = 6)]
+        static public unsafe UInt32 TechnoClass_Fire_Components(REGISTERS* R)
         {
             try
             {
@@ -114,7 +124,7 @@ namespace ComponentHooks
                 var nWeaponIndex = R->Stack<int>(0x8);
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.AttachedComponent.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, nWeaponIndex));
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, nWeaponIndex));
 
                 return 0;
             }
@@ -126,13 +136,12 @@ namespace ComponentHooks
         }
 
         #region Render
-        public static UInt32 TechnoClass_Render_Components(Pointer<TechnoClass> pTechno)
+        static public UInt32 TechnoClass_Render_Components(Pointer<TechnoClass> pTechno)
         {
             try
             {
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.OnRender();
-                ext.AttachedComponent.Foreach(c => c.OnRender());
+                ext.GameObject.Foreach(c => c.OnRender());
 
                 return 0;
             }
@@ -143,30 +152,29 @@ namespace ComponentHooks
             }
         }
         [Hook(HookType.AresHook, Address = 0x4144B0, Size = 5)]
-        public static unsafe UInt32 AircraftClass_Render_Components(REGISTERS* R)
+        static public unsafe UInt32 AircraftClass_Render_Components(REGISTERS* R)
         {
             Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
             return TechnoClass_Render_Components(pAircraft.Convert<TechnoClass>());
         }
         [Hook(HookType.AresHook, Address = 0x43D290, Size = 5)]
-        public static unsafe UInt32 BuildingClass_Render_Components(REGISTERS* R)
+        static public unsafe UInt32 BuildingClass_Render_Components(REGISTERS* R)
         {
             Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
             return TechnoClass_Render_Components(pBuilding.Convert<TechnoClass>());
         }
         [Hook(HookType.AresHook, Address = 0x518F90, Size = 7)]
-        public static unsafe UInt32 InfantryClass_Render_Components(REGISTERS* R)
+        static public unsafe UInt32 InfantryClass_Render_Components(REGISTERS* R)
         {
             Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
             return TechnoClass_Render_Components(pInfantry.Convert<TechnoClass>());
         }
         [Hook(HookType.AresHook, Address = 0x73CEC0, Size = 5)]
-        public static unsafe UInt32 UnitClass_Render_Components(REGISTERS* R)
+        static public unsafe UInt32 UnitClass_Render_Components(REGISTERS* R)
         {
             Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
             return TechnoClass_Render_Components(pUnit.Convert<TechnoClass>());
         }
         #endregion
-
     }
 }

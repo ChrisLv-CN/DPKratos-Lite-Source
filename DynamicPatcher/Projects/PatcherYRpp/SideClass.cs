@@ -14,10 +14,7 @@ namespace PatcherYRpp
 
         public static YRPP.GLOBAL_DVC_ARRAY<SideClass> ABSTRACTTYPE_ARRAY = new YRPP.GLOBAL_DVC_ARRAY<SideClass>(ArrayPointer);
 
-
-
         [FieldOffset(0)] public AbstractTypeClass Base;
-
         [FieldOffset(152)] public DynamicVectorClass<int> HouseTypes;
     }
 }

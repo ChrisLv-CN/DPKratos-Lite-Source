@@ -19,15 +19,15 @@ namespace PatcherYRpp
 
         public bool TryGetCellAt(CellStruct MapCoords, out Pointer<CellClass> pCell)
         {
+            pCell = Pointer<CellClass>.Zero;
+
             int idx = GetCellIndex(MapCoords);
             if (idx >= 0 && idx < MaxCells)
             {
                 pCell = Cells[idx];
-                return !pCell.IsNull;
             }
 
-            pCell = Pointer<CellClass>.Zero;
-            return false;
+            return pCell != Pointer<CellClass>.Zero;
         }
         public bool TryGetCellAt(CoordStruct Crd, out Pointer<CellClass> pCell)
         {
@@ -78,22 +78,20 @@ namespace PatcherYRpp
         //public delegate void FlashbangWarheadAtFunction(int Damage, IntPtr WH, CoordStruct coords, bool Force = false, SpotlightFlags CLDisableFlags = SpotlightFlags.None);
         //public static FlashbangWarheadAtFunction FlashbangWarheadAt = Marshal.GetDelegateForFunctionPointer<FlashbangWarheadAtFunction>(new IntPtr(0x48A620));
 
-        // public static unsafe void FlashbangWarheadAt(int Damage, Pointer<WarheadTypeClass> WH, CoordStruct coords, bool Force = false, SpotlightFlags CLDisableFlags = SpotlightFlags.None)
-        // {
+        //public static unsafe void FlashbangWarheadAt(int Damage, Pointer<WarheadTypeClass> WH, CoordStruct coords, bool Force = false, SpotlightFlags CLDisableFlags = SpotlightFlags.None)
+        //{
         //    //var func = (delegate* unmanaged[Fastcall]<int, IntPtr, CoordStruct, bool, SpotlightFlags, void>)0x48A620;
         //    var func = (delegate* managed<int, Pointer<WarheadTypeClass>, SpotlightFlags, bool, CoordStruct, void>)0x48A620;
         //    func(Damage, WH, CLDisableFlags, Force, coords);
-        // }
+        //}
 
-        // the key damage delivery
-        /*! The key damage delivery function.
-            \param Coords Location of the impact/center of damage.
-            \param Damage Amount of damage to deal.
-            \param SourceObject The object which caused the damage to be delivered (iow, the shooter).
-            \param WH The warhead to use to apply the damage.
-            \param AffectsTiberium If this is false, Tiberium=yes is ignored.
-            \param SourceHouse The house to which SourceObject belongs, the owner/bringer of damage.
-        */
+        // get the damage a warhead causes to specific armor
+        public static unsafe int GetTotalDamage(int Damage, Pointer<WarheadTypeClass> WH, Armor armor, int distance)
+        {
+            var func = (delegate* unmanaged[Thiscall]<int, int, IntPtr, Armor, int, int>)ASM.FastCallTransferStation;
+            return func(0x489180, Damage, WH, armor, distance);
+        }
+
         public static unsafe DamageAreaResult DamageArea(CoordStruct Coords, int Damage, Pointer<TechnoClass> SourceObject,
            Pointer<WarheadTypeClass> WH, bool AffectsTiberium, Pointer<HouseClass> SourceHouse)
         {
@@ -118,13 +116,6 @@ namespace PatcherYRpp
         {
             var func = (delegate* unmanaged[Thiscall]<int, int, IntPtr, CoordStruct, Bool, SpotlightFlags, void>)ASM.FastCallTransferStation;
             func(0x48A620, Damage, WH, coords, Force, CLDisableFlags);
-        }
-
-        // get the damage a warhead causes to specific armor
-        public static unsafe int GetTotalDamage(int Damage, Pointer<WarheadTypeClass> WH, Armor armor, int distance)
-        {
-            var func = (delegate* unmanaged[Thiscall]<int, int, IntPtr, Armor, int, int>)ASM.FastCallTransferStation;
-            return func(0x489180, Damage, WH, armor, distance);
         }
 
         public static CoordStruct Cell2Coord(CellStruct cell, int z = 0)
@@ -166,7 +157,6 @@ namespace PatcherYRpp
         }
 
         [FieldOffset(312)] public DynamicVectorClass<Pointer<CellClass>> Cells;
-
         [FieldOffset(4444)] public DynamicVectorClass<CellStruct> TaggedCells;
     }
 }

@@ -31,19 +31,20 @@ namespace Extension.Utilities
             Flags = SecurityPermissionFlag.SerializationFormatter)]
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue("SwizzleablePointer::HasPointer", handle != null);
             if (handle != null)
             {
-                info.AddValue("Pointer", (int)Pointer);
+                info.AddValue("SwizzleablePointer::Pointer", (int)Pointer);
             }
         }
         private SwizzleablePointer(SerializationInfo info, StreamingContext context)
         {
-            try
+            if (info.GetBoolean("SwizzleablePointer::HasPointer"))
             {
-                handle = new PointerHandle<T>((IntPtr)info.GetInt32("Pointer"));
+                handle = new PointerHandle<T>((IntPtr)info.GetInt32("SwizzleablePointer::Pointer"));
                 SwizzleManagerClass.Instance.Swizzle(ref Pointer);
             }
-            catch (SerializationException)
+            else
             {
                 handle = null;
             }

@@ -20,24 +20,14 @@ namespace PatcherYRpp
         [FieldOffset(0)] public AbstractTypeClass BaseAbstractType;
 
         [FieldOffset(3580)] public Bool Carryall;
-
         [FieldOffset(3584)] public Pointer<AnimTypeClass> Trailer;
-
         [FieldOffset(3588)] public int SpawnDelay;
-
         [FieldOffset(3592)] public Bool Rotors;
-
         [FieldOffset(3593)] public Bool CustomRotor;
-
         [FieldOffset(3594)] public Bool Landable;
-
         [FieldOffset(3595)] public Bool FlyBy;
-
         [FieldOffset(3596)] public Bool FlyBack;
-
         [FieldOffset(3597)] public Bool AirportBound;
-
         [FieldOffset(3598)] public Bool Fighter;
-
     }
 }

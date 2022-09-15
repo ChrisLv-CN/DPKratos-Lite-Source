@@ -10,12 +10,12 @@ namespace Extension.Script
     [Serializable]
     public abstract class ScriptComponent : Component
     {
-        public ScriptComponent()
+        protected ScriptComponent()
         {
 
         }
 
-        public ScriptComponent(Script script)
+        protected ScriptComponent(Script script)
         {
             Script = script;
         }

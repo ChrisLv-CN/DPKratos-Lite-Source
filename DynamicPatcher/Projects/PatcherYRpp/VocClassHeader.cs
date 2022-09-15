@@ -12,9 +12,7 @@ namespace PatcherYRpp
     public struct VocClassHeader
     {
         [FieldOffset(0)] public IntPtr Next;
-
         [FieldOffset(4)] public IntPtr Prev;
-
         [FieldOffset(8)] public int Magic;
 
     }

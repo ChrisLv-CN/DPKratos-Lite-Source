@@ -55,6 +55,8 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Drawing.Imaging" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -72,6 +74,10 @@
       <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
       <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="Projects\ScriptUniversal\ScriptUniversal.csproj">
+      <Project>{FD57F300-23BA-41C7-AD77-155195CFF60E}</Project>
+      <Name>ScriptUniversal</Name>
+    </ProjectReference>
     <ProjectReference Include="Projects\Extension\Extension.csproj">
       <Project>{957E3C34-E736-4145-8B05-2DC1BCFA79E1}</Project>
       <Name>Extension</Name>
@@ -80,12 +86,31 @@
       <Project>{C6726566-6231-435A-9BA4-73B05CA8FAEB}</Project>
       <Name>Extension.FX</Name>
     </ProjectReference>
+    <!--
+    <ProjectReference Include="Projects\Extension.Lua\Extension.Lua.csproj">
+      <Project>{528689C5-11D4-49D3-844A-AA721D9EAB47}</Project>
+      <Name>Extension.Lua</Name>
+    </ProjectReference>
+    -->
+    <ProjectReference Include="Projects\Extension.Ext\Extension.Ext.csproj">
+      <Project>{D0C97578-1F0D-419C-A3DB-31946CF25CC6}</Project>
+      <Name>Extension.Ext</Name>
+    </ProjectReference>
+    <ProjectReference Include="Projects\Extension.Script\Extension.Script.csproj">
+      <Project>{FB5159D2-722B-4161-9EA6-A77B10350107}</Project>
+      <Name>Extension.Script</Name>
+    </ProjectReference>
+    <ProjectReference Include="Projects\Extension.Kratos\Extension.Kratos.csproj">
+      <Project>{6F258DDB-D066-4525-A9B7-9D4137075349}</Project>
+      <Name>Extension.Kratos</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="*Hooks\*.cs" />
     <Compile Include="Miscellaneous\*.cs" />
     <Compile Include="Scripts\*.cs" />
     <Compile Remove="obj\**\*.*" />
+    <Compile Remove="Scripts\UseLua.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

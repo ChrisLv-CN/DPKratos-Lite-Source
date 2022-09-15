@@ -1,0 +1,92 @@
+﻿<#@ template debug="true" hostspecific="false" language="C#" #>
+<#@ output extension=".g.cs" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.Caching;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+<#
+    const int MAX_COUNT = 16;
+
+    List<string> methodDeclarations = new();
+
+    for (int count = 0; count < MAX_COUNT; count++) {
+        StringBuilder decl = new();
+
+        decl.Append("public static Pointer<T> Construct<T");
+        if (count > 0) {
+            decl.Append($", {string.Join(", ", Enumerable.Range(1, count).Select(i => $"T{i}"))}");
+        }
+        decl.Append(">");
+        decl.Append("(this Pointer<T> @this");
+        if (count > 0) {
+            decl.Append($", {string.Join(", ",  Enumerable.Range(1, count).Select(i => $"T{i} p{i}"))}");
+        }
+        decl.Append(")");
+
+        methodDeclarations.Add(decl.ToString());
+    }
+#>
+
+namespace PatcherYRpp
+{
+
+	public static partial class YRMemory
+	{
+	
+        private static MemoryCache ctorCache = new MemoryCache("CTOR cache");
+        
+<#
+for (int idx = 0; idx < MAX_COUNT; idx++) {
+#>
+        <#= methodDeclarations[idx]#>
+        {
+            if (@this.IsNull)
+            {
+                throw new NullReferenceException("'this' is nullptr");
+            }
+
+            string uniqueCtorName = typeof(T).FullName + "@<#= idx#>";
+            var ctor = ctorCache[uniqueCtorName] as Action<<#= "Pointer<T>" + (idx > 0 ? ", " : "") + string.Join(", ", Enumerable.Range(1, idx).Select(i => $"T{i}"))#>>;
+
+            if (ctor == null)
+            {
+                Type type = typeof(T);
+                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
+                    { Expression.Parameter(typeof(Pointer<T>), "TPtr"), <#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"Expression.Parameter(typeof(T{i}), \"t{i}\")"))#> };
+                    
+                MethodInfo constructor = type.GetMethod("Constructor", new[] { typeof(Pointer<T>), <#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"typeof(T{i})"))#> });
+                MethodCallExpression ctorExpression = Expression.Call(constructor, parameterExpressions);
+                var expression = Expression.Lambda<Action<<#= "Pointer<T>" + (idx > 0 ? ", " : "") + string.Join(", ", Enumerable.Range(1, idx).Select(i => $"T{i}"))#>>>(ctorExpression, parameterExpressions);
+                var lambda = expression.Compile();
+                
+                var policy = new CacheItemPolicy
+                {
+                    // TOCHECK: if there is no memory leak, expire after 60s
+                    SlidingExpiration = ObjectCache.NoSlidingExpiration
+                };
+                ctorCache.Set(uniqueCtorName, lambda, policy);
+
+                ctor = lambda;
+            }
+
+            ctor(@this<#= (idx > 0 ? ", " : "") + string.Join(", ", Enumerable.Range(1, idx).Select(i => $"p{i}"))#>);
+
+            return @this;
+        }
+
+<#
+}
+#>
+	}
+}

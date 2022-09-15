@@ -13,9 +13,7 @@ namespace PatcherYRpp
     {
 
         [FieldOffset(28)] public CoordStruct Destination; // 0x1C
-
         [FieldOffset(40)] public CoordStruct HeadToCoord; // 0x28
-
         [FieldOffset(52)] public TimerStruct Timer; // 0x3C
 
     }

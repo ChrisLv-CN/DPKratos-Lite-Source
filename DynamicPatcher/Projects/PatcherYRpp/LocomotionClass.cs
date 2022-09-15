@@ -225,7 +225,6 @@ namespace PatcherYRpp
         [FieldOffset(16)] public Bool Powered;
         [FieldOffset(17)] public Bool Dirty;
         [FieldOffset(20)] public int RefCount;
-
     }
 
     public static class LocomotionHelpers
