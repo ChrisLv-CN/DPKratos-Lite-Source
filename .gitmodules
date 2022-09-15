@@ -1,0 +1,4 @@
+[submodule "DynamicPatcher/Projects/PatcherYRpp"]
+	path = DynamicPatcher/Projects/PatcherYRpp
+	url = https://github.com/ChrisLv-CN/PatcherYRpp.git
+	branch = main
