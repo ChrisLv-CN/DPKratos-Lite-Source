@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Extension.Components;
 using Extension.EventSystems;
+using Extension.Ext;
 
 namespace GeneralHooks
 {
@@ -15,6 +16,7 @@ namespace GeneralHooks
         static General()
         {
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, MathExHandler);
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, Kratos.NewGame);
         }
 
         private static void MathExHandler(object sender, EventArgs e)

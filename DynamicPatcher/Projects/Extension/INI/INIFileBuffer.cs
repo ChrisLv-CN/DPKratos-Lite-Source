@@ -54,18 +54,21 @@ namespace Extension.INI
             while (pSection.IsNotNull)
             {
                 string section = pSection.Ref.Name;
-                // read all pairs as <string, string> first
-                int keyCount = pINI.Ref.GetKeyCount(section);
-                List<(string key, string value)> pairs = new(keyCount);
-                for (int i = 0; i < keyCount; i++)
+                if (section != null)
                 {
-                    string key = pINI.Ref.GetKeyName(section, i);
-                    string val = null;
-                    reader.Read(section, key, ref val);
-                    pairs.Add((key, val));
-                }
+                    // read all pairs as <string, string> first
+                    int keyCount = pINI.Ref.GetKeyCount(section);
+                    List<(string key, string value)> pairs = new(keyCount);
+                    for (int i = 0; i < keyCount; i++)
+                    {
+                        string key = pINI.Ref.GetKeyName(section, i);
+                        string val = null;
+                        reader.Read(section, key, ref val);
+                        pairs.Add((key, val));
+                    }
 
-                m_SectionCache[section] = pairs.ToArray();
+                    m_SectionCache[section] = pairs.ToArray();
+                }
 
                 pSection = pSection.Cast<YRNode<INISection>>().Ref.Next;
             }

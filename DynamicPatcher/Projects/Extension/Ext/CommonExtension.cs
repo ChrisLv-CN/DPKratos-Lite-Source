@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicPatcher;
 using Extension.Components;
 using Extension.Decorators;
 using Extension.INI;
@@ -65,29 +66,16 @@ namespace Extension.Ext
             {
                 foreach (var script in Type.Scripts)
                 {
-                    ScriptManager.CreateScriptableTo(gameObject, script, this as TExt);
+                    try
+                    {
+                        ScriptManager.CreateScriptableTo(gameObject, script, this as TExt);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError("unable to create scriptable {0}", script.ScriptableType.FullName);
+                        Logger.PrintException(e);
+                    }
                 }
-            }
-            foreach (var script in s_GlobalScripts)
-            {
-                ScriptManager.CreateScriptableTo(gameObject, script, this as TExt);
-            }
-        }
-
-
-
-        private static List<Script.Script> s_GlobalScripts = new();
-
-        public static void AddGlobalScript(Script.Script script)
-        {
-            var oldScript = s_GlobalScripts.Find(s => s.Name == script.Name);
-            if (oldScript != null)
-            {
-                oldScript.ScriptableType = script.ScriptableType;
-            }
-            else
-            {
-                s_GlobalScripts.Add(script);
             }
         }
     }

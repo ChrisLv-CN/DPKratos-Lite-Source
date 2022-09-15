@@ -20,10 +20,10 @@
     "Microsoft.VisualStudio.Interop.dll"
   ],
   "preprocessor_symbols": [
-    "_USE_ANIM_EXT",
+    "USE_ANIM_EXT",
     "_USE_CELL_EXT",
 
-    "REALTIME_INI",
+    "_REALTIME_INI",
 
     "_FX_ENABLE",
     "_FX_USED3D",

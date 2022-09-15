@@ -56,6 +56,22 @@
       <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
       <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ScriptUniversal\ScriptUniversal.csproj">
+      <Project>{FD57F300-23BA-41C7-AD77-155195CFF60E}</Project>
+      <Name>ScriptUniversal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extension\Extension.csproj">
+      <Project>{957E3C34-E736-4145-8B05-2DC1BCFA79E1}</Project>
+      <Name>Extension</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extension.Ext\Extension.Ext.csproj">
+      <Project>{D0C97578-1F0D-419C-A3DB-31946CF25CC6}</Project>
+      <Name>Extension.Ext</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extension.Script\Extension.Script.csproj">
+      <Project>{FB5159D2-722B-4161-9EA6-A77B10350107}</Project>
+      <Name>Extension.Script</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
