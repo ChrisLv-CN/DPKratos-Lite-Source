@@ -12,9 +12,9 @@ using PatcherYRpp;
 namespace Extension.Ext
 {
     [Serializable]
-    public partial class SWTypeExt : CommonTypeExtension<SWTypeExt, SuperWeaponTypeClass>
+    public partial class SuperWeaponTypeExt : CommonTypeExtension<SuperWeaponTypeExt, SuperWeaponTypeClass>
     {
-        public SWTypeExt(Pointer<SuperWeaponTypeClass> OwnerObject) : base(OwnerObject)
+        public SuperWeaponTypeExt(Pointer<SuperWeaponTypeClass> OwnerObject) : base(OwnerObject)
         {
 
         }
@@ -41,7 +41,7 @@ namespace Extension.Ext
         {
             var pItem = (Pointer<SuperWeaponTypeClass>)R->EAX;
 
-            SWTypeExt.ExtMap.FindOrAllocate(pItem);
+            SuperWeaponTypeExt.ExtMap.FindOrAllocate(pItem);
             return 0;
         }
 
@@ -50,7 +50,7 @@ namespace Extension.Ext
         {
             var pItem = (Pointer<SuperWeaponTypeClass>)R->ECX;
 
-            SWTypeExt.ExtMap.Remove(pItem);
+            SuperWeaponTypeExt.ExtMap.Remove(pItem);
             return 0;
         }
 
@@ -61,7 +61,7 @@ namespace Extension.Ext
             var pItem = (Pointer<SuperWeaponTypeClass>)R->EBP;
             var pINI = R->Stack<Pointer<CCINIClass>>(0x3FC);
 
-            SWTypeExt.ExtMap.LoadFromINI(pItem, pINI);
+            SuperWeaponTypeExt.ExtMap.LoadFromINI(pItem, pINI);
             return 0;
         }
 
@@ -73,21 +73,21 @@ namespace Extension.Ext
             var pStm = R->Stack<Pointer<IStream>>(0x8);
             IStream stream = Marshal.GetObjectForIUnknown(pStm) as IStream;
 
-            SWTypeExt.ExtMap.PrepareStream(pItem, stream);
+            SuperWeaponTypeExt.ExtMap.PrepareStream(pItem, stream);
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CE8BE, Size = 7)]
         static public unsafe UInt32 SuperWeaponTypeClass_Load_Suffix(REGISTERS* R)
         {
-            SWTypeExt.ExtMap.LoadStatic();
+            SuperWeaponTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CE8EA, Size = 5)]
         static public unsafe UInt32 SuperWeaponTypeClass_Save_Suffix(REGISTERS* R)
         {
-            SWTypeExt.ExtMap.SaveStatic();
+            SuperWeaponTypeExt.ExtMap.SaveStatic();
             return 0;
         }
     }

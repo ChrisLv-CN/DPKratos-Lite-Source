@@ -11,7 +11,7 @@ using PatcherYRpp;
 namespace Extension.Ext
 {
     [Serializable]
-    public partial class SuperWeaponExt : CommonInstanceExtension<SuperWeaponExt, SuperClass, SWTypeExt, SuperWeaponTypeClass>
+    public partial class SuperWeaponExt : CommonInstanceExtension<SuperWeaponExt, SuperClass, SuperWeaponTypeExt, SuperWeaponTypeClass>
     {
         public SuperWeaponExt(Pointer<SuperClass> OwnerObject) : base(OwnerObject)
         {
