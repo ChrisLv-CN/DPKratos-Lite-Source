@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 namespace Extension.INI
 {
@@ -63,6 +62,11 @@ namespace Extension.INI
             }
 
             return def;
+        }
+
+        public override bool HasSection(string section)
+        {
+            return INIComponentManager.SplitDependency(Dependency).Reverse().Count(n => INIComponentManager.FindFile(n).HasSection(section)) > 0;
         }
 
         protected override bool ReadString(string section, string key, out string str)

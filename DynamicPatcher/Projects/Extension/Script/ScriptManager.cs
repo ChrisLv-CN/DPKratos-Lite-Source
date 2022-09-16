@@ -57,7 +57,7 @@ namespace Extension.Script
                     return null;
                 }
 
-                Scripts.Add(scriptName, newScript);
+                RegisterScript(newScript);
                 return newScript;
             }
         }
@@ -130,7 +130,7 @@ namespace Extension.Script
                 Type[] types = FindScriptTypes(assembly);
                 foreach (Type type in types)
                 {
-                    if (type.Name == scriptName)
+                    if (IsScript(type, scriptName))
                     {
                         return assembly;
                     }
@@ -150,7 +150,7 @@ namespace Extension.Script
             Type[] types = FindScriptTypes(assembly);
             foreach (Type type in types)
             {
-                if (type.Name == script.Name)
+                if (IsScript(type, script.Name))
                 {
                     script.ScriptableType = type;
                     break;
@@ -182,6 +182,33 @@ namespace Extension.Script
 
         }
 
+        private static void RegisterScript(Script script)
+        {
+            Scripts[script.Name] = script;
+
+            var aliases = script.ScriptableType.GetCustomAttribute<ScriptAliasAttribute>()?.Names ?? new string[0];
+            foreach (string alias in aliases)
+            {
+                Scripts[alias] = script;
+            }
+        }
+
+        private static bool IsScript(Type type, string scriptName)
+        {
+            if (type.Name == scriptName)
+            {
+                return true;
+            }
+            foreach (string alias in type.GetCustomAttribute<ScriptAliasAttribute>()?.Names ?? new string[0])
+            {
+                if (alias == scriptName)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private static void InjectScript(Type type)
         {
@@ -191,7 +218,7 @@ namespace Extension.Script
             Script script = new Script(type.FullName);
             script.ScriptableType = type;
 
-            Scripts[script.Name] = script;
+            RegisterScript(script);
 
             Logger.Log("[ScriptManager] script {0} injected.", script.Name);
         }

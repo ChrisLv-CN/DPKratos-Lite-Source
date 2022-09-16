@@ -20,6 +20,10 @@ namespace Extension.INI
             InitCache();
         }
 
+        public bool HasSection(string section)
+        {
+            return m_SectionCache.ContainsKey(section);
+        }
 
         public INIBuffer GetSection(string section)
         {

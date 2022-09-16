@@ -69,15 +69,18 @@ for (int idx = 0; idx < MAX_COUNT; idx++) {
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@<#= idx#>");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { <#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"Expression.Parameter(typeof(T{i}), \"t{i}\")"))#> };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == <#= idx#>);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[<#= idx+1#>] { <#= string.Join(", ", Enumerable.Range(0, idx).Select(i => $"ps[{i}].ParameterType")) + (idx > 0 ? ", " : "")#>typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<<#= string.Join(", ", Enumerable.Range(1, idx).Select(i => $"T{i}")) + (idx > 0 ? ", " : "")#>ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 

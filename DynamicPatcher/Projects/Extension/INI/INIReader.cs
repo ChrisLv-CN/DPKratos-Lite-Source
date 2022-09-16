@@ -11,6 +11,8 @@ namespace Extension.INI
         bool Read<T>(string section, string key, ref T buffer, IParser<T> parser = null);
         bool ReadArray<T>(string section, string key, ref T[] buffer, int count = -1, IParser<T> parser = null);
         bool ReadCollection<T, TCollection>(string section, string key, ref TCollection buffer, IParser<T> parser = null) where TCollection : ICollection<T>;
+
+        bool HasSection(string section);
     }
 
     public abstract class INIReader : INonaggressiveReader
@@ -100,6 +102,14 @@ namespace Extension.INI
             return false;
         }
 
+        /// <summary>
+        /// Test if has ini section
+        /// </summary>
+        /// <param name="section"></param>
+        /// <returns></returns>
+        public abstract bool HasSection(string section);
+
         protected abstract bool ReadString(string section, string key, out string val);
+
     }
 }

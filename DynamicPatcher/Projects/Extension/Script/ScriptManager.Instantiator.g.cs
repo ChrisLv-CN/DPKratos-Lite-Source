@@ -198,15 +198,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@0");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    {  };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 0);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[1] { typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -225,15 +228,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@1");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 1);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[2] { ps[0].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -252,15 +258,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@2");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 2);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[3] { ps[0].ParameterType, ps[1].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -279,15 +288,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@3");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 3);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[4] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -306,15 +318,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@4");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 4);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[5] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -333,15 +348,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@5");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 5);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[6] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -360,15 +378,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@6");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 6);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[7] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -387,15 +408,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@7");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 7);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[8] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -414,15 +438,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@8");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 8);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[9] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -441,15 +468,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@9");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 9);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[10] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -468,15 +498,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@10");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 10);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[11] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -495,15 +528,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@11");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10"), Expression.Parameter(typeof(T11), "t11") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 11);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[12] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, ps[10].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -522,15 +558,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@12");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10"), Expression.Parameter(typeof(T11), "t11"), Expression.Parameter(typeof(T12), "t12") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 12);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[13] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, ps[10].ParameterType, ps[11].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -549,15 +588,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@13");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10"), Expression.Parameter(typeof(T11), "t11"), Expression.Parameter(typeof(T12), "t12"), Expression.Parameter(typeof(T13), "t13") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 13);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[14] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, ps[10].ParameterType, ps[11].ParameterType, ps[12].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -576,15 +618,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@14");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10"), Expression.Parameter(typeof(T11), "t11"), Expression.Parameter(typeof(T12), "t12"), Expression.Parameter(typeof(T13), "t13"), Expression.Parameter(typeof(T14), "t14") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 14);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[15] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, ps[10].ParameterType, ps[11].ParameterType, ps[12].ParameterType, ps[13].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 
@@ -603,15 +648,18 @@ namespace Extension.Script
             if (script == null)
                 return null;
                 
-            string uniqueCtorName = script.ScriptableType.FullName;
+            string uniqueCtorName = String.Concat(script.ScriptableType.FullName, "@15");
             if (!ScriptCtors.TryGetValue(uniqueCtorName, out var func))
             {
-                List<ParameterExpression> parameterExpressions = new List<ParameterExpression>()
-                    { Expression.Parameter(typeof(T1), "t1"), Expression.Parameter(typeof(T2), "t2"), Expression.Parameter(typeof(T3), "t3"), Expression.Parameter(typeof(T4), "t4"), Expression.Parameter(typeof(T5), "t5"), Expression.Parameter(typeof(T6), "t6"), Expression.Parameter(typeof(T7), "t7"), Expression.Parameter(typeof(T8), "t8"), Expression.Parameter(typeof(T9), "t9"), Expression.Parameter(typeof(T10), "t10"), Expression.Parameter(typeof(T11), "t11"), Expression.Parameter(typeof(T12), "t12"), Expression.Parameter(typeof(T13), "t13"), Expression.Parameter(typeof(T14), "t14"), Expression.Parameter(typeof(T15), "t15") };
+                var constructor = script.ScriptableType.GetConstructors().First(c => c.GetParameters().Length == 15);
+                var ps = constructor.GetParameters();
 
-                var constructor = script.ScriptableType.GetConstructors()[0];
+                var argTypes = new Type[16] { ps[0].ParameterType, ps[1].ParameterType, ps[2].ParameterType, ps[3].ParameterType, ps[4].ParameterType, ps[5].ParameterType, ps[6].ParameterType, ps[7].ParameterType, ps[8].ParameterType, ps[9].ParameterType, ps[10].ParameterType, ps[11].ParameterType, ps[12].ParameterType, ps[13].ParameterType, ps[14].ParameterType, typeof(ScriptComponent) };
+
+                List<ParameterExpression> parameterExpressions = ps.Select(p => Expression.Parameter(p.ParameterType, p.Name)).ToList();
+
                 NewExpression ctorExpression = Expression.New(constructor, parameterExpressions);
-                var expression = Expression.Lambda<Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, ScriptComponent>>(ctorExpression, parameterExpressions);
+                var expression = Expression.Lambda(Expression.GetFuncType(argTypes), ctorExpression, parameterExpressions);
                 var lambda = expression.Compile();
                 ScriptCtors.Add(uniqueCtorName, lambda);
 

@@ -38,6 +38,16 @@ namespace Extension.INI
         }
 
         /// <summary>
+        /// Split ini dependency chain
+        /// </summary>
+        /// <param name="dependency"></param>
+        /// <returns></returns>
+        public static string[] SplitDependency(string dependency)
+        {
+            return INIComponentManager.SplitDependency(dependency);
+        }
+
+        /// <summary>
         /// Get buffered value from ini
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -125,7 +135,6 @@ namespace Extension.INI
             return new INIBufferReader(dependency, section).ReadCollection(section, key, ref buffer, parser);
         }
 
-
         /// <summary>
         /// Get lazy reader for ini section
         /// </summary>
@@ -147,6 +156,17 @@ namespace Extension.INI
         public static IConfigWrapper<T> GetConfig<T>(string dependency, string section) where T : INIConfig, new()
         {
             return new INIComponentWith<T>(dependency, section);
+        }
+
+        /// <summary>
+        /// Test if has ini section
+        /// </summary>
+        /// <param name="dependency">Dependency chain for ini</param>
+        /// <param name="section"></param>
+        /// <returns></returns>
+        public static bool HasSection(string dependency, string section)
+        {
+            return new INIBufferReader(dependency, section).HasSection(section);
         }
 
         public static void ClearBuffer()

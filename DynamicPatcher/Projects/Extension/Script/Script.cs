@@ -7,6 +7,17 @@ using System.Threading.Tasks;
 
 namespace Extension.Script
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class ScriptAliasAttribute : Attribute
+    {
+        public ScriptAliasAttribute(params string[] names)
+        {
+            Names = names;
+        }
+
+        public string[] Names { get; }
+    }
+
     public interface IHaveScript
     {
         List<Script> Scripts { get; }

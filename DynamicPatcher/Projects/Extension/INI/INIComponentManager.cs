@@ -24,7 +24,17 @@ namespace Extension.INI
                 return GetMergedName(INIConstant.MapName, INIConstant.GameModeName, INIConstant.RulesName);
             }
 
+            if (iniName.Equals(INIConstant.AiName, StringComparison.OrdinalIgnoreCase))
+            {
+                return GetMergedName(INIConstant.MapName, INIConstant.AiName);
+            }
+
             return iniName;
+        }
+
+        public static string[] SplitDependency(string dependency)
+        {
+            return dependency.Replace("->", "+").Split('+');
         }
 
         private static string GetMergedName(params string[] names)
@@ -45,7 +55,7 @@ namespace Extension.INI
 
         private static Dictionary<string, INIFileBuffer> s_File = new();
 
-        private static INIFileBuffer FindFile(string name)
+        internal static INIFileBuffer FindFile(string name)
         {
             if (!s_File.TryGetValue(name, out INIFileBuffer buffer))
             {
@@ -64,13 +74,13 @@ namespace Extension.INI
 
 
         private static Dictionary<(string dependency, string section), INILinkedBuffer> s_LinkedBuffer = new();
-        private static Dictionary<INILinkedBuffer, INIConfig> s_Config = new();
+        private static Dictionary<INILinkedBuffer, Dictionary<Type, INIConfig>> s_Configs = new();
 
         internal static INILinkedBuffer FindLinkedBuffer(string dependency, string section)
         {
             if (!s_LinkedBuffer.TryGetValue((dependency, section), out INILinkedBuffer linkedBuffer))
             {
-                string[] names = dependency.Replace("->", "+").Split('+');
+                string[] names = SplitDependency(dependency);
                 foreach (string name in names.Reverse())
                 {
                     var buffer = FindBuffer(name, section);
@@ -84,12 +94,17 @@ namespace Extension.INI
 
         internal static T FindConfig<T>(INILinkedBuffer linkedBuffer, INIBufferReader reader) where T : INIConfig, new()
         {
-            if (!s_Config.TryGetValue(linkedBuffer, out INIConfig config))
+            if (!s_Configs.TryGetValue(linkedBuffer, out var configs))
+            {
+                s_Configs[linkedBuffer] = configs = new(1);
+            }
+
+            if (!configs.TryGetValue(typeof(T), out INIConfig config))
             {
                 config = new T();
                 config.Read(reader);
 
-                s_Config[linkedBuffer] = config;
+                configs[typeof(T)] = config;
             }
 
             return (T)config;
@@ -107,7 +122,7 @@ namespace Extension.INI
 
             s_File.Clear();
             s_LinkedBuffer.Clear();
-            s_Config.Clear();
+            s_Configs.Clear();
         }
     }
 }
