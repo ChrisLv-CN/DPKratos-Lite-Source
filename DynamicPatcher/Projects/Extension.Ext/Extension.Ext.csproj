@@ -49,13 +49,13 @@
     <Compile Remove="obj\**\*.*" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Extension\Extension.csproj">
-      <Project>{957e3c34-e736-4145-8b05-2dc1bcfa79e1}</Project>
-      <Name>Extension</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PatcherYRpp\PatcherYRpp.csproj">
       <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
       <Name>PatcherYRpp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Extension\Extension.csproj">
+      <Project>{957e3c34-e736-4145-8b05-2dc1bcfa79e1}</Project>
+      <Name>Extension</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

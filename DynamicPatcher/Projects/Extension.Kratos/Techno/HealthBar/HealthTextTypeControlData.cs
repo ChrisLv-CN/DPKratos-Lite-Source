@@ -12,10 +12,10 @@ using Extension.INI;
 
 namespace Extension.Ext
 {
-    
-    
+
+
     [Serializable]
-    public class HealthTextTypeControlData : INIConfig
+    public class HealthTextTypeControlData
     {
         public bool Hidden;
 
@@ -26,27 +26,25 @@ namespace Extension.Ext
 
         public HealthTextTypeControlData()
         {
-            this.Hidden = false;
+            ISectionReader sectionReader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), RulesExt.SectionAudioVisual);
+
+            this.Hidden = sectionReader.Get(HealthTextTypeData.TITLE + "Hidden", false);
+
             this.Building = new HealthTextTypeData(AbstractType.Building);
+            this.Building.Read(sectionReader, HealthTextTypeData.TITLE);
+            this.Building.Read(sectionReader, HealthTextTypeData.TITLE + "Building.");
+
             this.Infantry = new HealthTextTypeData(AbstractType.Infantry);
+            this.Infantry.Read(sectionReader, HealthTextTypeData.TITLE);
+            this.Infantry.Read(sectionReader, HealthTextTypeData.TITLE + "Infantry.");
+
             this.Unit = new HealthTextTypeData(AbstractType.Unit);
+            this.Unit.Read(sectionReader, HealthTextTypeData.TITLE);
+            this.Unit.Read(sectionReader, HealthTextTypeData.TITLE + "Unit.");
+
             this.Aircraft = new HealthTextTypeData(AbstractType.Aircraft);
-        }
-
-        public override void Read(IConfigReader reader)
-        {
-            // Logger.Log($"{Game.CurrentFrame} 读取全局设置");
-            this.Hidden = reader.Get("HealthText.Hidden", Hidden);
-
-            this.Building.Read(reader, "HealthText.");
-            this.Infantry.Read(reader, "HealthText.");
-            this.Unit.Read(reader, "HealthText.");
-            this.Aircraft.Read(reader, "HealthText.");
-
-            this.Building.Read(reader, "HealthText.Building.");
-            this.Infantry.Read(reader, "HealthText.Infantry.");
-            this.Unit.Read(reader, "HealthText.Unit.");
-            this.Aircraft.Read(reader, "HealthText.Aircraft.");
+            this.Aircraft.Read(sectionReader, HealthTextTypeData.TITLE);
+            this.Aircraft.Read(sectionReader, HealthTextTypeData.TITLE + "Aircraft.");
         }
 
         [Obsolete]

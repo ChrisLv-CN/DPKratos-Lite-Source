@@ -17,15 +17,8 @@ namespace Scripts
     [GlobalScriptable(typeof(TechnoExt))]
     public class HealthBar : TechnoScriptable
     {
+        // 全局设置
         private static HealthTextTypeControlData healthTextTypeControlData = new HealthTextTypeControlData();
-
-        static HealthBar()
-        {
-            // 读取全局设置
-            IConfigWrapper<HealthTextTypeControlData> wrapper = Ini.GetConfig<HealthTextTypeControlData>(Ini.GetDependency(INIConstant.RulesName), RulesExt.SectionAudioVisual);
-            healthTextTypeControlData = wrapper.Data;
-            Logger.Log($"{Game.CurrentFrame} 读取 HealText 全局设置 Hidden = {healthTextTypeControlData.Hidden}, Building.Green.Align = {healthTextTypeControlData.Building.Green.Align}");
-        }
 
         public HealthBar(TechnoExt owner) : base(owner) { }
 
@@ -46,7 +39,6 @@ namespace Scripts
                         // healthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
                         // healthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Building.");
                         healthTextTypeData = healthTextTypeControlData.Building.Clone();
-                        // 这里还要读一轮私有的
                         break;
                     case AbstractType.Infantry:
                         healthTextTypeData = healthTextTypeControlData.Infantry.Clone();
@@ -57,6 +49,13 @@ namespace Scripts
                     case AbstractType.Aircraft:
                         healthTextTypeData = healthTextTypeControlData.Aircraft.Clone();
                         break;
+                }
+                // 读取私有设置
+                if (null != healthTextTypeData)
+                {
+                    string section = Owner.OwnerObject.Ref.Type.Ref.Base.Base.ID;
+                    ISectionReader reader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), section);
+                    healthTextTypeData.Read(reader);
                 }
             }
         }

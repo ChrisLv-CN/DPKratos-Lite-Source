@@ -132,7 +132,7 @@ namespace Extension.INI
         /// <param name="dependency">dependency chain for ini</param>
         /// <param name="section"></param>
         /// <returns></returns>
-        public static ISectionReader GerSection(string dependency, string section)
+        public static ISectionReader GetSection(string dependency, string section)
         {
             return new INIComponent(dependency, section);
         }

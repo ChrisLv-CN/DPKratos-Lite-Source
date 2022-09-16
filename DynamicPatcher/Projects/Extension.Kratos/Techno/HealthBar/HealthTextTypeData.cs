@@ -14,15 +14,18 @@ namespace Extension.Ext
 {
     
     [Serializable]
-    public class HealthTextTypeData : INIConfig
+    public class HealthTextTypeData
     {
+
+        public const string TITLE = "HealthText.";
+
         public bool Hidden;
 
         public HealthTextData Green;
         public HealthTextData Yellow;
         public HealthTextData Red;
 
-        private HealthTextTypeData() { }
+        public HealthTextTypeData() { }
 
         public HealthTextTypeData(AbstractType type)
         {
@@ -65,15 +68,7 @@ namespace Extension.Ext
             return data;
         }
 
-        public override void Read(IConfigReader reader)
-        {
-            // Logger.Log($"{Game.CurrentFrame} 读取全局设置");
-            this.Hidden = reader.Get("HealthText.Hidden", Hidden);
-
-            Read(reader, "HealthText.");
-        }
-
-        public void Read(ISectionReader reader, string title)
+        public void Read(ISectionReader reader, string title = TITLE)
         {
             this.Hidden = reader.Get(title + "Hidden", Hidden);
 
