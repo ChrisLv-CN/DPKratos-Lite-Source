@@ -16,6 +16,31 @@ using Extension.INI;
 namespace Extension.Utilities
 {
 
+    public abstract class KEnumParser<T> : IParser<T>, IParserRegister
+    {
+        public void Register()
+        {
+            Parsers.AddParser<T>(this);
+        }
+
+        public void Unregister()
+        {
+            Parsers.RemoveParser<T>();
+        }
+
+        public bool Parse(string val, ref T buffer)
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                string t = val.Substring(0, 1).ToUpper();
+                return ParseInitials(t, ref buffer);
+            }
+            return false;
+        }
+
+        public abstract bool ParseInitials(string t, ref T buffer);
+    }
+
 
     public static partial class ExHelper
     {

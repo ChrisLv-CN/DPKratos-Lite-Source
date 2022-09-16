@@ -149,6 +149,33 @@ namespace Extension.Ext
             return data;
         }
 
+
+        public virtual void Read(ISectionReader reader, string title)
+        {
+            this.Offset = reader.Get(title + "Offset", Offset);
+            this.ShadowOffset = reader.Get(title + "ShadowOffset", ShadowOffset);
+            this.Color = reader.Get(title + "Color", Color);
+            this.ShadowColor = reader.Get(title + "ShadowColor", ShadowColor);
+            this.UseSHP = reader.Get(title + "UseSHP", UseSHP);
+            this.SHPFileName = reader.Get(title + "SHP", SHPFileName);
+            this.ZeroFrameIndex = reader.Get(title + "ZeroFrameIndex", ZeroFrameIndex);
+            this.ImageSize = reader.Get(title + "ImageSize", ImageSize);
+
+            this.NoNumbers = reader.Get(title + "NoNumbers", NoNumbers);
+            // long text
+            this.HitSHP = reader.Get(title + "HIT.SHP", HitSHP);
+            this.HitIndex = reader.Get(title + "HIT.Index", HitIndex);
+            this.MissSHP = reader.Get(title + "MISS.SHP", MissSHP);
+            this.MissIndex = reader.Get(title + "MISS.Index", MissIndex);
+            this.CritSHP = reader.Get(title + "CRIT.SHP", CritSHP);
+            this.CritIndex = reader.Get(title + "CRIT.Index", CritIndex);
+            this.GlancingSHP = reader.Get(title + "GLANCING.SHP", GlancingSHP);
+            this.GlancingIndex = reader.Get(title + "GLANCING.Index", GlancingIndex);
+            this.BlockSHP = reader.Get(title + "BLOCK.SHP", BlockSHP);
+            this.BlockIndex = reader.Get(title + "BLOCK.Index", BlockIndex);
+        }
+
+        [Obsolete]
         protected bool TryReadPrintText(INIReader reader, string section, string title)
         {
             bool isRead = false;
