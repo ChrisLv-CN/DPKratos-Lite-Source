@@ -35,7 +35,7 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            Logger.Log($"{Game.CurrentFrame} 读取全局设置");
+            // Logger.Log($"{Game.CurrentFrame} 读取全局设置");
             this.Hidden = reader.Get("HealthText.Hidden", Hidden);
 
             this.Building.Read(reader, "HealthText.");

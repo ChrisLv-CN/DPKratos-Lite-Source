@@ -14,7 +14,7 @@ namespace Extension.Ext
 {
     
     [Serializable]
-    public class HealthTextTypeData
+    public class HealthTextTypeData : INIConfig
     {
         public bool Hidden;
 
@@ -63,6 +63,14 @@ namespace Extension.Ext
             data.Yellow = this.Yellow.Clone();
             data.Red = this.Red.Clone();
             return data;
+        }
+
+        public override void Read(IConfigReader reader)
+        {
+            // Logger.Log($"{Game.CurrentFrame} 读取全局设置");
+            this.Hidden = reader.Get("HealthText.Hidden", Hidden);
+
+            Read(reader, "HealthText.");
         }
 
         public void Read(ISectionReader reader, string title)
