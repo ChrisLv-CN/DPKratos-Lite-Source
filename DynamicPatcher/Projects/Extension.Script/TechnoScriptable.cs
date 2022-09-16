@@ -11,6 +11,7 @@ namespace Extension.Script
     public interface ITechnoScriptable : IObjectScriptable
     {
         void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex);
+        void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding);
     }
 
     [Serializable]
@@ -20,13 +21,16 @@ namespace Extension.Script
         {
         }
 
-        public virtual void OnPut(CoordStruct coord, Direction faceDir) { }
+        public virtual void OnPut(CoordStruct coord, short dirType) { }
         public virtual void OnRemove() { }
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         { }
+        public virtual void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState) { }
 
         public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }
+
+        public virtual void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding) { }
     }
 
 }

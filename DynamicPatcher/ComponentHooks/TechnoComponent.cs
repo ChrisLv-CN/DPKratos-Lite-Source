@@ -21,15 +21,14 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => c.OnUpdate());
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
         [Hook(HookType.AresHook, Address = 0x6FAFFD, Size = 7)]
         [Hook(HookType.AresHook, Address = 0x6FAF7A, Size = 7)]
         static public unsafe UInt32 TechnoClass_LateUpdate_Components(REGISTERS* R)
@@ -40,15 +39,14 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => c.OnLateUpdate());
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
         static public unsafe UInt32 TechnoClass_Put_Components(REGISTERS* R)
         {
@@ -56,19 +54,18 @@ namespace ComponentHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
                 var pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
-                var faceDir = R->Stack<Direction>(0x8);
+                var faceDir = R->Stack<short>(0x8);
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnPut(pCoord.Data, faceDir));
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
         // avoid hook conflict with phobos feature -- shield
         //[Hook(HookType.AresHook, Address = 0x6F6AC0, Size = 5)]
         [Hook(HookType.AresHook, Address = 0x6F6AC4, Size = 5)]
@@ -80,15 +77,14 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnRemove());
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
         [Hook(HookType.AresHook, Address = 0x701900, Size = 6)]
         static public unsafe UInt32 TechnoClass_ReceiveDamage_Components(REGISTERS* R)
         {
@@ -105,15 +101,51 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
+        // if (pDamage >= 0 && pDamage < 1) pDamage = 1; // ╮(-△-)╭
+        [Hook(HookType.AresHook, Address = 0x7019DD, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_AtLeast1(REGISTERS* R)
+        {
+            // var pDamage = (Pointer<int>)R->EBX;
+            // Logger.Log($"{Game.CurrentFrame} - 免疫伤害， {pDamage.Ref}");
+            // Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            // TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+            // if (ext.DamageReactionState.IsActive())
+            // {
+            return 0x7019E3;
+            // }
+            // return 0;
+        }
+
+
+        // after TakeDamage
+        [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                Pointer<int> pRealDamage = (IntPtr)R->EBX;
+                Pointer<WarheadTypeClass> pWH = (IntPtr)R->EBP;
+                DamageState damageState = (DamageState)R->EDI;
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage2(pRealDamage, pWH, damageState));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6FDD50, Size = 6)]
         static public unsafe UInt32 TechnoClass_Fire_Components(REGISTERS* R)
         {
@@ -126,13 +158,54 @@ namespace ComponentHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnFire(pTarget, nWeaponIndex));
 
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6F65D1, Size = 6)]
+        public static unsafe UInt32 TechnoClass_DrawHealthBar_Building(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+
+                int length = (int)R->EBX;
+                Pointer<Point2D> pLocation = R->Stack<IntPtr>(0x4C - (-0x4));
+                Pointer<RectangleStruct> pBound = R->Stack<IntPtr>(0x4C - (-0x8));
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.DrawHealthBar(length, pLocation, pBound, true));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6F683C, Size = 7)]
+        public static unsafe UInt32 TechnoClass_DrawHealthBar_Other(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+
+                int length = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry ? 8 : 17;
+                Pointer<Point2D> pLocation = R->Stack<IntPtr>(0x4C - (-0x4));
+                Pointer<RectangleStruct> pBound = R->Stack<IntPtr>(0x4C - (-0x8));
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.DrawHealthBar(length, pLocation, pBound, false));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
         }
 
         #region Render
@@ -142,14 +215,12 @@ namespace ComponentHooks
             {
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => c.OnRender());
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
         [Hook(HookType.AresHook, Address = 0x4144B0, Size = 5)]
         static public unsafe UInt32 AircraftClass_Render_Components(REGISTERS* R)

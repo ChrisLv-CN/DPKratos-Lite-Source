@@ -15,10 +15,11 @@ namespace Extension.Script
 
     public interface IObjectScriptable : IAbstractScriptable
     {
-        void OnPut(CoordStruct coord, Direction faceDir);
+        void OnPut(CoordStruct coord, short dirType);
         void OnRemove();
         void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
+        void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState);
     }
 
 

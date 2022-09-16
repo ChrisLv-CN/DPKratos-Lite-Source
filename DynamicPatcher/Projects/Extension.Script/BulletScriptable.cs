@@ -22,7 +22,7 @@ namespace Extension.Script
         }
 
         [Obsolete("not support OnPut in BulletScriptable yet", true)]
-        public void OnPut(CoordStruct coord, Direction faceDir)
+        public void OnPut(CoordStruct coord, short dirType)
         {
             throw new NotSupportedException("not support OnPut in BulletScriptable yet");
         }
@@ -34,6 +34,11 @@ namespace Extension.Script
         [Obsolete("not support OnReceiveDamage in BulletScriptable yet", true)]
         public void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+        {
+            throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
+        }
+        [Obsolete("not support OnReceiveDamage in BulletScriptable yet", true)]
+        public void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
         {
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }
