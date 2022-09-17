@@ -2,17 +2,14 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
 using Extension.Ext;
-using Extension.Script;
-using Extension.Utilities;
-using System.Threading.Tasks;
 using Extension.INI;
+using Extension.Utilities;
 
-namespace Scripts
+namespace Extension.Script
 {
 
     [Serializable]

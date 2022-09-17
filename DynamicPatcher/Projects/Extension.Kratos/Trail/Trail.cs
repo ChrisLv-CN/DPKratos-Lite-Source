@@ -1,16 +1,14 @@
-
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
+using PatcherYRpp;
+using Extension.Ext;
 using Extension.INI;
 using Extension.Script;
 using Extension.Utilities;
-using PatcherYRpp;
 
 namespace Extension.Ext
 {
-
 
     [Serializable]
     public class Trail : TrailData

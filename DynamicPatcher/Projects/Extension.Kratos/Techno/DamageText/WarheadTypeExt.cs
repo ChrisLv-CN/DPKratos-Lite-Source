@@ -1,9 +1,9 @@
-﻿using DynamicPatcher;
+﻿using System;
+using DynamicPatcher;
+using PatcherYRpp;
 using Extension.INI;
 using Extension.Script;
 using Extension.Utilities;
-using PatcherYRpp;
-using Scripts;
 
 namespace Extension.Ext
 {
