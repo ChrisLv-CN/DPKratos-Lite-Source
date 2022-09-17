@@ -21,6 +21,9 @@ namespace Extension.Script
         {
         }
 
+        protected Pointer<BulletClass> pBullet => Owner.OwnerObject;
+        protected string section => pBullet.Ref.Type.Ref.Base.Base.ID;
+
         [Obsolete("not support OnPut in BulletScriptable yet", true)]
         public void OnPut(CoordStruct coord, short dirType)
         {

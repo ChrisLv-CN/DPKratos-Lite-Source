@@ -21,6 +21,9 @@ namespace Extension.Script
         {
         }
 
+        protected Pointer<TechnoClass> pTechno => Owner.OwnerObject;
+        protected string section => pTechno.Ref.Type.Ref.Base.Base.ID;
+
         public virtual void OnPut(CoordStruct coord, short dirType) { }
         public virtual void OnRemove() { }
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
