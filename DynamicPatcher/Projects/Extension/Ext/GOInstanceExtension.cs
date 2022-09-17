@@ -101,6 +101,8 @@ namespace Extension.Ext
             {
                 s_GlobalScripts.Add(script);
             }
+
+            ScriptableHelpers.Sort(s_GlobalScripts);
         }
 
         private GameObject m_GameObject;

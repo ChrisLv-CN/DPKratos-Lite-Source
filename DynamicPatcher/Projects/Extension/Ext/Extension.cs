@@ -132,4 +132,15 @@ namespace Extension.Ext
 
         public virtual void OnExpire() { }
     }
+
+
+    public static class ExtensionHelper
+    {
+        public static bool IsNullOrExpired<T>(this Extension<T> ext)
+        {
+            if (ext == null)
+                return true;
+            return ext.Expired;
+        }
+    }
 }
