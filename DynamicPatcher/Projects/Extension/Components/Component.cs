@@ -399,9 +399,9 @@ namespace Extension.Components
         {
             if (!_awaked)
             {
+                _awaked = true;
                 Awake();
                 ForeachChild(c => c.EnsureAwaked());
-                _awaked = true;
             }
         }
 
@@ -409,9 +409,9 @@ namespace Extension.Components
         {
             if (!_started)
             {
+                _started = true;
                 Start();
                 ForeachChild(c => c.EnsureStarted());
-                _started = true;
             }
         }
 
