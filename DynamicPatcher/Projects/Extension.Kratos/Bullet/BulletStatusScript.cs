@@ -25,7 +25,7 @@ namespace Extension.Script
 
         public override void Awake()
         {
-            Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
+            // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
             Pointer<TechnoClass> pShooter = Owner.OwnerObject.Ref.Owner;
             if (!pShooter.IsNull && !pShooter.Ref.Owner.IsNull)
             {
@@ -48,10 +48,10 @@ namespace Extension.Script
             LifeData = new BulletLifeData(health);
             LifeData.Read(reader);
             // 初始化抛射体的生命信息
-            Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 生存属性 {LifeData}");
+            // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 生存属性 {LifeData}");
             // 初始化抛射体的伤害信息
             DamageData = new BulletDamageData(health);
-            Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
+            // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
         }
 
         public override void OnUpdate()

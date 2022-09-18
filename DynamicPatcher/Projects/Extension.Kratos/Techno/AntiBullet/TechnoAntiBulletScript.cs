@@ -16,6 +16,13 @@ namespace Extension.Script
     [UpdateAfter(typeof(TechnoStatusScript))]
     public class TechnoAntiBulletScript : TechnoScriptable
     {
+        public static bool TryToGet(Pointer<TechnoClass> pTechno, out TechnoAntiBulletScript antiBullet)
+        {
+            
+            antiBullet = null;
+            return false;
+        }
+
         public TechnoAntiBulletScript(TechnoExt owner) : base(owner) { }
 
         public AntiBulletData AntiBulletData;

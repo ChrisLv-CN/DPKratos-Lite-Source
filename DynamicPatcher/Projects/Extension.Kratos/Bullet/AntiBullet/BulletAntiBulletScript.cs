@@ -18,28 +18,21 @@ namespace Extension.Script
     {
         public BulletAntiBulletScript(BulletExt owner) : base(owner) { }
 
+        private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
+
         public override void Awake()
         {
-            // Logger.Log($"{Game.CurrentFrame} + BulletAntiBulletScript Awake");
-            BulletStatusScript bulletStatus = Owner.GameObject.GetComponent<BulletStatusScript>();
+            // Logger.Log($"{Game.CurrentFrame} 读取抛射体状态");
             // 从发射者身上获取反抛射体设置并更新抛射体伤害设置
             Pointer<TechnoClass> pShooter = bulletStatus.pSourceShooter;
-            if (!pShooter.IsNull)
+            if (!pShooter.IsNull && pShooter.TryGetComponent<TechnoAntiBulletScript>(out TechnoAntiBulletScript technoAntiBullet))
             {
-                TechnoExt shooterExt = TechnoExt.ExtMap.Find(pShooter);
-                if (null != shooterExt)
+                AntiBulletData antiBulletData = technoAntiBullet.AntiBulletData;
+                if (null != antiBulletData)
                 {
-                    TechnoAntiBulletScript technoAntiBullet = shooterExt.GameObject.GetComponent<TechnoAntiBulletScript>();
-                    if (null != technoAntiBullet)
-                    {
-                        AntiBulletData antiBulletData = technoAntiBullet.AntiBulletData;
-                        if (null != antiBulletData)
-                        {
-                            bulletStatus.DamageData.Eliminate = antiBulletData.OneShotOneKill;
-                            bulletStatus.DamageData.Harmless = antiBulletData.Harmless;
-                            Logger.Log($"{Game.CurrentFrame} 重设抛射体 [{section}]{pBullet} 的伤害属性 {bulletStatus.DamageData} 由射手 [{pShooter.Ref.Type.Ref.Base.Base.ID}]{pShooter} 发射");
-                        }
-                    }
+                    bulletStatus.DamageData.Eliminate = antiBulletData.OneShotOneKill;
+                    bulletStatus.DamageData.Harmless = antiBulletData.Harmless;
+                    // Logger.Log($"{Game.CurrentFrame} 重设抛射体 [{section}]{pBullet} 的伤害属性 {bulletStatus.DamageData} 由射手 [{pShooter.Ref.Type.Ref.Base.Base.ID}]{pShooter} 发射");
                 }
             }
         }
@@ -54,11 +47,7 @@ namespace Extension.Script
                 && HitTarget(location.Data, pTargetBullet, out BulletStatusScript targetStatus))
             {
                 // 对目标抛射体造成伤害
-                BulletStatusScript bulletStatus = Owner.GameObject.GetComponent<BulletStatusScript>();
-                if (null != bulletStatus)
-                {
-                    targetStatus.TakeDamage(bulletStatus.DamageData);
-                }
+                targetStatus.TakeDamage(bulletStatus.DamageData);
             }
         }
 
@@ -69,13 +58,7 @@ namespace Extension.Script
                 // 爆炸的位置距离目标足够的近
                 if (pBullet.Ref.Type.Ref.Inviso || location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords()) <= pBullet.Ref.Type.Ref.Arm)
                 {
-                    // 检查是否可以被摧毁
-                    BulletExt targetExt = BulletExt.ExtMap.Find(pTarget);
-                    if (null != targetExt)
-                    {
-                        targetStatus = targetExt.GameObject.GetComponent<BulletStatusScript>();
-                        return true;
-                    }
+                    return pTarget.TryGetStatus(out targetStatus);
                 }
             }
             targetStatus = null;
