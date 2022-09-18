@@ -17,6 +17,8 @@ namespace Extension.Script
     {
         public TechnoStatusScript(TechnoExt owner) : base(owner) { }
 
+        public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} + Techno 全局主程");

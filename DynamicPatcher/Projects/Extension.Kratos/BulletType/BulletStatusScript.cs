@@ -17,24 +17,24 @@ namespace Extension.Script
     {
         public BulletStatusScript(BulletExt owner) : base(owner) { }
 
-        public SwizzleablePointer<TechnoClass> pSourceShooter = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         public SwizzleablePointer<HouseClass> pSourceHouse = new SwizzleablePointer<HouseClass>(HouseClass.FindSpecial());
 
         public BulletLifeData LifeData;
         public BulletDamageData DamageData;
 
+        public bool SubjectToGround;
+
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
-            Pointer<TechnoClass> pShooter = Owner.OwnerObject.Ref.Owner;
+            Pointer<TechnoClass> pShooter = pBullet.Ref.Owner;
             if (!pShooter.IsNull && !pShooter.Ref.Owner.IsNull)
             {
-                pSourceShooter.Pointer = pShooter;
                 pSourceHouse.Pointer = pShooter.Ref.Owner;
             }
 
             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);
-
+            // 初始化额外属性
             int health = pBullet.Ref.Base.Health;
             // 抛射体武器伤害为负数或者零时的特殊处理
             if (health < 0)

@@ -24,7 +24,7 @@ namespace Extension.Script
         {
             // Logger.Log($"{Game.CurrentFrame} 读取抛射体状态");
             // 从发射者身上获取反抛射体设置并更新抛射体伤害设置
-            Pointer<TechnoClass> pShooter = bulletStatus.pSourceShooter;
+            Pointer<TechnoClass> pShooter = pBullet.Ref.Owner;
             if (!pShooter.IsNull && pShooter.TryGetComponent<TechnoAntiBulletScript>(out TechnoAntiBulletScript technoAntiBullet))
             {
                 AntiBulletData antiBulletData = technoAntiBullet.AntiBulletData;
