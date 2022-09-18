@@ -18,8 +18,8 @@ namespace Extension.Utilities
 
     public static partial class ExHelper
     {
-        
-        public static void FindBulletTargetHouse(Pointer<TechnoClass> pTechno, FoundBullet func, bool allied = true)
+
+        public static void FindBulletTargetHouse(this Pointer<TechnoClass> pTechno, FoundBullet func, bool allied = true)
         {
             ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
             for (int i = bullets.Count - 1; i >= 0; i--)
@@ -40,7 +40,7 @@ namespace Extension.Utilities
             }
         }
 
-        public static void FindBulletTargetMe(Pointer<TechnoClass> pTechno, FoundBullet func, bool allied = true)
+        public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, FoundBullet func, bool allied = true)
         {
             FindBulletTargetHouse(pTechno, (pBullet) =>
             {
@@ -215,6 +215,30 @@ namespace Extension.Utilities
                 }
             }
             return pBulletSet;
+        }
+
+        public static void FindBullet(Pointer<HouseClass> pHouse, CoordStruct location, double spread, FoundBullet func, bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
+        {
+            HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
+
+            double dist = (spread <= 0 ? 1 : Math.Ceiling(spread)) * 256;
+
+            foreach (Pointer<BulletClass> pTarget in BulletClass.Array)
+            {
+                Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                if (pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
+                {
+                    // 检查原始所属
+                    if ((pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    {
+                        continue;
+                    }
+                }
+                if (func(pTarget))
+                {
+                    break;
+                }
+            }
         }
 
 

@@ -39,31 +39,18 @@ namespace Extension.Script
 
         public override void OnDetonate(Pointer<CoordStruct> location)
         {
-            // TODO 应该检索范围内的所有抛射体，并对其造成伤害
-
-            // 检查抛射体是否命中了其他抛射体，并对其造成伤害
-            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
-            if (pTarget.CastIf<BulletClass>(AbstractType.Bullet, out Pointer<BulletClass> pTargetBullet)
-                && HitTarget(location.Data, pTargetBullet, out BulletStatusScript targetStatus))
+            // 检索范围内的所有抛射体，并对其造成伤害
+            Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
+            ExHelper.FindBullet(bulletStatus.pSourceHouse, location.Data, pWH.Ref.CellSpread, (pTarget) =>
             {
-                // 对目标抛射体造成伤害
-                targetStatus.TakeDamage(bulletStatus.DamageData);
-            }
-        }
-
-        private bool HitTarget(CoordStruct location, Pointer<BulletClass> pTarget, out BulletStatusScript targetStatus)
-        {
-            if (!pTarget.IsNull)
-            {
-                // 爆炸的位置距离目标足够的近
-                if (pBullet.Ref.Type.Ref.Inviso || location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords()) <= pBullet.Ref.Type.Ref.Arm)
+                if (pTarget != pBullet
+                    && pTarget.TryGetStatus(out BulletStatusScript targetStatus)
+                    && pWH.CanAffectHouse(bulletStatus.pSourceHouse, targetStatus.pSourceHouse))
                 {
-                    return pTarget.TryGetStatus(out targetStatus);
+                    targetStatus.TakeDamage(bulletStatus.DamageData);
                 }
-            }
-            targetStatus = null;
-            return false;
+                return false;
+            });
         }
-
     }
 }

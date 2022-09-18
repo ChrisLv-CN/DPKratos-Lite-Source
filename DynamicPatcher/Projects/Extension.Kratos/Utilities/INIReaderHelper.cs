@@ -37,59 +37,20 @@ namespace Extension.Utilities
         public abstract bool ParseInitials(string t, ref T buffer);
     }
 
-    // public abstract class KEnumListParser<TEnum> : IParser<List<TEnum>>, IParserRegister where TEnum : notnull, Enum
-    // {
-    //     public void Register()
-    //     {
-    //         Parsers.AddParser<List<TEnum>>(this);
-    //     }
-
-    //     public void Unregister()
-    //     {
-    //         Parsers.RemoveParser<List<TEnum>>();
-    //     }
-
-    //     public bool Parse(string val, ref List<TEnum> buffer)
-    //     {
-    //         if (!string.IsNullOrEmpty(val.NotNONE()))
-    //         {
-    //             if (null == buffer)
-    //             {
-    //                 buffer = new List<TEnum>();
-    //             }
-    //             string[] texts = val.Split(',');
-    //             foreach (string t in texts)
-    //             {
-    //                 string tmp = t.Trim();
-    //                 // 过滤 none
-    //                 if (!String.IsNullOrEmpty(tmp.NotNONE()))
-    //                 {
-    //                     if (Enum.TryParse<TEnum>(tmp, out TEnum tileType))
-    //                     {
-    //                         if (null == tileTypes)
-    //                         {
-    //                             tileTypes = new List<TileType>();
-    //                         }
-    //                         tileTypes.Add(tileType);
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //         return false;
-    //     }
-
-    //     public abstract bool ParseInitials(string t, ref T buffer);
-    // }
-
     public static class NoneStringCheck
     {
         public static string NotNONE(this string val)
         {
-            if (!string.IsNullOrEmpty(val) && "none" == val.Trim().ToLower())
+            if (val.IsNullOrEmptyOrNone())
             {
                 return null;
             }
             return val;
+        }
+
+        public static bool IsNullOrEmptyOrNone(this string val)
+        {
+            return string.IsNullOrEmpty(val) || "none" == val.Trim().ToLower();
         }
     }
 
