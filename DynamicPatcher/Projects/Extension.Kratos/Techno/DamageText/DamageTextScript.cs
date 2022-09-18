@@ -75,8 +75,7 @@ namespace Extension.Script
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (SkipDrawDamageText(whExt))
+            if (SkipDrawDamageText(pWH, out DamageTextTypeData whDamageTextType))
             {
                 return;
             }
@@ -91,7 +90,7 @@ namespace Extension.Script
             int repairValue = 0;
             if (damage > 0)
             {
-                data = whExt.DamageTextTypeData.Damage;
+                data = whDamageTextType.Damage;
                 if (!data.Hidden)
                 {
                     damageValue += damage;
@@ -100,7 +99,7 @@ namespace Extension.Script
             }
             else if (damage < 0)
             {
-                data = whExt.DamageTextTypeData.Repair;
+                data = whDamageTextType.Repair;
                 if (!data.Hidden)
                 {
                     repairValue += -damage;
@@ -148,10 +147,17 @@ namespace Extension.Script
             }
         }
 
-        private bool SkipDrawDamageText(WarheadTypeExt whExt)
+        private bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextTypeData damageTextType)
         {
-            Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            return SkipDamageText || pTechno.IsInvisible() || pTechno.IsCloaked() || null == whExt || null == whExt.DamageTextTypeData || whExt.DamageTextTypeData.Hidden;
+            damageTextType = null;
+            if (!SkipDamageText && !pTechno.IsInvisible() && !pTechno.IsCloaked() && !pWH.IsNull)
+            {
+                string section = pWH.Ref.Base.ID;
+
+                damageTextType = Ini.GetConfig<DamageTextTypeData>(Ini.RulesDependency, section).Data;
+                return null == damageTextType;
+            }
+            return true;
         }
 
         private void OrderDamageText(string text, CoordStruct location, DamageTextData data)

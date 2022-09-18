@@ -10,7 +10,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class DamageTextTypeData
+    public class DamageTextTypeData : INIConfig
     {
         public const string TITLE = "DamageText.";
 
@@ -26,13 +26,13 @@ namespace Extension.Ext
             this.Repair = new DamageTextData(false);
         }
 
-        public DamageTextTypeData Clone()
+        public override void Read(IConfigReader reader)
         {
-            DamageTextTypeData data = new DamageTextTypeData();
-            data.Hidden = this.Hidden;
-            data.Damage = this.Damage.Clone();
-            data.Repair = this.Repair.Clone();
-            return data;
+            int infDeath = reader.Get("InfDeath", 0);
+            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
+            Read(avReader);
+            Read(avReader, TITLE + infDeath + ".");
+            Read(reader);
         }
 
         public void Read(ISectionReader reader, string title = TITLE)
