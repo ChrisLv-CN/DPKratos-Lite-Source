@@ -139,7 +139,21 @@ namespace Extension.Script
                 // 计算碰触引信
                 if (null != proximity && !proximity.IsSafe())
                 {
-
+                    // 读取预定目标格子上的建筑
+                    Pointer<CellClass> pSourceTargetCell = IntPtr.Zero;
+                    Pointer<BuildingClass> pSourceTargetBuilding = IntPtr.Zero;
+                    if (MapClass.Instance.TryGetCellAt(pBullet.Ref.TargetCoords, out pSourceTargetCell))
+                    {
+                        pSourceTargetBuilding = pSourceTargetCell.Ref.GetBuilding();
+                        // Logger.Log($"{Game.CurrentFrame} 导弹预定目标格子中有建筑 {pSourceTargetBuilding}");
+                    }
+                    // 当前所处的位置距离预定飞行目标过近，且在同一格内，跳过碰撞检测
+                    if (sourcePos.DistanceFrom(pBullet.Ref.TargetCoords) <= 256
+                        && MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pSourceCell)
+                        && pSourceCell == pSourceTargetCell)
+                    {
+                        return;
+                    }
                     // 计算碰撞的半径，超过1格，确定搜索范围
                     int cellSpread = (proximityData.Arm / 256) + 1;
                     // Logger.Log("Arm = {0}，确定搜索范围 {1} 格", Proximity.Data.Arm, cellSpread);
@@ -227,10 +241,11 @@ namespace Extension.Script
                                     // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
                                     hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + proximityData.ZOffset);
                                 }
+                                // Logger.Log($"{Game.CurrentFrame} 碰触建筑 {pBuilding}");
                                 // 检查建筑是否被炸过
                                 if (hit && proximityData.PenetrationBuildingOnce)
                                 {
-                                    hit = !proximity.CheckAndMarkBuilding(pBuilding);
+                                    hit = pBuilding != pSourceTargetBuilding && !proximity.CheckAndMarkBuilding(pBuilding);
                                 }
                             }
                             else
