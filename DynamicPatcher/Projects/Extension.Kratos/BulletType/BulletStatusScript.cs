@@ -90,7 +90,7 @@ namespace Extension.Script
         {
             if (null != damageData && null != LifeData && (Interceptable || LifeData.Interceptable))
             {
-                // Logger.Log("抛射体{0}收到伤害{1}", OwnerObject, damageStatus);
+                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 收到伤害{damageData}");
                 if (damageData.Eliminate)
                 {
                     LifeData.Detonate(damageData.Harmless);

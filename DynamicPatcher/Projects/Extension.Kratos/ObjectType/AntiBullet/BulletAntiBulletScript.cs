@@ -35,22 +35,56 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} 重设抛射体 [{section}]{pBullet} 的伤害属性 {bulletStatus.DamageData} 由射手 [{pShooter.Ref.Type.Ref.Base.Base.ID}]{pShooter} 发射");
                 }
             }
+
+            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+            // 若目标非可摧毁的抛射体则不执行本逻辑
+            if (!pTarget.CastIf<BulletClass>(AbstractType.Bullet, out Pointer<BulletClass> pTargetBullet)
+                || !pTargetBullet.GetStatus().LifeData.Interceptable)
+            {
+                GameObject.RemoveComponent(this);
+                return;
+            }
         }
 
         public override void OnDetonate(Pointer<CoordStruct> location)
         {
             // 检索范围内的所有抛射体，并对其造成伤害
             Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
-            ExHelper.FindBullet(bulletStatus.pSourceHouse, location.Data, pWH.Ref.CellSpread, (pTarget) =>
+            if (pWH.Ref.CellSpread > 0)
             {
-                if (pTarget != pBullet
-                    && pTarget.TryGetStatus(out BulletStatusScript targetStatus)
-                    && pWH.CanAffectHouse(bulletStatus.pSourceHouse, targetStatus.pSourceHouse))
+                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 爆炸，检索范围内的抛射体，检索范围 {pWH.Ref.CellSpread}");
+                ExHelper.FindBullet(bulletStatus.pSourceHouse, location.Data, pWH.Ref.CellSpread, (pTarget) =>
                 {
-                    targetStatus.TakeDamage(bulletStatus.DamageData);
+                    // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 搜索到范围内的一个抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
+                    CanAffectAndDamageBullet(pTarget, pWH);
+                    return false;
+                });
+            }
+            else
+            {
+                // 检查与预定目标是否足够近
+                Pointer<AbstractClass> pTagret = pBullet.Ref.Target;
+                if (!pTagret.IsNull)
+                {
+                    CoordStruct targetPos = pTagret.Ref.GetCoords();
+                    if (location.Ref.DistanceFrom(targetPos) <= pBullet.Ref.Type.Ref.Arm + 256
+                        && pTagret.CastIf<BulletClass>(AbstractType.Bullet, out Pointer<BulletClass> pTargetBullet))
+                    {
+                        CanAffectAndDamageBullet(pTargetBullet, pWH);
+                    }
                 }
-                return false;
-            });
+            }
+        }
+
+        private void CanAffectAndDamageBullet(Pointer<BulletClass> pTarget, Pointer<WarheadTypeClass> pWH)
+        {
+            if (!pTarget.IsNull && pTarget != pBullet
+                && pTarget.TryGetStatus(out BulletStatusScript targetStatus)
+                && pWH.CanAffectHouse(bulletStatus.pSourceHouse, targetStatus.pSourceHouse))
+            {
+                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 对抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 制造伤害");
+                targetStatus.TakeDamage(bulletStatus.DamageData);
+            }
         }
     }
 }

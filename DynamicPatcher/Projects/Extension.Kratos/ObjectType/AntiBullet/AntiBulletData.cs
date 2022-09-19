@@ -9,8 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    [Serializable]
-    public class AntiBulletData
+    public class AntiBulletData : INIConfig
     {
         public bool Enable;
         public bool OneShotOneKill;
@@ -21,7 +20,6 @@ namespace Extension.Ext
         public int Range;
         public int EliteRange;
         public int Rate;
-
 
         public AntiBulletData()
         {
@@ -36,7 +34,7 @@ namespace Extension.Ext
             this.Rate = 0;
         }
 
-        public void Read(ISectionReader reader)
+        public override void Read(IConfigReader reader)
         {
             this.Enable = reader.Get("AntiMissile.Enable", this.Enable);
             this.OneShotOneKill = reader.Get("AntiMissile.OneShotOneKill", this.OneShotOneKill);
@@ -44,8 +42,8 @@ namespace Extension.Ext
             this.Self = reader.Get("AntiMissile.Self", this.Self);
             this.ForPassengers = reader.Get("AntiMissile.ForPassengers", this.ForPassengers);
             this.ScanAll = reader.Get("AntiMissile.ScanAll", this.ScanAll);
-            this.Range = reader.Get("AntiMissile.Range", this.Range);
-            this.EliteRange = reader.Get("AntiMissile.EliteRange", this.Range);
+            this.Range = reader.Get("AntiMissile.Range", this.Range) * 256;
+            this.EliteRange = reader.Get("AntiMissile.EliteRange", this.Range) * 256;
             this.Rate = reader.Get("AntiMissile.Rate", this.Rate);
         }
 

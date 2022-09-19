@@ -9,7 +9,6 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    [Serializable]
     public class DamageTextTypeData : INIConfig
     {
         public const string TITLE = "DamageText.";

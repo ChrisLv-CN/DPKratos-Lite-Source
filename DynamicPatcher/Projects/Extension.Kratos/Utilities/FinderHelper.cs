@@ -203,7 +203,7 @@ namespace Extension.Utilities
         {
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
 
-            double dist = (spread <= 0 ? 1 : Math.Ceiling(spread)) * 256;
+            double dist = (spread <= 0 ? 1 : spread) * 256;
             ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
@@ -221,22 +221,27 @@ namespace Extension.Utilities
         {
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
 
-            double dist = (spread <= 0 ? 1 : Math.Ceiling(spread)) * 256;
-
-            foreach (Pointer<BulletClass> pTarget in BulletClass.Array)
+            double dist = (spread <= 0 ? 1 : spread) * 256;
+            ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
+            for (int i = bullets.Count - 1; i >= 0; i--)
             {
-                Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                if (pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
+                Pointer<BulletClass> pTarget = bullets.Get(i);
+                CoordStruct targetLocation = pTarget.Ref.Base.Base.GetCoords();
+                if (targetLocation.DistanceFrom(location) <= dist)
                 {
-                    // 检查原始所属
-                    if ((pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                    if (pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
                     {
-                        continue;
+                        // 检查原始所属
+                        if ((pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        {
+                            continue;
+                        }
                     }
-                }
-                if (func(pTarget))
-                {
-                    break;
+                    if (func(pTarget))
+                    {
+                        break;
+                    }
                 }
             }
         }
