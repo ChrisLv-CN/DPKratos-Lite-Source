@@ -19,9 +19,12 @@ namespace Extension.Script
 
         public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
 
+        public bool DisableVoxelCache;
+        public float VoxelShadowScaleInAir;
+
         public override void Awake()
         {
-            // Logger.Log($"{Game.CurrentFrame} + Techno 全局主程");
+            this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
         }
     }
 }

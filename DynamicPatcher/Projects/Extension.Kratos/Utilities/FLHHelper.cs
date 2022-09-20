@@ -129,6 +129,11 @@ namespace Extension.Utilities
             if (null != loco)
             {
                 loco.Draw_Matrix(Pointer<Matrix3DStruct>.AsPointer(ref matrix3D), IntPtr.Zero);
+                // 飞机的话，读取倾角
+                if (pTechno.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript aircraftAttitude) && aircraftAttitude.PitchAngle != 0)
+                {
+                    matrix3D.RotateY((float)aircraftAttitude.PitchAngle);
+                }
             }
             return matrix3D;
         }

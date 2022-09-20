@@ -19,7 +19,7 @@ namespace Extension.Utilities
             Crosshair(sourcePos, length, new ColorStruct(255, 0, 0), default, thickness, duration);
         }
 
-        public static void RedCell(CoordStruct sourcePos, int length, int thickness = 1, int duration = 1, bool crosshair = false)
+        public static void RedCell(CoordStruct sourcePos, int length = 128, int thickness = 1, int duration = 1, bool crosshair = false)
         {
             if (crosshair)
             {
@@ -33,7 +33,7 @@ namespace Extension.Utilities
             Crosshair(sourcePos, length, new ColorStruct(0, 255, 0), default, thickness, duration);
         }
 
-        public static void GreenCell(CoordStruct sourcePos, int length, int thickness = 1, int duration = 1, bool crosshair = false)
+        public static void GreenCell(CoordStruct sourcePos, int length = 128, int thickness = 1, int duration = 1, bool crosshair = false)
         {
             if (crosshair)
             {
@@ -47,7 +47,7 @@ namespace Extension.Utilities
             Crosshair(sourcePos, length, new ColorStruct(0, 0, 255), default, thickness, duration);
         }
 
-        public static void BlueCell(CoordStruct sourcePos, int length, int thickness = 1, int duration = 1, bool crosshair = false)
+        public static void BlueCell(CoordStruct sourcePos, int length = 128, int thickness = 1, int duration = 1, bool crosshair = false)
         {
             if (crosshair)
             {
