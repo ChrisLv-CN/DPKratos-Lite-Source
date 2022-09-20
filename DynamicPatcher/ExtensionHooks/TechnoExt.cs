@@ -223,7 +223,7 @@ namespace ExtensionHooks
         public static unsafe UInt32 FlyLocomotionClass_FlightLevel_ResetA(REGISTERS* R)
         {
             Pointer<FlyLocomotionClass> pFly = (IntPtr)R->EBP;
-            Logger.Log($"{Game.CurrentFrame} FlyLoco {R->EBP} 重置飞行高度A {pFly.Ref.FlightLevel}");
+            // Logger.Log($"{Game.CurrentFrame} FlyLoco {R->EBP} 重置飞行高度A {pFly.Ref.FlightLevel}");
             Pointer<TechnoClass> pTechno = pFly.Convert<LocomotionClass>().Ref.LinkedTo.Convert<TechnoClass>();
             if (pTechno.TryGetComponent<AircraftDiveScript>(out AircraftDiveScript diveScript) && diveScript.DiveStatus == AircraftDiveStatus.DIVEING)
             {
@@ -236,7 +236,7 @@ namespace ExtensionHooks
         public static unsafe UInt32 FlyLocomotionClass_FlightLevel_ResetB(REGISTERS* R)
         {
             Pointer<FlyLocomotionClass> pFly = (IntPtr)R->EBP;
-            Logger.Log($"{Game.CurrentFrame} FlyLoco {R->EBP} 重置飞行高度B {pFly.Ref.FlightLevel}");
+            // Logger.Log($"{Game.CurrentFrame} FlyLoco {R->EBP} 重置飞行高度B {pFly.Ref.FlightLevel}");
             Pointer<TechnoClass> pTechno = pFly.Convert<LocomotionClass>().Ref.LinkedTo.Convert<TechnoClass>();
             if (pTechno.TryGetComponent<AircraftDiveScript>(out AircraftDiveScript diveScript) && diveScript.DiveStatus == AircraftDiveStatus.DIVEING)
             {
