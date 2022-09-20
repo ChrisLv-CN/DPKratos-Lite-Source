@@ -12,6 +12,9 @@ namespace Extension.Script
     {
         void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex);
         void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding);
+
+        void OnGuardCommand();
+        void OnStopCommand();
     }
 
     [Serializable]
@@ -34,6 +37,8 @@ namespace Extension.Script
         public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }
 
         public virtual void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding) { }
+        public virtual void OnGuardCommand() { }
+        public virtual void OnStopCommand() { }
     }
 
 }

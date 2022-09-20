@@ -40,6 +40,9 @@ namespace Extension.Script
 
         public virtual void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding) { }
 
+        public virtual void OnGuardCommand() { }
+
+        public virtual void OnStopCommand() { }
 
 
         public virtual void OnDetonate(Pointer<CoordStruct> pCoords) { }

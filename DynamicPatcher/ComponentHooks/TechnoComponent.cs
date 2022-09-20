@@ -247,5 +247,32 @@ namespace ComponentHooks
             return TechnoClass_Render_Components(pUnit.Convert<TechnoClass>());
         }
         #endregion
+
+
+        [Hook(HookType.AresHook, Address = 0x730E8F, Size = 6)]
+        public static unsafe UInt32 ObjectClass_GuardCommand(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ESI;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // Logger.Log("{0} Guard Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnGuardCommand());
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x730F1C, Size = 5)]
+        public static unsafe UInt32 ObjectClass_StopCommand(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ESI;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                // Logger.Log("{0} Stop Command", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnStopCommand());
+            }
+            return 0;
+        }
     }
 }
