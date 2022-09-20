@@ -26,7 +26,11 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            this.Range = reader.Get("ProximityRange", -1) * 256;
+            this.Range = reader.Get("ProximityRange", -1);
+            if (Range > 0)
+            {
+                this.Range *= 256;
+            }
             this.MaxRange = Range;
             Point2D randomRange = reader.Get<Point2D>("ProximityRange.Random", default);
             if (default != randomRange)
