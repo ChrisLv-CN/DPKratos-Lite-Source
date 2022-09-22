@@ -209,6 +209,7 @@ namespace ExtensionHooks
         // [Hook(HookType.AresHook, Address = 0x414971, Size = 5)]
         // public static unsafe UInt32 AircraftClass_DrawIt_PitchAngle(REGISTERS* R)
         // {
+        //     Logger.Log($"{Game.CurrentFrame} 渲染飞机 获取到的矩阵 {R->EAX}");
         //     Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
         //     if (pTechno.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude) && attitude.PitchAngle != 0)
         //     {
@@ -262,6 +263,29 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x4CF3CB, Size = 5)]
+        public static unsafe UInt32 FlyLocomotionClass_4CEFB0(REGISTERS* R)
+        {
+            // 调整飞机的朝向，有目标时获取目标的朝向，没有目标时获得默认朝向，此时EAX为0
+            // EAX是目标DirStruct的指针
+            // ECX是当前Facing的指针
+            // ESI是飞机的指针的指针
+            Pointer<DirStruct> pDir = (IntPtr)R->EAX;
+            if (pDir.IsNull)
+            {
+                pDir = (IntPtr)R->EDX;
+                // Logger.Log($"{Game.CurrentFrame} 更改朝向 但是没有 指向默认的右下角 {pDir.Ref.value()}");
+                Pointer<TechnoClass> pTechno = ((Pointer<IntPtr>)R->ESI).Ref;
+                // 如果是Spawnd就全程强制执行
+                // Mission是Enter的普通飞机就不管
+                if (pTechno.Ref.Base.Base.IsInAir()
+                    && (pTechno.Ref.Type.Ref.Spawned || Mission.Enter != pTechno.Convert<MissionClass>().Ref.CurrentMission))
+                {
+                    pDir.Ref.SetValue(pTechno.Ref.TurretFacing.current().value());
+                }
+            }
+            return 0;
+        }
         #endregion
 
     }

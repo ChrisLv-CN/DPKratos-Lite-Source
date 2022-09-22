@@ -74,6 +74,19 @@ namespace Extension.Script
             lastLocation = location;
         }
 
+        public override void OnLateUpdate()
+        {
+            // 子机在降落时调整鸡头的朝向
+            Pointer<TechnoClass> pSpawnOwner = IntPtr.Zero;
+            if (!(pSpawnOwner = pTechno.Ref.SpawnOwner).IsDeadOrInvisible() &&
+                pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>().Ref.IsLanding)
+            {
+                DirStruct dir = pSpawnOwner.Ref.Facing.current();
+                pTechno.Ref.Facing.turn(dir);
+                pTechno.Ref.TurretFacing.turn(dir);
+            }
+        }
+
         public void UnLock()
         {
             this.smooth = true;
