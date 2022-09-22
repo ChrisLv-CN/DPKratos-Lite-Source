@@ -57,11 +57,19 @@ namespace Extension.INI
 
         internal static INIFileBuffer FindFile(string name)
         {
-            if (!s_File.TryGetValue(name, out INIFileBuffer buffer))
+            if (s_File.TryGetValue(name, out INIFileBuffer buffer))
             {
-                buffer = new INIFileBuffer(name);
+                return buffer;
+            }
 
-                s_File[name] = buffer;
+            lock (s_File)
+            {
+                if (!s_File.TryGetValue(name, out buffer))
+                {
+                    buffer = new INIFileBuffer(name);
+
+                    s_File[name] = buffer;
+                }
             }
 
             return buffer;

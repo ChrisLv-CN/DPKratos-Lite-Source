@@ -11,7 +11,7 @@ namespace Extension.Decorators
     [Serializable]
     public class DecoratorComponent : Component, IDecorative, IDecorative<PairDecorator>
     {
-        public DecoratorComponent() : base(true)
+        public DecoratorComponent() : base()
         {
 
         }

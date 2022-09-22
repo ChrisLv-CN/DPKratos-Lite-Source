@@ -10,16 +10,15 @@ using System.Threading.Tasks;
 namespace Extension.Components
 {
     [Serializable]
-    public class Transform : Component
+    public abstract class Transform : Component
     {
-        public Transform() : base(true)
+        public Transform() : base()
         {
-            _transform = this;
         }
 
-        public virtual Vector3 Location { get => _location; set => _location = value; }
-        public virtual Vector3 Rotation { get => _rotation; set => _rotation = value; }
-        public virtual Vector3 Scale { get => _scale; set => _scale = value; }
+        public abstract Vector3 Location { get; set; }
+        public abstract Quaternion Rotation { get; set; }
+        public abstract Vector3 Scale { get; set; }
 
         public Transform GetParent()
         {
@@ -30,30 +29,6 @@ namespace Extension.Components
         {
             return base.GetRoot().Transform;
         }
-
-        public override void LoadFromStream(IStream stream)
-        {
-            base.LoadFromStream(stream);
-
-            stream.Read(ref _location);
-            stream.Read(ref _rotation);
-            stream.Read(ref _scale);
-        }
-        public override void SaveToStream(IStream stream)
-        {
-            base.SaveToStream(stream);
-
-            stream.Write(_location);
-            stream.Write(_rotation);
-            stream.Write(_scale);
-        }
-
-        [NonSerialized]
-        protected Vector3 _location;
-        [NonSerialized]
-        protected Vector3 _rotation;
-        [NonSerialized]
-        protected Vector3 _scale;
     }
 }
 

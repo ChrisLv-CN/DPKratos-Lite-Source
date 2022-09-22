@@ -53,30 +53,29 @@ namespace Extension.Ext
 
 
 
-        public TTypeExt Type { get; internal set; }
+        public TTypeExt Type
+        {
+            get
+            {
+                if (type == null)
+                {
+                    type = CommonTypeExtension<TTypeExt, TTypeBase>.ExtMap.Find(OwnerObject.Ref.OwnType);
+                }
+
+                return type;
+            }
+
+            internal set => type = value;
+        }
         public ref TTypeBase OwnerTypeRef => ref Type.OwnerRef;
 
         protected override void OnAwake(GameObject gameObject)
         {
             base.OnAwake(gameObject);
 
-            Type = CommonTypeExtension<TTypeExt, TTypeBase>.ExtMap.Find(OwnerObject.Ref.OwnType);
-
-            if (Type.Scripts != null)
-            {
-                foreach (var script in Type.Scripts)
-                {
-                    try
-                    {
-                        ScriptManager.CreateScriptableTo(gameObject, script, this as TExt);
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError("unable to create scriptable {0}", script.ScriptableType.FullName);
-                        Logger.PrintException(e);
-                    }
-                }
-            }
+            CreateScriptable(Type.Scripts);
         }
+
+        private TTypeExt type;
     }
 }

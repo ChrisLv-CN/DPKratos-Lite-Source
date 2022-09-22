@@ -11,20 +11,13 @@ using DynamicPatcher;
 namespace Extension.Components
 {
     [Serializable]
-    public abstract class Component : IReloadable
+    public abstract partial class Component : IReloadable
     {
         public const int NO_ID = -1;
 
         protected Component()
         {
             ID = NO_ID;
-            _transform = new Transform();
-        }
-
-        protected Component(bool withoutTransform = false)
-        {
-            ID = NO_ID;
-            _transform = withoutTransform ? null : new Transform();
         }
 
         protected Component(int id) : this()
@@ -41,9 +34,9 @@ namespace Extension.Components
         public Component Parent => _parent;
         public Component Root => GetRoot();
         public GameObject GameObject => Root as GameObject;
-        
-        [Obsolete("don't use before finish")]
-        public Transform Transform { get; }
+
+        [Obsolete("don't use")]
+        public virtual Transform Transform => GameObject.Transform;
 
         public Component GetRoot()
         {
@@ -60,7 +53,6 @@ namespace Extension.Components
 
             DetachFromParent();
 
-            _parent = component;
             component.AddComponent(this);
             GameObject?.AddComponentEx(this, component);
         }
@@ -68,7 +60,6 @@ namespace Extension.Components
         public void DetachFromParent()
         {
             Parent?.RemoveComponent(this);
-            _parent = null;
         }
 
 
@@ -77,197 +68,75 @@ namespace Extension.Components
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component GetComponent(Predicate<Component> predicate)
-        {
-            return _children.Find(predicate);
-        }
+        public partial Component GetComponent(Predicate<Component> predicate);
 
-        public Component GetComponent(int id)
-        {
-            return GetComponent(c => c.ID == id);
-        }
+        public partial Component GetComponent(int id);
 
-        public Component GetComponent(Type type)
-        {
-            return GetComponent(c => type.IsAssignableFrom(c.GetType()));
-        }
+        public partial Component GetComponent(Type type);
 
-        public TComponent GetComponent<TComponent>() where TComponent : Component
-        {
-            return GetComponent(typeof(TComponent)) as TComponent;
-        }
+        public partial TComponent GetComponent<TComponent>() where TComponent : Component;
 
         /// <summary>
         /// get components that match predicate in direct children
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component[] GetComponents(Func<Component, bool> predicate)
-        {
-            return _children.Where(predicate).ToArray();
-        }
-
-        public Component[] GetComponents()
-        {
-            return GetComponents(_ => true);
-        }
-
-        public Component[] GetComponents(Type type)
-        {
-            return GetComponents(c => type.IsAssignableFrom(c.GetType())).ToArray();
-        }
-        public TComponent[] GetComponents<TComponent>() where TComponent : Component
-        {
-            return GetComponents(typeof(TComponent)).Cast<TComponent>().ToArray();
-        }
-
-
-
+        public partial Component[] GetComponents(Func<Component, bool> predicate);
+        public partial Component[] GetComponents();
+        public partial Component[] GetComponents(Type type);
+        public partial TComponent[] GetComponents<TComponent>() where TComponent : Component;
 
         /// <summary>
         /// get component that match predicate in all children
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component GetComponentInChildren(Predicate<Component> predicate)
-        {
-            // find first level
-            Component component = _children.Find(predicate);
-
-            if (component != null)
-            {
-                return component;
-            }
-
-            foreach (var child in _children)
-            {
-                component = child.GetComponentInChildren(predicate);
-                if (component != null)
-                    break;
-            }
-
-            return component;
-        }
-
-        public Component GetComponentInChildren(int id)
-        {
-            return GetComponentInChildren(c => c.ID == id);
-        }
-
-        public Component GetComponentInChildren(Type type)
-        {
-            return GetComponentInChildren(type.IsInstanceOfType);
-        }
-
-        public TComponent GetComponentInChildren<TComponent>() where TComponent : Component
-        {
-            return GetComponentInChildren(typeof(TComponent)) as TComponent;
-        }
+        public partial Component GetComponentInChildren(Predicate<Component> predicate);
+        public partial Component GetComponentInChildren(int id);
+        public partial Component GetComponentInChildren(Type type);
+        public partial TComponent GetComponentInChildren<TComponent>() where TComponent : Component;
 
         /// <summary>
         /// get components that match predicate in all children
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component[] GetComponentsInChildren(Func<Component, bool> predicate)
-        {
-            List<Component> components = _children.Where(predicate).ToList();
-
-            foreach (var child in _children)
-            {
-                components.AddRange(child.GetComponentsInChildren(predicate));
-            }
-
-            return components.ToArray();
-        }
-
-        public Component[] GetComponentsInChildren()
-        {
-            return GetComponentsInChildren(_ => true);
-        }
-
-        public Component[] GetComponentsInChildren(Type type)
-        {
-            return GetComponentsInChildren(type.IsInstanceOfType).ToArray();
-        }
-        public TComponent[] GetComponentsInChildren<TComponent>() where TComponent : Component
-        {
-            return GetComponentsInChildren(typeof(TComponent)).Cast<TComponent>().ToArray();
-        }
-
+        public partial Component[] GetComponentsInChildren(Func<Component, bool> predicate);
+        public partial Component[] GetComponentsInChildren();
+        public partial Component[] GetComponentsInChildren(Type type);
+        public partial TComponent[] GetComponentsInChildren<TComponent>() where TComponent : Component;
 
         /// <summary>
         /// get component that match predicate in direct children or parents
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component GetComponentInParent(Predicate<Component> predicate)
-        {
-            // find first level
-            Component component = _children.Find(predicate);
-
-            if (component != null)
-            {
-                return component;
-            }
-
-            component = _parent.GetComponentInParent(predicate);
-
-            return component;
-        }
-
-        public Component GetComponentInParent(int id)
-        {
-            return GetComponentInParent(c => c.ID == id);
-        }
-
-        public Component GetComponentInParent(Type type)
-        {
-            return GetComponentInParent(type.IsInstanceOfType);
-        }
-
-        public TComponent GetComponentInParent<TComponent>() where TComponent : Component
-        {
-            return GetComponentInParent(typeof(TComponent)) as TComponent;
-        }
+        public partial Component GetComponentInParent(Predicate<Component> predicate);
+        public partial Component GetComponentInParent(int id);
+        public partial Component GetComponentInParent(Type type);
+        public partial TComponent GetComponentInParent<TComponent>() where TComponent : Component;
 
         /// <summary>
         ///  get components that match predicate in direct children or parents
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        public Component[] GetComponentsInParent(Func<Component, bool> predicate)
+        public partial Component[] GetComponentsInParent(Func<Component, bool> predicate);
+        public partial Component[] GetComponentsInParent();
+        public partial Component[] GetComponentsInParent(Type type);
+        public partial TComponent[] GetComponentsInParent<TComponent>() where TComponent : Component;
+
+
+
+        protected void AddComponent(Component component)
         {
-            List<Component> components = _children.Where(predicate).ToList();
-
-            components.AddRange(_parent.GetComponentsInParent(predicate));
-
-            return components.ToArray();
-        }
-
-        public Component[] GetComponentsInParent()
-        {
-            return GetComponentsInParent(_ => true);
-        }
-
-        public Component[] GetComponentsInParent(Type type)
-        {
-            return GetComponentsInParent(type.IsInstanceOfType).ToArray();
-        }
-        public TComponent[] GetComponentsInParent<TComponent>() where TComponent : Component
-        {
-            return GetComponentsInParent(typeof(TComponent)).Cast<TComponent>().ToArray();
-        }
-
-
-
-        protected virtual void AddComponent(Component component)
-        {
+            component._parent = this;
             _children.Add(component);
         }
-        protected virtual void RemoveComponent(Component component)
+        protected void RemoveComponent(Component component)
         {
             _children.Remove(component);
+            component._parent = null;
         }
 
 
@@ -434,12 +303,268 @@ namespace Extension.Components
             _children.Clear();
         }
 
-        protected Transform _transform;
         [NonSerialized] // set back in OnDeserialized
-        protected Component _parent = null;
-        protected List<Component> _children = new List<Component>();
+        internal Component _parent = null;
+        private List<Component> _children = new List<Component>();
 
         private bool _awaked = false;
         private bool _started = false;
+    }
+
+    public partial class Component
+    {
+        private static List<Component> s_Buffer = new(10);
+        private List<Component> GetBuffer()
+        {
+            s_Buffer.Clear();
+            return s_Buffer;
+        }
+        private static List<Component[]> s_ArrayBuffer = Enumerable.Range(0, 32).Select(size => new Component[size]).ToList();
+        private Component[] FastToArray(List<Component> list)
+        {
+            int size = list.Count;
+            if (s_ArrayBuffer.Count > size)
+            {
+                var array = s_ArrayBuffer[size];
+                list.CopyTo(array);
+                return array;
+            }
+            return list.ToArray();
+        }
+        private TComponent[] FastToArray<TComponent>(Component[] array) where TComponent : Component
+        {
+            //return array as TComponent[]; // slower
+            return Array.ConvertAll(array, c => c as TComponent);
+        }
+
+        public partial Component GetComponent(Predicate<Component> predicate)
+        {
+            return _children.Find(predicate);
+        }
+
+        public partial Component GetComponent(int id)
+        {
+            return GetComponent(c => c.ID == id);
+        }
+
+        public partial Component GetComponent(Type type)
+        {
+            return GetComponent(c => type.IsAssignableFrom(c.GetType()));
+        }
+
+        public partial TComponent GetComponent<TComponent>() where TComponent : Component
+        {
+            return GetComponent(typeof(TComponent)) as TComponent;
+        }
+
+        /// <summary>
+        /// get component that match predicate in all children
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public partial Component GetComponentInChildren(Predicate<Component> predicate)
+        {
+            // find first level
+            Component component = _children.Find(predicate);
+
+            if (component != null)
+            {
+                return component;
+            }
+
+            int length = _children.Count;
+            for (int i = 0; i < length; i++)
+            {
+                var child = _children[i];
+                component = child.GetComponentInChildren(predicate);
+                if (component != null)
+                    break;
+            }
+
+            return component;
+        }
+
+        public partial Component GetComponentInChildren(int id)
+        {
+            return GetComponentInChildren(c => c.ID == id);
+        }
+
+        public partial Component GetComponentInChildren(Type type)
+        {
+            return GetComponentInChildren(type.IsInstanceOfType);
+        }
+
+        public partial TComponent GetComponentInChildren<TComponent>() where TComponent : Component
+        {
+            return GetComponentInChildren(typeof(TComponent)) as TComponent;
+        }
+
+        /// <summary>
+        /// get component that match predicate in direct children or parents
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public partial Component GetComponentInParent(Predicate<Component> predicate)
+        {
+            // find first level
+            Component component = _children.Find(predicate);
+
+            if (component != null)
+            {
+                return component;
+            }
+
+            component = _parent.GetComponentInParent(predicate);
+
+            return component;
+        }
+
+        public partial Component GetComponentInParent(int id)
+        {
+            return GetComponentInParent(c => c.ID == id);
+        }
+
+        public partial Component GetComponentInParent(Type type)
+        {
+            return GetComponentInParent(type.IsInstanceOfType);
+        }
+
+        public partial TComponent GetComponentInParent<TComponent>() where TComponent : Component
+        {
+            return GetComponentInParent(typeof(TComponent)) as TComponent;
+        }
+
+        /// <summary>
+        /// get components that match predicate in direct children
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public partial Component[] GetComponents(Func<Component, bool> predicate)
+        {
+            var buffer = GetBuffer();
+
+            int length = _children.Count;
+            for (int i = 0; i < length; i++)
+            {
+                var child = _children[i];
+                if (predicate(child))
+                {
+                    buffer.Add(child);
+                }
+            }
+
+            return FastToArray(buffer);
+        }
+
+        public partial Component[] GetComponents()
+        {
+            return GetComponents(_ => true);
+        }
+
+        public partial Component[] GetComponents(Type type)
+        {
+            return GetComponents(c => type.IsAssignableFrom(c.GetType()));
+        }
+        public partial TComponent[] GetComponents<TComponent>() where TComponent : Component
+        {
+            return FastToArray<TComponent>(GetComponents(typeof(TComponent)));
+        }
+
+        /// <summary>
+        /// get components that match predicate in all children
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public partial Component[] GetComponentsInChildren(Func<Component, bool> predicate)
+        {
+            var buffer = GetBuffer();
+
+            void GetComponentsInChildren(Component component)
+            {
+                var children = component._children;
+                int length = children.Count;
+
+                for (int i = 0; i < length; i++)
+                {
+                    var child = children[i];
+                    if (predicate(child))
+                    {
+                        buffer.Add(child);
+                    }
+                }
+
+                for (int i = 0; i < length; i++)
+                {
+                    var child = children[i];
+                    GetComponentsInChildren(child);
+                }
+            }
+
+            GetComponentsInChildren(this);
+
+            return FastToArray(buffer);
+        }
+
+        public partial Component[] GetComponentsInChildren()
+        {
+            return GetComponentsInChildren(_ => true);
+        }
+
+        public partial Component[] GetComponentsInChildren(Type type)
+        {
+            return GetComponentsInChildren(type.IsInstanceOfType);
+        }
+        public partial TComponent[] GetComponentsInChildren<TComponent>() where TComponent : Component
+        {
+            return FastToArray<TComponent>(GetComponentsInChildren(typeof(TComponent)));
+        }
+
+        /// <summary>
+        ///  get components that match predicate in direct children or parents
+        /// </summary>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
+        public partial Component[] GetComponentsInParent(Func<Component, bool> predicate)
+        {
+            var buffer = GetBuffer();
+
+            void GetComponentsInParent(Component component)
+            {
+                var children = component._children;
+                int length = children.Count;
+
+                for (int i = 0; i < length; i++)
+                {
+                    var child = children[i];
+                    if (predicate(child))
+                    {
+                        buffer.Add(child);
+                    }
+                }
+
+                if (component._parent != null)
+                {
+                    GetComponentsInParent(component._parent);
+                }
+            }
+
+            GetComponentsInParent(this);
+
+            return FastToArray(buffer);
+        }
+
+        public partial Component[] GetComponentsInParent()
+        {
+            return GetComponentsInParent(_ => true);
+        }
+
+        public partial Component[] GetComponentsInParent(Type type)
+        {
+            return GetComponentsInParent(type.IsInstanceOfType);
+        }
+        public partial TComponent[] GetComponentsInParent<TComponent>() where TComponent : Component
+        {
+            return FastToArray<TComponent>(GetComponentsInParent(typeof(TComponent)));
+        }
     }
 }

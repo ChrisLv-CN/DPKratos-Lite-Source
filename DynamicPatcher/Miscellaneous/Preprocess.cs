@@ -40,7 +40,7 @@ namespace Miscellaneous
             RunClassConstructor(typeof(MainSerializer));
 
             RunClassConstructor(typeof(INIConstant));
-            RunClassConstructor(typeof(INIComponent));
+            RunClassConstructor(typeof(INIBufferPreloader));
         }
 
         static void AddEventSystemHandlers()

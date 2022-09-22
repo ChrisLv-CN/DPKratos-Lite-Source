@@ -59,7 +59,16 @@ namespace Extension.INI
                 if (!field.IsDefined(typeof(NotINIFieldAttribute)))
                 {
                     var iniField = field.GetCustomAttribute<INIFieldAttribute>();
-                    MethodInfo getMethod = (field.FieldType.IsArray ? getList : get).MakeGenericMethod(field.FieldType);
+
+                    MethodInfo getMethod;
+                    if (field.FieldType.IsArray)
+                    {
+                        getMethod = getList.MakeGenericMethod(field.FieldType.GetElementType());
+                    }
+                    else
+                    {
+                        getMethod = get.MakeGenericMethod(field.FieldType);
+                    }
 
                     string key = iniField?.Key ?? field.Name;
                     var val = getMethod.Invoke(ini, new object[] { key, field.GetValue(this), null });

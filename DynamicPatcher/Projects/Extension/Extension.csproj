@@ -53,6 +53,7 @@
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\ComponentManager.cs" />
     <Compile Include="Components\GameObject.cs" />
+    <Compile Include="Components\YRTransform.cs" />
     <Compile Include="Coroutines\Coroutine.cs" />
     <Compile Include="Coroutines\WaitCondition.cs" />
     <Compile Include="Coroutines\YieldInstruction.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="INI\EnumParser.cs" />
     <Compile Include="INI\Ini.cs" />
     <Compile Include="INI\INIBuffer.cs" />
+    <Compile Include="INI\INIBufferPreloader.cs" />
     <Compile Include="INI\INIBufferReader.cs" />
     <Compile Include="INI\INIComponent.cs" />
     <Compile Include="Components\RequireComponent.cs" />
@@ -82,23 +84,25 @@
     <Compile Include="Coroutines\CoroutineSystem.cs" />
     <Compile Include="Coroutines\CoroutineWaiter.cs" />
     <Compile Include="Coroutines\WaitForFrames.cs" />
+    <Compile Include="Decorators\Decorator.cs" />
     <Compile Include="Decorators\DecoratorComponent.cs" />
     <Compile Include="Decorators\DecoratorId.cs" />
     <Compile Include="Decorators\DecoratorMap.cs" />
     <Compile Include="Decorators\IDecorative.cs" />
     <Compile Include="Ext\Container.cs" />
+    <Compile Include="INI\FindTypeParser.cs" />
     <Compile Include="INI\INIComponentManager.cs" />
     <Compile Include="INI\INIComponentWith.cs" />
     <Compile Include="INI\INIConfig.cs" />
     <Compile Include="INI\INIConstant.cs" />
     <Compile Include="INI\INIFileBuffer.cs" />
     <Compile Include="INI\INIFileReader.cs" />
+    <Compile Include="INI\INIReader.cs" />
     <Compile Include="INI\NormalParser.cs" />
     <Compile Include="INI\Parser.cs" />
     <Compile Include="INI\Parsers.cs" />
     <Compile Include="INI\ScriptParser.cs" />
     <Compile Include="INI\YRParsers.cs" />
-    <Compile Include="INI\FindTypeParser.cs" />
     <Compile Include="INI\YRParsers.g.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -127,14 +131,12 @@
     <Compile Include="Serialization\SerializationChecker.cs" />
     <Compile Include="Serialization\SerializationHelper.cs" />
     <Compile Include="Utilities\ContainerHelper.cs" />
-    <Compile Include="Decorators\Decorator.cs" />
     <Compile Include="Utilities\ExtensionReference.cs" />
-    <Compile Include="INI\INIReader.cs" />
     <Compile Include="Utilities\IReloadable.cs" />
     <Compile Include="Utilities\PartialHelper.cs" />
+    <Compile Include="Utilities\SwizzleablePointer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Script\ScriptManager.cs" />
-    <Compile Include="Utilities\SwizzleablePointer.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
