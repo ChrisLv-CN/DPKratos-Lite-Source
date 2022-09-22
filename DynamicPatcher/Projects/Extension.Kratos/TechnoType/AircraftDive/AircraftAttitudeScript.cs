@@ -23,6 +23,7 @@ namespace Extension.Script
 
         public float PitchAngle;
 
+        private bool disable; // 关闭俯仰姿态自动调整，但不会影响俯冲
         private float targetAngle;
         private bool smooth; // 平滑的改变角度
         private bool lockAngle; // 由其他地方算角度
@@ -38,6 +39,12 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+
+            AircraftAttitudeData data = Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, RulesExt.SectionAudioVisual).Data;
+            this.disable = data.Disable;
+            ISectionReader sectionReader = Ini.GetSection(Ini.RulesDependency, section);
+            this.disable = sectionReader.Get("DisableAircraftAutoPitch", disable);
+
             this.PitchAngle = 0f;
             this.smooth = true;
             this.lockAngle = false;
@@ -67,7 +74,7 @@ namespace Extension.Script
             technoStatus.DisableVoxelCache = PitchAngle != 0;
             // Logger.Log($"{Game.CurrentFrame} 飞机[{section}]{pTechno} 高度 {pTechno.Ref.Base.GetHeight()} 记录的倾斜角度 Angle = {PitchAngle} 位置 {pTechno.Ref.Base.Base.GetCoords()}");
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-            if (!lockAngle)
+            if (!disable && !lockAngle)
             {
                 UpdateHeadToCoord(location);
             }
