@@ -206,14 +206,31 @@ namespace ExtensionHooks
         #endregion
 
         #region 傻逼飞机
-        [Hook(HookType.AresHook, Address = 0x414971, Size = 5)]
-        public static unsafe UInt32 AircraftClass_DrawIt_PitchAngle(REGISTERS* R)
+        // [Hook(HookType.AresHook, Address = 0x414971, Size = 5)]
+        // public static unsafe UInt32 AircraftClass_DrawIt_PitchAngle(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+        //     if (pTechno.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude) && attitude.PitchAngle != 0)
+        //     {
+        //         Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->EAX;
+        //         pMatrix3D.Ref.RotateY(attitude.PitchAngle);
+        //         // Logger.Log($"{Game.CurrentFrame} 飞机 {R->EBP} 渲染, 调整俯仰角度 {attitude.PitchAngle}, 原始位置 {pTechno.Ref.Base.Base.GetCoords()}");
+        //     }
+        //     return 0;
+        // }
+
+        [Hook(HookType.AresHook, Address = 0x4CF80D, Size = 5)]
+        public static unsafe UInt32 FlyLocomotionClass_Draw_Matrix(REGISTERS* R)
         {
-            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            // 传入的矩阵是EAX，下一步是将临时的矩阵复制给EAX
+            // Logger.Log($"{Game.CurrentFrame} FlyLoco {R->ESI - 4} 获取飞机的矩阵 {R->EAX} {R->Stack<IntPtr>(0x40)} {R->Stack<IntPtr>(0xC)} {R->Stack<Matrix3DStruct>(0x8)}");
+            Pointer<FlyLocomotionClass> pFly = (IntPtr)R->ESI - 4;
+            Pointer<TechnoClass> pTechno = pFly.Convert<LocomotionClass>().Ref.LinkedTo.Convert<TechnoClass>();
             if (pTechno.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude) && attitude.PitchAngle != 0)
             {
-                Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->EAX;
-                pMatrix3D.Ref.RotateY(attitude.PitchAngle);
+                Matrix3DStruct matrix3D = R->Stack<Matrix3DStruct>(0x8);
+                matrix3D.RotateY(attitude.PitchAngle);
+                R->Stack(0x8, matrix3D);
                 // Logger.Log($"{Game.CurrentFrame} 飞机 {R->EBP} 渲染, 调整俯仰角度 {attitude.PitchAngle}, 原始位置 {pTechno.Ref.Base.Base.GetCoords()}");
             }
             return 0;
