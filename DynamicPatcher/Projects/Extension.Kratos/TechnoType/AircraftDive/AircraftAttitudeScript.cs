@@ -23,6 +23,7 @@ namespace Extension.Script
 
         public float PitchAngle;
 
+        private AircraftAttitudeData attitudeData => Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, section).Data;
         private bool disable; // 关闭俯仰姿态自动调整，但不会影响俯冲
         private float targetAngle;
         private bool smooth; // 平滑的改变角度
@@ -40,11 +41,7 @@ namespace Extension.Script
                 return;
             }
 
-            AircraftAttitudeData data = Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, RulesExt.SectionAudioVisual).Data;
-            this.disable = data.Disable;
-            ISectionReader sectionReader = Ini.GetSection(Ini.RulesDependency, section);
-            this.disable = sectionReader.Get("DisableAircraftAutoPitch", disable);
-
+            this.disable = attitudeData.Disable;
             this.PitchAngle = 0f;
             this.smooth = true;
             this.lockAngle = false;
@@ -85,13 +82,45 @@ namespace Extension.Script
         {
             // 子机在降落时调整鸡头的朝向
             Pointer<TechnoClass> pSpawnOwner = IntPtr.Zero;
-            if (!(pSpawnOwner = pTechno.Ref.SpawnOwner).IsDeadOrInvisible() &&
-                pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>().Ref.IsLanding)
+            Pointer<FlyLocomotionClass> pFly = IntPtr.Zero;
+            if (!(pSpawnOwner = pTechno.Ref.SpawnOwner).IsDeadOrInvisible()
+                && !(pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>()).IsNull)
             {
-                DirStruct dir = pSpawnOwner.Ref.Facing.current();
-                pTechno.Ref.Facing.turn(dir);
-                pTechno.Ref.TurretFacing.turn(dir);
+                int dir = 0;
+                if (pFly.Ref.IsLanding)
+                {
+                    dir = attitudeData.SpawnLandDir;
+                    // Logger.Log($"{Game.CurrentFrame} Landing dir {dir}");
+                    DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                    pTechno.Ref.Facing.turn(targetDir);
+                    pTechno.Ref.TurretFacing.turn(targetDir);
+                }
+                else if (pFly.Ref.IsMoving && !pTechno.Ref.Base.Base.IsInAir() && pSpawnOwner.Ref.Type.Ref.RadialFireSegments <= 1)
+                {
+                    switch (pTechno.Convert<MissionClass>().Ref.CurrentMission)
+                    {
+                        case Mission.Guard:
+                        case Mission.Area_Guard:
+                            dir = attitudeData.SpawnTakeoffDir;
+                            // Logger.Log($"{Game.CurrentFrame} Takeoff dir {dir}");
+                            DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                            pTechno.Ref.Facing.set(targetDir);
+                            pTechno.Ref.TurretFacing.set(targetDir);
+                            break;
+                    }
+                }
             }
+        }
+
+        private DirStruct GetAngle(int dir, Pointer<TechnoClass> pSpawnOwner)
+        {
+            DirStruct targetDir = ExHelper.DirNormalized(dir, 16);
+            double targetRad = targetDir.radians();
+            DirStruct sourceDir = pSpawnOwner.Ref.Facing.current();
+            double sourceRad = sourceDir.radians();
+            float angle = (float)(sourceRad - targetRad);
+            targetDir = ExHelper.Radians2Dir(angle);
+            return targetDir;
         }
 
         public void UnLock()

@@ -56,8 +56,9 @@ namespace Extension.Utilities
 
     public static partial class ExHelper
     {
-        private static Regex percentFloat = new Regex(@"^\d?\.\d+$");
-        private static Regex percentNumber = new Regex(@"^\d+$");
+        public static Regex Number = new Regex(@"^\d+$");
+        public static Regex PercentFloat = new Regex(@"^\d?\.\d+$");
+        public static Regex PercentNumber = new Regex(@"^\d+$");
 
         public static bool ReadPercent(this INIReader reader, string section, string key, ref double percent, bool allowNegative = false)
         {
@@ -93,7 +94,7 @@ namespace Extension.Utilities
         {
             double result = defVal;
 
-            if (percentFloat.IsMatch(chanceStr))
+            if (PercentFloat.IsMatch(chanceStr))
             {
                 // 小数格式
                 result = Convert.ToDouble(chanceStr);
@@ -104,7 +105,7 @@ namespace Extension.Utilities
                 string temp = chanceStr.Substring(0, chanceStr.IndexOf("%"));
                 result = Convert.ToDouble(temp) / 100;
             }
-            else if (percentNumber.IsMatch(chanceStr))
+            else if (PercentNumber.IsMatch(chanceStr))
             {
                 // 数字格式
                 result = Convert.ToDouble(chanceStr) / 100;
