@@ -47,60 +47,6 @@ namespace Extension.Ext
             this.Aircraft.Read(sectionReader, HealthTextTypeData.TITLE + "Aircraft.");
         }
 
-        [Obsolete]
-        public bool TryReadHealthText(INIReader reader, string section)
-        {
-            bool isRead = false;
-
-            bool hidden = false;
-            if (reader.Read(section, "HealthText.Hidden", ref hidden))
-            {
-                isRead = true;
-                this.Hidden = hidden;
-            }
-
-            if (!Hidden)
-            {
-                if (Building.TryReadHealthTextType(reader, section, "HealthText."))
-                {
-                    isRead = true;
-                }
-                if (Infantry.TryReadHealthTextType(reader, section, "HealthText."))
-                {
-                    isRead = true;
-                }
-                if (Unit.TryReadHealthTextType(reader, section, "HealthText."))
-                {
-                    isRead = true;
-                }
-                if (Aircraft.TryReadHealthTextType(reader, section, "HealthText."))
-                {
-                    isRead = true;
-                }
-
-                if (Building.TryReadHealthTextType(reader, section, "HealthText.Building."))
-                {
-                    isRead = true;
-                }
-                if (Infantry.TryReadHealthTextType(reader, section, "HealthText.Infantry."))
-                {
-                    isRead = true;
-                }
-                if (Unit.TryReadHealthTextType(reader, section, "HealthText.Unit."))
-                {
-                    isRead = true;
-                }
-                if (Aircraft.TryReadHealthTextType(reader, section, "HealthText.Aircraft."))
-                {
-                    isRead = true;
-                }
-            }
-
-            return isRead;
-        }
-
     }
-
-
 
 }

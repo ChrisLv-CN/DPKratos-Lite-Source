@@ -48,20 +48,6 @@ namespace Extension.Ext
             }
         }
 
-        public DamageTextData Clone()
-        {
-            DamageTextData data = new DamageTextData(true);
-            CopyTo(data);
-            data.Hidden = this.Hidden;
-            data.Detail = this.Detail;
-            data.Rate = this.Rate;
-            data.XOffset = this.XOffset;
-            data.YOffset = this.YOffset;
-            data.RollSpeed = this.RollSpeed;
-            data.Duration = this.Duration;
-            return data;
-        }
-
         public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
@@ -72,80 +58,6 @@ namespace Extension.Ext
             this.YOffset = reader.Get(title + "YOffset", YOffset);
             this.RollSpeed = reader.Get(title + "RollSpeed", RollSpeed);
             this.Duration = reader.Get(title + "Duration", Duration);
-        }
-
-        [Obsolete]
-        public bool TryReadDamageText(INIReader reader, string section, string title)
-        {
-            bool isRead = false;
-
-            bool hidden = false;
-            if (reader.Read(section, title + "Hidden", ref hidden))
-            {
-                isRead = true;
-                this.Hidden = hidden;
-            }
-
-            if (!Hidden)
-            {
-                isRead = TryReadPrintText(reader, section, title);
-
-                bool detail = false;
-                if (reader.Read(section, title + "Detail", ref detail))
-                {
-                    isRead = true;
-                    this.Detail = detail;
-                }
-
-                int rate = 0;
-                if (reader.Read(section, title + "Rate", ref rate))
-                {
-                    isRead = true;
-                    this.Rate = rate;
-                }
-
-                Point2D xOffset = default;
-                if (ExHelper.ReadPoint2D(reader, section, title + "XOffset", ref xOffset))
-                {
-                    isRead = true;
-                    Point2D offset = xOffset;
-                    if (xOffset.X > xOffset.Y)
-                    {
-                        offset.X = xOffset.Y;
-                        offset.Y = xOffset.X;
-                    }
-                    this.XOffset = offset;
-                }
-
-                Point2D yOffset = default;
-                if (ExHelper.ReadPoint2D(reader, section, title + "YOffset", ref yOffset))
-                {
-                    isRead = true;
-                    Point2D offset = yOffset;
-                    if (yOffset.X > yOffset.Y)
-                    {
-                        offset.X = yOffset.Y;
-                        offset.Y = yOffset.X;
-                    }
-                    this.YOffset = offset;
-                }
-
-                int roll = 1;
-                if (reader.Read(section, title + "RollSpeed", ref roll))
-                {
-                    isRead = true;
-                    this.RollSpeed = roll;
-                }
-
-                int duration = 0;
-                if (reader.Read(section, title + "Duration", ref duration))
-                {
-                    isRead = true;
-                    this.Duration = duration;
-                }
-            }
-
-            return isRead;
         }
     }
 

@@ -42,37 +42,6 @@ namespace Extension.Ext
             }
         }
 
-        [Obsolete]
-        public bool TryReadDamageText(INIReader reader, string section)
-        {
-            bool isRead = false;
-
-            bool hidden = false;
-            if (reader.Read(section, "DamageText.Hidden", ref hidden))
-            {
-                isRead = true;
-                this.Hidden = hidden;
-            }
-
-            if (!Hidden)
-            {
-
-                foreach (KeyValuePair<int, DamageTextTypeData> type in Types)
-                {
-                    if (type.Value.TryReadDamageTextType(reader, section, "DamageText."))
-                    {
-                        isRead = true;
-                    }
-
-                    if (type.Value.TryReadDamageTextType(reader, section, "DamageText." + type.Key + "."))
-                    {
-                        isRead = true;
-                    }
-                }
-            }
-
-            return isRead;
-        }
     }
 
 

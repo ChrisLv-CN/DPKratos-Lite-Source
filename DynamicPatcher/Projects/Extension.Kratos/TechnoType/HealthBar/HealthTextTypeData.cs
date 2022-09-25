@@ -77,51 +77,6 @@ namespace Extension.Ext
             this.Red.Read(reader, title + "Red.");
         }
 
-        [Obsolete]
-        public bool TryReadHealthTextType(INIReader reader, string section, string title)
-        {
-            bool isRead = false;
-
-            bool hidden = false;
-            if (reader.Read(section, title + "Hidden", ref hidden))
-            {
-                isRead = true;
-                this.Hidden = hidden;
-            }
-
-            if (!Hidden)
-            {
-
-                if (this.Green.TryReadHealthText(reader, section, title))
-                {
-                    isRead = true;
-                }
-                if (this.Yellow.TryReadHealthText(reader, section, title))
-                {
-                    isRead = true;
-                }
-                if (this.Red.TryReadHealthText(reader, section, title))
-                {
-                    isRead = true;
-                }
-
-                if (this.Green.TryReadHealthText(reader, section, title + "Green."))
-                {
-                    isRead = true;
-                }
-                if (this.Yellow.TryReadHealthText(reader, section, title + "Yellow."))
-                {
-                    isRead = true;
-                }
-                if (this.Red.TryReadHealthText(reader, section, title + "Red."))
-                {
-                    isRead = true;
-                }
-            }
-
-            return isRead;
-        }
-
     }
 
 

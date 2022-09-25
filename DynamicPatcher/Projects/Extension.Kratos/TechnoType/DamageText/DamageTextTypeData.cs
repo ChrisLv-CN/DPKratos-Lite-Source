@@ -44,43 +44,6 @@ namespace Extension.Ext
             this.Repair.Read(reader, title);
             this.Repair.Read(reader, title + "Repair.");
         }
-
-        [Obsolete]
-        public bool TryReadDamageTextType(INIReader reader, string section, string title)
-        {
-            bool isRead = false;
-
-            bool hidden = false;
-            if (reader.Read(section, title + "Hidden", ref hidden))
-            {
-                isRead = true;
-                this.Hidden = hidden;
-            }
-
-            if (!Hidden)
-            {
-                if (Damage.TryReadDamageText(reader, section, title))
-                {
-                    isRead = true;
-                }
-                if (Repair.TryReadDamageText(reader, section, title))
-                {
-                    isRead = true;
-                }
-
-                if (Damage.TryReadDamageText(reader, section, title + "Damage."))
-                {
-                    isRead = true;
-                }
-                if (Repair.TryReadDamageText(reader, section, title + "Repair."))
-                {
-                    isRead = true;
-                }
-            }
-
-            return isRead;
-        }
-
     }
 
 

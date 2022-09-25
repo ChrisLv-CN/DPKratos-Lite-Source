@@ -113,162 +113,19 @@ namespace Extension.Utilities
             return result;
         }
 
-        public static bool ReadBulletVelocity(this INIReader reader, string section, string key, ref BulletVelocity velocity)
+        public static double[] ReadChanceList(this ISectionReader reader, string key, double[] defVal)
         {
-            SingleVector3D vector3D = default;
-            if (ReadSingleVector3D(reader, section, key, ref vector3D))
+            string[] texts = reader.GetList<string>(key);
+            if (null != texts)
             {
-                velocity.X = vector3D.X;
-                velocity.Y = vector3D.Y;
-                velocity.Z = vector3D.Z;
-                return true;
-            }
-            return false;
-        }
-
-        public static bool ReadCoordStruct(this INIReader reader, string section, string key, ref CoordStruct flh)
-        {
-            SingleVector3D vector3D = default;
-            if (ReadSingleVector3D(reader, section, key, ref vector3D))
-            {
-                flh.X = (int)vector3D.X;
-                flh.Y = (int)vector3D.Y;
-                flh.Z = (int)vector3D.Z;
-                return true;
-            }
-            return false;
-        }
-
-        public static bool ReadColorStruct(this INIReader reader, string section, string key, ref ColorStruct color)
-        {
-            SingleVector3D vector3D = default;
-            if (ReadSingleVector3D(reader, section, key, ref vector3D))
-            {
-                color.R = Convert.ToByte(vector3D.X);
-                color.G = Convert.ToByte(vector3D.Y);
-                color.B = Convert.ToByte(vector3D.Z);
-                return true;
-            }
-            return false;
-        }
-
-        public static bool ReadSingleVector3D(this INIReader reader, string section, string key, ref SingleVector3D xyz)
-        {
-            string sXYZ = default;
-            if (reader.Read(section, key, ref sXYZ))
-            {
-                string[] pos = sXYZ.Split(',');
-                if (null != pos && pos.Length > 0)
+                double[] result = new double[texts.Length];
+                for (int i = 0; i < texts.Length; i++)
                 {
-                    for (int i = 0; i < pos.Length; i++)
-                    {
-                        float value = Convert.ToSingle(pos[i].Trim());
-                        switch (i)
-                        {
-                            case 0:
-                                xyz.X = value;
-                                break;
-                            case 1:
-                                xyz.Y = value;
-                                break;
-                            case 2:
-                                xyz.Z = value;
-                                break;
-                        }
-                    }
-                    return true;
+                    result[i] = PercentStrToDouble(texts[i]);
                 }
+                return result;
             }
-            return false;
-        }
-
-        public static bool ReadPoint2D(this INIReader reader, string section, string key, ref Point2D xy)
-        {
-            string sXY = default;
-            if (reader.Read(section, key, ref sXY))
-            {
-                string[] pos = sXY.Split(',');
-                if (null != pos && pos.Length > 0)
-                {
-                    for (int i = 0; i < pos.Length; i++)
-                    {
-                        int value = Convert.ToInt16(pos[i].Trim());
-                        switch (i)
-                        {
-                            case 0:
-                                xy.X = value;
-                                break;
-                            case 1:
-                                xy.Y = value;
-                                break;
-                        }
-                    }
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool ReadStringList(this INIReader reader, string section, string key, ref List<string> list, string filter = "none")
-        {
-            string text = default;
-            if (reader.Read(section, key, ref text))
-            {
-                if (null == list)
-                {
-                    list = new List<string>();
-                }
-                string[] texts = text.Split(',');
-                foreach (string t in texts)
-                {
-                    string tmp = t.Trim();
-                    // 过滤 none
-                    if (!String.IsNullOrEmpty(tmp) && filter != tmp.ToLower())
-                    {
-                        list.Add(tmp);
-                    }
-                }
-                return list.Count > 0;
-            }
-            return false;
-        }
-
-        public static bool ReadIntList(this INIReader reader, string section, string key, ref List<int> list)
-        {
-            string text = default;
-            if (reader.Read(section, key, ref text))
-            {
-                if (null == list)
-                {
-                    list = new List<int>();
-                }
-                string[] texts = text.Split(',');
-                foreach (string v in texts)
-                {
-                    list.Add(Convert.ToInt32(v));
-                }
-                return true;
-            }
-            return false;
-        }
-
-        public static bool ReadChanceList(this INIReader reader, string section, string key, ref List<double> list)
-        {
-            string text = default;
-            if (reader.Read(section, key, ref text))
-            {
-                if (null == list)
-                {
-                    list = new List<double>();
-                }
-                string[] texts = text.Split(',');
-                foreach (string v in texts)
-                {
-                    list.Add(PercentStrToDouble(v));
-                }
-                return true;
-            }
-            return false;
+            return defVal;
         }
 
     }
