@@ -23,6 +23,12 @@ namespace Extension.Script
         public bool IAmWreak = false;
 
         private DestroyAnimsData data => Ini.GetConfig<DestroyAnimsData>(Ini.RulesDependency, section).Data;
+        private SwizzleablePointer<HouseClass> pKillerHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
+
+        public override void Awake()
+        {
+            this.IAmWreak = data.Wreck;
+        }
 
         public override void OnUpdate()
         {
@@ -41,21 +47,35 @@ namespace Extension.Script
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 if (!data.WreckType.IsNullOrEmptyOrNone())
                 {
+                    Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+                    switch (data.WreckOwner)
+                    {
+                        case WreckOwner.KILLER:
+                            pHouse = pKillerHouse;
+                            if (pHouse.IsNull)
+                            {
+                                pHouse = HouseClass.FindSpecial();
+                            }
+                            break;
+                        case WreckOwner.NEUTRAL:
+                            pHouse = HouseClass.FindSpecial();
+                            break;
+                    }
                     // 生成单位替代死亡动画
-                    Pointer<TechnoClass> pWreak = GiftBoxHelper.CreateAndPutTechno(data.WreckType, pTechno.Ref.Owner, location);
+                    Pointer<TechnoClass> pWreak = GiftBoxHelper.CreateAndPutTechno(data.WreckType, pHouse, location);
                     if (!pWreak.IsNull)
                     {
                         // 调整朝向
                         pWreak.Ref.Facing.set(pTechno.Ref.Facing.current());
                         pWreak.Ref.TurretFacing.set(pTechno.Ref.TurretFacing.current());
                         // 调整任务
-                        pWreak.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
-                        // 不可选择
-                        pWreak.Ref.Deactivate();
-                        if (pWreak.TryGetComponent<DestroyAnimsScript>(out DestroyAnimsScript script))
-                        {
-                            script.IAmWreak = true;
-                        }
+                        pWreak.Convert<MissionClass>().Ref.QueueMission(data.WreckMission, true);
+                        // // 不可选择
+                        // pWreak.Ref.Deactivate();
+                        // if (pWreak.TryGetComponent<DestroyAnimsScript>(out DestroyAnimsScript script))
+                        // {
+                        //     script.IAmWreak = true;
+                        // }
                         return true;
                     }
                 }
