@@ -24,9 +24,41 @@ namespace Extension.Script
 
         public bool DisableSelectable;
 
+        // 自毁
+        public DestorySelfState DestroySelfState = new DestorySelfState();
+
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
+            // 初始化状态机
+            DestroySelfData destroySelfData = Ini.GetConfig<DestroySelfData>(Ini.RulesDependency, section).Data;
+            if (destroySelfData.Delay >= 0)
+            {
+                DestroySelfState.Enable(destroySelfData);
+            }
+        }
+
+        public override void OnUpdate()
+        {
+            if (DestroySelfState.AmIDead())
+            {
+                // 啊我死了
+                if (DestroySelfState.Data.Peaceful)
+                {
+                    pTechno.Ref.Base.Remove();
+                    pTechno.Ref.Base.UnInit();
+                }
+                else
+                {
+                    if (pTechno.TryGetComponent<DamageTextScript>(out DamageTextScript damageText))
+                    {
+                        damageText.SkipDamageText = true;
+                    }
+                    pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
+                    // pTechno.Ref.Base.Destroy();
+                }
+                return;
+            }
         }
 
         public override void OnSelect(ref bool selectable)

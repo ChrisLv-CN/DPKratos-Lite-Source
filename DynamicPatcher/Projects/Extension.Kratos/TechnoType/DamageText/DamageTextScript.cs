@@ -32,10 +32,10 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
-    public class DamageText : TechnoScriptable
+    public class DamageTextScript : TechnoScriptable
     {
 
-        public DamageText(TechnoExt owner) : base(owner) { }
+        public DamageTextScript(TechnoExt owner) : base(owner) { }
 
         public bool SkipDamageText = false;
         Dictionary<DamageTextData, DamageTextCache> DamageCache = new Dictionary<DamageTextData, DamageTextCache>();
