@@ -38,7 +38,7 @@ namespace Extension.Script
 
             Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
             // 若目标非可摧毁的抛射体则不执行本逻辑
-            if (!pTarget.CastIf<BulletClass>(AbstractType.Bullet, out Pointer<BulletClass> pTargetBullet)
+            if (pTarget.IsNull || !pTarget.CastIf<BulletClass>(AbstractType.Bullet, out Pointer<BulletClass> pTargetBullet)
                 || !pTargetBullet.GetStatus().LifeData.Interceptable)
             {
                 GameObject.RemoveComponent(this);
