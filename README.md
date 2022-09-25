@@ -1,5 +1,17 @@
 [![license](https://www.gnu.org/graphics/gplv3-or-later.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
+关于Kratos-Lite（About Kratos-Lite）
+============
+
+原 `Kratos Build8` 现更名为 `Kraots-Lite`。   
+The original `Kratos Build8` is now rename as `Kraots-Lite`.
+
+新版本将深度结合DP2.1的框架结构，对代码进行完全重构，想比之前的版本，具有更轻量、更快的速度、更便捷的更新机制。   
+The new version will deeply combine the framework structure of DP2.1, completely refactor the code, and have a lighter, faster and more convenient update mechanism than the previous version.
+
+此仓库仅用于存放源代码，如果你不是开发者，可前往[此处](https://github.com/ChrisLv-CN/DPKratos-Lite-Source)直接下载Release包。   
+This repository is only used to store source code. If you are not a developer, you can go to [here](https://github.com/ChrisLv-CN/DPKratos-Lite-Source) to download the Release package directly.
+
 关于Kratos (About Kratos)
 ============
 
@@ -15,8 +27,8 @@ This project is completely developed based on DP, and use INI labels to provides
 食用方法 (How to use)
 ------------
 
-1. 前往[Release](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/releases)下载最新的压缩包。  
-Go to [Release](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/releases) to download the latest package.
+1. 前往[Release](https://github.com/ChrisLv-CN/DPKratos-Lite/releases)下载最新的压缩包。  
+Go to [Release](https://github.com/ChrisLv-CN/DPKratos-Lite/releases) to download the latest package.
 
 2. 把文件夹`DynamicPatcher`，文件`DynamicPatcher.dll`和`PatcherLoader.dll`放入尤里的复仇游戏根目录下。  
 Put the folder `DynamicPatcher`, files `DynamicPatcher.dll` and `PatcherLoader.dll` into Yuri's Revenge game root directory.
@@ -32,8 +44,8 @@ Run `RunAres.bat` to start the game.
 
 帮助文档 (Documents)
 ------------
-* [食用说明书](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/blob/main/DynamicPatcher/Kratos%E9%A3%9F%E7%94%A8%E8%AF%B4%E6%98%8E%E4%B9%A6.ini)
-* [Wiki](https://github.com/ChrisLv-CN/YRDynamicPatcher-Kratos/wiki)
+* [食用说明书](https://github.com/ChrisLv-CN/DPKratos-Lite/blob/main/DynamicPatcher/Kratos%E9%A3%9F%E7%94%A8%E8%AF%B4%E6%98%8E%E4%B9%A6.ini)
+* [Wiki](https://github.com/ChrisLv-CN/DPKratos-Lite/wiki)
 
 开发者 (Developers)
 ------------
