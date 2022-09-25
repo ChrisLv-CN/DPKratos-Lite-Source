@@ -127,22 +127,6 @@ namespace Extension.Ext
             this.Align = reader.Get(title + "Align", Align);
         }
 
-        [Obsolete]
-        private HealthTextStyle ReadStyle(string text, HealthTextStyle defStyle)
-        {
-            string t = text.Substring(0, 1).ToUpper();
-            switch (t)
-            {
-                case "F":
-                    return HealthTextStyle.FULL;
-                case "S":
-                    return HealthTextStyle.SHORT;
-                case "P":
-                    return HealthTextStyle.PERCENT;
-            }
-            return defStyle;
-        }
-
     }
 
 }
