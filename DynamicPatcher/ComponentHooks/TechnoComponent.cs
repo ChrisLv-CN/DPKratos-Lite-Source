@@ -47,6 +47,28 @@ namespace ComponentHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x71A88D, Size = 0)]
+        public static unsafe UInt32 TemporalClass_UpdateA(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TemporalClass> pTemporal = (IntPtr)R->ESI;
+
+                Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnTemporalUpdate(pTemporal));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            if ((int)R->EAX <= (int)R->EBX)
+            {
+                return 0x71A895;
+            }
+            return 0x71AB08;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
         static public unsafe UInt32 TechnoClass_Put_Components(REGISTERS* R)
         {
@@ -138,6 +160,34 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage2(pRealDamage, pWH, damageState));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6FC339, Size = 6)]
+        public static unsafe UInt32 TechnoClass_CanFire_Components(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EDI;
+                var pTarget = R->Stack<Pointer<AbstractClass>>(0x20 - (-0x4));
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                bool ceaseFire = false;
+                if (!ceaseFire)
+                {
+                    ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.CanFire(pTarget, pWeapon, ref ceaseFire));
+                }
+                if (ceaseFire)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] cease fire !!!");
+                    return 0x6FCB7E;
+                }
             }
             catch (Exception e)
             {
@@ -247,6 +297,29 @@ namespace ComponentHooks
             return TechnoClass_Render_Components(pUnit.Convert<TechnoClass>());
         }
         #endregion
+
+        [Hook(HookType.AresHook, Address = 0x5F45A0, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Select(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
+                // Logger.Log("{0} Select", pTechno.IsNull ? "Unknow" : pTechno.Ref.Type.Ref.Base.Base.ID);
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                bool selectable = true;
+
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnSelect(ref selectable));
+                if (!selectable)
+                {
+                    return 0x5F45A9;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
 
 
         [Hook(HookType.AresHook, Address = 0x730E8F, Size = 6)]
