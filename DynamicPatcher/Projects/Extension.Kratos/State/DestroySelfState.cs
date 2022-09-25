@@ -9,7 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class DestorySelfState : State<DestroySelfData>
+    public class DestroySelfState : State<DestroySelfData>
     {
         public bool GoDie;
 

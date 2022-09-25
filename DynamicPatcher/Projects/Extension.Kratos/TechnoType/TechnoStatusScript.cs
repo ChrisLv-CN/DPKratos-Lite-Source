@@ -25,7 +25,7 @@ namespace Extension.Script
         public bool DisableSelectable;
 
         // 自毁
-        public DestorySelfState DestroySelfState = new DestorySelfState();
+        public DestroySelfState DestroySelfState = new DestroySelfState();
 
         public override void Awake()
         {
