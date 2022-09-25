@@ -19,11 +19,8 @@ namespace Extension.Ext
         [INIField(Key = "DestroyAnims.Random")]
         public bool DestroyAnimsRandom = true;
 
-        public DestroyAnimsData()
-        {
-            this.DestroyAnims = null;
-            this.DestroyAnimsRandom = true;
-        }
+        [INIField(Key = "DestoryAnims.WreckType")]
+        public string WreckType = null;
 
     }
 

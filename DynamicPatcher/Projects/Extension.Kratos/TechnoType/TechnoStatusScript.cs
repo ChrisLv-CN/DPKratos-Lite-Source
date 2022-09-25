@@ -22,9 +22,16 @@ namespace Extension.Script
         public bool DisableVoxelCache;
         public float VoxelShadowScaleInAir;
 
+        public bool DisableSelectable;
+
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
+        }
+
+        public override void OnSelect(ref bool selectable)
+        {
+            selectable = !DisableSelectable;
         }
     }
 }
