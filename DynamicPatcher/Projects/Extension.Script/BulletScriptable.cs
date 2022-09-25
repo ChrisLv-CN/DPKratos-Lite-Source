@@ -41,7 +41,8 @@ namespace Extension.Script
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }
         [Obsolete("not support OnReceiveDamage in BulletScriptable yet", true)]
-        public void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
+        public void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState,
+            Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }

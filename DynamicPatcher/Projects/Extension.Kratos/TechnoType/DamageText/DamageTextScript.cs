@@ -72,7 +72,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState)
+        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             if (SkipDrawDamageText(pWH, out DamageTextTypeData whDamageTextType))

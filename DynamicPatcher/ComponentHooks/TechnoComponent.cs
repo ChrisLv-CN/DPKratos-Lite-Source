@@ -158,8 +158,11 @@ namespace ComponentHooks
                 Pointer<WarheadTypeClass> pWH = (IntPtr)R->EBP;
                 DamageState damageState = (DamageState)R->EDI;
 
+                Pointer<ObjectClass> pAttacker = R->Stack<Pointer<ObjectClass>>(0xD4);
+                Pointer<HouseClass> pAttackingHouse = R->Stack<Pointer<HouseClass>>(0xE0);
+
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage2(pRealDamage, pWH, damageState));
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage2(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse));
             }
             catch (Exception e)
             {
