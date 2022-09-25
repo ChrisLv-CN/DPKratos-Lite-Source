@@ -37,11 +37,40 @@ namespace Extension.Script
             }
         }
 
+        public override void OnPut(CoordStruct coord, short dirType)
+        {
+            if (null != trails)
+            {
+                if (!pTechno.IsDead())
+                {
+                    // 更新坐标
+                    foreach (Trail trail in trails)
+                    {
+                        trail.SetLastLocation(coord);
+                    }
+                }
+            }
+        }
+
+        public override void OnRemove()
+        {
+            if (null != trails)
+            {
+                if (!pTechno.IsDead())
+                {
+                    // 清除坐标记录
+                    foreach (Trail trail in trails)
+                    {
+                        trail.ClearLastLocation();
+                    }
+                }
+            }
+        }
+
         public override void OnUpdate()
         {
             if (null != trails)
             {
-                Pointer<TechnoClass> pTechno = Owner.OwnerObject;
                 if (!pTechno.IsDead())
                 {
                     Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
