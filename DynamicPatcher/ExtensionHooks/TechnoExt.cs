@@ -129,13 +129,6 @@ namespace ExtensionHooks
                 double scale = Math.Cos(Math.Abs(bodyMatrix3D.GetYRotation()));
                 pMatrix3D.Ref.ScaleX((float)scale);
             }
-            // 调整姿态变化时影子的纵向比例
-            if (pTechno.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitudeScript) && attitudeScript.PitchAngle != 0)
-            {
-                double scale = Math.Cos(Math.Abs(attitudeScript.PitchAngle));
-                pMatrix3D.Ref.ScaleX((float)scale);
-                // Logger.Log($"{Game.CurrentFrame} 飞机 {pTechno} 抬头角度 {attitudeScript.PitchAngle} 影子缩放倍率 {scale}");
-            }
             return 0;
         }
         #endregion

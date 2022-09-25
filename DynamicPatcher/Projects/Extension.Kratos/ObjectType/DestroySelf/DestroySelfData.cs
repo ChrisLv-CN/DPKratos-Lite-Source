@@ -22,19 +22,26 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            string delay = null;
-            delay = reader.Get<string>("DestroySelf.Delay", null);
-            if (string.IsNullOrEmpty(delay))
-            {
-                this.Delay = -1;
-            }
-            else if (ExHelper.Number.IsMatch(delay))
-            {
-                this.Delay = Convert.ToInt32(delay);
-            }
-            else if (delay.ToUpper().StartsWith("y") || delay.ToUpper().StartsWith("t"))
+            if (reader.Get("DestroySelf", false))
             {
                 this.Delay = 0;
+            }
+            else
+            {
+                string delay = null;
+                delay = reader.Get<string>("DestroySelf.Delay", null);
+                if (string.IsNullOrEmpty(delay))
+                {
+                    this.Delay = -1;
+                }
+                else if (ExHelper.Number.IsMatch(delay))
+                {
+                    this.Delay = Convert.ToInt32(delay);
+                }
+                else if (delay.ToUpper().StartsWith("Y") || delay.ToUpper().StartsWith("T"))
+                {
+                    this.Delay = 0;
+                }
             }
             this.Peaceful = reader.Get("DestroySelf.Peaceful", this.Peaceful);
         }
