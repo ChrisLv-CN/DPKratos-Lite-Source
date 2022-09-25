@@ -23,6 +23,7 @@ namespace Extension.Script
         public float VoxelShadowScaleInAir;
 
         public bool DisableSelectable;
+        public bool DisableSelectVoice;
 
         // 自毁
         public DestroySelfState DestroySelfState = new DestroySelfState();

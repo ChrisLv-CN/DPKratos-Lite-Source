@@ -60,36 +60,6 @@ namespace Extension.Utilities
         public static Regex PercentFloat = new Regex(@"^\d?\.\d+$");
         public static Regex PercentNumber = new Regex(@"^\d+$");
 
-        public static bool ReadPercent(this INIReader reader, string section, string key, ref double percent, bool allowNegative = false)
-        {
-            string chanceStr = null;
-
-            if (reader.Read(section, key, ref chanceStr))
-            {
-                if (!string.IsNullOrEmpty(chanceStr))
-                {
-                    chanceStr = chanceStr.Trim();
-                    // 写负数等于0
-                    if (!allowNegative && chanceStr.IndexOf("-") > -1)
-                    {
-                        percent = 0;
-                        Logger.LogWarning("read ini [{0}]{1} is wrong. value {2} type error.", section, key, chanceStr);
-                        return true;
-                    }
-                    else
-                    {
-                        percent = PercentStrToDouble(chanceStr);
-                        if (percent > 1)
-                        {
-                            percent = 1;
-                        }
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
         public static double PercentStrToDouble(string chanceStr, double defVal = 1)
         {
             double result = defVal;
@@ -113,7 +83,32 @@ namespace Extension.Utilities
             return result;
         }
 
-        public static double[] ReadChanceList(this ISectionReader reader, string key, double[] defVal)
+        public static double GetPercent(this ISectionReader reader, string key, double defVal, bool allowNegative = false)
+        {
+            double percent = defVal;
+            string chanceStr = reader.Get<string>(key, null);
+            if (!chanceStr.IsNullOrEmptyOrNone())
+            {
+                chanceStr = chanceStr.Trim();
+                // 写负数等于0
+                if (!allowNegative && chanceStr.IndexOf("-") > -1)
+                {
+                    percent = 0;
+                    Logger.LogWarning($"read ini [{reader.Section}]{key} is wrong. value {chanceStr} type error.");
+                }
+                else
+                {
+                    percent = PercentStrToDouble(chanceStr);
+                    if (percent > 1)
+                    {
+                        percent = 1;
+                    }
+                }
+            }
+            return percent;
+        }
+
+        public static double[] GetChanceList(this ISectionReader reader, string key, double[] defVal)
         {
             string[] texts = reader.GetList<string>(key);
             if (null != texts)

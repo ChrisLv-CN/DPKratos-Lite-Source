@@ -41,9 +41,9 @@ namespace Extension.Utilities
         public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
 
 
-        public static Dictionary<Point2D, int> MakeTargetPad(this List<int> weights, int count, out int maxValue)
+        public static Dictionary<Point2D, int> MakeTargetPad(this int[] weights, int count, out int maxValue)
         {
-            int weightCount = null != weights ? weights.Count : 0;
+            int weightCount = null != weights ? weights.Length : 0;
             Dictionary<Point2D, int> targetPad = new Dictionary<Point2D, int>();
             maxValue = 0;
             // 将所有的概率加起来，获得上游指标
@@ -83,9 +83,9 @@ namespace Extension.Utilities
             return index;
         }
 
-        public static bool Bingo(this List<double> chances, int index)
+        public static bool Bingo(this double[] chances, int index)
         {
-            if (null == chances || chances.Count < index + 1)
+            if (null == chances || chances.Length < index + 1)
             {
                 return true;
             }
@@ -100,62 +100,6 @@ namespace Extension.Utilities
                 return false;
             }
             return chance >= 1 || chance >= MathEx.Random.NextDouble();
-        }
-
-        public static TChild AutoCopy<TParent, TChild>(TParent parent) where TChild : TParent, new()
-        {
-            TChild child = new TChild();
-            ReflectClone(parent, child);
-            return child;
-        }
-
-        public static void ReflectClone(object from, object to)
-        {
-            if (null == from || null == to)
-            {
-                Logger.LogError("克隆失败，{0} {1}", null == from ? "From is null" : null, null == to ? "To is null" : null);
-                return;
-            }
-
-            var fromType = from.GetType();
-            var toType = to.GetType();
-            //拷贝属性
-            var properties = fromType.GetProperties();
-            foreach (PropertyInfo prop in properties)
-            {
-                var toProp = toType.GetProperty(prop.Name);
-                if (null != toProp)
-                {
-                    var val = prop.GetValue(from);
-                    if (prop.PropertyType == toProp.PropertyType)
-                    {
-                        toProp.SetValue(to, val, null);
-                    }
-                    else if (prop.PropertyType.ToString().IndexOf("List") >= 0 || prop.PropertyType.ToString().IndexOf("Hashtable") >= 0)
-                    {
-                        Logger.LogError("克隆错误，属性 {0} 是List，来源 {1}", prop.Name, fromType.Name);
-                    }
-                }
-            }
-
-            //拷贝字段
-            var fields = fromType.GetFields();
-            foreach (FieldInfo field in fields)
-            {
-                var toField = toType.GetField(field.Name);
-                if (null != toField)
-                {
-                    var val = field.GetValue(from);
-                    if (field.FieldType == toField.FieldType)
-                    {
-                        toField.SetValue(to, val);
-                    }
-                    else if (field.FieldType.ToString().IndexOf("List") >= 0 || field.FieldType.ToString().IndexOf("Hashtable") >= 0)
-                    {
-                        Logger.LogError("克隆错误，字段 {0} 是List，来源 {1}", field.Name, fromType.Name);
-                    }
-                }
-            }
         }
 
         public static int Category(this LandType landType)

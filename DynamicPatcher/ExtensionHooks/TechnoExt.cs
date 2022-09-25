@@ -89,6 +89,24 @@ namespace ExtensionHooks
             return 0x706879;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus) && technoStatus.DisableSelectVoice)
+                {
+                    return 0x6FC01E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         #region Techno shadow resize in air
         [Hook(HookType.AresHook, Address = 0x73C4FF, Size = 5)]
         public static unsafe UInt32 UnitClass_DrawShadow_InAir(REGISTERS* R)
