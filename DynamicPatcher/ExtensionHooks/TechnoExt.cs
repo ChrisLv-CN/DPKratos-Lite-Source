@@ -205,6 +205,111 @@ namespace ExtensionHooks
         }
         #endregion
 
+        #region Unit explosion anims
+
+        [Hook(HookType.AresHook, Address = 0x738749, Size = 6)]
+        public static unsafe UInt32 UnitClass_Destroy_Explosion_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<UnitClass> pUnit = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EAX;
+                // Logger.Log($"{Game.CurrentFrame} - 载具 {pUnit} [{pUnit.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pUnit.Ref.Base.Base.Owner} 死亡动画 ECX = {R->ECX} EAX = {R->EAX}");
+                if (!pAnim.IsNull)
+                {
+                    pAnim.Ref.Owner = pUnit.Ref.Base.Base.Owner;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // Take over to Create DestroyAnim Anim
+        [Hook(HookType.AresHook, Address = 0x738801, Size = 6)]
+        public static unsafe UInt32 UnitClass_Destroy_DestroyAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pUnit = (IntPtr)R->ESI;
+                if (pUnit.TryGetComponent<DestroyAnimsScript>(out DestroyAnimsScript destroyAnim) && destroyAnim.PlayDestroyAnims())
+                {
+                    return 0x73887E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        #endregion
+
+        #region Building explosion anims
+
+        [Hook(HookType.AresHook, Address = 0x441A26, Size = 6)]
+        public static unsafe UInt32 BuildingClass_Destroy_Explosion_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+                // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 死亡动画 ECX = {R->ECX} EBP = {R->EBP}");
+                if (!pAnim.IsNull)
+                {
+                    pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x441B22, Size = 6)]
+        public static unsafe UInt32 BuildingClass_Destroy_Exploding_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+                // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 死亡动画2 ECX = {R->ECX} EBP = {R->EBP}");
+                if (!pAnim.IsNull)
+                {
+                    pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x441D25, Size = 0xA)]
+        public static unsafe UInt32 BuildingClass_Destroy_DestroyAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BuildingClass> pBuilding = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+                // Logger.Log($"{Game.CurrentFrame} - 建筑 {pBuilding} [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] owner = {pBuilding.Ref.Base.Owner} 摧毁动画 ECX = {R->ECX} EBP = {R->EBP}");
+                if (!pAnim.IsNull)
+                {
+                    pAnim.Ref.Owner = pBuilding.Ref.Base.Owner;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        #endregion
+
         #region 傻逼飞机
         // [Hook(HookType.AresHook, Address = 0x414971, Size = 5)]
         // public static unsafe UInt32 AircraftClass_DrawIt_PitchAngle(REGISTERS* R)
