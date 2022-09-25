@@ -49,6 +49,11 @@ namespace Extension.Ext
         public bool IgnoreVertical;
         public int InitialDelay;
 
+        static TrailType()
+        {
+            new TrailModeParser().Register();
+        }
+
         public TrailType()
         {
             this.Mode = TrailMode.LASER;
