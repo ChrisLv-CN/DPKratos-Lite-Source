@@ -71,24 +71,6 @@ namespace ExtensionHooks
             return 0x6F903E;
         }
 
-        [Hook(HookType.AresHook, Address = 0x7067F1, Size = 6)]
-        public static unsafe UInt32 TechnoClass_DrawVxl_DisableCache(REGISTERS* R)
-        {
-            if (R->ESI != R->EAX)
-            {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-                // Logger.Log($"{Game.CurrentFrame} 渲染VXL，[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}，检查是否使用缓存 {(int)R->ESI} {(int)R->EAX} {R->ECX} {R->Stack<int>(0x5C)}");
-                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus) && technoStatus.DisableVoxelCache)
-                {
-                    // Logger.Log($"{Game.CurrentFrame} 渲染VXL，[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}，强制禁用缓存");
-                    // 强制禁用缓存
-                    return 0x706875;
-                }
-                return 0x7067F7;
-            }
-            return 0x706879;
-        }
-
         // if (pDamage >= 0 && pDamage < 1) pDamage = 1; // ╮(-△-)╭
         [Hook(HookType.AresHook, Address = 0x7019DD, Size = 6)]
         public static unsafe UInt32 TechnoClass_ReceiveDamage_AtLeast1(REGISTERS* R)
@@ -102,6 +84,29 @@ namespace ExtensionHooks
             return 0x7019E3;
             // }
             // return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                var pTarget = R->Stack<Pointer<AbstractClass>>(0x4);
+                if (pTechno.TryGetStatus(out TechnoStatusScript status)
+                    && status.OverrideWeaponState.TryGetOverrideWeapon(pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pOverrideWeapon)
+                    && !pOverrideWeapon.IsNull)
+                {
+                    // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
+                    R->EBX = (uint)pOverrideWeapon;
+                    return 0x6FDD71;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
@@ -165,6 +170,24 @@ namespace ExtensionHooks
             return 0;
         }
         #endregion
+
+        [Hook(HookType.AresHook, Address = 0x7067F1, Size = 6)]
+        public static unsafe UInt32 TechnoClass_DrawVxl_DisableCache(REGISTERS* R)
+        {
+            if (R->ESI != R->EAX)
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                // Logger.Log($"{Game.CurrentFrame} 渲染VXL，[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}，检查是否使用缓存 {(int)R->ESI} {(int)R->EAX} {R->ECX} {R->Stack<int>(0x5C)}");
+                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus) && technoStatus.DisableVoxelCache)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 渲染VXL，[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}，强制禁用缓存");
+                    // 强制禁用缓存
+                    return 0x706875;
+                }
+                return 0x7067F7;
+            }
+            return 0x706879;
+        }
 
         #region Draw colour
         // case VISUAL_NORMAL

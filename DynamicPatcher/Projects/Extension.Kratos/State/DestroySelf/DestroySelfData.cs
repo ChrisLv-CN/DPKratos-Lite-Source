@@ -8,7 +8,7 @@ using Extension.Utilities;
 
 namespace Extension.Ext
 {
-
+    [Serializable]
     public class DestroySelfData : EffectData, IStateData
     {
         public const string TITLE = "DestroySelf.";

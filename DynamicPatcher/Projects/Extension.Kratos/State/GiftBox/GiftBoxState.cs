@@ -11,7 +11,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class GiftBoxState : State<GiftBoxTypeData>
+    public class GiftBoxState : State<GiftBoxData>
     {
         public bool IsOpen;
 
@@ -33,7 +33,7 @@ namespace Extension.Ext
             this.isElite = isElite;
         }
 
-        private GiftBoxData GetGiftBoxData()
+        private GiftBox GetGiftBoxData()
         {
             if (isElite && null != Data.EliteData)
             {
@@ -49,7 +49,7 @@ namespace Extension.Ext
 
         public void Reset()
         {
-            GiftBoxData data = GetGiftBoxData();
+            GiftBox data = GetGiftBoxData();
             this.IsOpen = false;
             this.delay = data.RandomDelay.GetRandomValue(data.Delay);
             if (this.delay > 0)
@@ -70,7 +70,7 @@ namespace Extension.Ext
 
         public List<string> GetGiftList()
         {
-            GiftBoxData data = GetGiftBoxData();
+            GiftBox data = GetGiftBoxData();
             List<string> gifts = new List<string>();
             if (null != data)
             {

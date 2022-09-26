@@ -23,8 +23,14 @@ namespace Extension.Ext
             {
                 section = image;
             }
+            return TryGetImageTrails(section, out trails);
+        }
+
+        public static bool TryGetImageTrails(string imageSection, out List<Trail> trails)
+        {
+            trails = null;
             // 获取尾巴
-            ISectionReader reader = Ini.GetSection(Ini.ArtDependency, section);
+            ISectionReader reader = Ini.GetSection(Ini.ArtDependency, imageSection);
             int i = -1;
             do
             {

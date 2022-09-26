@@ -33,6 +33,7 @@ namespace Extension.Script
             Awake_Deselect();
             Awake_DestroySelf();
             Awake_GiftBox();
+            Awake_OverrideWeapon();
             Awake_Paintball();
         }
 
@@ -75,6 +76,11 @@ namespace Extension.Script
                     return;
                 }
             }
+        }
+
+        public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
+        {
+            OnFire_OverrideWeapon(pTarget, weaponIndex);
         }
 
         public void ClearTarget()

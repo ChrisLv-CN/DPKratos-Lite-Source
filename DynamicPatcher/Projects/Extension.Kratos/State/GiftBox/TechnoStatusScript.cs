@@ -19,7 +19,7 @@ namespace Extension.Script
 
         public void Awake_GiftBox()
         {
-            GiftBoxTypeData giftBoxTypeData  = Ini.GetConfig<GiftBoxTypeData>(Ini.RulesDependency, section).Data;
+            GiftBoxData giftBoxTypeData  = Ini.GetConfig<GiftBoxData>(Ini.RulesDependency, section).Data;
             if (null != giftBoxTypeData.Data || null != giftBoxTypeData.EliteData)
             {
                 GiftBoxState.Enable(giftBoxTypeData);
@@ -133,7 +133,7 @@ namespace Extension.Script
             }
         }
 
-        private void ReleseGift(List<string> gifts, GiftBoxTypeData data)
+        private void ReleseGift(List<string> gifts, GiftBoxData data)
         {
             Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();

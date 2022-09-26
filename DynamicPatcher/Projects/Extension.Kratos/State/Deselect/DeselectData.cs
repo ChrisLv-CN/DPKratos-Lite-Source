@@ -9,11 +9,13 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class DeselectData : EffectData, IStateData
     {
         public const string TITLE = "Select.";
 
         public bool Disable;
+
         public DeselectData()
         {
             this.Disable = false;
