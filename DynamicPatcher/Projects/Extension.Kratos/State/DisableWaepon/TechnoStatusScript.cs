@@ -19,7 +19,26 @@ namespace Extension.Script
 
         public bool CanFire_DisableWeapon(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
         {
-            return DisableWeaponState.IsActive();
+            if (DisableWeaponState.IsActive())
+            {
+                DisableWeaponData data = DisableWeaponState.Data;
+                if (null != data.OnLandTypes && data.OnLandTypes.Length > 0)
+                {
+                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                    {
+                        LandType landType = pCell.Ref.LandType;
+                        // Logger.Log("当前格子的地形类型{0}, 瓷砖类型{1}", landType, pCell.Ref.GetTileType());
+                        if (data.OnLandTypes.Contains(landType))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                return true;
+            }
+            return false;
         }
 
     }
