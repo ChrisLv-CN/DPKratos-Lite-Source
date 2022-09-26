@@ -108,7 +108,7 @@ namespace Extension.Utilities
             return percent;
         }
 
-        public static double[] GetChanceList(this ISectionReader reader, string key, double[] defVal)
+        public static double[] GetPercentList(this ISectionReader reader, string key, double[] defVal)
         {
             string[] texts = reader.GetList<string>(key);
             if (null != texts)

@@ -52,7 +52,7 @@ namespace Extension.Ext
         {
             this.Gifts = reader.GetList(title + "Types", Gifts);
             this.Nums = reader.GetList(title + "Nums", Nums);
-            this.Chances = reader.GetChanceList(title + "Chances", this.Chances);
+            this.Chances = reader.GetPercentList(title + "Chances", this.Chances);
 
             this.RandomType = reader.Get(title + "RandomType", RandomType);
             this.RandomWeights = reader.GetList(title + "RandomWeights", RandomWeights);

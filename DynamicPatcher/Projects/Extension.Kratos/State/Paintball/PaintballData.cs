@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class PaintballData : EffectData, IStateData
     {
         public const string TITLE = "Paintball.";

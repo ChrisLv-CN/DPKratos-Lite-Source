@@ -17,7 +17,7 @@ namespace Extension.Utilities
     {
 #region TechnoClass
         // 泛型
-        public static T GetComponent<T>(this Pointer<TechnoClass> pTechno) where T : TechnoScriptable
+        public static T GetComponent<T>(this Pointer<TechnoClass> pTechno) where T : Component
         {
             if (!pTechno.IsNull)
             {
@@ -29,7 +29,7 @@ namespace Extension.Utilities
             }
             return null;
         }
-        public static bool TryGetComponent<T>(this Pointer<TechnoClass> pTechno, out T script) where T : TechnoScriptable
+        public static bool TryGetComponent<T>(this Pointer<TechnoClass> pTechno, out T script) where T : Component
         {
             return null != (script = pTechno.GetComponent<T>());
         }
@@ -78,7 +78,7 @@ namespace Extension.Utilities
 
 #region BulletClass
         // 泛型
-        public static T GetComponent<T>(this Pointer<BulletClass> pBullet) where T : BulletScriptable
+        public static T GetComponent<T>(this Pointer<BulletClass> pBullet) where T : Component
         {
             if (!pBullet.IsNull)
             {
@@ -90,7 +90,7 @@ namespace Extension.Utilities
             }
             return null;
         }
-        public static bool TryGetComponent<T>(this Pointer<BulletClass> pBullet, out T script) where T : BulletScriptable
+        public static bool TryGetComponent<T>(this Pointer<BulletClass> pBullet, out T script) where T : Component
         {
             return null != (script = pBullet.GetComponent<T>());
         }
