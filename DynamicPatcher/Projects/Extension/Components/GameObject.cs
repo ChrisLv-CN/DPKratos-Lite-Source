@@ -112,10 +112,14 @@ namespace Extension.Components
         {
             base.OnUpdate();
 
-            if (_unstartedComponents.Count > 0)
+            int count = _unstartedComponents.Count;
+            for (int i = 0; i < count; i++)
             {
-                Component.ForeachComponents(_unstartedComponents, c => c.EnsureStarted());
-                _unstartedComponents.Clear();
+                _unstartedComponents[i].EnsureStarted();
+            }
+            if (count > 0)
+            {
+                _unstartedComponents.RemoveRange(0, count);
             }
 
             _coroutineSystem.Update();

@@ -75,14 +75,29 @@ namespace Extension.Ext
         }
 
         private static List<Script.Script> s_GlobalScripts = new();
-        private static List<ScriptComponent> s_ScriptComponentBuffer = new();
+        private static Stack<List<ScriptComponent>> s_ScriptComponentBuffer = new();
+
+        private static List<ScriptComponent> TakeBuffer()
+        {
+            if (s_ScriptComponentBuffer.Count == 0)
+            {
+                s_ScriptComponentBuffer.Push(new List<ScriptComponent>());
+            }
+            return s_ScriptComponentBuffer.Pop();
+        }
+
+        private static void GiveBackBuffer(List<ScriptComponent> buffer)
+        {
+            buffer.Clear();
+            s_ScriptComponentBuffer.Push(buffer);
+        }
 
         internal void CreateScriptable(IEnumerable<Script.Script> scripts)
         {
             if (m_ScriptsCreated)
                 return;
 
-            s_ScriptComponentBuffer.Clear();
+            var buffer = TakeBuffer();
             scripts = scripts == null ? s_GlobalScripts : s_GlobalScripts.Concat(scripts);
 
             foreach (var script in scripts)
@@ -90,7 +105,7 @@ namespace Extension.Ext
                 try
                 {
                     var scriptable = ScriptManager.CreateScriptable(script, this as TExt);
-                    s_ScriptComponentBuffer.Add(scriptable);
+                    buffer.Add(scriptable);
                 }
                 catch (Exception e)
                 {
@@ -99,15 +114,17 @@ namespace Extension.Ext
                 }
             }
 
-            foreach (var scriptable in s_ScriptComponentBuffer)
+            foreach (var scriptable in buffer)
             {
                 m_GameObject.AddComponentNotAwake(scriptable);
             }
 
-            foreach (var scriptable in s_ScriptComponentBuffer)
+            foreach (var scriptable in buffer)
             {
                 scriptable.EnsureAwaked();
             }
+
+            GiveBackBuffer(buffer);
 
             m_ScriptsCreated = true;
         }
