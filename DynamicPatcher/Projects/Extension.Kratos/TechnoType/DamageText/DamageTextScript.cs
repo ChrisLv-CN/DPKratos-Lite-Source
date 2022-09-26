@@ -38,8 +38,8 @@ namespace Extension.Script
         public DamageTextScript(TechnoExt owner) : base(owner) { }
 
         public bool SkipDamageText = false;
-        Dictionary<DamageTextData, DamageTextCache> DamageCache = new Dictionary<DamageTextData, DamageTextCache>();
-        Dictionary<DamageTextData, DamageTextCache> RepairCache = new Dictionary<DamageTextData, DamageTextCache>();
+        Dictionary<DamageText, DamageTextCache> DamageCache = new Dictionary<DamageText, DamageTextCache>();
+        Dictionary<DamageText, DamageTextCache> RepairCache = new Dictionary<DamageText, DamageTextCache>();
 
         public override void Awake()
         {
@@ -75,7 +75,7 @@ namespace Extension.Script
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
-            if (SkipDrawDamageText(pWH, out DamageTextTypeData whDamageTextType))
+            if (SkipDrawDamageText(pWH, out DamageTextData whDamageTextType))
             {
                 return;
             }
@@ -84,7 +84,7 @@ namespace Extension.Script
                 SkipDamageText = false;
             }
             string text = null;
-            DamageTextData data = null;
+            DamageText data = null;
             int damage = pRealDamage.Data;
             int damageValue = 0;
             int repairValue = 0;
@@ -147,20 +147,20 @@ namespace Extension.Script
             }
         }
 
-        private bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextTypeData damageTextType)
+        private bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextData damageTextType)
         {
             damageTextType = null;
             if (!SkipDamageText && !pTechno.IsInvisible() && !pTechno.IsCloaked() && !pWH.IsNull)
             {
                 string section = pWH.Ref.Base.ID;
 
-                damageTextType = Ini.GetConfig<DamageTextTypeData>(Ini.RulesDependency, section).Data;
+                damageTextType = Ini.GetConfig<DamageTextData>(Ini.RulesDependency, section).Data;
                 return null == damageTextType;
             }
             return true;
         }
 
-        private void OrderDamageText(string text, CoordStruct location, DamageTextData data)
+        private void OrderDamageText(string text, CoordStruct location, DamageText data)
         {
             int x = MathEx.Random.Next(data.XOffset.X, data.XOffset.Y);
             int y = MathEx.Random.Next(data.YOffset.X, data.YOffset.Y) - 15; // 离地高度

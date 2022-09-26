@@ -16,11 +16,11 @@ namespace Extension.Script
     public class HealthBar : TechnoScriptable
     {
         // 全局设置
-        private static HealthTextTypeControlData healthTextTypeControlData = new HealthTextTypeControlData();
+        private static HealthTextControlData healthTextTypeControlData = new HealthTextControlData();
 
         public HealthBar(TechnoExt owner) : base(owner) { }
 
-        private HealthTextTypeData healthTextTypeData;
+        private HealthTextData healthTextTypeData;
 
 
         public override void Awake()
@@ -71,7 +71,7 @@ namespace Extension.Script
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             bool isSelected = pTechno.Ref.Base.IsSelected;
             // 根据血量状态获取设置
-            HealthTextData data = healthTextTypeData.Green;
+            HealthText data = healthTextTypeData.Green;
             HealthState healthState = pTechno.Ref.Base.GetHealthStatus();
             switch (healthState)
             {

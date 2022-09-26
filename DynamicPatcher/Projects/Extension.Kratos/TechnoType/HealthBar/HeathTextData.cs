@@ -60,7 +60,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class HealthTextData : PrintTextData
+    public class HealthText : PrintTextData
     {
         public bool Hidden;
         public bool ShowEnemy;
@@ -69,13 +69,13 @@ namespace Extension.Ext
         public HealthTextStyle HoverStyle;
         public HealthTextAlign Align;
 
-        static HealthTextData()
+        static HealthText()
         {
             new HealthTextStyleParser().Register();
             new HealthTextAlignParser().Register();
         }
 
-        public HealthTextData(HealthState healthState) : base()
+        public HealthText(HealthState healthState) : base()
         {
             this.Hidden = false;
             this.ShowEnemy = false;
@@ -103,9 +103,9 @@ namespace Extension.Ext
             }
         }
 
-        public HealthTextData Clone()
+        public HealthText Clone()
         {
-            HealthTextData data = new HealthTextData(HealthState.Green);
+            HealthText data = new HealthText(HealthState.Green);
             CopyTo(data);
             data.Hidden = this.Hidden;
             data.ShowEnemy = this.ShowEnemy;
@@ -129,4 +129,73 @@ namespace Extension.Ext
 
     }
 
+    [Serializable]
+    public class HealthTextData
+    {
+
+        public const string TITLE = "HealthText.";
+
+        public bool Hidden;
+
+        public HealthText Green;
+        public HealthText Yellow;
+        public HealthText Red;
+
+        public HealthTextData() { }
+
+        public HealthTextData(AbstractType type)
+        {
+            this.Hidden = false;
+            this.Green = new HealthText(HealthState.Green);
+            this.Yellow = new HealthText(HealthState.Yellow);
+            this.Red = new HealthText(HealthState.Red);
+            switch (type)
+            {
+                case AbstractType.Building:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+                case AbstractType.Infantry:
+                    Green.Style = HealthTextStyle.SHORT;
+                    Yellow.Style = HealthTextStyle.SHORT;
+                    Red.Style = HealthTextStyle.SHORT;
+                    break;
+                case AbstractType.Unit:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+                case AbstractType.Aircraft:
+                    Green.Style = HealthTextStyle.FULL;
+                    Yellow.Style = HealthTextStyle.FULL;
+                    Red.Style = HealthTextStyle.FULL;
+                    break;
+            }
+        }
+
+        public HealthTextData Clone()
+        {
+            HealthTextData data = new HealthTextData();
+            data.Hidden = this.Hidden;
+            data.Green = this.Green.Clone();
+            data.Yellow = this.Yellow.Clone();
+            data.Red = this.Red.Clone();
+            return data;
+        }
+
+        public void Read(ISectionReader reader, string title = TITLE)
+        {
+            this.Hidden = reader.Get(title + "Hidden", Hidden);
+
+            this.Green.Read(reader, title);
+            this.Yellow.Read(reader, title);
+            this.Red.Read(reader, title);
+
+            this.Green.Read(reader, title + "Green.");
+            this.Yellow.Read(reader, title + "Yellow.");
+            this.Red.Read(reader, title + "Red.");
+        }
+
+    }
 }

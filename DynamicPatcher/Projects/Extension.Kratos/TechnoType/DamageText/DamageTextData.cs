@@ -10,7 +10,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class DamageTextData : PrintTextData
+    public class DamageText : PrintTextData
     {
         public bool Hidden;
         public bool Detail;
@@ -20,7 +20,7 @@ namespace Extension.Ext
         public int RollSpeed;
         public int Duration;
 
-        public DamageTextData(bool isDamage) : base()
+        public DamageText(bool isDamage) : base()
         {
             this.Hidden = false;
             this.Detail = true;
@@ -60,5 +60,44 @@ namespace Extension.Ext
             this.Duration = reader.Get(title + "Duration", Duration);
         }
     }
+
+    public class DamageTextData : INIConfig
+    {
+        public const string TITLE = "DamageText.";
+
+        public bool Hidden;
+
+        public DamageText Damage;
+        public DamageText Repair;
+
+        public DamageTextData()
+        {
+            this.Hidden = false;
+            this.Damage = new DamageText(true);
+            this.Repair = new DamageText(false);
+        }
+
+        public override void Read(IConfigReader reader)
+        {
+            int infDeath = reader.Get("InfDeath", 0);
+            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
+            Read(avReader);
+            Read(avReader, TITLE + infDeath + ".");
+            Read(reader);
+        }
+
+        public void Read(ISectionReader reader, string title = TITLE)
+        {
+            this.Hidden = reader.Get(title + "Hidden", Hidden);
+
+            this.Damage.Read(reader, title);
+            this.Damage.Read(reader, title + "Damage.");
+
+            this.Repair.Read(reader, title);
+            this.Repair.Read(reader, title + "Repair.");
+        }
+    }
+
+
 
 }

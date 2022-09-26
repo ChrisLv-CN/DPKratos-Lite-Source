@@ -20,45 +20,27 @@ namespace Extension.Ext
             EventSystem.General.AddPermanentHandler(EventSystem.General.LogicClassUpdateEvent, FireSuperManager.Update);
         }
 
-        public static void Update(object sender, EventArgs args)
-        {
-            FireSuperManager.Instance.Update();
-        }
+        private static Queue<FireSuperWeapon> fireSuperWeaponQueue = new Queue<FireSuperWeapon>();
 
-        private static FireSuperManager instance;
-        public static FireSuperManager Instance
-        {
-            get
-            {
-                if (null == instance)
-                {
-                    instance = new FireSuperManager();
-                }
-                return instance;
-            }
-        }
-
-        private Queue<FireSuperWeapon> fireSuperWeaponQueue = new Queue<FireSuperWeapon>();
-
-        public void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
+        public static void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(pHouse, cellStruct, data);
             fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
         }
 
-        public void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
+        public static void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             LaunchSuperWeapons(pHouse, cellStruct, data);
         }
 
-        public void Reset()
+        public static void Reset()
         {
             fireSuperWeaponQueue.Clear();
         }
 
-        public void Update()
+        public static void Update(object sender, EventArgs args)
         {
             for (int i = 0; i < fireSuperWeaponQueue.Count; i++)
             {
@@ -75,7 +57,7 @@ namespace Extension.Ext
             }
         }
 
-        private void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuper data)
+        private static void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuper data)
         {
             if (null != data)
             {
