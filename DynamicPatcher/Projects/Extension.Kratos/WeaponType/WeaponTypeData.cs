@@ -18,6 +18,9 @@ namespace Extension.Ext
         public bool LaserFade = false;
         public bool IsSupported = false;
 
+        // RockerPitch
+        public float RockerPitch = 0;
+
     }
 
 

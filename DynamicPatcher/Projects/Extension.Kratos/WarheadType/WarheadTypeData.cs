@@ -25,6 +25,8 @@ namespace Extension.Ext
         public bool AffectsAir = true;
         public bool AffectsBullet = false;
 
+        public bool ClearTarget = false;
+
     }
 
 

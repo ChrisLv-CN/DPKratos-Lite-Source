@@ -55,25 +55,28 @@ namespace Extension.Script
 
         public override void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
         {
-            // check the transporter settings
-            Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
-            if (!pTransporter.IsNull)
+            if (!ceaseFire)
             {
-                if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
+                // check the transporter settings
+                Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
+                if (!pTransporter.IsNull)
                 {
-                    PassengersData data = transporter.data;
-                    if (null != data && data.OpenTopped)
+                    if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
                     {
-                        Mission transporterMission = pTransporter.Convert<ObjectClass>().Ref.GetCurrentMission();
-                        switch (transporterMission)
+                        PassengersData data = transporter.data;
+                        if (null != data && data.OpenTopped)
                         {
-                            case Mission.Attack:
-                                ceaseFire = !data.SameFire;
-                                break;
-                            case Mission.Move:
-                            case Mission.AttackMove:
-                                ceaseFire = !data.MobileFire;
-                                break;
+                            Mission transporterMission = pTransporter.Convert<ObjectClass>().Ref.GetCurrentMission();
+                            switch (transporterMission)
+                            {
+                                case Mission.Attack:
+                                    ceaseFire = !data.SameFire;
+                                    break;
+                                case Mission.Move:
+                                case Mission.AttackMove:
+                                    ceaseFire = !data.MobileFire;
+                                    break;
+                            }
                         }
                     }
                 }

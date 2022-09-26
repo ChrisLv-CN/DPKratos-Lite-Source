@@ -60,6 +60,14 @@ namespace Extension.Ext
         public bool Straight = false;
         public bool AbsolutelyStraight = false;
 
+        // Missile
+        [INIField(Key = "ROT.Reverse")]
+        public bool ReverseVelocity = false;
+        [INIField(Key = "ROT.ReverseZ")]
+        public bool ReverseVelocityZ = false;
+        [INIField(Key = "ROT.ShakeMultiplier")]
+        public float ShakeVelocity = 0;
+
         // Status
         public SubjectToGround SubjectToGround = SubjectToGround.AUTO;
 
