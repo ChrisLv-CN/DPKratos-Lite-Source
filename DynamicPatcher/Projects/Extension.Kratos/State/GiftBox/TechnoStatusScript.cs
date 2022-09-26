@@ -12,26 +12,21 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-    [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(TechnoStatusScript))]
-    public class TechnoGiftBoxScript : TechnoScriptable
+    public partial class TechnoStatusScript
     {
-        public TechnoGiftBoxScript(TechnoExt owner) : base(owner) { }
 
         public GiftBoxState GiftBoxState = new GiftBoxState();
 
-        private GiftBoxTypeData giftBoxTypeData => Ini.GetConfig<GiftBoxTypeData>(Ini.RulesDependency, section).Data;
-
-        public override void Awake()
+        public void Awake_GiftBox()
         {
+            GiftBoxTypeData giftBoxTypeData  = Ini.GetConfig<GiftBoxTypeData>(Ini.RulesDependency, section).Data;
             if (null != giftBoxTypeData.Data || null != giftBoxTypeData.EliteData)
             {
                 GiftBoxState.Enable(giftBoxTypeData);
             }
         }
 
-        public override void OnUpdate()
+        public void OnUpdate_GiftBox()
         {
             // 记录盒子的状态
             GiftBoxState.Update(pTechno.Ref.Veterancy.IsElite());

@@ -9,7 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class GiftBoxTypeData : INIConfig, IStateData
+    public class GiftBoxTypeData : EffectData, IStateData
     {
 
         public const string TITLE = "GiftBox.";
@@ -67,6 +67,8 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            base.Read(reader, TITLE);
+
             GiftBoxData data = new GiftBoxData();
             data.Read(reader, TITLE);
             if (null != data.Gifts && data.Gifts.Length > 0)
@@ -81,7 +83,9 @@ namespace Extension.Ext
                 this.EliteData = elite;
             }
 
-            if (null != this.Data || null != this.EliteData)
+            this.Enable = null != this.Data || null != this.EliteData;
+
+            if (this.Enable)
             {
                 // 通用设置
                 this.Remove = reader.Get(TITLE + "Remove", this.Remove);

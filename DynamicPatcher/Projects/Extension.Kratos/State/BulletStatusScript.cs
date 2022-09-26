@@ -13,7 +13,8 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(BulletExt))]
-    public class BulletStatusScript : BulletScriptable
+    [UpdateBefore(typeof(BulletAttachEffectScript))]
+    public partial class BulletStatusScript : BulletScriptable
     {
         public BulletStatusScript(BulletExt owner) : base(owner) { }
 
@@ -23,9 +24,6 @@ namespace Extension.Script
         public BulletDamageData DamageData;
 
         public bool SubjectToGround;
-
-        // 自毁
-        public DestroySelfState DestroySelfState = new DestroySelfState();
 
         public override void Awake()
         {
@@ -56,24 +54,13 @@ namespace Extension.Script
             DamageData = new BulletDamageData(health);
             // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
 
-            // 初始化状态机
-            DestroySelfData destroySelfData = Ini.GetConfig<DestroySelfData>(Ini.RulesDependency, section).Data;
-            if (destroySelfData.Delay >= 0)
-            {
-                DestroySelfState.Enable(destroySelfData);
-            }
+            Awake_DestroySelf();
         }
 
         public override void OnUpdate()
         {
-            if (DestroySelfState.AmIDead())
-            {
-                BulletDamageData bulletDamage = new BulletDamageData(1);
-                bulletDamage.Eliminate = true;
-                bulletDamage.Harmless = DestroySelfState.Data.Peaceful;
-                // Logger.Log("抛射体[{0}]{1}自毁倒计时结束，自毁开始{2}", OwnerObject.Ref.Type.Ref.Base.Base.ID, OwnerObject, bulletDamageStatus);
-                TakeDamage(bulletDamage, true);
-            }
+            OnUpdate_DestroySelf();
+
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {

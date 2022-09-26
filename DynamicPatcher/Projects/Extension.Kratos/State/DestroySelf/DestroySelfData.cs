@@ -9,8 +9,10 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class DestroySelfData : INIConfig, IStateData
+    public class DestroySelfData : EffectData, IStateData
     {
+        public const string TITLE = "DestroySelf.";
+
         public int Delay;
         public bool Peaceful;
 
@@ -22,6 +24,8 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            base.Read(reader, TITLE);
+
             if (reader.Get("DestroySelf", false))
             {
                 this.Delay = 0;
@@ -29,7 +33,7 @@ namespace Extension.Ext
             else
             {
                 string delay = null;
-                delay = reader.Get<string>("DestroySelf.Delay", null);
+                delay = reader.Get<string>(TITLE + "Delay", null);
                 if (string.IsNullOrEmpty(delay))
                 {
                     this.Delay = -1;
@@ -43,7 +47,8 @@ namespace Extension.Ext
                     this.Delay = 0;
                 }
             }
-            this.Peaceful = reader.Get("DestroySelf.Peaceful", this.Peaceful);
+            this.Enable = Delay >= 0;
+            this.Peaceful = reader.Get(TITLE + "Peaceful", this.Peaceful);
         }
 
     }
