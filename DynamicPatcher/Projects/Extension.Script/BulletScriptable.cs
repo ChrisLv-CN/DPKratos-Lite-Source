@@ -46,6 +46,11 @@ namespace Extension.Script
         {
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }
+        [Obsolete("not support OnReceiveDamage in BulletScriptable yet", true)]
+        public void OnReceiveDamageDestroy()
+        {
+            throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
+        }
 
         public virtual void OnDetonate(Pointer<CoordStruct> pCoords) { }
     }

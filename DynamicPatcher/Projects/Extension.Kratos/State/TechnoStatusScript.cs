@@ -41,6 +41,16 @@ namespace Extension.Script
             OnUpdate_GiftBox();
         }
 
+        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        {
+            OnReceiveDamage2_GiftBox(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+        }
+
+        public override void OnReceiveDamageDestroy()
+        {
+            OnReceiveDamageDestroy_GiftBox();
+        }
+
         public override void OnSelect(ref bool selectable)
         {
             selectable = !DisableSelectable;

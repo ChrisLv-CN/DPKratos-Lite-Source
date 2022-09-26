@@ -96,6 +96,42 @@ namespace Extension.Script
             }
         }
 
+        public unsafe void OnReceiveDamage2_GiftBox(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        {
+            if (damageState != DamageState.NowDead && GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenHealthPercent)
+            {
+                // 计算血量百分比是否达到开启条件
+                double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
+                if (healthPercent <= GiftBoxState.Data.OpenHealthPercent)
+                {
+                    // 开盒
+                    GiftBoxState.IsOpen = true;
+                    // 释放礼物
+                    List<string> gifts = GiftBoxState.GetGiftList();
+                    if (null != gifts && gifts.Count > 0)
+                    {
+                        ReleseGift(gifts, GiftBoxState.Data);
+                    }
+                }
+
+            }
+
+        }
+
+        public unsafe void OnReceiveDamageDestroy_GiftBox()
+        {
+            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.IsOpen)
+            {
+                // 开盒
+                GiftBoxState.IsOpen = true;
+                // 释放礼物
+                List<string> gifts = GiftBoxState.GetGiftList();
+                if (null != gifts && gifts.Count > 0)
+                {
+                    ReleseGift(gifts, GiftBoxState.Data);
+                }
+            }
+        }
 
         private void ReleseGift(List<string> gifts, GiftBoxTypeData data)
         {

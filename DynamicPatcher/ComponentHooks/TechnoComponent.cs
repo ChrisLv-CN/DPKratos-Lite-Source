@@ -131,22 +131,6 @@ namespace ComponentHooks
             return 0;
         }
 
-        // if (pDamage >= 0 && pDamage < 1) pDamage = 1; // ╮(-△-)╭
-        [Hook(HookType.AresHook, Address = 0x7019DD, Size = 6)]
-        public static unsafe UInt32 TechnoClass_ReceiveDamage_AtLeast1(REGISTERS* R)
-        {
-            // var pDamage = (Pointer<int>)R->EBX;
-            // Logger.Log($"{Game.CurrentFrame} - 免疫伤害， {pDamage.Ref}");
-            // Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            // TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-            // if (ext.DamageReactionState.IsActive())
-            // {
-            return 0x7019E3;
-            // }
-            // return 0;
-        }
-
-
         // after TakeDamage
         [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
         public static unsafe UInt32 TechnoClass_ReceiveDamage2(REGISTERS* R)
@@ -163,6 +147,25 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage2(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // TakeDamage to destroy
+        [Hook(HookType.AresHook, Address = 0x702050, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_Destroy(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                // Logger.Log($"{Game.CurrentFrame} - 单位 {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 受伤害死亡, 所属 {pTechno.Ref.Owner}");
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamageDestroy());
+
             }
             catch (Exception e)
             {
