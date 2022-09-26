@@ -37,6 +37,7 @@ namespace Extension.INI
         T Data { get; }
     }
 
+    [Serializable]
     public abstract class INIConfig
     {
         /// <summary>
@@ -46,6 +47,7 @@ namespace Extension.INI
         public abstract void Read(IConfigReader ini);
     }
 
+    [Serializable]
     public abstract class INIAutoConfig : INIConfig
     {
         public sealed override void Read(IConfigReader ini)

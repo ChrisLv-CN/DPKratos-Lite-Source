@@ -11,6 +11,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class GiftBoxState : State<GiftBoxData>
     {
         public bool IsOpen;

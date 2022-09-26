@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Extension.Components
 {
+    [Serializable]
     internal class YRTransform : Transform
     {
         public YRTransform(IExtension extension)

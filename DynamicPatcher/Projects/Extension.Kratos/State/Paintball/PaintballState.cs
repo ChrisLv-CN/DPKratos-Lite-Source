@@ -11,6 +11,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class PaintballState : State<PaintballData>
     {
         

@@ -12,6 +12,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class OverrideWeaponState : State<OverrideWeaponData>
     {
 

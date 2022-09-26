@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class DestroySelfState : State<DestroySelfData>
     {
         public bool GoDie;
