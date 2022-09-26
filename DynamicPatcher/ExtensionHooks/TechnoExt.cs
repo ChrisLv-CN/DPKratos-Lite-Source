@@ -174,8 +174,11 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                // ext?.DrawSHP_Colour(R);
+                if (pTechno.TryGetStatus(out TechnoStatusScript status))
+                {
+                    status.TechnoClass_DrawSHP_Paintball(R);
+                    status.UnitClass_DrawSHP_Colour(R);
+                }
             }
             catch (Exception e)
             {
@@ -197,10 +200,10 @@ namespace ExtensionHooks
                 // R->Stack<uint>(0x24, ExHelper.ColorAdd2RGB565(new ColorStruct(255, 0, 0)));
                 // Logger.Log($"{Game.CurrentFrame} - Techno {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] vxl draw. Pos = {R->Stack<uint>(0x18)}, Bright = {bright}, Tint = {tint}");
                 // Only for Building's turret
-                if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
+                if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building && pTechno.TryGetStatus(out TechnoStatusScript status))
                 {
-                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                     // ext?.DrawVXL_Colour(R, true);
+                    status.TechnoClass_DrawVXL_Paintball(R, true);
                 }
             }
             catch (Exception e)
@@ -216,12 +219,15 @@ namespace ExtensionHooks
         {
             try
             {
-                Pointer<UnitClass> pUnit = (IntPtr)R->EBP;
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
                 // uint bright = R->Stack<uint>(0x1E0);
                 // uint tint = R->ESI;
                 // Logger.Log($"{Game.CurrentFrame} - Unit {pUnit.Ref.Type.Ref.Base.Base.Base.ID} vxl draw. Bright = {bright}, Tint = {tint}");
-                TechnoExt ext = TechnoExt.ExtMap.Find(pUnit.Convert<TechnoClass>());
-                // ext?.DrawVXL_Colour(R, false);
+                if (pTechno.TryGetStatus(out TechnoStatusScript status))
+                {
+                    // ext?.DrawVXL_Colour(R, false);
+                    status.TechnoClass_DrawVXL_Paintball(R, false);
+                }
             }
             catch (Exception e)
             {

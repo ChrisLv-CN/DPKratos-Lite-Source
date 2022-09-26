@@ -33,6 +33,7 @@ namespace Extension.Script
             Awake_Deselect();
             Awake_DestroySelf();
             Awake_GiftBox();
+            Awake_Paintball();
         }
 
         public override void OnUpdate()
@@ -40,6 +41,7 @@ namespace Extension.Script
             OnUpdate_Deselect();
             OnUpdate_DestroySelf();
             OnUpdate_GiftBox();
+            OnUpdate_Paintball();
         }
 
         public override void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
