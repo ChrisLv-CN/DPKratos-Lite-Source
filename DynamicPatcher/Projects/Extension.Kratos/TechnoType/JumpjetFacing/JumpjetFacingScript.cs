@@ -14,6 +14,7 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
+    [UpdateAfter(typeof(TechnoStatusScript))]
     public class JumpjetFacingScript : TechnoScriptable
     {
 

@@ -9,7 +9,7 @@ using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
 
-namespace Extension.Script
+namespace Extension.Utilities
 {
 
     public static class GiftBoxHelper

@@ -61,6 +61,7 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
     public class DamageTextData : INIConfig
     {
         public const string TITLE = "DamageText.";

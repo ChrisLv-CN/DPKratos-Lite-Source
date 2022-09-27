@@ -41,6 +41,7 @@ namespace Extension.Ext
 
     }
 
+    [Serializable]
     public partial class TrailType : INIConfig
     {
 

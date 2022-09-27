@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class AircraftAttitudeData : INIConfig
     {
         [INIField(Key = "DisableAircraftAutoPitch")]

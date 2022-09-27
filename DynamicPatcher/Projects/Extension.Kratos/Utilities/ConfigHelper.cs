@@ -11,7 +11,7 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
-    public static partial class ExHelper
+    public static class ConfigHelper
     {
 
         public static bool TryGetImageConfig<T>(this Pointer<TechnoClass> pTechno, out T imgConfig) where T : INIConfig, new()

@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class PassengersData : INIAutoConfig
     {
         public bool OpenTopped;

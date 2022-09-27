@@ -9,11 +9,11 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public enum HealthTextStyle
     {
         AUTO = 0, FULL = 1, SHORT = 2, PERCENT = 3
     }
-
     public class HealthTextStyleParser : KEnumParser<HealthTextStyle>
     {
         public override bool ParseInitials(string t, ref HealthTextStyle buffer)
@@ -34,11 +34,11 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
     public enum HealthTextAlign
     {
         LEFT = 0, CENTER = 1, RIGHT = 2
     }
-
     public class HealthTextAlignParser : KEnumParser<HealthTextAlign>
     {
         public override bool ParseInitials(string t, ref HealthTextAlign buffer)

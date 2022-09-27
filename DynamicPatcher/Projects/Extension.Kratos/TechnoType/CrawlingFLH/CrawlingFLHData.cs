@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class CrawlingFLHData : INIConfig
     {
         public CoordStruct PrimaryFireFLH;

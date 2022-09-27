@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class AircraftDiveData : INIAutoConfig
     {
         [INIField(Key = "Dive")]

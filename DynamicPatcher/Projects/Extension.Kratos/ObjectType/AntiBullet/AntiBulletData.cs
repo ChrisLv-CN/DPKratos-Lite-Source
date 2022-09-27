@@ -9,6 +9,7 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
     public class AntiBulletData : INIConfig
     {
         public bool Enable;

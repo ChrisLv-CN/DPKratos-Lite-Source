@@ -36,6 +36,7 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
     public class DestroyAnimsData : INIAutoConfig
     {
         [INIField(Key = "DestroyAnims")]
