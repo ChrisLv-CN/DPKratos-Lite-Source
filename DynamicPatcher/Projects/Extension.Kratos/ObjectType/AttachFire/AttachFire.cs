@@ -13,7 +13,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class FireSuperWeapon
+    public class AttachFire
     {
         public SwizzleablePointer<HouseClass> House;
         public CellStruct Location;
@@ -25,7 +25,7 @@ namespace Extension.Ext
         private int delay;
         private TimerStruct delayTimer;
 
-        public FireSuperWeapon(Pointer<HouseClass> pHouse, CellStruct location, FireSuper data)
+        public AttachFire(Pointer<HouseClass> pHouse, CellStruct location, FireSuper data)
         {
             this.House = new SwizzleablePointer<HouseClass>(pHouse);
             this.Location = location;

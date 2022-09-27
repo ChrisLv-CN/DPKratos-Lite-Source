@@ -9,7 +9,8 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class WeaponTypeData : INIAutoConfig
+    [Serializable]
+    public partial class WeaponTypeData : INIAutoConfig
     {
         // YR
         // Ares

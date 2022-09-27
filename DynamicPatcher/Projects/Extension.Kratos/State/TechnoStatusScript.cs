@@ -32,6 +32,7 @@ namespace Extension.Script
 
             Awake_Deselect();
             Awake_DestroySelf();
+            Awake_ExtraFire();
             Awake_FireSuper();
             Awake_GiftBox();
             Awake_OverrideWeapon();
@@ -81,6 +82,7 @@ namespace Extension.Script
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
+            OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
         }

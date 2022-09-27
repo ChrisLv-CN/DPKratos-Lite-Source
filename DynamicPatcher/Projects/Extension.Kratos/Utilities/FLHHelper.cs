@@ -11,7 +11,6 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
-
     public static partial class ExHelper
     {
 
@@ -61,7 +60,7 @@ namespace Extension.Utilities
             return offset;
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
         {
             CoordStruct turretOffset = default;
             if (isOnTurret)
@@ -79,7 +78,7 @@ namespace Extension.Utilities
             return GetFLHAbsoluteCoords(pTechno, flh, isOnTurret, flipY, turretOffset);
         }
 
-        public static unsafe CoordStruct GetFLHAbsoluteCoords(Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset)
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret, int flipY, CoordStruct turretOffset)
         {
             if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
             {
@@ -174,6 +173,29 @@ namespace Extension.Utilities
             return result;
         }
 
+        #region 获取抛射体的朝向和FLH
+        public static unsafe DirStruct Facing(this Pointer<BulletClass> pBullet)
+        {
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+            return pBullet.Facing(location);
+        }
+
+        public static unsafe DirStruct Facing(this Pointer<BulletClass> pBullet, CoordStruct location)
+        {
+            CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
+            return ExHelper.Point2Dir(location, forwardLocation);
+        }
+
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<BulletClass> pBullet, CoordStruct flh, int flipY = 1)
+        {
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+            DirStruct bulletFacing = pBullet.Facing(location);
+
+            CoordStruct tempFLH = flh;
+            tempFLH.Y *= flipY;
+            return GetFLHAbsoluteCoords(location, tempFLH, bulletFacing);
+        }
+        #endregion
 
     }
 
