@@ -107,22 +107,11 @@ namespace Extension.Script
                 // 检查射程
                 if (!weaponTypeData.CheckRange || InRange(pTarget, pWeapon))
                 {
-                    // 抛射体如果反向发射，翻转L
-                    int flipY = 1;
-                    Pointer<BulletTypeClass> pBulletType = pWeapon.Ref.Projectile;
-                    if (!pBulletType.IsNull)
-                    {
-                        TrajectoryData trajectoryData = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, pBulletType.Ref.Base.Base.ID).Data;
-                        if (trajectoryData.ReverseVelocity)
-                        {
-                            flipY = -1;
-                        }
-                    }
                     // 发射武器
                     if (burst > 1 && weaponTypeData.SimulateBurst)
                     {
                         // 模拟burst发射武器
-                        SimulateBurst newBurst = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
+                        SimulateBurst newBurst = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, 1, callback);
                         // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                         // 发射武器
                         SimulateBurstFire(newBurst);
@@ -133,7 +122,7 @@ namespace Extension.Script
                     else
                     {
                         // 直接发射武器
-                        CoordStruct sourcePos = GetSourcePos(flh, out DirStruct facingDir, flipY);
+                        CoordStruct sourcePos = GetSourcePos(flh, out DirStruct facingDir);
                         CoordStruct targetPos = pTarget.Ref.GetCoords();
                         // 扇形攻击
                         RadialFireHelper radialFireHelper = new RadialFireHelper(facingDir, burst, weaponTypeData.RadialAngle);
