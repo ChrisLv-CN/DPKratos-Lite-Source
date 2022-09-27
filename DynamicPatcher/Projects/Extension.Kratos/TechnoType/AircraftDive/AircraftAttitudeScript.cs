@@ -34,8 +34,8 @@ namespace Extension.Script
         public override void Awake()
         {
             ILocomotion locomotion = null;
-            if (!pTechno.Ref.IsVoxel() || !pTechno.CastToFoot(out Pointer<FootClass> pFoot) || !pFoot.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
-                || (locomotion = pFoot.Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
+            if (!pTechno.Ref.IsVoxel() || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
+                || (locomotion = pAircraft.Ref.Base.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
                 GameObject.RemoveComponent(this);
                 return;

@@ -28,8 +28,8 @@ namespace Extension.Script
         {
             ILocomotion locomotion = null;
             if (!data.Enable
-                || pTechno.CastToFoot(out Pointer<FootClass> pFoot)
-                || (locomotion = pFoot.Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
+                || !pTechno.CastToFoot(out Pointer<FootClass> pFoot)
+                || (locomotion = pFoot.Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Jumpjet)
             {
                 GameObject.RemoveComponent(this);
                 return;

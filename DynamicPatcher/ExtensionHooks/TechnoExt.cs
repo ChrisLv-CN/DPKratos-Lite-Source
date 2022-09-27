@@ -135,7 +135,7 @@ namespace ExtensionHooks
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
             Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->EAX;
             // Logger.Log($"{Game.CurrentFrame} 渲染载具[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}的矩阵调整前 RX = {pMatrix3D.Ref.GetXRotation()} RY = {pMatrix3D.Ref.GetYRotation()} RZ = {pMatrix3D.Ref.GetZRotation()}");
-            if (pTechno.TryGetStatus(out TechnoStatusScript status))
+            if (!pTechno.Ref.Type.Ref.ConsideredAircraft && pTechno.TryGetStatus(out TechnoStatusScript status))
             {
                 pMatrix3D.Ref.Scale(status.VoxelShadowScaleInAir);
             }
