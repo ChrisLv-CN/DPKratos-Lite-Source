@@ -30,6 +30,7 @@ namespace Extension.Script
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
 
+            Awake_AttackBeacon();
             Awake_Deselect();
             Awake_DestroySelf();
             Awake_ExtraFire();
@@ -41,6 +42,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            OnUpdate_AttackBeacon();
             OnUpdate_Deselect();
             OnUpdate_DestroySelf();
             OnUpdate_GiftBox();
@@ -82,6 +84,7 @@ namespace Extension.Script
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
+            OnFire_AttackBeacon_Recruit(pTarget, weaponIndex);
             OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
