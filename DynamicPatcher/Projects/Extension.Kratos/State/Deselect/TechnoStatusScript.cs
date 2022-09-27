@@ -19,7 +19,7 @@ namespace Extension.Script
 
         private bool disableSelectable;
 
-        public void Awake_Deselect()
+        public void OnPut_Deselect()
         {
             // 初始化状态机
             DeselectData data = Ini.GetConfig<DeselectData>(Ini.RulesDependency, section).Data;

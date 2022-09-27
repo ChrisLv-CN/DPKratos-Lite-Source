@@ -33,7 +33,7 @@ namespace Extension.Script
         {
             if (null != trails && !pBullet.IsDeadOrInvisible())
             {
-                Pointer<HouseClass> pHouse = Owner.ToBulletExt().GameObject.GetComponent<BulletStatusScript>().pSourceHouse;
+                Pointer<HouseClass> pHouse = pBullet.GetStatus().pSourceHouse;
 
                 CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
                 CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();

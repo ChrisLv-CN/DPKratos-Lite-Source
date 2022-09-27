@@ -19,7 +19,7 @@ namespace Extension.Script
 
         public bool AttackBeaconRecruited = false; // 被征召
 
-        public void Awake_AttackBeacon()
+        public void OnPut_AttackBeacon()
         {
             // 初始化状态机
             AttackBeaconData data = Ini.GetConfig<AttackBeaconData>(Ini.RulesDependency, section).Data;

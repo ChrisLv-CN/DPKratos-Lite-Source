@@ -18,7 +18,7 @@ namespace Extension.Script
         public State<FireSuperData> FireSuperState = new State<FireSuperData>();
 
 
-        public void Awake_FireSuper()
+        public void OnPut_FireSuper()
         {
             // 初始化状态机
             FireSuperData data = Ini.GetConfig<FireSuperData>(Ini.RulesDependency, section).Data;

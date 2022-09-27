@@ -18,7 +18,7 @@ namespace Extension.Script
 
         private Dictionary<string, TimerStruct> extraFireROF = new Dictionary<string, TimerStruct>();
 
-        public void Awake_ExtraFire()
+        public void OnPut_ExtraFire()
         {
             // 初始化状态机
             ExtraFireData data = Ini.GetConfig<ExtraFireData>(Ini.RulesDependency, section).Data;
@@ -38,11 +38,11 @@ namespace Extension.Script
                 Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
                 if (!pTransporter.IsNull)
                 {
-                    ExtraFireHelper.TryGetFLHData(pTransporter, out flhData);
+                    flhData = pTransporter.GetImageConfig<ExtraFireFLHData>();
                 }
                 else
                 {
-                    ExtraFireHelper.TryGetFLHData(pTechno, out flhData);
+                    flhData = pTechno.GetImageConfig<ExtraFireFLHData>();
                 }
 
                 ExtraFire data = fireData.Data;

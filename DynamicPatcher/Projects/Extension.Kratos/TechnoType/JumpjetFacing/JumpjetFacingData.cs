@@ -12,8 +12,6 @@ namespace Extension.Ext
     [Serializable]
     public class JumpjetFacingData : INIConfig
     {
-        public const string TITLE = "DamageText.";
-
         public bool Enable;
         public int Facing;
 
@@ -30,7 +28,4 @@ namespace Extension.Ext
             this.Facing = reader.Get("JumpjetFacing", this.Facing);
         }
     }
-
-
-
 }

@@ -26,19 +26,25 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            if (reader.Get("DestroySelf", false))
+            string destroySelf = null;
+            destroySelf = reader.Get<string>("DestroySelf", null);
+            if (!destroySelf.IsNullOrEmptyOrNone())
             {
-                this.Delay = 0;
-            }
-            else
-            {
-                string delay = null;
-                delay = reader.Get<string>(TITLE + "Delay", null);
-                if (string.IsNullOrEmpty(delay))
+                if (ExHelper.Number.IsMatch(destroySelf))
                 {
-                    this.Delay = -1;
+                    this.Delay = Convert.ToInt32(destroySelf);
                 }
-                else if (ExHelper.Number.IsMatch(delay))
+                else if (destroySelf.ToUpper().StartsWith("Y") || destroySelf.ToUpper().StartsWith("T"))
+                {
+                    this.Delay = 0;
+                }
+            }
+
+            string delay = null;
+            delay = reader.Get<string>(TITLE + "Delay", null);
+            if (!delay.IsNullOrEmptyOrNone())
+            {
+                if (ExHelper.Number.IsMatch(delay))
                 {
                     this.Delay = Convert.ToInt32(delay);
                 }
@@ -47,6 +53,7 @@ namespace Extension.Ext
                     this.Delay = 0;
                 }
             }
+
             this.Enable = Delay >= 0;
             this.Peaceful = reader.Get(TITLE + "Peaceful", this.Peaceful);
         }

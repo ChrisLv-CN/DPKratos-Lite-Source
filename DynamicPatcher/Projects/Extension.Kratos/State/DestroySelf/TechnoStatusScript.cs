@@ -17,7 +17,7 @@ namespace Extension.Script
 
         public DestroySelfState DestroySelfState = new DestroySelfState();
 
-        public void Awake_DestroySelf()
+        public void OnPut_DestroySelf()
         {
             // 初始化状态机
             DestroySelfData destroySelfData = Ini.GetConfig<DestroySelfData>(Ini.RulesDependency, section).Data;

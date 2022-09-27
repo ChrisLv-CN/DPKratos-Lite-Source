@@ -18,7 +18,7 @@ namespace Extension.Script
         public OverrideWeaponState OverrideWeaponState = new OverrideWeaponState();
 
 
-        public void Awake_OverrideWeapon()
+        public void OnPut_OverrideWeapon()
         {
             // 初始化状态机
             OverrideWeaponData data = Ini.GetConfig<OverrideWeaponData>(Ini.RulesDependency, section).Data;

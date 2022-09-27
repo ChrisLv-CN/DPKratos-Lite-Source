@@ -29,15 +29,18 @@ namespace Extension.Script
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
+        }
 
-            Awake_AttackBeacon();
-            Awake_Deselect();
-            Awake_DestroySelf();
-            Awake_ExtraFire();
-            Awake_FireSuper();
-            Awake_GiftBox();
-            Awake_OverrideWeapon();
-            Awake_Paintball();
+        public override void OnPut(CoordStruct coord, short dirType)
+        {
+            OnPut_AttackBeacon();
+            OnPut_Deselect();
+            OnPut_DestroySelf();
+            OnPut_ExtraFire();
+            OnPut_FireSuper();
+            OnPut_GiftBox();
+            OnPut_OverrideWeapon();
+            OnPut_Paintball();
         }
 
         public override void OnUpdate()
