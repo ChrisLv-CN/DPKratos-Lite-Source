@@ -212,7 +212,7 @@ namespace Extension.Utilities
                         }
                         break;
                     case AbstractType.Aircraft:
-                        if (pTechno.Ref.Base.Base.IsInAir())
+                        if (pTechno.InAir())
                         {
                             dist *= 0.5;
                         }

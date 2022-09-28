@@ -49,8 +49,7 @@ namespace Extension.Script
                     Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                     ILocomotion loco = pFoot.Ref.Locomotor;
                     loco.Stop_Moving();
-                    bool isJumpjet = loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet;
-                    bool isPlane = loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Fly;
+                    pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
                     // 计算下一个坐标点
                     CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
                     // 获取偏移量
@@ -112,12 +111,12 @@ namespace Extension.Script
                         }
                     }
                     // 设置朝向
-                    if (lastMission == Mission.Move || lastMission == Mission.AttackMove || isJumpjet || isPlane)
+                    if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.InAir())
                     {
                         DirStruct facingDir = ExHelper.Point2Dir(targetPos, sourcePos);
                         pTechno.Ref.Facing.turn(facingDir);
                         pTechno.Ref.GetRealFacing().turn(facingDir);
-                        if (isJumpjet)
+                        if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
                         {
                             // JJ朝向是单独的Facing
                             Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();

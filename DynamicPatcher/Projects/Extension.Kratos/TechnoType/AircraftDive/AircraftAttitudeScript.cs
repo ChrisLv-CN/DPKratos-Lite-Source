@@ -100,7 +100,7 @@ namespace Extension.Script
                         pTechno.Ref.Facing.turn(targetDir);
                         pTechno.Ref.TurretFacing.turn(targetDir);
                     }
-                    else if (pFly.Ref.IsMoving && !pTechno.Ref.Base.Base.IsInAir() && pSpawnOwner.Ref.Type.Ref.RadialFireSegments <= 1)
+                    else if (pFly.Ref.IsMoving && !pTechno.InAir() && pSpawnOwner.Ref.Type.Ref.RadialFireSegments <= 1)
                     {
                         switch (pTechno.Convert<MissionClass>().Ref.CurrentMission)
                         {
@@ -150,7 +150,7 @@ namespace Extension.Script
             {
                 Pointer<FlyLocomotionClass> pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>();
                 // 检查状态
-                if (!pTechno.Ref.Base.Base.IsInAir() || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding || !pFly.Ref.IsMoving)
+                if (!pTechno.InAir() || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding || !pFly.Ref.IsMoving)
                 {
                     PitchAngle = 0f;
                 }

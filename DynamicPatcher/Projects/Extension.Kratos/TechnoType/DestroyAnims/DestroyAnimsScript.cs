@@ -45,7 +45,7 @@ namespace Extension.Script
 
         public unsafe bool PlayDestroyAnims()
         {
-            if (!pTechno.Ref.Base.Base.IsInAir())
+            if (!pTechno.InAir())
             {
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 if (!data.WreckType.IsNullOrEmptyOrNone())

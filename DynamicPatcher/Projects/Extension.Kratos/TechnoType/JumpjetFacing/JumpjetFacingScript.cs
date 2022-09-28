@@ -41,7 +41,7 @@ namespace Extension.Script
         {
             if (!pTechno.IsDeadOrInvisible())
             {
-                if (pTechno.Convert<AbstractClass>().Ref.IsInAir())
+                if (pTechno.InAir())
                 {
                     if (needToTurn)
                     {

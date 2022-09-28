@@ -51,7 +51,7 @@ namespace Extension.Script
             {
                 // 没有目标或处于起飞降落，停留在机场时
                 Pointer<FlyLocomotionClass> pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>();
-                if (!pTechno.Convert<AbstractClass>().Ref.IsInAir()
+                if (!pTechno.InAir()
                     || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding)
                 {
                     // 归零

@@ -55,7 +55,7 @@ namespace Extension.Utilities
             return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();
         }
 
-        public static bool InAir(this Pointer<TechnoClass> pTechno, bool stand)
+        public static bool InAir(this Pointer<TechnoClass> pTechno, bool stand = false)
         {
             if (!pTechno.IsNull)
             {
