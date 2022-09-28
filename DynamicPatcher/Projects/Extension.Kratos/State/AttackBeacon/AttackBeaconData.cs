@@ -55,17 +55,32 @@ namespace Extension.Ext
             this.Nums = reader.GetList<int>(TITLE + "Nums", null);
 
             this.Rate = reader.Get(TITLE + "Rate", this.Rate);
-            this.InitialDelay =  reader.Get(TITLE + "InitialDelay", this.InitialDelay);
-            this.RangeMin =  reader.Get(TITLE + "RangeMin", this.RangeMin);
-            this.RangeMax =  reader.Get(TITLE + "RangeMax", this.RangeMax);
-            this.Close =  reader.Get(TITLE + "Close", this.Close);
-            this.Force =  reader.Get(TITLE + "Force", this.Force);
-            this.Count =  reader.Get(TITLE + "Count", this.Count);
-            this.TargetToCell =  reader.Get(TITLE + "TargetToCell", this.TargetToCell);
-            this.AffectsOwner =  reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
-            this.AffectsAllies =  reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
-            this.AffectsEnemies =  reader.Get(TITLE + "AffectsEnemies", this.AffectsEnemies);
-            this.AffectsCivilian =  reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
+            this.InitialDelay = reader.Get(TITLE + "InitialDelay", this.InitialDelay);
+            float min = reader.Get(TITLE + "RangeMin", 0.0f);
+            if (min > 0)
+            {
+                this.RangeMin = (int)(min * 256);
+            }
+            float max = reader.Get(TITLE + "RangeMax", -1f);
+            if (max > 0)
+            {
+                this.RangeMax = (int)(max * 256);
+            }
+            this.Close = reader.Get(TITLE + "Close", this.Close);
+            this.Force = reader.Get(TITLE + "Force", this.Force);
+            this.Count = reader.Get(TITLE + "Count", this.Count);
+            this.TargetToCell = reader.Get(TITLE + "TargetToCell", this.TargetToCell);
+            this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
+            this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
+            this.AffectsEnemies = reader.Get(TITLE + "AffectsEnemies", this.AffectsEnemies);
+            this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
+        }
+
+        public bool InRange(double distance)
+        {
+            double min = this.RangeMin * 256;
+            double max = this.RangeMax * 256;
+            return false;
         }
     }
 
