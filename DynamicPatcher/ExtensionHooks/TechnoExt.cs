@@ -128,14 +128,15 @@ namespace ExtensionHooks
         }
 
         #region Techno shadow resize in air
-        [Hook(HookType.AresHook, Address = 0x73C4FF, Size = 5)]
-        public static unsafe UInt32 UnitClass_DrawShadow_InAir(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x73C4FF, Size = 5)] // InAir
+        [Hook(HookType.AresHook, Address = 0x73C595, Size = 5)] // OnGround
+        public static unsafe UInt32 UnitClass_DrawShadow(REGISTERS* R)
         {
             // Logger.Log($"{Game.CurrentFrame} 渲染载具影子 {R->EBP}, 矩阵 = {R->EAX}");
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
             Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->EAX;
             // Logger.Log($"{Game.CurrentFrame} 渲染载具[{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno}的矩阵调整前 RX = {pMatrix3D.Ref.GetXRotation()} RY = {pMatrix3D.Ref.GetYRotation()} RZ = {pMatrix3D.Ref.GetZRotation()}");
-            if (!pTechno.Ref.Type.Ref.ConsideredAircraft && pTechno.TryGetStatus(out TechnoStatusScript status))
+            if (pTechno.Ref.Type.Ref.ConsideredAircraft && pTechno.TryGetStatus(out TechnoStatusScript status))
             {
                 pMatrix3D.Ref.Scale(status.VoxelShadowScaleInAir);
             }
