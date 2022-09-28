@@ -39,44 +39,46 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            if (initialDelayTimer.Expired() && reloadTimer.Expired())
+            if (!pTechno.IsDeadOrInvisible())
             {
-                Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(data.WeaponIndex);
-                // 检查弹药消耗
-                int technoAmmo = pTechno.Ref.Ammo;
-                int weaponAmmo = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.WeaponType.Ref.Base.ID).Data.Ammo;
-                if (technoAmmo >= 0)
+                if (initialDelayTimer.Expired() && reloadTimer.Expired())
                 {
-                    int leftAmmo = technoAmmo - weaponAmmo;
-                    if (data.CheckAmmo || data.UseAmmo)
+                    Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(data.WeaponIndex);
+                    // 检查弹药消耗
+                    int technoAmmo = pTechno.Ref.Ammo;
+                    int weaponAmmo = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.WeaponType.Ref.Base.ID).Data.Ammo;
+                    if (technoAmmo >= 0)
                     {
-                        if (leftAmmo < 0)
+                        int leftAmmo = technoAmmo - weaponAmmo;
+                        if (data.CheckAmmo || data.UseAmmo)
                         {
-                            return;
+                            if (leftAmmo < 0)
+                            {
+                                return;
+                            }
+                        }
+                        if (data.UseAmmo)
+                        {
+                            pTechno.Ref.Ammo = leftAmmo;
+                            pTechno.Ref.ReloadNow();
                         }
                     }
-                    if (data.UseAmmo)
+                    reloadTimer.Start(pWeapon.Ref.WeaponType.Ref.ROF);
+                    if (data.TargetToGround)
                     {
-                        pTechno.Ref.Ammo = leftAmmo;
-                        pTechno.Ref.ReloadNow();
+                        CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                        if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)
+                        {
+                            pTechno.Ref.Fire_IgnoreType(pCell.Convert<AbstractClass>(), data.WeaponIndex);
+                        }
                     }
-                }
-                reloadTimer.Start(pWeapon.Ref.WeaponType.Ref.ROF);
-                if (data.TargetToGround)
-                {
-                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)
+                    else
                     {
-                        pTechno.Ref.Fire_IgnoreType(pCell.Convert<AbstractClass>(), data.WeaponIndex);
+                        pTechno.Ref.Fire_IgnoreType(pTechno.Convert<AbstractClass>(), data.WeaponIndex);
                     }
-                }
-                else
-                {
-                    pTechno.Ref.Fire_IgnoreType(pTechno.Convert<AbstractClass>(), data.WeaponIndex);
-                }
 
+                }
             }
-
         }
 
     }

@@ -40,60 +40,63 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            if (null != crawlingFLHData)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                Pointer<WeaponStruct> primary = pTechno.Ref.GetWeapon(0);
-                Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
-                // Logger.Log("CrawlingFLHData = {0}", crawlingFLHData);
+                if (null != crawlingFLHData)
+                {
+                    Pointer<WeaponStruct> primary = pTechno.Ref.GetWeapon(0);
+                    Pointer<WeaponStruct> secondary = pTechno.Ref.GetWeapon(1);
+                    // Logger.Log("CrawlingFLHData = {0}", crawlingFLHData);
 
-                bool isElite = pTechno.Ref.Veterancy.IsElite();
-                if (pTechno.Convert<InfantryClass>().Ref.Crawling)
-                {
-                    if (isElite)
+                    bool isElite = pTechno.Ref.Veterancy.IsElite();
+                    if (pTechno.Convert<InfantryClass>().Ref.Crawling)
                     {
-                        if (null != primary && !primary.IsNull)
+                        if (isElite)
                         {
-                            primary.Ref.FLH = crawlingFLHData.Data.ElitePrimaryCrawlingFLH;
+                            if (null != primary && !primary.IsNull)
+                            {
+                                primary.Ref.FLH = crawlingFLHData.Data.ElitePrimaryCrawlingFLH;
+                            }
+                            if (null != secondary && !secondary.IsNull)
+                            {
+                                secondary.Ref.FLH = crawlingFLHData.Data.EliteSecondaryCrawlingFLH;
+                            }
                         }
-                        if (null != secondary && !secondary.IsNull)
+                        else
                         {
-                            secondary.Ref.FLH = crawlingFLHData.Data.EliteSecondaryCrawlingFLH;
+                            if (null != primary && !primary.IsNull)
+                            {
+                                primary.Ref.FLH = crawlingFLHData.Data.PrimaryCrawlingFLH;
+                            }
+                            if (null != secondary && !secondary.IsNull)
+                            {
+                                secondary.Ref.FLH = crawlingFLHData.Data.SecondaryCrawlingFLH;
+                            }
                         }
                     }
                     else
                     {
-                        if (null != primary && !primary.IsNull)
+                        if (isElite)
                         {
-                            primary.Ref.FLH = crawlingFLHData.Data.PrimaryCrawlingFLH;
+                            if (null != primary && !primary.IsNull)
+                            {
+                                primary.Ref.FLH = crawlingFLHData.Data.ElitePrimaryFireFLH;
+                            }
+                            if (null != secondary && !secondary.IsNull)
+                            {
+                                secondary.Ref.FLH = crawlingFLHData.Data.EliteSecondaryFireFLH;
+                            }
                         }
-                        if (null != secondary && !secondary.IsNull)
+                        else
                         {
-                            secondary.Ref.FLH = crawlingFLHData.Data.SecondaryCrawlingFLH;
-                        }
-                    }
-                }
-                else
-                {
-                    if (isElite)
-                    {
-                        if (null != primary && !primary.IsNull)
-                        {
-                            primary.Ref.FLH = crawlingFLHData.Data.ElitePrimaryFireFLH;
-                        }
-                        if (null != secondary && !secondary.IsNull)
-                        {
-                            secondary.Ref.FLH = crawlingFLHData.Data.EliteSecondaryFireFLH;
-                        }
-                    }
-                    else
-                    {
-                        if (null != primary && !primary.IsNull)
-                        {
-                            primary.Ref.FLH = crawlingFLHData.Data.PrimaryFireFLH;
-                        }
-                        if (null != secondary && !secondary.IsNull)
-                        {
-                            secondary.Ref.FLH = crawlingFLHData.Data.SecondaryFireFLH;
+                            if (null != primary && !primary.IsNull)
+                            {
+                                primary.Ref.FLH = crawlingFLHData.Data.PrimaryFireFLH;
+                            }
+                            if (null != secondary && !secondary.IsNull)
+                            {
+                                secondary.Ref.FLH = crawlingFLHData.Data.SecondaryFireFLH;
+                            }
                         }
                     }
                 }

@@ -76,13 +76,6 @@ namespace Extension.Ext
             this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
         }
 
-        public bool InRange(double distance)
-        {
-            double min = this.RangeMin * 256;
-            double max = this.RangeMax * 256;
-            return false;
-        }
     }
-
 
 }

@@ -48,7 +48,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            CoordStruct location = Owner.OwnerObject.Ref.Base.Base.GetCoords();
+            CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             int frame = Game.CurrentFrame;
             for (int i = DamageCache.Count() - 1; i >= 0; i--)
             {

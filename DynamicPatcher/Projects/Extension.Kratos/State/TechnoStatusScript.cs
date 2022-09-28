@@ -25,15 +25,21 @@ namespace Extension.Script
 
         public bool DisableSelectVoice;
 
+        public bool IsBuilding;
+
+        public DrivingState DrivingState;
+        private Mission lastMission;
 
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
+            this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 
         public override void OnPut(CoordStruct coord, short dirType)
         {
             OnPut_AttackBeacon();
+            OnPut_BlackHole();
             OnPut_Deselect();
             OnPut_DestroySelf();
             OnPut_ExtraFire();
@@ -45,11 +51,50 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            OnUpdate_AttackBeacon();
-            OnUpdate_Deselect();
             OnUpdate_DestroySelf();
-            OnUpdate_GiftBox();
-            OnUpdate_Paintball();
+            if (!pTechno.IsDead())
+            {
+                Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
+                switch (mission)
+                {
+                    case Mission.Move:
+                    case Mission.AttackMove:
+                        // 上一次任务不是这两个说明是起步
+                        if (Mission.Move != lastMission && Mission.AttackMove != lastMission)
+                        {
+                            DrivingState = DrivingState.Start;
+                        }
+                        else
+                        {
+                            DrivingState = DrivingState.Moving;
+                        }
+                        break;
+                    default:
+                        // 上一次任务如果是Move或者AttackMove说明是刹车
+                        if (Mission.Move == lastMission || Mission.AttackMove == lastMission)
+                        {
+                            DrivingState = DrivingState.Stop;
+                        }
+                        else
+                        {
+                            DrivingState = DrivingState.Stand;
+                        }
+                        break;
+                }
+                OnUpdate_AttackBeacon();
+                OnUpdate_BlackHole();
+                OnUpdate_Deselect();
+                OnUpdate_GiftBox();
+                OnUpdate_Paintball();
+            }
+        }
+
+        public override void OnLateUpdate()
+        {
+            if (!pTechno.IsDeadOrInvisible())
+            {
+                this.lastMission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
+            }
         }
 
         public override void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)

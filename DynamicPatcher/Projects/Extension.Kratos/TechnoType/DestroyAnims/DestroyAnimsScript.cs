@@ -32,11 +32,14 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            // 被单位打死的残骸会自动恢复激活状态，强行再改回去，被弹头超武直接打死就不会
-            if (IAmWreak && !pTechno.Ref.Deactivated)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                pTechno.Ref.Deactivate();
-                // Logger.Log($"{Game.CurrentFrame} 我{pTechno}是个残骸 Deactivated = {pTechno.Ref.Deactivated}");
+                // 被单位打死的残骸会自动恢复激活状态，强行再改回去，被弹头超武直接打死就不会
+                if (IAmWreak && !pTechno.Ref.Deactivated)
+                {
+                    pTechno.Ref.Deactivate();
+                    // Logger.Log($"{Game.CurrentFrame} 我{pTechno}是个残骸 Deactivated = {pTechno.Ref.Deactivated}");
+                }
             }
         }
 

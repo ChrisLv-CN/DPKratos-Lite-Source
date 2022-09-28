@@ -50,63 +50,69 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            // 角度差比Step大
-            if (smooth && PitchAngle != targetAngle && Math.Abs(targetAngle - PitchAngle) > angelStep)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                // 只调整一个step
-                if (targetAngle > PitchAngle)
+                // 角度差比Step大
+                if (smooth && PitchAngle != targetAngle && Math.Abs(targetAngle - PitchAngle) > angelStep)
                 {
-                    PitchAngle += angelStep;
+                    // 只调整一个step
+                    if (targetAngle > PitchAngle)
+                    {
+                        PitchAngle += angelStep;
+                    }
+                    else
+                    {
+                        PitchAngle -= angelStep;
+                    }
                 }
                 else
                 {
-                    PitchAngle -= angelStep;
+                    PitchAngle = targetAngle;
                 }
+                // 关闭图像缓存
+                technoStatus.DisableVoxelCache = PitchAngle != 0;
+                // Logger.Log($"{Game.CurrentFrame} 飞机[{section}]{pTechno} 高度 {pTechno.Ref.Base.GetHeight()} 记录的倾斜角度 Angle = {PitchAngle} 位置 {pTechno.Ref.Base.Base.GetCoords()}");
+                CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                if (!disable && !lockAngle)
+                {
+                    UpdateHeadToCoord(location);
+                }
+                lastLocation = location;
             }
-            else
-            {
-                PitchAngle = targetAngle;
-            }
-            // 关闭图像缓存
-            technoStatus.DisableVoxelCache = PitchAngle != 0;
-            // Logger.Log($"{Game.CurrentFrame} 飞机[{section}]{pTechno} 高度 {pTechno.Ref.Base.GetHeight()} 记录的倾斜角度 Angle = {PitchAngle} 位置 {pTechno.Ref.Base.Base.GetCoords()}");
-            CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-            if (!disable && !lockAngle)
-            {
-                UpdateHeadToCoord(location);
-            }
-            lastLocation = location;
         }
 
         public override void OnLateUpdate()
         {
-            // 子机在降落时调整鸡头的朝向
-            Pointer<TechnoClass> pSpawnOwner = IntPtr.Zero;
-            Pointer<FlyLocomotionClass> pFly = IntPtr.Zero;
-            if (!(pSpawnOwner = pTechno.Ref.SpawnOwner).IsDeadOrInvisible()
-                && !(pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>()).IsNull)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                int dir = 0;
-                if (pFly.Ref.IsLanding)
+                // 子机在降落时调整鸡头的朝向
+                Pointer<TechnoClass> pSpawnOwner = IntPtr.Zero;
+                Pointer<FlyLocomotionClass> pFly = IntPtr.Zero;
+                if (!(pSpawnOwner = pTechno.Ref.SpawnOwner).IsDeadOrInvisible()
+                    && !(pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>()).IsNull)
                 {
-                    dir = attitudeData.SpawnLandDir;
-                    // Logger.Log($"{Game.CurrentFrame} Landing dir {dir}");
-                    DirStruct targetDir = GetAngle(dir, pSpawnOwner);
-                    pTechno.Ref.Facing.turn(targetDir);
-                    pTechno.Ref.TurretFacing.turn(targetDir);
-                }
-                else if (pFly.Ref.IsMoving && !pTechno.Ref.Base.Base.IsInAir() && pSpawnOwner.Ref.Type.Ref.RadialFireSegments <= 1)
-                {
-                    switch (pTechno.Convert<MissionClass>().Ref.CurrentMission)
+                    int dir = 0;
+                    if (pFly.Ref.IsLanding)
                     {
-                        case Mission.Guard:
-                        case Mission.Area_Guard:
-                            dir = attitudeData.SpawnTakeoffDir;
-                            // Logger.Log($"{Game.CurrentFrame} Takeoff dir {dir}");
-                            DirStruct targetDir = GetAngle(dir, pSpawnOwner);
-                            pTechno.Ref.Facing.set(targetDir);
-                            pTechno.Ref.TurretFacing.set(targetDir);
-                            break;
+                        dir = attitudeData.SpawnLandDir;
+                        // Logger.Log($"{Game.CurrentFrame} Landing dir {dir}");
+                        DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                        pTechno.Ref.Facing.turn(targetDir);
+                        pTechno.Ref.TurretFacing.turn(targetDir);
+                    }
+                    else if (pFly.Ref.IsMoving && !pTechno.Ref.Base.Base.IsInAir() && pSpawnOwner.Ref.Type.Ref.RadialFireSegments <= 1)
+                    {
+                        switch (pTechno.Convert<MissionClass>().Ref.CurrentMission)
+                        {
+                            case Mission.Guard:
+                            case Mission.Area_Guard:
+                                dir = attitudeData.SpawnTakeoffDir;
+                                // Logger.Log($"{Game.CurrentFrame} Takeoff dir {dir}");
+                                DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                                pTechno.Ref.Facing.set(targetDir);
+                                pTechno.Ref.TurretFacing.set(targetDir);
+                                break;
+                        }
                     }
                 }
             }

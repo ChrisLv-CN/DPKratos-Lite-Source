@@ -63,40 +63,43 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            if (AntiBulletData.Enable)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                if (delayTimer.Expired())
+                if (AntiBulletData.Enable)
                 {
-                    int scanRange = AntiBulletData.Range;
-                    if (pTechno.Ref.Veterancy.IsElite())
+                    if (delayTimer.Expired())
                     {
-                        scanRange = AntiBulletData.EliteRange;
-                    }
-                    // Logger.Log($"{Game.CurrentFrame} 开始搜索抛射体，Range = {AntiBulletData.Range}，EliteRange = {AntiBulletData.EliteRange}，Rate = {AntiBulletData.Rate}");
-                    ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
-                    {
-                        if (AntiBulletData.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
+                        int scanRange = AntiBulletData.Range;
+                        if (pTechno.Ref.Veterancy.IsElite())
                         {
-                            // Scan Target
-                            if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange
-                                && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && bulletStatus.LifeData.Interceptable)
-                            {
-                                // 确认目标
-                                // Logger.Log($"{Game.CurrentFrame} 确认目标 {pBullet}");
-                                delayTimer.Start(AntiBulletData.Rate);
-                                if (AntiBulletData.ForPassengers)
-                                {
-                                    pTechno.Ref.SetTargetForPassengers(pBullet.Convert<AbstractClass>());
-                                }
-                                if (AntiBulletData.Self && (pTechno.Ref.Target.IsNull || pTechno.Ref.Target.Ref.IsDead()))
-                                {
-                                    pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
-                                }
-                                return true;
-                            }
+                            scanRange = AntiBulletData.EliteRange;
                         }
-                        return false;
-                    });
+                        // Logger.Log($"{Game.CurrentFrame} 开始搜索抛射体，Range = {AntiBulletData.Range}，EliteRange = {AntiBulletData.EliteRange}，Rate = {AntiBulletData.Rate}");
+                        ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
+                        {
+                            if (AntiBulletData.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
+                            {
+                                // Scan Target
+                                if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange
+                                    && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && bulletStatus.LifeData.Interceptable)
+                                {
+                                    // 确认目标
+                                    // Logger.Log($"{Game.CurrentFrame} 确认目标 {pBullet}");
+                                    delayTimer.Start(AntiBulletData.Rate);
+                                    if (AntiBulletData.ForPassengers)
+                                    {
+                                        pTechno.Ref.SetTargetForPassengers(pBullet.Convert<AbstractClass>());
+                                    }
+                                    if (AntiBulletData.Self && (pTechno.Ref.Target.IsNull || pTechno.Ref.Target.Ref.IsDead()))
+                                    {
+                                        pTechno.Ref.SetTarget(pBullet.Convert<AbstractClass>());
+                                    }
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
+                    }
                 }
             }
         }

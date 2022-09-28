@@ -24,28 +24,31 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            // check the transporter settings
-            Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
-            if (!pTransporter.IsNull)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
+                // check the transporter settings
+                Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
+                if (!pTransporter.IsNull)
                 {
-                    PassengersData data = transporter.data;
-                    if (null != data && data.OpenTopped)
+                    if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
                     {
-                        if (!data.PassiveAcquire)
+                        PassengersData data = transporter.data;
+                        if (null != data && data.OpenTopped)
                         {
-                            Mission transporterMission = pTransporter.Convert<ObjectClass>().Ref.GetCurrentMission();
-                            // Mission mission = pTechno.Convert<ObjectClass>().Ref.GetCurrentMission();
-                            if (transporterMission != Mission.Attack)
-                            // if (mission != Mission.Attack && mission != Mission.Sleep)
+                            if (!data.PassiveAcquire)
                             {
-                                pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+                                Mission transporterMission = pTransporter.Convert<ObjectClass>().Ref.GetCurrentMission();
+                                // Mission mission = pTechno.Convert<ObjectClass>().Ref.GetCurrentMission();
+                                if (transporterMission != Mission.Attack)
+                                // if (mission != Mission.Attack && mission != Mission.Sleep)
+                                {
+                                    pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+                                }
                             }
-                        }
-                        if (data.ForceFire)
-                        {
-                            pTechno.Ref.SetTarget(pTransporter.Ref.Target);
+                            if (data.ForceFire)
+                            {
+                                pTechno.Ref.SetTarget(pTransporter.Ref.Target);
+                            }
                         }
                     }
                 }

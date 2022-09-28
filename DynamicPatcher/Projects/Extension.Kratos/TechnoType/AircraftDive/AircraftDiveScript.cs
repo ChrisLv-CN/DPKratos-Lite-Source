@@ -47,70 +47,72 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            // 没有目标或处于起飞降落，停留在机场时
-            Pointer<FlyLocomotionClass> pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>();
-            if (!pTechno.Convert<AbstractClass>().Ref.IsInAir()
-                || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                // 归零
-                pFly.Ref.FlightLevel = flightLevel;
-                DiveStatus = AircraftDiveStatus.NONE;
-                attitudeScript.UnLock();
-                return;
-            }
-
-            Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
-            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 状态 {DiveStatus} pFly {pFly} 战机高度 {pTechno.Ref.Base.GetHeight()}，飞行高度 {pFly.Ref.FlightLevel}， 设定飞行高度 {pTechno.Ref.Type.Ref.FlightLevel}");
-            switch (DiveStatus)
-            {
-                case AircraftDiveStatus.DIVEING:
-                    if (pTarget.IsNull)
-                    {
-                        DiveStatus = AircraftDiveStatus.PULLUP;
-                    }
-                    else
-                    {
-                        if (aircraftDiveData.PullUpAfterFire)
-                        {
-                            // 持续保持头对准目标
-                            attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
-                        }
-                    }
-                    break;
-                case AircraftDiveStatus.PULLUP:
-                    // 恢复飞行高度
+                // 没有目标或处于起飞降落，停留在机场时
+                Pointer<FlyLocomotionClass> pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>();
+                if (!pTechno.Convert<AbstractClass>().Ref.IsInAir()
+                    || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding)
+                {
+                    // 归零
                     pFly.Ref.FlightLevel = flightLevel;
                     DiveStatus = AircraftDiveStatus.NONE;
-                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 拉起飞机 修改飞行高度为 {pFly.Ref.FlightLevel}");
-                    break;
-                default:
                     attitudeScript.UnLock();
-                    if (!pTarget.IsNull)
-                    {
-                        // 检查距离目标的距离是否足够近以触发俯冲姿态
-                        CoordStruct location = pTechno.Ref.Base.Location;
-                        CoordStruct targetPos = pTarget.Ref.GetCoords();
-                        int distance = (int)(aircraftDiveData.Distance * 256);
-                        if (distance == 0)
-                        {
-                            int weaponIndex = pTechno.Ref.SelectWeapon(pTarget);
-                            distance = pTechno.Ref.GetWeapon(weaponIndex).Ref.WeaponType.Ref.Range * 2;
-                        }
-                        double dist = 0;
-                        if ((dist = location.DistanceFrom(targetPos)) <= distance)
-                        {
-                            // 进入俯冲状态
-                            DiveStatus = AircraftDiveStatus.DIVEING;
-                            // 调整飞行高度
-                            pFly.Ref.FlightLevel = aircraftDiveData.FlightLevel;
-                            // 头对准目标
-                            attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始俯冲 修改飞行高度为 {pFly.Ref.FlightLevel}");
-                        }
-                    }
-                    break;
-            }
+                    return;
+                }
 
+                Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 状态 {DiveStatus} pFly {pFly} 战机高度 {pTechno.Ref.Base.GetHeight()}，飞行高度 {pFly.Ref.FlightLevel}， 设定飞行高度 {pTechno.Ref.Type.Ref.FlightLevel}");
+                switch (DiveStatus)
+                {
+                    case AircraftDiveStatus.DIVEING:
+                        if (pTarget.IsNull)
+                        {
+                            DiveStatus = AircraftDiveStatus.PULLUP;
+                        }
+                        else
+                        {
+                            if (aircraftDiveData.PullUpAfterFire)
+                            {
+                                // 持续保持头对准目标
+                                attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
+                            }
+                        }
+                        break;
+                    case AircraftDiveStatus.PULLUP:
+                        // 恢复飞行高度
+                        pFly.Ref.FlightLevel = flightLevel;
+                        DiveStatus = AircraftDiveStatus.NONE;
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 拉起飞机 修改飞行高度为 {pFly.Ref.FlightLevel}");
+                        break;
+                    default:
+                        attitudeScript.UnLock();
+                        if (!pTarget.IsNull)
+                        {
+                            // 检查距离目标的距离是否足够近以触发俯冲姿态
+                            CoordStruct location = pTechno.Ref.Base.Location;
+                            CoordStruct targetPos = pTarget.Ref.GetCoords();
+                            int distance = (int)(aircraftDiveData.Distance * 256);
+                            if (distance == 0)
+                            {
+                                int weaponIndex = pTechno.Ref.SelectWeapon(pTarget);
+                                distance = pTechno.Ref.GetWeapon(weaponIndex).Ref.WeaponType.Ref.Range * 2;
+                            }
+                            double dist = 0;
+                            if ((dist = location.DistanceFrom(targetPos)) <= distance)
+                            {
+                                // 进入俯冲状态
+                                DiveStatus = AircraftDiveStatus.DIVEING;
+                                // 调整飞行高度
+                                pFly.Ref.FlightLevel = aircraftDiveData.FlightLevel;
+                                // 头对准目标
+                                attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始俯冲 修改飞行高度为 {pFly.Ref.FlightLevel}");
+                            }
+                        }
+                        break;
+                }
+            }
         }
 
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)

@@ -24,9 +24,7 @@ namespace Extension.Script
     {
         public TechnoTrailScript(TechnoExt owner) : base(owner) { }
 
-        private Mission lastMission;
-        private DrivingState drivingState;
-
+        private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private List<Trail> trails;
 
         public override void OnPut(CoordStruct coord, short dirType)
@@ -42,44 +40,6 @@ namespace Extension.Script
             this.trails = null;
         }
 
-        public override void OnUpdate()
-        {
-            if (null != trails)
-            {
-                if (!pTechno.IsDead())
-                {
-                    Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
-                    switch (mission)
-                    {
-                        case Mission.Move:
-                        case Mission.AttackMove:
-                            // 上一次任务不是这两个说明是起步
-                            if (Mission.Move != lastMission && Mission.AttackMove != lastMission)
-                            {
-                                drivingState = DrivingState.Start;
-                            }
-                            else
-                            {
-                                drivingState = DrivingState.Moving;
-                            }
-                            break;
-                        default:
-                            // 上一次任务如果是Move或者AttackMove说明是刹车
-                            if (Mission.Move == lastMission || Mission.AttackMove == lastMission)
-                            {
-                                drivingState = DrivingState.Stop;
-                            }
-                            else
-                            {
-                                drivingState = DrivingState.Stand;
-                            }
-                            break;
-                    }
-                    lastMission = mission;
-                }
-            }
-        }
-
         public override void OnLateUpdate()
         {
             if (null != trails)
@@ -91,11 +51,11 @@ namespace Extension.Script
                         // 检查动画尾巴
                         if (trail.Type.Mode == TrailMode.ANIM)
                         {
-                            switch (drivingState)
+                            switch (technoStatus.DrivingState)
                             {
                                 case DrivingState.Start:
                                 case DrivingState.Stop:
-                                    trail.SetDrivingState(drivingState);
+                                    trail.SetDrivingState(technoStatus.DrivingState);
                                     break;
                             }
                         }

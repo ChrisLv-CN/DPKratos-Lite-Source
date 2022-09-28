@@ -54,13 +54,13 @@ namespace Extension.Script
             DamageData = new BulletDamageData(health);
             // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
 
+            Awake_BlackHole();
             Awake_DestroySelf();
         }
 
         public override void OnUpdate()
         {
             OnUpdate_DestroySelf();
-
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {
@@ -83,6 +83,11 @@ namespace Extension.Script
                     LifeData.IsDetonate = true;
                     return;
                 }
+            }
+
+            if (!pBullet.IsDeadOrInvisible())
+            {
+                OnUpdate_BlackHole();
             }
         }
 

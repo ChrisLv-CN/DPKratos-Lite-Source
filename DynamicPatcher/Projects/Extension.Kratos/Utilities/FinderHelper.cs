@@ -57,21 +57,49 @@ namespace Extension.Utilities
             FindTechno(pHouse, func, true, allied, enemies);
         }
 
+        public static void FindTechno(Pointer<HouseClass> pHouse, CoordStruct location, double spread, FoundTechno func, bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
+        {
+            double dist = (spread <= 0 ? 1 : spread) * 256;
+            ref DynamicVectorClass<Pointer<TechnoClass>> technos = ref TechnoClass.Array;
+            for (int i = technos.Count - 1; i >= 0; i--)
+            {
+                Pointer<TechnoClass> pTarget = technos.Get(i);
+                if (!pTarget.IsDeadOrInvisible())
+                {
+                    CoordStruct targetLocation = pTarget.Ref.Base.Base.GetCoords();
+                    if (targetLocation.DistanceFrom(location) <= dist)
+                    {
+                        Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
+                        if (!pHouse.IsNull && !pTargetHouse.IsNull && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        {
+                            continue;
+                        }
+                        if (func(pTarget))
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+
         public static void FindTechno(Pointer<HouseClass> pHouse, FoundTechno func, bool owner = true, bool allied = false, bool enemies = false, bool civilian = false)
         {
             ref DynamicVectorClass<Pointer<TechnoClass>> technos = ref TechnoClass.Array;
             for (int i = technos.Count - 1; i >= 0; i--)
             {
-                Pointer<TechnoClass> pTechno = technos.Get(i);
-                if (pTechno.IsDeadOrInvisible()
+                Pointer<TechnoClass> pTarget = technos.Get(i);
+                if (pTarget.IsDeadOrInvisible()
                     // || (pTechno.Ref.Base.IsActive() ? false : !civilian) // ObjectClass.IsActive() 会导致联机不同步
-                    || null == pTechno.Ref.Owner || pTechno.Ref.Owner.IsNull
-                    || (pTechno.Ref.Owner == pHouse ? !owner : (pTechno.Ref.Owner.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    || null == pTarget.Ref.Owner || pTarget.Ref.Owner.IsNull
+                    || (pTarget.Ref.Owner.IsCivilian() && !civilian)
+                    || (pTarget.Ref.Owner == pHouse ? !owner : (pTarget.Ref.Owner.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
                 {
                     continue;
                 }
 
-                if (func(pTechno))
+                if (func(pTarget))
                 {
                     break;
                 }
@@ -203,44 +231,40 @@ namespace Extension.Utilities
         {
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
 
-            double dist = (spread <= 0 ? 1 : spread) * 256;
-            ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
-            for (int i = bullets.Count - 1; i >= 0; i--)
+            FindBullet(IntPtr.Zero, location, spread, (pTarget) =>
             {
-                Pointer<BulletClass> pBullet = bullets.Get(i);
-                CoordStruct targetLocation = pBullet.Ref.Base.Base.GetCoords();
-                if (targetLocation.DistanceFrom(location) <= dist)
-                {
-                    pBulletSet.Add(pBullet);
-                }
-            }
+                pBulletSet.Add(pTarget);
+                return false;
+            });
             return pBulletSet;
         }
 
         public static void FindBullet(Pointer<HouseClass> pHouse, CoordStruct location, double spread, FoundBullet func, bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
-            HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
-
             double dist = (spread <= 0 ? 1 : spread) * 256;
             ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
             for (int i = bullets.Count - 1; i >= 0; i--)
             {
                 Pointer<BulletClass> pTarget = bullets.Get(i);
-                CoordStruct targetLocation = pTarget.Ref.Base.Base.GetCoords();
-                if (targetLocation.DistanceFrom(location) <= dist)
+                if (!pTarget.IsDeadOrInvisible() && pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate)
                 {
-                    Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                    if (pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
+                    CoordStruct targetLocation = pTarget.Ref.Base.Base.GetCoords();
+                    if (targetLocation.DistanceFrom(location) <= dist)
                     {
-                        // 检查原始所属
-                        if ((pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                        if (!pHouse.IsNull && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
                         {
-                            continue;
+                            // 检查原始所属
+                            if ((pTargetHouse.IsCivilian() && !civilian)
+                                || (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                            {
+                                continue;
+                            }
                         }
-                    }
-                    if (func(pTarget))
-                    {
-                        break;
+                        if (func(pTarget))
+                        {
+                            break;
+                        }
                     }
                 }
             }

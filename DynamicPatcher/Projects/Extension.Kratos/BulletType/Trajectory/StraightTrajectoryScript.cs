@@ -37,8 +37,6 @@ namespace Extension.Script
 
         private TrajectoryData trajectoryData => Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
 
-        public bool Disable;
-
         private StraightBullet straightBullet;
 
         public override void Awake()
@@ -82,7 +80,7 @@ namespace Extension.Script
             }
 
             // 重设速度
-            BulletVelocity velocity = RecalculateBulletVelocity(sourcePos, targetPos);
+            BulletVelocity velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
             straightBullet = new StraightBullet(sourcePos, targetPos, velocity);
 
             // 设置触碰引信
@@ -93,17 +91,9 @@ namespace Extension.Script
             }
         }
 
-        private unsafe BulletVelocity RecalculateBulletVelocity(CoordStruct sourcePos, CoordStruct targetPos)
-        {
-            BulletVelocity velocity = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, targetPos.Z - sourcePos.Z);
-            velocity *= pBullet.Ref.Speed / targetPos.DistanceFrom(sourcePos);
-            pBullet.Ref.Velocity = velocity;
-            return velocity;
-        }
-
         public override void OnUpdate()
         {
-            if (null != straightBullet && !Disable)
+            if (null != straightBullet && !bulletStatus.CaptureByBlackHole)
             {
                 // 强制修正速度
                 pBullet.Ref.Velocity = straightBullet.Velocity;

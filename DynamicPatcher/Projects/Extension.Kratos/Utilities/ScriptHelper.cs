@@ -137,6 +137,40 @@ namespace Extension.Utilities
         }
 #endregion
 
+#region 黑洞
+        public static bool BlackHoleStateDone(this Pointer<ObjectClass> pObject)
+        {
+            return pObject.IsDead() || pObject.IsInvisible()
+                || !((pObject.TryGetTechnoStatus(out TechnoStatusScript technoStatus) && technoStatus.BlackHoleState.IsActive())
+                    || (pObject.TryGetBulletStatus(out BulletStatusScript bulletStatus) && bulletStatus.BlackHoleState.IsActive()));
+        }
+
+        public static bool TryGetBlackHoleState(this Pointer<ObjectClass> pObject, out BlackHoleState blackHoleState)
+        {
+            blackHoleState = null;
+            if (!pObject.IsDead() && pObject.IsInvisible())
+            {
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus))
+                    {
+                        blackHoleState = technoStatus.BlackHoleState;
+                        return true;
+                    }
+                }
+                else
+                {
+                    if (pObject.Convert<BulletClass>().TryGetStatus(out BulletStatusScript bulletStatus))
+                    {
+                        blackHoleState = bulletStatus.BlackHoleState;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+#endregion
+
     }
 
 }

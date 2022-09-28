@@ -36,15 +36,18 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
-            if (!pSpawnOwner.IsNull)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
-                SupportSpawnsData data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection).Data;
-                if (data.Enable && data.Always)
+                Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
+                if (!pSpawnOwner.IsDeadOrInvisible())
                 {
-                    SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
-                    FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, true);
+                    string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
+                    SupportSpawnsData data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection).Data;
+                    if (data.Enable && data.Always)
+                    {
+                        SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
+                        FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, true);
+                    }
                 }
             }
         }
@@ -52,7 +55,7 @@ namespace Extension.Script
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
-            if (!pSpawnOwner.IsNull)
+            if (!pSpawnOwner.IsDeadOrInvisible())
             {
                 string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
                 SupportSpawnsData data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection).Data;
