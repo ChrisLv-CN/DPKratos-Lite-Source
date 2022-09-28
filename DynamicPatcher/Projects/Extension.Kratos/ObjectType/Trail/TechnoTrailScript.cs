@@ -29,7 +29,7 @@ namespace Extension.Script
 
         private List<Trail> trails;
 
-        public override void Awake()
+        public override void OnPut(CoordStruct coord, short dirType)
         {
             if (TrailHelper.TryGetTrails(section, out List<Trail> trails))
             {
@@ -37,34 +37,9 @@ namespace Extension.Script
             }
         }
 
-        public override void OnPut(CoordStruct coord, short dirType)
-        {
-            if (null != trails)
-            {
-                if (!pTechno.IsDead())
-                {
-                    // 更新坐标
-                    foreach (Trail trail in trails)
-                    {
-                        trail.SetLastLocation(coord);
-                    }
-                }
-            }
-        }
-
         public override void OnRemove()
         {
-            if (null != trails)
-            {
-                if (!pTechno.IsDead())
-                {
-                    // 清除坐标记录
-                    foreach (Trail trail in trails)
-                    {
-                        trail.ClearLastLocation();
-                    }
-                }
-            }
+            this.trails = null;
         }
 
         public override void OnUpdate()
