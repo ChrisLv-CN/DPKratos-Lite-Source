@@ -44,7 +44,7 @@ namespace Extension.Script
         {
             if (null != trails)
             {
-                if (!pTechno.IsDeadOrInvisibleOrCloaked())
+                if (!pTechno.IsDeadOrInvisibleOrCloaked() && pTechno.Ref.Base.GetHeight() >= 0)
                 {
                     foreach (Trail trail in trails)
                     {

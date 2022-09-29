@@ -233,18 +233,19 @@ namespace Extension.Script
                             {
                                 // 检查建筑在范围内
                                 Pointer<BuildingClass> pBuilding = pTarget.Convert<BuildingClass>();
-                                int height = pBuilding.Ref.Type.Ref.Height;
-                                // Logger.Log("Building Height {0}", height);
-                                if (proximityData.Blade)
-                                {
-                                    // 无视高度，格子内的建筑视为命中
-                                    hit = true;
-                                }
-                                else
-                                {
-                                    // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
-                                    hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + proximityData.ZOffset);
-                                }
+                                hit = pBuilding.CanHit(sourcePos.Z, proximityData.Blade, proximityData.ZOffset);
+                                // int height = pBuilding.Ref.Type.Ref.Height;
+                                // // Logger.Log("Building Height {0}", height);
+                                // if (proximityData.Blade)
+                                // {
+                                //     // 无视高度，格子内的建筑视为命中
+                                //     hit = true;
+                                // }
+                                // else
+                                // {
+                                //     // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
+                                //     hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + proximityData.ZOffset);
+                                // }
                                 // Logger.Log($"{Game.CurrentFrame} 碰触建筑 {pBuilding}");
                                 // 检查建筑是否被炸过
                                 if (hit && proximityData.PenetrationBuildingOnce)

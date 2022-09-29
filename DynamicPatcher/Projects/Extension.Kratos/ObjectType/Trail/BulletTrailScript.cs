@@ -31,7 +31,7 @@ namespace Extension.Script
 
         public override void OnLateUpdate()
         {
-            if (null != trails && !pBullet.IsDeadOrInvisible())
+            if (null != trails && !pBullet.IsDeadOrInvisible() && pBullet.Ref.Base.GetHeight() >= 0)
             {
                 Pointer<HouseClass> pHouse = pBullet.GetStatus().pSourceHouse;
 
