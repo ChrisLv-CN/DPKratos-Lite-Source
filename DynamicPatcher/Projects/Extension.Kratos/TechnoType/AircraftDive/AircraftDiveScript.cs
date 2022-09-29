@@ -30,7 +30,7 @@ namespace Extension.Script
         private AircraftAttitudeScript attitudeScript => GameObject.GetComponent<AircraftAttitudeScript>();
         private AircraftDiveData aircraftDiveData => Ini.GetConfig<AircraftDiveData>(Ini.RulesDependency, section).Data;
 
-        private int flightLevel;
+        private bool activeDive;
 
         public override void Awake()
         {
@@ -41,8 +41,8 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
-            Pointer<FlyLocomotionClass> pFly = locomotion.ToLocomotionClass<FlyLocomotionClass>();
-            this.flightLevel = pFly.Ref.FlightLevel;
+            // Pointer<FlyLocomotionClass> pFly = locomotion.ToLocomotionClass<FlyLocomotionClass>();
+            // this.flightLevel = pFly.Ref.FlightLevel;
         }
 
         public override void OnUpdate()
@@ -55,10 +55,16 @@ namespace Extension.Script
                     || pFly.Ref.IsTakingOff || pFly.Ref.IsLanding)
                 {
                     // 归零
-                    pFly.Ref.FlightLevel = flightLevel;
                     DiveStatus = AircraftDiveStatus.NONE;
+                    activeDive = false;
                     attitudeScript.UnLock();
                     return;
+                }
+
+                // 带蛋起飞，并且高度超过设定值时，开启俯冲
+                if (pFly.Ref.IsElevating && pTechno.Ref.Base.GetHeight() >= aircraftDiveData.FlightLevel)
+                {
+                    activeDive = true;
                 }
 
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
@@ -81,13 +87,12 @@ namespace Extension.Script
                         break;
                     case AircraftDiveStatus.PULLUP:
                         // 恢复飞行高度
-                        pFly.Ref.FlightLevel = flightLevel;
                         DiveStatus = AircraftDiveStatus.NONE;
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 拉起飞机 修改飞行高度为 {pFly.Ref.FlightLevel}");
                         break;
                     default:
                         attitudeScript.UnLock();
-                        if (!pTarget.IsNull)
+                        if (!pTarget.IsNull && activeDive)
                         {
                             // 检查距离目标的距离是否足够近以触发俯冲姿态
                             CoordStruct location = pTechno.Ref.Base.Location;
