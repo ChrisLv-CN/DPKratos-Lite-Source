@@ -345,7 +345,7 @@ namespace Extension.Script
                                         if (MapClass.Instance.TryGetCellAt(des, out Pointer<CellClass> pTargetCell))
                                         {
                                             pGift.Ref.SetDestination(pTargetCell, true);
-                                            pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                                            pGift.Convert<MissionClass>().Ref.QueueMission(Mission.Move, true);
                                         }
                                     }
                                 }

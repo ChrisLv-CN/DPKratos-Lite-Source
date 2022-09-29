@@ -194,7 +194,7 @@ namespace Extension.Script
                                 });
                                 // 获取JJ
                                 Pointer<TechnoClass> pJJ = pCheckCell.Ref.Jumpjet.Convert<TechnoClass>();
-                                if (!pJJ.IsNull && !IsDeadOrStand(pJJ))
+                                if (!IsDeadOrStand(pJJ))
                                 {
                                     pTechnoSet.Add(pJJ);
                                 }
@@ -204,7 +204,7 @@ namespace Extension.Script
                         // 获取所有在天上的玩意儿，JJ，飞起来的坦克，包含路过的飞机
                         ExHelper.FindTechno(IntPtr.Zero, (pTarget) =>
                         {
-                            if (pTarget.Ref.Base.GetHeight() > 0 && !IsDeadOrStand(pTarget))
+                            if (!IsDeadOrStand(pTarget) && pTarget.Ref.Base.GetHeight() > 0)
                             {
                                 // 消去高度差，检查和当前坐标距离在cellSpread格范围内
                                 CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
@@ -220,6 +220,10 @@ namespace Extension.Script
                         // 筛选并处理找到的对象
                         foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
                         {
+                            if (pTarget.IsDeadOrInvisible())
+                            {
+                                continue;
+                            }
                             CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
                             // BulletEffectHelper.BlueLineZ(targetPos, 1024, 1, 75);
 
@@ -291,8 +295,8 @@ namespace Extension.Script
         private bool IsDeadOrStand(Pointer<TechnoClass> pTarget)
         {
             // 检查死亡和发射者
-            if (pTarget.IsNull || pTarget == pBullet.Ref.Owner
-                || (proximityData.AffectsClocked ? pTarget.IsDeadOrInvisible() : pTarget.IsDeadOrInvisibleOrCloaked())
+            if (pTarget.IsDeadOrInvisible() || pTarget == pBullet.Ref.Owner
+                || (!proximityData.AffectsClocked && pTarget.IsCloaked())
                 || pTarget.Ref.IsImmobilized)
             {
                 return true;

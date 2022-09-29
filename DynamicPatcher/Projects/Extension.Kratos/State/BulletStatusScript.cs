@@ -85,7 +85,7 @@ namespace Extension.Script
                 }
             }
 
-            if (!pBullet.IsDeadOrInvisible())
+            if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
                 OnUpdate_BlackHole();
             }
