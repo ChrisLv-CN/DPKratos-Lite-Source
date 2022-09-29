@@ -75,7 +75,7 @@ namespace Extension.Utilities
                 int height = pBuilding.Ref.Type.Ref.Height;
                 int sourceZ = pBuilding.Ref.Base.Base.Base.GetCoords().Z;
                 // Logger.Log("Building Height {0}", height);
-                return sourceZ <= (targetZ + height * Game.LevelHeight + zOffset);
+                return targetZ <= (sourceZ + height * Game.LevelHeight + zOffset);
             }
             return blade;
         }

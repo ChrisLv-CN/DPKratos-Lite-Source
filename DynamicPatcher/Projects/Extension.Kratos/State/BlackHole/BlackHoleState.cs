@@ -75,6 +75,7 @@ namespace Extension.Ext
                             && !bulletStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
                         )
                         {
+                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{id}]{pTarget}");
                             bulletStatus.SetBlackHole(pObject);
                         }
                         return false;
@@ -91,6 +92,7 @@ namespace Extension.Ext
                             && !targetStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
                         )
                         {
+                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
                             targetStatus.SetBlackHole(pObject);
                         }
                         return false;

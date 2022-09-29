@@ -47,10 +47,11 @@ namespace Extension.Script
                 }
                 else
                 {
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响，开始调整位置");
                     CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                     // 从占据的格子中移除自己
                     pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
-                    // Jumpjet试图降落
+
                     // 停止移动
                     Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                     ILocomotion loco = pFoot.Ref.Locomotor;
@@ -58,6 +59,7 @@ namespace Extension.Script
                     pTechno.Convert<MissionClass>().Ref.ForceMission(Mission.None);
                     pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, false);
                     loco.Mark_All_Occupation_Bits(0);
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");
                     // 计算下一个坐标点
                     CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
                     // 获取偏移量
@@ -99,14 +101,20 @@ namespace Extension.Script
                                 case TileType.DestroyableCliff:
                                     // 悬崖上可以往悬崖下移动
                                     canMove = deltaZ > 0;
+                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")}");
                                     break;
                             }
                         }
                         // 检查建筑
-                        Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
-                        if (!pBuilding.IsNull)
+                        // 会飞的单位不检查建筑
+                        if (!pTechno.Ref.Type.Ref.ConsideredAircraft)
                         {
-                            canMove = !pBuilding.CanHit(nextPos.Z);
+                            Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
+                            if (!pBuilding.IsNull)
+                            {
+                                canMove = !pBuilding.CanHit(nextPos.Z);
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")}");
+                            }
                         }
 
                     }
@@ -124,20 +132,24 @@ namespace Extension.Script
                             }
                         }
                     }
+
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得新位置坐标 {nextPos} 原始位置 {sourcePos} {(!canMove ? "受到阻挡不能前进，返回" : "")}");
                     // 被黑洞吸走
                     pTechno.Ref.Base.SetLocation(nextPos);
                     // 设置动作
-                    if (pTechno.CastIf<InfantryClass>(AbstractType.Infantry, out Pointer<InfantryClass> pInf) && pInf.Ref.Type.Ref.Crawls)
+                    if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
                     {
-                        pInf.Ref.Crawling = true;
+                        pFoot.Ref.Inf_PlayAnim(SequenceAnimType.CRAWL);
                     }
-                    else if (pTechno.Ref.IsVoxel() && canMove)
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置步兵匍匐动作");
+                    if (pTechno.Ref.IsVoxel() && canMove)
                     {
                         // pTechno.Ref.RockingForwardsPerFrame = 0.2f;
                         // pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
                     }
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置VXL翻滚动作");
                     // 设置朝向
-                    if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.InAir())
+                    if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.Ref.Base.GetHeight() > 0)
                     {
                         DirStruct facingDir = ExHelper.Point2Dir(targetPos, sourcePos);
                         pTechno.Ref.Facing.turn(facingDir);
@@ -148,6 +160,7 @@ namespace Extension.Script
                             Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
                             pLoco.Ref.LocomotionFacing.turn(facingDir);
                         }
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                     }
                 }
             }
@@ -188,11 +201,21 @@ namespace Extension.Script
                 }
                 else
                 {
-                    // 活着
-                    pTechno.Ref.Base.IsFallingDown = true;
-                    if (pTechno.CastIf<InfantryClass>(AbstractType.Infantry, out Pointer<InfantryClass> pInf) && pInf.Ref.Crawling)
+                    if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
                     {
-                        pInf.Ref.Crawling = false;
+                        // 飞机起飞
+                        pTechno.Ref.SetDestination(pCell);
+                        pTechno.Convert<MissionClass>().Ref.ForceMission(Mission.None);
+                        pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                    }
+                    else if (pTechno.Ref.Base.GetHeight() > 0)
+                    {
+                        pTechno.Ref.Base.UnmarkAllOccupationBits(targetPos);
+                        pTechno.Ref.Base.IsFallingDown = true;
+                    }
+                    else
+                    {
+                        pTechno.Ref.Base.Scatter(targetPos, true, true);
                     }
                 }
             }
