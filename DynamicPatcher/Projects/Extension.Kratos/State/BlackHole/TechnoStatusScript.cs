@@ -32,6 +32,11 @@ namespace Extension.Script
 
         public void OnUpdate_BlackHole()
         {
+            // 黑洞吸人
+            if (BlackHoleState.IsReady())
+            {
+                BlackHoleState.Capture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
+            }
             // 被黑洞吸取中
             if (CaptureByBlackHole)
             {
@@ -45,11 +50,14 @@ namespace Extension.Script
                     CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                     // 从占据的格子中移除自己
                     pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
+                    // Jumpjet试图降落
                     // 停止移动
                     Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                     ILocomotion loco = pFoot.Ref.Locomotor;
                     loco.Stop_Moving();
-                    pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
+                    pTechno.Convert<MissionClass>().Ref.ForceMission(Mission.None);
+                    pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, false);
+                    loco.Mark_All_Occupation_Bits(0);
                     // 计算下一个坐标点
                     CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
                     // 获取偏移量
@@ -95,20 +103,38 @@ namespace Extension.Script
                             }
                         }
                         // 检查建筑
+                        Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
+                        if (!pBuilding.IsNull)
+                        {
+                            canMove = !pBuilding.CanHit(nextPos.Z);
+                        }
 
                     }
-                    if (canMove)
-                    {
-                        // 被黑洞吸走
-                        pTechno.Ref.Base.SetLocation(nextPos);
-                    }
-                    else
+                    if (!canMove)
                     {
                         // 反弹回移动前的格子
                         if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pSourceCell))
                         {
-                            pTechno.Ref.Base.SetLocation(pSourceCell.Ref.GetCoordsWithBridge());
+                            CoordStruct cellPos = pSourceCell.Ref.GetCoordsWithBridge();
+                            nextPos.X = cellPos.X;
+                            nextPos.Y = cellPos.Y;
+                            if (nextPos.Z < cellPos.Z)
+                            {
+                                nextPos.Z = cellPos.Z;
+                            }
                         }
+                    }
+                    // 被黑洞吸走
+                    pTechno.Ref.Base.SetLocation(nextPos);
+                    // 设置动作
+                    if (pTechno.CastIf<InfantryClass>(AbstractType.Infantry, out Pointer<InfantryClass> pInf) && pInf.Ref.Type.Ref.Crawls)
+                    {
+                        pInf.Ref.Crawling = true;
+                    }
+                    else if (pTechno.Ref.IsVoxel() && canMove)
+                    {
+                        // pTechno.Ref.RockingForwardsPerFrame = 0.2f;
+                        // pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
                     }
                     // 设置朝向
                     if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.InAir())
@@ -125,11 +151,7 @@ namespace Extension.Script
                     }
                 }
             }
-            // 黑洞吸人
-            if (BlackHoleState.IsReady())
-            {
-                BlackHoleState.Capture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
-            }
+
         }
 
         public void SetBlackHole(Pointer<ObjectClass> pBlackHole)
@@ -142,16 +164,35 @@ namespace Extension.Script
         {
             if (CaptureByBlackHole && !pTechno.IsDeadOrInvisible())
             {
-                // 散开
-                pTechno.Ref.Base.Scatter(default, true, false);
-                // 飞机恢复升空
-                if (pTechno.Ref.Base.Base.IsOnFloor() && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
+                // 检查是否在悬崖上摔死
+                bool canPass = true;
+                CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                CoordStruct targetPos = location;
+                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                 {
-                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                    targetPos = pCell.Ref.GetCoordsWithBridge();
+                    // 当前格子所在的位置不可通行，炸了它
+                    canPass = pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true);
+                    if (pTechno.Ref.Base.GetHeight() < 0)
                     {
-                        pTechno.Ref.SetDestination(pCell, true);
-                        pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                        // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于地下 {pTechno.Ref.Base.GetHeight()}，调整回地表");
+                        pTechno.Ref.Base.SetLocation(targetPos);
+                    }
+                }
+                if (!canPass && (!pTechno.Ref.Type.Ref.ConsideredAircraft || !pTechno.InAir()))
+                {
+                    // 摔死
+                    pTechno.Ref.RockingForwardsPerFrame = 0.2f;
+                    pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
+                    pTechno.Ref.Base.DropAsBomb();
+                }
+                else
+                {
+                    // 活着
+                    pTechno.Ref.Base.IsFallingDown = true;
+                    if (pTechno.CastIf<InfantryClass>(AbstractType.Infantry, out Pointer<InfantryClass> pInf) && pInf.Ref.Crawling)
+                    {
+                        pInf.Ref.Crawling = false;
                     }
                 }
             }

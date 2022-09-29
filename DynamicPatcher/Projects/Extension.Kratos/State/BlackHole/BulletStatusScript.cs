@@ -35,7 +35,7 @@ namespace Extension.Script
             if (CaptureByBlackHole)
             {
                 Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
-                if (pTarget.IsNull || (pTarget.CastToObject(out Pointer<ObjectClass> pObject) && pObject.BlackHoleStateDone()))
+                if (pTarget.IsNull || !pTarget.CastToObject(out Pointer<ObjectClass> pObject) || !pObject.BlackHoleStateDone())
                 {
                     // 目标不存在或者黑洞的黑洞效果关闭
                     CaptureByBlackHole = false;
@@ -48,6 +48,11 @@ namespace Extension.Script
                 else
                 {
                     CoordStruct targetPos = pTarget.Ref.GetCoords();
+                    // 获取偏移量
+                    if (pObject.TryGetBlackHoleState(out BlackHoleState blackHoleState))
+                    {
+                        targetPos += blackHoleState.Data.Offset;
+                    }
                     // 重算向量，朝向目标
                     pBullet.RecalculateBulletVelocity(targetPos);
                 }

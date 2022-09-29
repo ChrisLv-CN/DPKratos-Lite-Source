@@ -70,20 +70,26 @@ namespace Extension.Ext
                     {
                         string id = pTarget.Ref.Type.Ref.Base.Base.ID;
                         // 过滤指定类型
-                        if (pObject != pTarget.Convert<ObjectClass>() && Data.CanAffectType(id))
+                        if (pObject != pTarget.Convert<ObjectClass>() && Data.CanAffectType(id)
+                            && pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate
+                            && !bulletStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
+                        )
                         {
-                            pTarget.GetStatus().SetBlackHole(pObject);
+                            bulletStatus.SetBlackHole(pObject);
                         }
                         return false;
                     }, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
                 }
                 if (Data.AffectTechno)
                 {
-                    // 查找素有的单位，并设置黑洞
+                    // 查找所有的单位，并设置黑洞
                     ExHelper.FindTechno(pHouse, location, data.Range, (pTarget) =>
                     {
                         string id = pTarget.Ref.Type.Ref.Base.Base.ID;
-                        if (pObject != pTarget.Convert<ObjectClass>() && Data.CanAffectType(id) && pTarget.TryGetStatus(out TechnoStatusScript targetStatus) && !targetStatus.IsBuilding)
+                        if (pObject != pTarget.Convert<ObjectClass>() && Data.CanAffectType(id)
+                            && pTarget.TryGetStatus(out TechnoStatusScript targetStatus) && !targetStatus.IsBuilding
+                            && !targetStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
+                        )
                         {
                             targetStatus.SetBlackHole(pObject);
                         }
