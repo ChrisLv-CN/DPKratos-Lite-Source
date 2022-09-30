@@ -10,6 +10,10 @@ using Extension.Utilities;
 
 namespace Extension.Ext
 {
+    public interface IBlackHoleVictim
+    {
+        void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData data);
+    }
 
     [Serializable]
     public class BlackHoleState : State<BlackHoleData>
@@ -76,7 +80,7 @@ namespace Extension.Ext
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{id}]{pTarget}");
-                            bulletStatus.SetBlackHole(pObject);
+                            bulletStatus.SetBlackHole(pObject, Data);
                         }
                         return false;
                     }, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
@@ -88,12 +92,13 @@ namespace Extension.Ext
                     {
                         string id = pTarget.Ref.Type.Ref.Base.Base.ID;
                         if (pObject != pTarget.Convert<ObjectClass>() && Data.CanAffectType(id)
-                            && pTarget.TryGetStatus(out TechnoStatusScript targetStatus) && !targetStatus.IsBuilding
+                            && (Data.Weight <= 0 || pTarget.Ref.Type.Ref.Weight <= Data.Weight) // 排除质量较大的对象
+                            && pTarget.TryGetStatus(out TechnoStatusScript targetStatus) // && !targetStatus.IsBuilding
                             && !targetStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
-                            targetStatus.SetBlackHole(pObject);
+                            targetStatus.SetBlackHole(pObject, Data);
                         }
                         return false;
                     }, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);

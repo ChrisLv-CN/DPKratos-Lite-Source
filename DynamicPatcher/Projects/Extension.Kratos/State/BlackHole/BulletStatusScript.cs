@@ -12,7 +12,7 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-    public partial class BulletStatusScript
+    public partial class BulletStatusScript : IBlackHoleVictim
     {
 
         public BlackHoleState BlackHoleState = new BlackHoleState();
@@ -64,7 +64,7 @@ namespace Extension.Script
             }
         }
 
-        public void SetBlackHole(Pointer<ObjectClass> pBlackHole)
+        public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)
         {
             pBullet.Ref.SetTarget(pBlackHole.Convert<AbstractClass>());
             this.CaptureByBlackHole = true;

@@ -54,6 +54,30 @@ namespace Extension.Utilities
         }
 
 
+        public static unsafe Pointer<HouseClass> GetHouse(this Pointer<BulletClass> pBullet)
+        {
+            Pointer<TechnoClass> pOwner = pBullet.Ref.Owner;
+            if (!pOwner.IsNull)
+            {
+                return pOwner.Ref.Owner;
+            }
+            return pBullet.GetSourceHouse();
+        }
+
+        public static unsafe Pointer<HouseClass> GetSourceHouse(this Pointer<BulletClass> pBullet)
+        {
+            if (pBullet.TryGetStatus(out BulletStatusScript status))
+            {
+                return status.pSourceHouse;
+            }
+            Pointer<TechnoClass> pOwner = pBullet.Ref.Owner;
+            if (!pOwner.IsNull)
+            {
+                return pOwner.Ref.Owner;
+            }
+            return IntPtr.Zero;
+        }
+
 
     }
 }

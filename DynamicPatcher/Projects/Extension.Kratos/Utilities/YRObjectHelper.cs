@@ -52,16 +52,6 @@ namespace Extension.Utilities
             return Relation.ENEMIES;
         }
 
-        public static bool CastToBullet(this Pointer<ObjectClass> pObject, out Pointer<BulletClass> pBullet)
-        {
-            return pObject.CastIf(AbstractType.Bullet, out pBullet);
-        }
-
-        public static bool CastToBuilding(this Pointer<ObjectClass> pObject, out Pointer<BuildingClass> pBuilding)
-        {
-            return pObject.CastIf(AbstractType.Building, out pBuilding);
-        }
-
         public static CoordStruct ToCoordStruct(this BulletVelocity bulletVelocity)
         {
             return new CoordStruct(bulletVelocity.X, bulletVelocity.Y, bulletVelocity.Z);

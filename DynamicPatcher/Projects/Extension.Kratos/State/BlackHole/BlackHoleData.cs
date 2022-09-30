@@ -48,6 +48,15 @@ namespace Extension.Ext
         public CoordStruct Offset;
         public int Count;
 
+        public double Weight;
+        public int CaptureSpeed;
+
+        public int Damage;
+        public int DamageDelay;
+        public string DamageWH;
+        public bool AllowFallingDestroy;
+        public int FallingDestroyHeight;
+
         public string[] AffectTypes;
         public string[] NotAffectTypes;
 
@@ -70,6 +79,15 @@ namespace Extension.Ext
 
             this.Offset = default;
             this.Count = -1;
+
+            this.Weight = -1;
+            this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
+
+            this.Damage = 0;
+            this.DamageDelay = 0;
+            this.DamageWH = null;
+            this.AllowFallingDestroy = false;
+            this.FallingDestroyHeight = 2 * Game.LevelHeight;
 
             this.AffectTypes = null;
             this.NotAffectTypes = null;
@@ -110,6 +128,19 @@ namespace Extension.Ext
             this.Offset = reader.Get(TITLE + "Offset", this.Offset);
             this.Count = reader.Get(TITLE + "Count", this.Count);
 
+            this.Weight = reader.Get(TITLE + "Weight", this.Weight);
+            int speed = reader.Get(TITLE + "CaptureSpeed", 0);
+            if (speed != 0)
+            {
+                this.CaptureSpeed = (int)(speed * 2.55);
+            }
+
+            this.Damage = reader.Get(TITLE + "Damage", this.Damage);
+            this.DamageDelay = reader.Get(TITLE + "Damage.Delay", this.DamageDelay);
+            this.DamageWH = reader.Get(TITLE + "Damage.Warhead", this.DamageWH);
+            this.AllowFallingDestroy = reader.Get(TITLE + "AllowFallingDestroy", this.AllowFallingDestroy);
+            this.FallingDestroyHeight = reader.Get(TITLE + "FallingDestroyHeight", this.FallingDestroyHeight);
+
             this.AffectTypes = reader.GetList<string>(TITLE + "AffectTypes", this.AffectTypes);
             this.NotAffectTypes = reader.GetList<string>(TITLE + "NotAffectTypes", this.NotAffectTypes);
 
@@ -135,6 +166,16 @@ namespace Extension.Ext
                 return false;
             }
             return null == AffectTypes || AffectTypes.Length <= 0 || AffectTypes.Contains(ID);
+        }
+
+        public int GetCaptureSpeed(double weight)
+        {
+            // F = mtv, v = F/mv
+            if (weight != 0)
+            {
+                return  (int)(this.CaptureSpeed / weight);
+            }
+            return this.CaptureSpeed;
         }
 
     }

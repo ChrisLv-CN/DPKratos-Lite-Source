@@ -99,16 +99,12 @@ namespace Extension.Utilities
                 else
                 {
                     percent = PercentStrToDouble(chanceStr);
-                    if (percent > 1)
-                    {
-                        percent = 1;
-                    }
                 }
             }
             return percent;
         }
 
-        public static double[] GetPercentList(this ISectionReader reader, string key, double[] defVal)
+        public static double[] GetPercentList(this ISectionReader reader, string key, double[] defVal, bool isChance = false)
         {
             string[] texts = reader.GetList<string>(key);
             if (null != texts)
@@ -116,11 +112,42 @@ namespace Extension.Utilities
                 double[] result = new double[texts.Length];
                 for (int i = 0; i < texts.Length; i++)
                 {
-                    result[i] = PercentStrToDouble(texts[i]);
+                    double percent = PercentStrToDouble(texts[i]);
+                    if (isChance)
+                    {
+                        if (percent < 0)
+                        {
+                            percent = 0;
+                        }
+                        else if (percent > 1)
+                        {
+                            percent = 1;
+                        }
+                    }
+                    result[i] = percent;
                 }
                 return result;
             }
             return defVal;
+        }
+
+        public static double GetChance(this ISectionReader reader, string key, double defVal, bool allowNegative = false)
+        {
+            double chance = reader.GetPercent(key, defVal, allowNegative);
+            if (chance < 0)
+            {
+                chance = 0;
+            }
+            else if (chance > 1)
+            {
+                chance = 1;
+            }
+            return chance;
+        }
+
+        public static double[] GetChanceList(this ISectionReader reader, string key, double[] defVal, bool isChance = false)
+        {
+            return reader.GetPercentList(key, defVal, true);
         }
 
     }

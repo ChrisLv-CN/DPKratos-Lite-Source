@@ -60,7 +60,7 @@ namespace Extension.Ext
         public void Read(ISectionReader reader, string title)
         {
             this.Supers = reader.GetList(title + "Types", this.Supers);
-            this.Chances = reader.GetPercentList(title + "Chances", this.Chances);
+            this.Chances = reader.GetChanceList(title + "Chances", this.Chances);
             
             this.InitDelay = reader.Get(title + "InitDelay", this.InitDelay);
             this.RandomInitDelay = reader.Get(title + "RandomInitDelay", this.RandomInitDelay);

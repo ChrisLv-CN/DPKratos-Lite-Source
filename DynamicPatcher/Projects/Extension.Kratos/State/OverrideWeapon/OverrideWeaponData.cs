@@ -45,7 +45,7 @@ namespace Extension.Ext
             this.RandomType = null != Types && Types.Length > 0;
             this.Weights = reader.GetList(title + "Weights", this.Weights);
             this.Index = reader.Get(title + "Index", this.Index);
-            this.Chance = reader.GetPercent(title + "Chance", this.Chance);
+            this.Chance = reader.GetChance(title + "Chance", this.Chance);
         }
 
     }
