@@ -22,6 +22,7 @@ namespace Extension.Script
         private SwizzleablePointer<ObjectClass> pBlackHole = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
         private BlackHoleData blackHoleData;
         private TimerStruct blackHoleDamageDelay;
+        private bool lostControl;
 
         public void OnPut_BlackHole()
         {
@@ -38,31 +39,31 @@ namespace Extension.Script
             // 黑洞吸人
             if (BlackHoleState.IsReady())
             {
-                BlackHoleState.Capture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
+                BlackHoleState.StartCapture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
             }
             // 被黑洞吸取中
             if (captureByBlackHole)
             {
                 if (pBlackHole.IsNull
-                    || (pBlackHole.Pointer.BlackHoleStateDone()))
+                    || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
+                    || !blackHoleState.IsActive()
+                    || OutOfBlackHole(blackHoleState))
                 {
                     CancelBlackHole();
                 }
                 else
                 {
+                    Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
                     if (!IsBuilding)
                     {
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响，开始调整位置");
                         CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                         // 从占据的格子中移除自己
                         pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
-
                         // 停止移动
                         Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                         ILocomotion loco = pFoot.Ref.Locomotor;
                         loco.Stop_Moving();
-                        pTechno.Convert<MissionClass>().Ref.ForceMission(Mission.None);
-                        pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, false);
                         loco.Mark_All_Occupation_Bits(0);
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");
                         // 计算下一个坐标点
@@ -157,46 +158,73 @@ namespace Extension.Script
                         {
                             DirStruct facingDir = ExHelper.Point2Dir(targetPos, sourcePos);
                             pTechno.Ref.Facing.turn(facingDir);
-                            pTechno.Ref.GetRealFacing().turn(facingDir);
-                            if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
+                            Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                            if (locoId == LocomotionClass.Jumpjet)
                             {
                                 // JJ朝向是单独的Facing
                                 Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
                                 pLoco.Ref.LocomotionFacing.turn(facingDir);
                             }
+                            else if (locoId == LocomotionClass.Fly)
+                            {
+                                // 飞机使用的炮塔的Facing
+                                pTechno.Ref.TurretFacing.turn(facingDir);
+                            }
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                         }
                     }
-                    // 黑洞伤害
-                    if (null != blackHoleData && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
+                    if (null != blackHoleData)
                     {
-
-                        if (blackHoleDamageDelay.Expired())
+                        // 黑洞伤害
+                        if (blackHoleData.AllowDamageTechno && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
                         {
-                            blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
-                            // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
-                            Pointer<WarheadTypeClass> pWH = RulesClass.Global().C4Warhead;
-                            if (!blackHoleData.DamageWH.IsNullOrEmptyOrNone())
+                            if (blackHoleDamageDelay.Expired())
                             {
-                                pWH = WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find(blackHoleData.DamageWH);
-                            }
-                            if (!pWH.IsNull)
-                            {
-                                Pointer<ObjectClass> pAttacker = IntPtr.Zero;
-                                Pointer<HouseClass> pAttackingHouse = IntPtr.Zero;
-                                if (pBlackHole.Pointer.CastToBullet(out Pointer<BulletClass> pBullet))
+                                blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
+                                // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
+                                Pointer<WarheadTypeClass> pWH = RulesClass.Global().C4Warhead;
+                                if (!blackHoleData.DamageWH.IsNullOrEmptyOrNone())
                                 {
-                                    pAttacker = pBullet.Ref.Owner.Convert<ObjectClass>();
-                                    pAttackingHouse = pBullet.GetSourceHouse();
+                                    pWH = WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find(blackHoleData.DamageWH);
                                 }
-                                else
+                                if (!pWH.IsNull)
                                 {
-                                    pAttacker = pBlackHole;
-                                    pAttackingHouse = pBlackHole.Pointer.Convert<TechnoClass>().Ref.Owner;
+                                    Pointer<ObjectClass> pAttacker = IntPtr.Zero;
+                                    Pointer<HouseClass> pAttackingHouse = IntPtr.Zero;
+                                    if (pBlackHole.Pointer.CastToBullet(out Pointer<BulletClass> pBullet))
+                                    {
+                                        pAttacker = pBullet.Ref.Owner.Convert<ObjectClass>();
+                                        pAttackingHouse = pBullet.GetSourceHouse();
+                                    }
+                                    else
+                                    {
+                                        pAttacker = pBlackHole;
+                                        pAttackingHouse = pBlackHole.Pointer.Convert<TechnoClass>().Ref.Owner;
+                                    }
+                                    // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {pWH.Ref.Base.ID}");
+                                    pTechno.Ref.Base.TakeDamage(blackHoleData.Damage, pWH, pAttacker, pAttackingHouse, pTechno.Ref.Type.Ref.Crewed);
                                 }
-                                // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {pWH.Ref.Base.ID}");
-                                pTechno.Ref.Base.TakeDamage(blackHoleData.Damage, pWH, pAttacker, pAttackingHouse, pTechno.Ref.Type.Ref.Crewed);
                             }
+                        }
+                        // 目标设置
+                        if (blackHoleData.ClearTarget)
+                        {
+                            ClearTarget();
+                        }
+                        if (blackHoleData.ChangeTarget)
+                        {
+                            pTechno.Ref.SetTarget(pBlackHole.Pointer.Convert<AbstractClass>());
+                        }
+                        // 失控设置
+                        if (!IsBuilding && blackHoleData.OutOfControl)
+                        {
+                            lostControl = true;
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 失去控制");
+                            ClearTarget();
+                            pTechno.Ref.Base.Deselect();
+                            pMission.Ref.ForceMission(Mission.None);
+                            pMission.Ref.QueueMission(Mission.Sleep, false);
+                            // pTechno.Convert<FootClass>().Ref.IsAttackedByLocomotor = true;
                         }
                     }
                 }
@@ -213,8 +241,17 @@ namespace Extension.Script
 
         public void CancelBlackHole()
         {
+            // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 不再受 黑洞 {pBlackHole.Pointer} 的影响");
             if (captureByBlackHole && !IsBuilding && !pTechno.IsDeadOrInvisible())
             {
+                Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
+                Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                // 恢复可控制
+                if (lostControl)
+                {
+                    pMission.Ref.ForceMission(Mission.Guard);
+                    // pTechno.Convert<FootClass>().Ref.IsAttackedByLocomotor = false;
+                }
                 // 检查是否在悬崖上摔死
                 bool canPass = true;
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
@@ -236,8 +273,14 @@ namespace Extension.Script
                     // 飞行器在天上，免死
                     // Logger.Log($"{Game.CurrentFrame} 飞机 恢复行动");
                     pTechno.Ref.SetDestination(pCell);
-                    pTechno.Convert<MissionClass>().Ref.ForceMission(Mission.None);
-                    pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Move, false);
+                    if (pTechno.Ref.Target.IsNull)
+                    {
+                        pMission.Ref.QueueMission(Mission.Guard, false);
+                    }
+                    else
+                    {
+                        pMission.Ref.QueueMission(Mission.Attack, false);
+                    }
                 }
                 else
                 {
@@ -252,10 +295,10 @@ namespace Extension.Script
                     }
                     if (canPass)
                     {
+                        pTechno.Ref.Base.MarkAllOccupationBits(targetPos);
                         if (height > 0)
                         {
                             // 离地
-                            pTechno.Ref.Base.UnmarkAllOccupationBits(targetPos);
                             pTechno.Ref.Base.IsFallingDown = true;
                             drop = true;
                         }
@@ -280,7 +323,15 @@ namespace Extension.Script
             }
             this.captureByBlackHole = false;
             this.blackHoleData = null;
+            this.lostControl = false;
             this.pBlackHole.Pointer = IntPtr.Zero;
+        }
+
+        private bool OutOfBlackHole(BlackHoleState blackHoleState)
+        {
+            CoordStruct taregtPos = pBlackHole.Ref.Base.GetCoords();
+            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+            return blackHoleState.IsOutOfRange(taregtPos.DistanceFrom(sourcePos));
         }
 
     }

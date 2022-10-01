@@ -112,6 +112,12 @@ namespace Extension.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDeadOrInvisible(this Pointer<ObjectClass> pObject)
+        {
+            return pObject.IsDead() || pObject.IsInvisible();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDeadOrInvisibleOrCloaked(this Pointer<TechnoClass> pTechno)
         {
             return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();

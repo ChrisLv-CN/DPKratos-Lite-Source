@@ -15,7 +15,7 @@ namespace Extension.Utilities
 
     public static partial class ExHelper
     {
-#region TechnoClass
+        #region TechnoClass
         // 泛型
         public static T GetComponent<T>(this Pointer<TechnoClass> pTechno) where T : Component
         {
@@ -74,9 +74,9 @@ namespace Extension.Utilities
             technoStatus = null;
             return pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out technoStatus);
         }
-#endregion
+        #endregion
 
-#region BulletClass
+        #region BulletClass
         // 泛型
         public static T GetComponent<T>(this Pointer<BulletClass> pBullet) where T : Component
         {
@@ -135,41 +135,28 @@ namespace Extension.Utilities
             bulletStatus = null;
             return pObject.CastToBullet(out Pointer<BulletClass> pBullet) && pBullet.TryGetStatus(out bulletStatus);
         }
-#endregion
+        #endregion
 
-#region 黑洞
-        public static bool BlackHoleStateDone(this Pointer<ObjectClass> pObject)
-        {
-            return pObject.IsDead() || pObject.IsInvisible()
-                || !((pObject.TryGetTechnoStatus(out TechnoStatusScript technoStatus) && technoStatus.BlackHoleState.IsActive())
-                    || (pObject.TryGetBulletStatus(out BulletStatusScript bulletStatus) && bulletStatus.BlackHoleState.IsActive()));
-        }
-
+        #region 黑洞
         public static bool TryGetBlackHoleState(this Pointer<ObjectClass> pObject, out BlackHoleState blackHoleState)
         {
             blackHoleState = null;
-            if (!pObject.IsDead() && pObject.IsInvisible())
+            if (!pObject.IsDeadOrInvisible())
             {
-                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                if (pObject.TryGetTechnoStatus(out TechnoStatusScript technoStatus))
                 {
-                    if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus))
-                    {
-                        blackHoleState = technoStatus.BlackHoleState;
-                        return true;
-                    }
+                    blackHoleState = technoStatus.BlackHoleState;
+                    return true;
                 }
-                else
+                else if (pObject.TryGetBulletStatus(out BulletStatusScript bulletStatus))
                 {
-                    if (pObject.Convert<BulletClass>().TryGetStatus(out BulletStatusScript bulletStatus))
-                    {
-                        blackHoleState = bulletStatus.BlackHoleState;
-                        return true;
-                    }
+                    blackHoleState = bulletStatus.BlackHoleState;
+                    return true;
                 }
             }
             return false;
         }
-#endregion
+        #endregion
 
     }
 

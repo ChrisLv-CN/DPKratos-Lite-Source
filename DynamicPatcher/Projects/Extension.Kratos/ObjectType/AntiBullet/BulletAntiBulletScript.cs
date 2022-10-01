@@ -53,12 +53,10 @@ namespace Extension.Script
             if (pWH.Ref.CellSpread > 0)
             {
                 // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 爆炸，检索范围内的抛射体，检索范围 {pWH.Ref.CellSpread}");
-                ExHelper.FindBullet(bulletStatus.pSourceHouse, location.Data, pWH.Ref.CellSpread, (pTarget) =>
-                {
-                    // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 搜索到范围内的一个抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
+                BulletClass.Array.FindObject((pTarget) => {
                     CanAffectAndDamageBullet(pTarget, pWH);
                     return false;
-                });
+                }, location.Data, pWH.Ref.CellSpread, bulletStatus.pSourceHouse);
             }
             else
             {

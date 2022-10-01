@@ -125,7 +125,7 @@ namespace Extension.Utilities
         public static int CountAircraft(Pointer<HouseClass> pHouse, List<String> padList)
         {
             int count = 0;
-            FindAircraft(pHouse, (pTarget) =>
+            AircraftClass.Array.FindObject((pTarget) =>
             {
                 if (padList.Contains(pTarget.Ref.Type.Ref.Base.Base.Base.ID)
                     && pTarget.Ref.Type.Ref.AirportBound)
@@ -133,7 +133,7 @@ namespace Extension.Utilities
                     count++;
                 }
                 return false;
-            });
+            }, default, 0, pHouse);
             return count;
         }
 

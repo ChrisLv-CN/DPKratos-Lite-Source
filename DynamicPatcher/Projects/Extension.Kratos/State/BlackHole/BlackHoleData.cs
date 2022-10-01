@@ -56,11 +56,21 @@ namespace Extension.Ext
         public string DamageWH;
         public bool AllowFallingDestroy;
         public int FallingDestroyHeight;
+        public bool AllowDamageTechno;
+        public bool AllowDamageBullet;
+
+        public bool ClearTarget;
+        public bool ChangeTarget;
+        public bool OutOfControl;
 
         public string[] AffectTypes;
         public string[] NotAffectTypes;
 
         public bool AffectTechno;
+        public bool AffectBuilding;
+        public bool AffectInfantry;
+        public bool AffectUnit;
+        public bool AffectAircraft;
 
         public bool AffectBullet;
         public bool AffectMissile;
@@ -88,11 +98,21 @@ namespace Extension.Ext
             this.DamageWH = null;
             this.AllowFallingDestroy = false;
             this.FallingDestroyHeight = 2 * Game.LevelHeight;
+            this.AllowDamageTechno = true;
+            this.AllowDamageBullet = false;
+
+            this.ClearTarget = false;
+            this.ChangeTarget = false;
+            this.OutOfControl = false;
 
             this.AffectTypes = null;
             this.NotAffectTypes = null;
 
             this.AffectTechno = false;
+            this.AffectBuilding = true;
+            this.AffectInfantry = true;
+            this.AffectUnit = true;
+            this.AffectAircraft = true;
 
             this.AffectBullet = true;
             this.AffectMissile = true;
@@ -141,17 +161,34 @@ namespace Extension.Ext
             this.AllowFallingDestroy = reader.Get(TITLE + "AllowFallingDestroy", this.AllowFallingDestroy);
             this.FallingDestroyHeight = reader.Get(TITLE + "FallingDestroyHeight", this.FallingDestroyHeight);
 
+            this.AllowDamageTechno = reader.Get(TITLE + "AllowDamageTechno", this.AllowDamageTechno);
+            this.AllowDamageBullet = reader.Get(TITLE + "AllowDamageBullet", this.AllowDamageBullet);
+            this.ClearTarget = reader.Get(TITLE + "ClearTarget", this.ClearTarget);
+            this.ChangeTarget = reader.Get(TITLE + "ChangeTarget", this.ChangeTarget);
+            this.OutOfControl = reader.Get(TITLE + "OutOfControl", this.OutOfControl);
+
             this.AffectTypes = reader.GetList<string>(TITLE + "AffectTypes", this.AffectTypes);
             this.NotAffectTypes = reader.GetList<string>(TITLE + "NotAffectTypes", this.NotAffectTypes);
 
 
             this.AffectTechno = reader.Get(TITLE + "AffectTechno", this.AffectTechno);
+            this.AffectBuilding = reader.Get(TITLE + "AffectBuilding", this.AffectBuilding);
+            this.AffectInfantry = reader.Get(TITLE + "AffectInfantry", this.AffectInfantry);
+            this.AffectUnit = reader.Get(TITLE + "AffectUnit", this.AffectUnit);
+            this.AffectAircraft = reader.Get(TITLE + "AffectAircraft", this.AffectAircraft);
+            if (!AffectBuilding && !AffectInfantry && !AffectUnit && !AffectAircraft)
+            {
+                this.AffectTechno = false;
+            }
 
+            this.AffectBullet = reader.Get(TITLE + "AffectBullet", this.AffectBullet);
             this.AffectMissile = reader.Get(TITLE + "AffectMissile", this.AffectMissile);
             this.AffectTorpedo = reader.Get(TITLE + "AffectTorpedo", this.AffectTorpedo);
             this.AffectCannon = reader.Get(TITLE + "AffectCannon", this.AffectCannon);
-
-            this.AffectBullet = this.AffectMissile || this.AffectTorpedo || this.AffectCannon;
+            if (!AffectMissile && !AffectCannon)
+            {
+                this.AffectBullet = false;
+            }
 
             this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
             this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
@@ -159,13 +196,52 @@ namespace Extension.Ext
             this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
         }
 
-        public bool CanAffectType(string ID)
+        private bool CanAffectType(string ID)
         {
             if (null != NotAffectTypes && NotAffectTypes.Length > 0 && NotAffectTypes.Contains(ID))
             {
                 return false;
             }
             return null == AffectTypes || AffectTypes.Length <= 0 || AffectTypes.Contains(ID);
+        }
+
+        public bool CanAffectType(Pointer<BulletClass> pBullet)
+        {
+            if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
+            {
+                if (pBullet.AmIArcing())
+                {
+                    return AffectCannon;
+                }
+                else
+                {
+                    if (pBullet.Ref.Type.Ref.Level)
+                    {
+                        return AffectTorpedo;
+                    }
+                    return AffectMissile;
+                }
+            }
+            return false;
+        }
+
+        public bool CanAffectType(Pointer<TechnoClass> pTechno)
+        {
+            if (CanAffectType(pTechno.Ref.Type.Ref.Base.Base.ID))
+            {
+                switch (pTechno.Ref.Base.Base.WhatAmI())
+                {
+                    case AbstractType.Building:
+                        return AffectBuilding;
+                    case AbstractType.Infantry:
+                        return AffectInfantry;
+                    case AbstractType.Unit:
+                        return AffectUnit;
+                    case AbstractType.Aircraft:
+                        return AffectAircraft;
+                }
+            }
+            return false;
         }
 
         public int GetCaptureSpeed(double weight)

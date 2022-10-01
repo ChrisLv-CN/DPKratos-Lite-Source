@@ -95,21 +95,31 @@ namespace Extension.Script
         /// 对抛射体造成伤害
         /// </summary>
         /// <param name="damageData"></param>
-        /// <param name="Interceptable"></param>
-        public void TakeDamage(BulletDamageData damageData, bool Interceptable = false)
+        /// <param name="checkInterceptable"></param>
+        public void TakeDamage(BulletDamageData damageData, bool checkInterceptable = false)
         {
-            if (null != damageData && null != LifeData && (Interceptable || LifeData.Interceptable))
+            if (null != damageData && null != LifeData)
             {
                 // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 收到伤害{damageData}");
-                if (damageData.Eliminate)
+                TakeDamage(damageData.Damage, damageData.Eliminate, damageData.Harmless, checkInterceptable);
+            }
+        }
+
+        public void TakeDamage(int damage, bool eliminate, bool harmless, bool checkInterceptable = false)
+        {
+            if (null != LifeData && (checkInterceptable || LifeData.Interceptable))
+            {
+                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 收到伤害{damageData}");
+                if (eliminate)
                 {
-                    LifeData.Detonate(damageData.Harmless);
+                    LifeData.Detonate(harmless);
                 }
                 else
                 {
-                    LifeData.TakeDamage(damageData.Damage, damageData.Harmless);
+                    LifeData.TakeDamage(damage, harmless);
                 }
             }
+
         }
 
     }

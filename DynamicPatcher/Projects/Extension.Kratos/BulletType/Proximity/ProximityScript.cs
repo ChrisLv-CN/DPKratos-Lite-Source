@@ -166,10 +166,10 @@ namespace Extension.Script
 
                         // BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
 
-                        // 获取这个格子上的所有对象，不包括飞机
+                        // 获取这个格子上的所有对象
                         HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
 
-                        // 搜索范围加大一格，搜索需要排除建筑
+                        // 搜索范围加大一格，搜索需要排除四周格子上的建筑，只获取当前格子上找到的建筑
                         // 获取范围内的所有对象，不包括飞行器
                         CellSpreadEnumerator enumerator = new CellSpreadEnumerator((uint)cellSpread);
                         do
@@ -179,14 +179,15 @@ namespace Extension.Script
                             if (MapClass.Instance.TryGetCellAt(cur + offset, out Pointer<CellClass> pCheckCell))
                             {
                                 // BulletEffectHelper.RedCell(pCheckCell.Ref.Base.GetCoords(), 128, 1, 30);
-                                ExHelper.FindTechnoInCell(pCheckCell, (pTarget) =>
+                                pCheckCell.FindTechnoInCell((pTarget) =>
                                 {
                                     // 检查死亡和发射者和替身
                                     if (!IsDeadOrStand(pTarget))
                                     {
-                                        // 过滤建筑，建筑只查当前格
+                                        // 过滤周边格子上的建筑，但获取当前格子上的建筑
                                         if (pTarget.Ref.Base.Base.WhatAmI() != AbstractType.Building || pCheckCell == pCell)
                                         {
+                                            // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的对象[{pTarget.Ref.Type.Ref.Base.Base.ID}]，加入列表");
                                             pTechnoSet.Add(pTarget);
                                         }
                                     }
@@ -196,26 +197,28 @@ namespace Extension.Script
                                 Pointer<TechnoClass> pJJ = pCheckCell.Ref.Jumpjet.Convert<TechnoClass>();
                                 if (!IsDeadOrStand(pJJ))
                                 {
+                                    // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
                                     pTechnoSet.Add(pJJ);
                                 }
                             }
                         } while (enumerator.MoveNext());
 
-                        // 获取所有在天上的玩意儿，JJ，飞起来的坦克，包含路过的飞机
-                        ExHelper.FindTechno(IntPtr.Zero, (pTarget) =>
-                        {
-                            if (!IsDeadOrStand(pTarget) && pTarget.Ref.Base.GetHeight() > 0)
+                        // 获取所有在天上的玩意儿，飞起来的步兵坦克，包含路过的飞机
+                        ExHelper.FindFoot((pTarget) => {
+                            Pointer<TechnoClass> pTechno = pTarget.Convert<TechnoClass>();
+                            if (!IsDeadOrStand(pTechno) && pTechno.Ref.Base.GetHeight() > 0)
                             {
                                 // 消去高度差，检查和当前坐标距离在cellSpread格范围内
-                                CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
+                                CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
                                 targetPos.Z = cellPos.Z;
                                 if (targetPos.DistanceFrom(cellPos) <= cellSpread * 256)
                                 {
-                                    pTechnoSet.Add(pTarget);
+                                    // Logger.Log($"{Game.CurrentFrame} 检索到当前范围{cellSpread}格内的坦克 [{pTechno.Ref.Type.Ref.Base.Base.ID}]，加入列表");
+                                    pTechnoSet.Add(pTechno);
                                 }
                             }
                             return false;
-                        }, true, true, true, true);
+                        });
 
                         // 筛选并处理找到的对象
                         foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
@@ -234,18 +237,6 @@ namespace Extension.Script
                                 // 检查建筑在范围内
                                 Pointer<BuildingClass> pBuilding = pTarget.Convert<BuildingClass>();
                                 hit = pBuilding.CanHit(sourcePos.Z, proximityData.Blade, proximityData.ZOffset);
-                                // int height = pBuilding.Ref.Type.Ref.Height;
-                                // // Logger.Log("Building Height {0}", height);
-                                // if (proximityData.Blade)
-                                // {
-                                //     // 无视高度，格子内的建筑视为命中
-                                //     hit = true;
-                                // }
-                                // else
-                                // {
-                                //     // 建筑只获取抛射体经过的当前格，所以判断高度在范围内即可算命中
-                                //     hit = sourcePos.Z <= (targetPos.Z + height * Game.LevelHeight + proximityData.ZOffset);
-                                // }
                                 // Logger.Log($"{Game.CurrentFrame} 碰触建筑 {pBuilding}");
                                 // 检查建筑是否被炸过
                                 if (hit && proximityData.PenetrationBuildingOnce)

@@ -42,10 +42,9 @@ namespace Extension.Script
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 // find candidate
                 Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>> candidates = new Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>>();
-                ExHelper.FindTechno(pHouse, (pTarget) =>
+                TechnoClass.Array.FindObject((pTarget) =>
                 {
                     string type = pTarget.Ref.Type.Ref.Base.Base.ID;
-
 
                     if ((noLimit || data.Types.Contains(type))
                         && (data.Force ? true : AttackBeaconState.RecruitMissions.Contains(pTarget.Ref.Base.GetCurrentMission())))
@@ -81,7 +80,7 @@ namespace Extension.Script
                         }
                     }
                     return false;
-                }, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                }, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
 
                 Pointer<AbstractClass> pBeacon = pTechno.Convert<AbstractClass>();
                 if (data.TargetToCell)

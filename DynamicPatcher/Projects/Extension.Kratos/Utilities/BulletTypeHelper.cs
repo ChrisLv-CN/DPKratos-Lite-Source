@@ -78,6 +78,19 @@ namespace Extension.Utilities
             return IntPtr.Zero;
         }
 
+        public static unsafe bool AmIArcing(this Pointer<BulletClass> pBullet)
+        {
+            return pBullet.Ref.Type.Ref.Arcing || pBullet.Ref.Type.Ref.ROT <= 0;
+        }
 
+        public static unsafe bool AmIMissile(this Pointer<BulletClass> pBullet)
+        {
+            return !pBullet.Ref.Type.Ref.Arcing && pBullet.Ref.Type.Ref.ROT > 1;
+        }
+
+        public static unsafe bool AmIRocket(this Pointer<BulletClass> pBullet)
+        {
+            return !pBullet.Ref.Type.Ref.Arcing && pBullet.Ref.Type.Ref.ROT == 1;
+        }
     }
 }

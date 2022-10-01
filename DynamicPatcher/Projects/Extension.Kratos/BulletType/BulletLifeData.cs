@@ -13,6 +13,7 @@ namespace Extension.Ext
     public class BulletLifeData
     {
         public bool Interceptable; // 可被伤害
+        public int Strength; // 自定义血量
 
         public int Health; // 血量
         public bool IsDetonate; // 已损毁
@@ -23,6 +24,7 @@ namespace Extension.Ext
         public BulletLifeData(int health)
         {
             this.Interceptable = false;
+            this.Strength = -1;
 
             this.Health = health;
             this.IsDetonate = false;
@@ -33,6 +35,11 @@ namespace Extension.Ext
         public void Read(ISectionReader reader)
         {
             this.Interceptable = reader.Get("Interceptable", this.Interceptable);
+            this.Strength = reader.Get("Strength", this.Strength);
+            if (Strength > 0)
+            {
+                this.Health = this.Strength;
+            }
         }
 
         /// <summary>
