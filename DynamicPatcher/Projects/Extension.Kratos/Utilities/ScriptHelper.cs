@@ -13,8 +13,39 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
-    public static partial class ExHelper
+    public static class ScriptHelper
     {
+        #region AnimClass
+        // 泛型
+        public static T GetComponent<T>(this Pointer<AnimClass> pAnim) where T : Component
+        {
+            if (!pAnim.IsNull)
+            {
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                if (null != ext)
+                {
+                    return ext.GameObject.GetComponent<T>();
+                }
+            }
+            return null;
+        }
+        public static bool TryGetComponent<T>(this Pointer<AnimClass> pAnim, out T script) where T : Component
+        {
+            return null != (script = pAnim.GetComponent<T>());
+        }
+
+        // 便利
+        public static AnimStatusScript GetStatus(this Pointer<AnimClass> pAnim)
+        {
+            return pAnim.GetComponent<AnimStatusScript>();
+        }
+
+        public static bool TryGetStatus(this Pointer<AnimClass> pAnim, out AnimStatusScript bulletStatus)
+        {
+            return pAnim.TryGetComponent<AnimStatusScript>(out bulletStatus);
+        }
+        #endregion
+
         #region TechnoClass
         // 泛型
         public static T GetComponent<T>(this Pointer<TechnoClass> pTechno) where T : Component

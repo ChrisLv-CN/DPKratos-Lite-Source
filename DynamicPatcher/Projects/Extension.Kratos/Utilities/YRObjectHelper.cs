@@ -22,7 +22,25 @@ namespace Extension.Utilities
         NotOwner = ALLIES | ENEMIES,
         All = OWNER | ALLIES | ENEMIES
     }
-
+    public class RelationParser : KEnumParser<Relation>
+    {
+        public override bool ParseInitials(string t, ref Relation buffer)
+        {
+            switch(t)
+            {
+                case "O":
+                    buffer = Relation.OWNER;
+                    return true;
+                case "A":
+                    buffer = Relation.Team;
+                    return true;
+                case "E":
+                    buffer = Relation.ENEMIES;
+                    return true;
+            }
+            return false;
+        }
+    }
 
     public static partial class ExHelper
     {
@@ -119,109 +137,6 @@ namespace Extension.Utilities
             }
             return defVal;
         }
-
-        /*
-        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<ObjectClass> pObject)
-        {
-            switch (pObject.Ref.Base.WhatAmI())
-            {
-                case AbstractType.Building:
-                case AbstractType.Infantry:
-                case AbstractType.Unit:
-                case AbstractType.Aircraft:
-                    pAnim.SetAnimOwner(pObject.Convert<TechnoClass>());
-                    break;
-                case AbstractType.Bullet:
-                    pAnim.SetAnimOwner(pObject.Convert<BulletClass>());
-                    break;
-            }
-        }
-
-        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno)
-        {
-            pAnim.Ref.Owner = pTechno.Ref.Owner;
-        }
-
-        public static void SetAnimOwner(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet)
-        {
-            if (pBullet.TryGetOwnerHouse(out Pointer<HouseClass> pHouse))
-            {
-                pAnim.Ref.Owner = pHouse;
-            }
-        }
-
-        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<ObjectClass> pObject)
-        {
-            switch (pObject.Ref.Base.WhatAmI())
-            {
-                case AbstractType.Building:
-                case AbstractType.Infantry:
-                case AbstractType.Unit:
-                case AbstractType.Aircraft:
-                    pAnim.SetCreater(pObject.Convert<TechnoClass>());
-                    break;
-                case AbstractType.Bullet:
-                    pAnim.SetCreater(pObject.Convert<BulletClass>());
-                    break;
-            }
-        }
-
-        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno)
-        {
-            pAnim.SetCreater(pTechno, out AnimExt animExt);
-        }
-
-        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<TechnoClass> pTechno, out AnimExt ext)
-        {
-            ext = null;
-            if (!pTechno.IsNull && !pTechno.IsDead())
-            {
-                ext = AnimExt.ExtMap.Find(pAnim);
-                if (null != ext && ext.Type.KillByCreater)
-                {
-                    ext.Creater.Pointer = pTechno;
-                }
-            }
-        }
-
-        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet)
-        {
-            pAnim.SetCreater(pBullet, out AnimExt animExt);
-        }
-
-        public static void SetCreater(this Pointer<AnimClass> pAnim, Pointer<BulletClass> pBullet, out AnimExt ext)
-        {
-            Pointer<TechnoClass> pCreater = IntPtr.Zero;
-            ext = null;
-            if (!(pCreater = pBullet.Ref.Owner).IsNull && !pCreater.IsDead())
-            {
-                ext = AnimExt.ExtMap.Find(pAnim);
-                if (null != ext && ext.Type.KillByCreater)
-                {
-                    ext.Creater.Pointer = pCreater;
-                }
-            }
-        }
-
-        public static void Show(this Pointer<AnimClass> pAnim, Relation visibility)
-        {
-            AnimExt ext = AnimExt.ExtMap.Find(pAnim);
-            if (null != ext)
-            {
-                ext.UpdateVisibility(visibility);
-            }
-            else
-            {
-                pAnim.Ref.Invisible = false;
-            }
-        }
-
-        public static void Hidden(this Pointer<AnimClass> pAnim)
-        {
-            pAnim.Ref.Invisible = true;
-        }
-        */
-
 
     }
 
