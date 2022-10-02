@@ -73,6 +73,8 @@ namespace Extension.Ext
             BlackHole data = GetData();
             if (null != data && data.Range > 0)
             {
+                Reload(data.Rate);
+
                 CoordStruct location = pBlackHole.Ref.Base.GetCoords();
                 if (Data.AffectBullet)
                 {
@@ -80,14 +82,13 @@ namespace Extension.Ext
 
                     BulletClass.Array.FindObject((pTarget) =>
                     {
-                        string id = pTarget.Ref.Type.Ref.Base.Base.ID;
                         // 过滤指定类型
                         if (pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
                             && pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate
-                        // && !bulletStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
+                            && (Data.AffectBlackHole || !bulletStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
                         )
                         {
-                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{id}]{pTarget}");
+                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
                             bulletStatus.SetBlackHole(pBlackHole, Data);
                         }
                         return false;
@@ -135,10 +136,10 @@ namespace Extension.Ext
                     // 筛查所有的单位，并设置黑洞
                     foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
                     {
-                        if (pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
+                        if (!pTarget.IsDeadOrInvisible() && pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
                             && (Data.Weight <= 0 || pTarget.Ref.Type.Ref.Weight <= Data.Weight) // 排除质量较大的对象
                             && pTarget.TryGetStatus(out TechnoStatusScript targetStatus)
-                        // && !targetStatus.BlackHoleState.IsActive() // 黑洞不能捕获另一个黑洞
+                            && (Data.AffectBlackHole || !targetStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
@@ -146,8 +147,6 @@ namespace Extension.Ext
                         }
                     }
                 }
-
-                Reload(data.Rate);
             }
         }
 

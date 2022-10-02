@@ -234,9 +234,12 @@ namespace Extension.Script
 
         public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)
         {
-            this.pBlackHole.Pointer = pBlackHole;
-            this.blackHoleData = blackHoleData;
-            this.captureByBlackHole = true;
+            if (!this.captureByBlackHole || null == this.blackHoleData || this.blackHoleData.Weight <= blackHoleData.Weight)
+            {
+                this.pBlackHole.Pointer = pBlackHole;
+                this.blackHoleData = blackHoleData;
+                this.captureByBlackHole = true;
+            }
         }
 
         public void CancelBlackHole()

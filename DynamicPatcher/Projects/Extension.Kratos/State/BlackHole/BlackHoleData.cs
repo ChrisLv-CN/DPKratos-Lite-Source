@@ -50,6 +50,7 @@ namespace Extension.Ext
 
         public double Weight;
         public int CaptureSpeed;
+        public bool AllowEscape;
 
         public int Damage;
         public int DamageDelay;
@@ -63,6 +64,7 @@ namespace Extension.Ext
         public bool ChangeTarget;
         public bool OutOfControl;
 
+        public bool AffectBlackHole;
         public string[] AffectTypes;
         public string[] NotAffectTypes;
 
@@ -92,6 +94,7 @@ namespace Extension.Ext
 
             this.Weight = -1;
             this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
+            this.AllowEscape = false;
 
             this.Damage = 0;
             this.DamageDelay = 0;
@@ -105,6 +108,7 @@ namespace Extension.Ext
             this.ChangeTarget = false;
             this.OutOfControl = false;
 
+            this.AffectBlackHole = true;
             this.AffectTypes = null;
             this.NotAffectTypes = null;
 
@@ -154,6 +158,7 @@ namespace Extension.Ext
             {
                 this.CaptureSpeed = (int)(speed * 2.55);
             }
+            this.AllowEscape = reader.Get(TITLE + "AllowEscape", this.AllowEscape);
 
             this.Damage = reader.Get(TITLE + "Damage", this.Damage);
             this.DamageDelay = reader.Get(TITLE + "Damage.Delay", this.DamageDelay);
@@ -167,6 +172,7 @@ namespace Extension.Ext
             this.ChangeTarget = reader.Get(TITLE + "ChangeTarget", this.ChangeTarget);
             this.OutOfControl = reader.Get(TITLE + "OutOfControl", this.OutOfControl);
 
+            this.AffectBlackHole = reader.Get(TITLE + "AffectBlackHole", this.AffectBlackHole);
             this.AffectTypes = reader.GetList<string>(TITLE + "AffectTypes", this.AffectTypes);
             this.NotAffectTypes = reader.GetList<string>(TITLE + "NotAffectTypes", this.NotAffectTypes);
 

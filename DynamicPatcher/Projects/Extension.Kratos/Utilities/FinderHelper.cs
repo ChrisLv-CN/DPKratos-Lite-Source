@@ -72,7 +72,7 @@ namespace Extension.Utilities
                 Pointer<T> pT = array.Get(i);
                 // 分离类型
                 Pointer<ObjectClass> pObject = pT.Convert<ObjectClass>();
-                if (!pObject.IsDeadOrInvisible())
+                if (!pObject.IsNull)
                 {
                     CoordStruct targetLocation = pObject.Ref.Base.GetCoords();
                     if (spread == 0 || location == default || targetLocation.DistanceFrom(location) <= dist)

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System;
 using System.Reflection;
 using DynamicPatcher;
@@ -22,6 +23,8 @@ namespace Extension.Ext
             }
         }
 
+        public const string Label = "DPKratos";
+
         private static string version;
         public static string Version
         {
@@ -45,33 +48,75 @@ namespace Extension.Ext
         }
 
         private static bool disableVersionText;
+        private static bool disableAntiModifyMO;
 
         private static TimerStruct showTextTimer = new TimerStruct(150);
 
+        private static int antiModifyMessageIndex = 7;
+        private static TimerStruct antiModifyDelay;
+
         public static void SendActiveMessage(object sender, EventArgs args)
         {
-            string label = "DP-Kratos";
             string message = "build " + Version + " is active, have fun.";
-            MessageListClass.Instance.PrintMessage(label, message, ColorSchemeIndex.Red, 150, true);
+            MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 150, true);
             EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.GScreenRenderEvent, SendActiveMessage);
+            if (!disableAntiModifyMO && CCINIClass.INI_Ruels_FileName == "RULESMO.INI")
+            {
+                EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, IAmModifyMO);
+            }
         }
 
         public static void DrawVersionText(object sender, EventArgs args)
         {
-            string text = "DP-Kratos build " + Version;
+            string text = Label + " build " + Version;
             RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
             RectangleStruct sidebarRect = Surface.Sidebar.Ref.GetRect();
             int x = sidebarRect.Width / 2 - textRect.Width / 2;
             int y = sidebarRect.Height - textRect.Height;
             Point2D pos = new Point2D(x, y);
-            
+
             Surface.Sidebar.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
             // Surface.Current.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
             // Surface.Primary.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
-            
+
             if (disableVersionText && showTextTimer.Expired())
             {
                 EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.SidebarRenderEvent, DrawVersionText);
+            }
+        }
+
+        public static unsafe void IAmModifyMO(object sender, EventArgs args)
+        {
+            string message;
+            switch (antiModifyMessageIndex)
+            {
+                case 7:
+                    message = "Detected that you are modifying \"Mental Omega\" without authorization.";
+                    break;
+                case 6:
+                    message = "Self-Destruction countdown...";
+                    break;
+                default:
+                    message = antiModifyMessageIndex.ToString();
+                    break;
+            }
+            if (antiModifyDelay.Expired())
+            {
+                antiModifyDelay.Start(120);
+                if (antiModifyMessageIndex >= 0)
+                {
+                    MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, -1, true);
+                }
+                if (antiModifyMessageIndex == 0)
+                {
+                    MessageListClass.Instance.PrintMessage(Label, "KABOOOOOOOOOOOOOOM!!!", ColorSchemeIndex.Red, -1, true);
+                }
+                antiModifyMessageIndex--;
+            }
+            if (antiModifyMessageIndex < 0)
+            {
+                var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
+                func(0x7DC720, IntPtr.Zero);
             }
         }
     }

@@ -107,6 +107,7 @@ namespace Extension.Script
                 {
                     // Logger.Log($"{Game.CurrentFrame} - 距离目标太近，直接引爆，height = {pBullet.Ref.Base.GetHeight()} sourcePos = {sourcePos}, velocity = {pBullet.Ref.Velocity}, targetPos = {targetPos}");
                     pBullet.Ref.Detonate(targetPos);
+                    pBullet.Ref.Base.Remove();
                     pBullet.Ref.Base.UnInit();
                 }
             }

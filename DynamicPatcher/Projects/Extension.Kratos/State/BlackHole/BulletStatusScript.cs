@@ -52,60 +52,137 @@ namespace Extension.Script
                 }
                 else
                 {
-                    CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                    CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
-                    // 获取偏移量
-                    targetPos += blackHoleData.Offset;
-                    // 获取偏移量
-                    targetPos += blackHoleData.Offset;
-                    // 获取捕获速度
-                    int speed = blackHoleData.GetCaptureSpeed(1);
-                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
-                    CoordStruct nextPosFLH = new CoordStruct(speed, 0, 0);
-                    DirStruct nextPosDir = ExHelper.Point2Dir(sourcePos, targetPos);
-                    CoordStruct nextPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
-                    // 计算Z值
-                    int deltaZ = sourcePos.Z - targetPos.Z;
-                    if (deltaZ < 0)
+                    CoordStruct blackHolePos = pBlackHole.Ref.Base.GetCoords();
+                    if (blackHoleData.ChangeTarget)
                     {
-                        // 目标点在上方
-                        int offset = -deltaZ > 20 ? 20 : -deltaZ;
-                        nextPos.Z += offset;
+                        pBullet.Ref.SetTarget(pBlackHole.Pointer.Convert<AbstractClass>());
+                        pBullet.Ref.TargetCoords = blackHolePos;
                     }
-                    else if (deltaZ > 0)
+                    // 加上偏移值
+                    blackHolePos += blackHoleData.Offset;
+                    // 获取一个从黑洞位置朝向预设目标位置的向量，该向量控制导弹的弹体朝向
+                    if (pBullet.AmIArcing())
                     {
-                        // 目标点在下方
-                        int offset = deltaZ > 20 ? 20 : deltaZ;
-                        nextPos.Z -= offset;
+                        // 从当前位置朝向黑洞
+                        CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                        pBullet.Ref.Velocity = ExHelper.GetBulletVelocity(sourcePos, blackHolePos);
                     }
+                    else
+                    {
+                        // 从黑洞朝向预设目标位置
+                        pBullet.Ref.Velocity = ExHelper.GetBulletVelocity(blackHolePos, pBullet.Ref.TargetCoords);
+                    }
+                    // 黑洞伤害
+                    if (null != blackHoleData && blackHoleData.AllowDamageBullet && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
+                    {
+                        if (blackHoleDamageDelay.Expired())
+                        {
+                            blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
+                            // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
+                            TakeDamage(blackHoleData.Damage, false, false, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        public override void OnLateUpdate()
+        {
+            if (CaptureByBlackHole)
+            {
+                // 强行移动导弹的位置
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
+                // 获取偏移量
+                targetPos += blackHoleData.Offset;
+                // 获取捕获速度
+                int speed = blackHoleData.GetCaptureSpeed(1);
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
+                CoordStruct nextPosFLH = new CoordStruct(speed, 0, 0);
+                DirStruct nextPosDir = ExHelper.Point2Dir(sourcePos, targetPos);
+                CoordStruct nextPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
+                // 计算Z值
+                int deltaZ = sourcePos.Z - targetPos.Z;
+                if (deltaZ < 0)
+                {
+                    // 目标点在上方
+                    int offset = -deltaZ > 20 ? 20 : -deltaZ;
+                    nextPos.Z += offset;
+                }
+                else if (deltaZ > 0)
+                {
+                    // 目标点在下方
+                    int offset = deltaZ > 20 ? 20 : deltaZ;
+                    nextPos.Z -= offset;
+                }
+                // 抛射体撞到地面
+                bool canMove = pBullet.Ref.Base.GetHeight() > 0;
+                // 检查悬崖
+                if (canMove && MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
+                {
+                    CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
+                    if (cellPos.Z > nextPos.Z)
+                    {
+                        // 沉入地面
+                        nextPos.Z = cellPos.Z;
+                        // 检查悬崖
+                        switch (pTargetCell.Ref.GetTileType())
+                        {
+                            case TileType.Cliff:
+                            case TileType.DestroyableCliff:
+                                // 悬崖上可以往悬崖下移动
+                                canMove = deltaZ > 0;
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")}");
+                                break;
+                        }
+                    }
+                    // 检查建筑
+                    Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
+                    if (!pBuilding.IsNull)
+                    {
+                        canMove = !pBuilding.CanHit(nextPos.Z);
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")}");
+                    }
+                }
+                if (!canMove)
+                {
+                    // 原地爆炸
+                    pBullet.Ref.Detonate(sourcePos);
+                    pBullet.Ref.Base.Remove();
+                    pBullet.Ref.Base.UnInit();
+                }
+                else
+                {
                     // 被黑洞吸走
                     pBullet.Ref.Base.SetLocation(nextPos);
-                }
-                // 黑洞伤害
-                if (null != blackHoleData && blackHoleData.AllowDamageBullet && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
-                {
-                    if (blackHoleDamageDelay.Expired())
-                    {
-                        blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
-                        // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
-                        TakeDamage(blackHoleData.Damage, false, false, true);
-                    }
                 }
             }
         }
 
         public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)
         {
-            this.CaptureByBlackHole = true;
-            this.pBlackHole.Pointer = pBlackHole;
-            this.blackHoleData = blackHoleData;
+            if (!this.CaptureByBlackHole || null == this.blackHoleData || blackHoleData.Weight <= 0 || this.blackHoleData.Weight <= blackHoleData.Weight)
+            {
+                this.CaptureByBlackHole = true;
+                this.pBlackHole.Pointer = pBlackHole;
+                this.blackHoleData = blackHoleData;
+            }
         }
 
         public void CancelBlackHole()
         {
             if (CaptureByBlackHole && !pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
+                pBullet.Ref.SourceCoords = pBullet.Ref.Base.Base.GetCoords();
                 // Arcing摔地上，导弹不管
+                if (pBullet.AmIArcing())
+                {
+                    pBullet.Ref.Velocity = default;
+                }
+                else
+                {
+                    pBullet.RecalculateBulletVelocity();
+                }
             }
             this.CaptureByBlackHole = false;
             this.blackHoleData = null;
