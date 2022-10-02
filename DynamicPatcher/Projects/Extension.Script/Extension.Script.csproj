@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;USE_ANIM_EXT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -60,6 +60,10 @@
     <ProjectReference Include="..\PatcherYRpp\PatcherYRpp.csproj">
       <Project>{4C392077-A5ED-46CC-BC94-E1449610105C}</Project>
       <Name>PatcherYRpp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PatcherYRpp.Utilities\PatcherYRpp.Utilities.csproj">
+      <Project>{AE6121FF-74CF-472A-BF7D-4543A78E7D50}</Project>
+      <Name>PatcherYRpp.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

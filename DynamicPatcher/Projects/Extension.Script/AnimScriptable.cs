@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Extension.Ext;
+using PatcherYRpp;
 
 namespace Extension.Script
 {
@@ -16,10 +18,15 @@ namespace Extension.Script
     [Serializable]
     public abstract class AnimScriptable : Scriptable<AnimExt>, IAnimScriptable
     {
+
         public AnimScriptable(AnimExt owner) : base(owner)
         {
         }
-        
+
+        protected Pointer<AnimClass> pAnim => Owner.OwnerObject;
+        protected string section => pAnim.Ref.Type.Ref.Base.Base.ID;
+
+
         [Obsolete("not support OnPut in AnimScriptable yet", true)]
         public void OnPut(CoordStruct coord, Direction faceDir)
         {
