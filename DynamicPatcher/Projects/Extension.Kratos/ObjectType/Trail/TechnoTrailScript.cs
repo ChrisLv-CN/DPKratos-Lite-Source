@@ -27,7 +27,7 @@ namespace Extension.Script
         private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private List<Trail> trails;
 
-        public override void OnPut(CoordStruct coord, short dirType)
+        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
         {
             if (TrailHelper.TryGetTrails(section, out List<Trail> trails))
             {

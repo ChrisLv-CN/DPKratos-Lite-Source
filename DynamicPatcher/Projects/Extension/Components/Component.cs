@@ -30,7 +30,7 @@ namespace Extension.Components
 
         public string Name { get; set; }
         public string Tag { get; set; }
-        
+
         public Component Parent => _parent;
         public Component Root => GetRoot();
         public GameObject GameObject => Root as GameObject;
@@ -161,8 +161,11 @@ namespace Extension.Components
         }
         public virtual void OnRender()
         {
-
         }
+        public virtual void OnRenderEnd()
+        {
+        }
+
         public virtual void OnDestroy()
         {
         }

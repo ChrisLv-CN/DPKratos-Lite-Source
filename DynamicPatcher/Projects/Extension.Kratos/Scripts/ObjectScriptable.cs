@@ -24,11 +24,12 @@ namespace Extension.Script
 
         public IExtension Owner;
 
-        public Pointer<ObjectClass> pObject => Owner.OwnerObject.Convert<ObjectClass>();
+        protected Pointer<ObjectClass> pObject => Owner.OwnerObject.Convert<ObjectClass>();
+        protected string section => pObject.Ref.Type.Ref.Base.ID;
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
-        public virtual void OnPut(CoordStruct coord, short dirType) { }
+        public virtual void OnPut(Pointer<CoordStruct> coord, DirType dirType) { }
 
         public virtual void OnRemove() { }
 

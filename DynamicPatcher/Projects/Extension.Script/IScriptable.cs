@@ -15,7 +15,7 @@ namespace Extension.Script
 
     public interface IObjectScriptable : IAbstractScriptable
     {
-        void OnPut(CoordStruct coord, short dirType);
+        void OnPut(Pointer<CoordStruct> pLocation, DirType dirType);
         void OnRemove();
         void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
