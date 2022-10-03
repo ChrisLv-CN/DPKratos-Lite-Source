@@ -79,5 +79,18 @@ namespace Extension.Ext
 
     }
 
+    public static class EffectDataHelper
+    {
+        public static E CreateEffect<E>(this EffectData effectData) where E : IEffect, new()
+        {
+            if (null != effectData && effectData.Enable)
+            {
+                E effect = new E();
+                effect.SetData(effectData);
+                return effect;
+            }
+            return default(E);
+        }
+    }
 
 }

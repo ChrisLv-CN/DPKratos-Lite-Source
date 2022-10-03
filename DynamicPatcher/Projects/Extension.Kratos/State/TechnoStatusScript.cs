@@ -13,7 +13,7 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateBefore(typeof(TechnoAttachEffectScript))]
+    [UpdateBefore(typeof(AttachEffectScript))]
     public partial class TechnoStatusScript : TechnoScriptable
     {
         public TechnoStatusScript(TechnoExt owner) : base(owner) { }
@@ -36,7 +36,7 @@ namespace Extension.Script
             this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 
-        public override void OnPut(CoordStruct coord, short dirType)
+        public override void OnPut(Pointer<CoordStruct> coord, DirType dirType)
         {
             OnPut_AttackBeacon();
             OnPut_BlackHole();

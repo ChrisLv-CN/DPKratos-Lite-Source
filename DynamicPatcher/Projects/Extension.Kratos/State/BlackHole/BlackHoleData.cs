@@ -78,6 +78,7 @@ namespace Extension.Ext
         public bool AffectMissile;
         public bool AffectTorpedo;
         public bool AffectCannon;
+        public bool AffectBomb;
 
         public bool AffectsOwner;
         public bool AffectsAllies;
@@ -121,7 +122,8 @@ namespace Extension.Ext
             this.AffectBullet = true;
             this.AffectMissile = true;
             this.AffectTorpedo = true;
-            this.AffectCannon = false;
+            this.AffectCannon = true;
+            this.AffectBomb = true;
 
             this.AffectsOwner = false;
             this.AffectsAllies = false;
@@ -191,7 +193,8 @@ namespace Extension.Ext
             this.AffectMissile = reader.Get(TITLE + "AffectMissile", this.AffectMissile);
             this.AffectTorpedo = reader.Get(TITLE + "AffectTorpedo", this.AffectTorpedo);
             this.AffectCannon = reader.Get(TITLE + "AffectCannon", this.AffectCannon);
-            if (!AffectMissile && !AffectCannon)
+            this.AffectBomb = reader.Get(TITLE + "AffectBomb", this.AffectBomb);
+            if (!AffectMissile && !AffectCannon && !AffectBomb)
             {
                 this.AffectBullet = false;
             }
