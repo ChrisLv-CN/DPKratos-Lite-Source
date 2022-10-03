@@ -98,7 +98,7 @@ namespace PatcherYRpp.Utilities
                 // place and set up
                 var XYZ = pCell.Ref.GetCoordsWithBridge();
 
-                var isPut = pTechno.Ref.Base.Put(XYZ, (short)(MapClass.GetCellIndex(pCell.Ref.MapCoords) & 7u));
+                var isPut = pTechno.Ref.Base.Put(XYZ, (DirType)(MapClass.GetCellIndex(pCell.Ref.MapCoords) & 7u));
 
                 if (isPut)
                 {
