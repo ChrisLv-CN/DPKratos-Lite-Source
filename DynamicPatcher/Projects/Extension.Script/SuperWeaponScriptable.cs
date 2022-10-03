@@ -22,6 +22,9 @@ namespace Extension.Script
         {
         }
 
+        public void OnInit() { }
+        public void OnUnInit() { }
+
         public sealed override void OnUpdate()
         {
             throw new NotSupportedException("not support OnUpdate in SuperWeaponScriptable yet");

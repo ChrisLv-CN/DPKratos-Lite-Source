@@ -24,11 +24,11 @@ namespace Extension.Script
         protected Pointer<BulletClass> pBullet => Owner.OwnerObject;
         protected string section => pBullet.Ref.Type.Ref.Base.Base.ID;
 
-        [Obsolete("not support OnPut in BulletScriptable yet", true)]
-        public void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
-        {
-            throw new NotSupportedException("not support OnPut in BulletScriptable yet");
-        }
+        public virtual void OnInit() { }
+        public virtual void OnUnInit() { }
+
+        public virtual void OnPut(Pointer<CoordStruct> pLocation, DirType dirType) { }
+
         [Obsolete("not support OnRemove in BulletScriptable yet", true)]
         public void OnRemove()
         {

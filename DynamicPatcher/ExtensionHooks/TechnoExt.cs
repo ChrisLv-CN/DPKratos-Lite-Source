@@ -22,6 +22,17 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x6F4500, Size = 5)]
         static public unsafe UInt32 TechnoClass_DTOR(REGISTERS* R)
         {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnUnInit());
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
             return TechnoExt.TechnoClass_DTOR(R);
         }
 

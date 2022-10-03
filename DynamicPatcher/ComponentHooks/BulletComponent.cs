@@ -50,6 +50,41 @@ namespace ComponentHooks
             }
         }
 
+        [Hook(HookType.AresHook, Address = 0x466556, Size = 6)]
+        public static unsafe UInt32 BulletClass_Init(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                // Logger.Log("BulletExt init {0}", ext == null?"Ext is null":"is ready.");
+                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnInit());
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x468B5D, Size = 6)]
+        public static unsafe UInt32 BulletClass_Put(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBX;
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                Pointer<CoordStruct> pCoord = R->Stack<IntPtr>(-0x20);
+                // Logger.Log("BulletExt init {0} {1}", ext == null?"Ext is null":"is ready.", pCoord.Data);
+                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnPut(pCoord, default));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x4690B0, Size = 6)]
         public static unsafe UInt32 BulletClass_Detonate_Components(REGISTERS* R)
         {

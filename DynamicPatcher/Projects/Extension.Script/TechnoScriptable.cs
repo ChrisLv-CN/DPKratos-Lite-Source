@@ -33,6 +33,9 @@ namespace Extension.Script
         protected Pointer<TechnoClass> pTechno => Owner.OwnerObject;
         protected string section => pTechno.Ref.Type.Ref.Base.Base.ID;
 
+        public virtual void OnInit() { }
+        public virtual void OnUnInit() { }
+
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
         public virtual void OnPut(Pointer<CoordStruct> pLocation, DirType dirType) { }

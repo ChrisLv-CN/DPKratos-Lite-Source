@@ -12,6 +12,22 @@ namespace ComponentHooks
 {
     public class TechnoComponentHooks
     {
+        [Hook(HookType.AresHook, Address = 0x6F42ED, Size = 10)]
+        public static unsafe UInt32 TechnoClass_Init(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnInit());
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6F9E50, Size = 5)]
         static public unsafe UInt32 TechnoClass_Update_Components(REGISTERS* R)
         {

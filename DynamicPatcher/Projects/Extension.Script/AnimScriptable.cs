@@ -26,6 +26,9 @@ namespace Extension.Script
         protected Pointer<AnimClass> pAnim => Owner.OwnerObject;
         protected string section => pAnim.Ref.Type.Ref.Base.Base.ID;
 
+        public void OnInit() { }
+        public void OnUnInit() { }
+
 
         [Obsolete("not support OnPut in AnimScriptable yet", true)]
         public void OnPut(CoordStruct coord, Direction faceDir)

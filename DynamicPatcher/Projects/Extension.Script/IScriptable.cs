@@ -10,7 +10,9 @@ namespace Extension.Script
 
     public interface IAbstractScriptable : IScriptable
     {
+        void OnInit();
         void OnUpdate();
+        void OnUnInit();
     }
 
     public interface IObjectScriptable : IAbstractScriptable

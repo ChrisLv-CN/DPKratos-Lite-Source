@@ -27,6 +27,9 @@ namespace Extension.Script
         protected Pointer<ObjectClass> pObject => Owner.OwnerObject.Convert<ObjectClass>();
         protected string section => pObject.Ref.Type.Ref.Base.ID;
 
+        public virtual void OnInit() { }
+        public virtual void OnUnInit() { }
+
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
         public virtual void OnPut(Pointer<CoordStruct> coord, DirType dirType) { }
