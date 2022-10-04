@@ -66,6 +66,41 @@ namespace Extension.Utilities
             return realDamage;
         }
 
+        public static bool CanAffectMe(this Pointer<TechnoClass> pTechno, Pointer<HouseClass> pAttackHouse, Pointer<WarheadTypeClass> pWH)
+        {
+            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+            return pWH.CanAffectHouse(pHouse, pAttackHouse);
+        }
+
+        public static bool CanDamageMe(this Pointer<TechnoClass> pTechno, int damage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, out int realDamage, bool effectsRequireDamage = false)
+        {
+            // 计算实际伤害
+            realDamage = pTechno.GetRealDamage(damage, pWH, false, distanceFromEpicenter);
+            WarheadTypeData data = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            if (damage == 0)
+            {
+                return data.AllowZeroDamage;
+            }
+            else
+            {
+                if (data.EffectsRequireVerses)
+                {
+                    // 必须要可以造成伤害
+                    if (MapClass.GetTotalDamage(RulesClass.Global().MaxDamage, pWH, pTechno.Ref.Base.Type.Ref.Armor, 0) == 0)
+                    {
+                        // 弹头无法对该类型护甲造成伤害
+                        return false;
+                    }
+                    // 伤害非零，当EffectsRequireDamage=yes时，必须至少造成1点实际伤害
+                    if (effectsRequireDamage || data.EffectsRequireDamage)
+                    {
+                        // Logger.Log("{0} 收到伤害 {1}, 弹头 {2}, 爆心距离{3}, 实际伤害{4}", OwnerObject.Ref.Type.Ref.Base.Base.ID, damage, warheadTypeExt.OwnerObject.Ref.Base.ID, distanceFromEpicenter, realDamage);
+                        return realDamage != 0;
+                    }
+                }
+            }
+            return true;
+        }
 
     }
 }

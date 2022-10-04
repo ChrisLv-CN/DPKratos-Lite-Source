@@ -35,8 +35,8 @@ namespace Extension.Script
             throw new NotSupportedException("not support OnRemove in BulletScriptable yet");
         }
         [Obsolete("not support OnReceiveDamage in BulletScriptable yet", true)]
-        public void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-            Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+        public void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
+            Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }

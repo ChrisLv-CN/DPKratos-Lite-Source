@@ -204,7 +204,7 @@ namespace Extension.Script
                     if (!pGift.IsNull)
                     {
                         Pointer<TechnoTypeClass> pGiftType = pGift.Ref.Type;
-
+                        TechnoStatusScript giftStatus = pGift.GetStatus();
                         if (data.IsTransform)
                         {
                             // 同步朝向
@@ -241,15 +241,16 @@ namespace Extension.Script
                             pGift.Ref.Group = GiftBoxState.Group;
 
                             // 同步箱子属性
+                            giftStatus.CrateBuff = this.CrateBuff.Clone();
                             // giftExt.CrateStatus += this.CrateStatus;
                         }
 
                         // 同步选中
                         if (GiftBoxState.IsSelected)
                         {
-                            pGift.GetStatus().DisableSelectVoice = true;
+                            giftStatus.DisableSelectVoice = true;
                             pGift.Ref.Base.Select();
-                            pGift.GetStatus().DisableSelectVoice = false;
+                            giftStatus.DisableSelectVoice = false;
                         }
 
                         // 修改血量
@@ -288,7 +289,14 @@ namespace Extension.Script
                         if (inheritAE)
                         {
                             inheritAE = false;
-                            // 交换双方的AE管理器和状态机
+                            // 继承AE
+                            AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
+                            AttachEffectScript boxAEM = pTechno.GetComponent<AttachEffectScript>();
+
+                            boxAEM.InheritedTo(giftAEM);
+
+                            // 继承状态机
+                            
                             // AttachEffectManager giftAEM = giftExt.AttachEffectManager;
                             // giftExt.AttachEffectManager = this.AttachEffectManager;
                             // this.AttachEffectManager = giftAEM;
@@ -301,7 +309,8 @@ namespace Extension.Script
                         // 附加AE
                         if (null != data.AttachEffects)
                         {
-                            // giftExt.AttachEffectManager.Attach(data.AttachEffects, pGift.Convert<ObjectClass>(), pHouse);
+                            AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
+                            giftAEM.Attach(data.AttachEffects, pHouse, pGift, false);
                         }
 
                         if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)

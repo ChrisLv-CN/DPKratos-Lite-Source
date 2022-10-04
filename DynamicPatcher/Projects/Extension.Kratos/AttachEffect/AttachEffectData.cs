@@ -150,6 +150,20 @@ namespace Extension.Ext
             this.Name = reader.Section;
 
             ReadAnimationData(reader);
+            // ReadAttachStatusData(reader);
+            // ReadAutoWeaponData(reader);
+            // ReadBlackHoleData(reader);
+            // ReadDamageReactionData(reader);
+            // ReadDamageSelfData(reader);
+            // ReadDestroySelfData(reader);
+            // ReadFireSuperData(reader);
+            // ReadGiftBoxData(reader);
+            // ReadPaintballData(reader);
+            ReadStandData(reader);
+            // ReadTransformData(reader);
+            // ReadDisableWeaponData(reader);
+            // ReadDeselectData(reader);
+            // ReadOverrideWeaponData(reader);
 
             if (Enable)
             {

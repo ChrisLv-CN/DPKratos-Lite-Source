@@ -294,8 +294,7 @@ namespace Extension.Script
                 return true;
             }
             // 过滤掉替身
-            TechnoStatusScript targetStatus = pTarget.GetStatus();
-            return null == targetStatus || !targetStatus.MyMaster.IsNull;
+            return pTarget.AmIStand();
         }
 
         private bool AffectTarget(Pointer<TechnoClass> pTarget)

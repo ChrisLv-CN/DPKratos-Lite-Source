@@ -190,6 +190,35 @@ namespace ComponentHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x702E9D, Size = 6)]
+        public static unsafe UInt32 TechnoClass_RegisterDestruction(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                Pointer<TechnoClass> pKiller = (IntPtr)R->EDI;
+                int cost = (int)R->EBP;
+
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+
+                bool skip = false;
+                if (!skip)
+                {
+                    ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnRegisterDestruction(pKiller, cost, ref skip));
+                }
+                // skip the entire veterancy
+                if (skip)
+                {
+                    return 0x702FF5;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6FC339, Size = 6)]
         public static unsafe UInt32 TechnoClass_CanFire_Components(REGISTERS* R)
         {

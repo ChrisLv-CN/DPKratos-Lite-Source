@@ -18,8 +18,6 @@ namespace Extension.Script
     {
         public TechnoStatusScript(TechnoExt owner) : base(owner) { }
 
-        public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
-
         public bool DisableVoxelCache;
         public float VoxelShadowScaleInAir;
 
@@ -97,7 +95,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+        public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
             if (!pTechno.IsDeadOrInvisible() && !pTechno.Ref.Target.IsNull)
             {
@@ -106,6 +104,8 @@ namespace Extension.Script
                 {
                     ClearTarget();
                 }
+
+                OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             }
         }
 
@@ -117,6 +117,17 @@ namespace Extension.Script
         public override void OnReceiveDamageDestroy()
         {
             OnReceiveDamageDestroy_GiftBox();
+        }
+
+        public override void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip)
+        {
+            if (!skip)
+            {
+                if (skip = OnRegisterDestruction_StandUnit(pKiller, cost))
+                {
+                    return;
+                }
+            }
         }
 
         public override void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
@@ -136,6 +147,18 @@ namespace Extension.Script
             OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
+        }
+
+        public override void OnSelect(ref bool selectable)
+        {
+            if (!(selectable = OnSelect_VirtualUnit()))
+            {
+                return;
+            }
+            if (!(selectable = OnSelect_Deselect()))
+            {
+                return;
+            }
         }
 
         public void ClearTarget()

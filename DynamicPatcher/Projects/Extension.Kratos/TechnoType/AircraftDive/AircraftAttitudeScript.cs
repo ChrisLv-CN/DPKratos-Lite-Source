@@ -96,7 +96,7 @@ namespace Extension.Script
                     {
                         dir = attitudeData.SpawnLandDir;
                         // Logger.Log($"{Game.CurrentFrame} Landing dir {dir}");
-                        DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                        DirStruct targetDir = pSpawnOwner.GetDirectionRelative(dir, false);
                         pTechno.Ref.Facing.turn(targetDir);
                         pTechno.Ref.TurretFacing.turn(targetDir);
                     }
@@ -108,7 +108,7 @@ namespace Extension.Script
                             case Mission.Area_Guard:
                                 dir = attitudeData.SpawnTakeoffDir;
                                 // Logger.Log($"{Game.CurrentFrame} Takeoff dir {dir}");
-                                DirStruct targetDir = GetAngle(dir, pSpawnOwner);
+                                DirStruct targetDir = pSpawnOwner.GetDirectionRelative(dir, false);
                                 pTechno.Ref.Facing.set(targetDir);
                                 pTechno.Ref.TurretFacing.set(targetDir);
                                 break;
@@ -116,17 +116,6 @@ namespace Extension.Script
                     }
                 }
             }
-        }
-
-        private DirStruct GetAngle(int dir, Pointer<TechnoClass> pSpawnOwner)
-        {
-            DirStruct targetDir = ExHelper.DirNormalized(dir, 16);
-            double targetRad = targetDir.radians();
-            DirStruct sourceDir = pSpawnOwner.Ref.Facing.current();
-            double sourceRad = sourceDir.radians();
-            float angle = (float)(sourceRad - targetRad);
-            targetDir = ExHelper.Radians2Dir(angle);
-            return targetDir;
         }
 
         public void UnLock()

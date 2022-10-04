@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -459,6 +458,244 @@ namespace ExtensionHooks
             return 0;
         }
         #endregion
+
+        #region ========== Stand ==========
+
+        // 替身需要显示在上层时，修改了渲染的层，导致单位在试图攻击替身时，需要武器具备AA
+        [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
+        public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)
+        {
+            Layer layer = (Layer)R->EAX;
+            uint inAir = 0x6FC74E;
+            uint onGround = 0x6FC762;
+            if (layer != Layer.Ground)
+            {
+                try
+                {
+                    Pointer<AbstractClass> pTarget = R->Stack<Pointer<AbstractClass>>(0x20 - (-0x4));
+                    if (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno))
+                    {
+                        if (pTechno.AmIStand(out StandData data))
+                        {
+                            if (pTechno.InAir(true))
+                            {
+                                // in air
+                                return inAir;
+                            }
+                            // on ground
+                            return onGround;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.PrintException(e);
+                }
+                return inAir;
+            }
+            return onGround;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6FF66C, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_DecreaseAmmo(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus)
+                    && !technoStatus.MyMaster.IsNull
+                    && null != technoStatus.StandData
+                    && technoStatus.StandData.UseMasterAmmo)
+                {
+                    technoStatus.MyMaster.Ref.DecreaseAmmo();
+                    technoStatus.MyMaster.Ref.ReloadNow();
+
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        #region Amin ChronoSparkle
+        [Hook(HookType.AresHook, Address = 0x414C27, Size = 5)]
+        public static unsafe UInt32 AircraftClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out StandData data)
+                    && null != data && data.Immune)
+                {
+                    return 0x414C78;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x440499, Size = 5)]
+        public static unsafe UInt32 BuildingClass_Update_SkipCreateChronoSparkleAnimOnStand1(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out StandData data)
+                    && null != data && data.Immune)
+                {
+                    return 0x4404D9;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x44050C, Size = 5)]
+        public static unsafe UInt32 BuildingClass_Update_SkipCreateChronoSparkleAnimOnStand2(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out StandData data)
+                    && null != data && data.Immune)
+                {
+                    return 0x44055D;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x51BB17, Size = 5)]
+        public static unsafe UInt32 InfantryClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out StandData data)
+                    && null != data && data.Immune)
+                {
+                    return 0x51BB6E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x736250, Size = 5)]
+        public static unsafe UInt32 UnitClass_Update_SkipCreateChronoSparkleAnimOnStand(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out StandData data)
+                    && null != data && data.Immune)
+                {
+                    return 0x7362A7;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        #endregion
+
+        [Hook(HookType.AresHook, Address = 0x5F6B90, Size = 5)]
+        public static unsafe UInt32 ObjectClass_InAir_SkipCheckIsOnMap(REGISTERS* R)
+        {
+            Pointer<ObjectClass> pObject = (IntPtr)R->ECX;
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.AmIStand())
+            {
+                return 0x5F6B97;
+            }
+            return 0;
+        }
+
+        // Stand can't set destination
+        [Hook(HookType.AresHook, Address = 0x4D94B0, Size = 5)]
+        public static unsafe UInt32 TechnoClass_SetDestination_Stand(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            if (pTechno.AmIStand())
+            {
+                // 跳过目的地设置
+                // Logger.Log("跳过替身的目的地设置");
+                return 0x4D9711;
+            }
+            return 0;
+        }
+
+        #region Stand Drawing
+        [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
+        public static unsafe UInt32 TechnoClass_GetZAdjust_Stand(REGISTERS* R)
+        {
+
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            int height = (int)R->EAX;
+            if (pTechno.AmIStand(out StandData data) && (null == data || !data.IsTrain))
+            {
+                int ZAdjust = TacticalClass.Instance.Ref.AdjustForZ(height);
+                int offset = null != data ? data.ZOffset : 14;
+                // Logger.Log($"{Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] GetZAdjust EAX = {height}, AdjForZ = {ZAdjust}, offset = {offset}");
+                R->ECX = (uint)(ZAdjust + offset);
+                // Logger.Log("ZOffset = {0}, ECX = {1}, EAX = {2}", offset, R->ECX, R->EAX);
+                return 0x704368;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4DB7F7, Size = 6)]
+        public static unsafe UInt32 FootClass_In_Which_Layer_Stand(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.AmIStand(out StandData data) && null != data && !data.IsTrain && data.ZOffset != 0)
+            {
+                // Logger.Log($"{Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] StandType.DrawLayer = {ext.StandType.DrawLayer}, StandType.ZOffset = {ext.StandType.ZOffset}");
+                Layer layer = data.DrawLayer;
+                if (layer == Layer.None)
+                {
+                    // Logger.Log($" - {Game.CurrentFrame} - {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] EAX = {(Layer)R->EAX} InAir = {pTechno.Ref.Base.Base.IsInAir()}");
+                    R->EAX = pTechno.Ref.Base.Base.IsInAir() ? (uint)Layer.Top : (uint)Layer.Air;
+                }
+                else
+                {
+                    R->EAX = (uint)layer;
+                }
+                return 0x4DB803;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x54B8E9, Size = 6)]
+        public static unsafe UInt32 JumpjetLocomotionClass_In_Which_Layer_Deviation(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+            if (pTechno.Ref.Base.Base.IsInAir())
+            {
+                if (pTechno.TryGetComponent<AttachEffectScript>(out AttachEffectScript ae) && ae.HasStand())
+                {
+                    // Override JumpjetHeight / CruiseHeight check so it always results in 3 / Layer::Air.
+                    R->EDX = Int32.MaxValue;
+                    return 0x54B96B;
+                }
+            }
+            return 0;
+        }
+        #endregion
+
+        #endregion ---------- Stand ----------
 
     }
 }

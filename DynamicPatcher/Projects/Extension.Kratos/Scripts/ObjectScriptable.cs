@@ -44,6 +44,8 @@ namespace Extension.Script
         { }
         public virtual void OnReceiveDamageDestroy() { }
 
+        public virtual void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip) { }
+
         public virtual void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire) { }
         public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }
 

@@ -150,6 +150,28 @@ namespace Extension.Utilities
             return reader.GetPercentList(key, defVal, true);
         }
 
+        public static int GetDir16(this ISectionReader reader, string key, int defVal)
+        {
+            string dirStr = reader.Get<string>(key, null);
+            if (!dirStr.IsNullOrEmptyOrNone())
+            {
+                if (Number.IsMatch(dirStr))
+                {
+                    int dir = Convert.ToInt32(dirStr);
+                    if (dir > 15)
+                    {
+                        return dir % 16;
+                    }
+                }
+                else if (Enum.IsDefined(typeof(Direction), dirStr))
+                {
+                    int dir = (int)Enum.Parse(typeof(Direction), dirStr);
+                    return dir * 2;
+                }
+            }
+            return default;
+        }
+
     }
 
 }

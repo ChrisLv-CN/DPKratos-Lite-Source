@@ -168,6 +168,31 @@ namespace Extension.Utilities
         }
         #endregion
 
+        #region 替身
+        public static bool AmIStand(this Pointer<TechnoClass> pStand)
+        {
+            return pStand.AmIStand(out TechnoStatusScript status, out StandData data);
+        }
+
+        public static bool AmIStand(this Pointer<TechnoClass> pStand, out StandData data)
+        {
+            return pStand.AmIStand(out TechnoStatusScript status, out data);
+        }
+
+        public static bool AmIStand(this Pointer<TechnoClass> pStand, out TechnoStatusScript standStatus, out StandData standData)
+        {
+            standStatus = null;
+            standData = null;
+            if (pStand.TryGetStatus(out TechnoStatusScript technoStatus)
+                    && !technoStatus.MyMaster.IsNull)
+            {
+                standData = technoStatus.StandData;
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
         #region 黑洞
         public static bool TryGetBlackHoleState(this Pointer<ObjectClass> pObject, out BlackHoleState blackHoleState)
         {

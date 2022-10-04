@@ -19,13 +19,6 @@ namespace Extension.Utilities
         public static bool TryGetImageConfig<T>(this Pointer<TechnoClass> pTechno, out T imgConfig) where T : INIConfig, new()
         {
             string section = pTechno.Ref.Type.Ref.Base.Base.ID;
-            return TryGetConfig(section, out imgConfig);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool TryGetConfig<T>(string section, out T imgConfig) where T : INIConfig, new()
-        {
-            imgConfig = default(T);
 
             // 获取Image的Section
             string image = Ini.GetSection(Ini.RulesDependency, section).Get<string>("Image");
@@ -47,12 +40,7 @@ namespace Extension.Utilities
         public static T GetImageConfig<T>(this Pointer<TechnoClass> pTechno) where T : INIConfig, new()
         {
             string section = pTechno.Ref.Type.Ref.Base.Base.ID;
-            return GetConfig<T>(section);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static T GetConfig<T>(string section) where T : INIConfig, new()
-        {
+            
             // 获取Image的Section
             string image = Ini.GetSection(Ini.RulesDependency, section).Get<string>("Image");
             if (!string.IsNullOrEmpty(image))

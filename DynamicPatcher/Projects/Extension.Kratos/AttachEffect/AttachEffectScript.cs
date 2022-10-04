@@ -11,6 +11,19 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
+    [Serializable]
+    public class LocationMark
+    {
+        public CoordStruct Location;
+        public DirStruct Direction;
+
+        public LocationMark(CoordStruct location, DirStruct direction)
+        {
+            this.Location = location;
+            this.Direction = direction;
+        }
+    }
+
     /// <summary>
     /// AEManager
     /// </summary>
@@ -23,26 +36,48 @@ namespace Extension.Script
 
         public Pointer<ObjectClass> pOwner => pObject;
 
-        public List<AttachEffect> AttachEffects = new List<AttachEffect>(); // 所有有效的AE
-        public Dictionary<string, TimerStruct> DisableDelayTimers = new Dictionary<string, TimerStruct>(); // 同名AE失效后再赋予的计时器
+        public List<AttachEffect> AttachEffects; // 所有有效的AE
+        public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
 
-        public List<LocationMark> LocationMarks;
+        private List<LocationMark> locationMarks;
         private CoordStruct lastLocation; // 使者的上一次位置
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
         private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
+        private bool isDead = false;
 
-        public int LocationSpace; // 替身火车的车厢间距
+        private int locationSpace; // 替身火车的车厢间距
+
+        // 将AE转移给其他对象
+        public void InheritedTo(AttachEffectScript heir)
+        {
+            heir.AttachEffects = this.AttachEffects;
+            heir.DisableDelayTimers = this.DisableDelayTimers;
+
+            heir.locationMarks = this.locationMarks;
+            heir.locationMarkDistance = this.locationMarkDistance;
+            heir.totleMileage = this.totleMileage;
+
+            heir.attachEffectOnceFlag = this.attachEffectOnceFlag;
+
+            heir.locationSpace = this.locationSpace;
+
+            // 转移完成后，重置
+            Awake();
+        }
 
         public override void Awake()
         {
-            this.LocationMarks = new List<LocationMark>();
-            this.lastLocation = default;
+            this.AttachEffects = new List<AttachEffect>();
+            this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
+
+            this.locationMarks = new List<LocationMark>();
             this.locationMarkDistance = 16;
             this.totleMileage = 0;
-            this.LocationSpace = 512;
+
+            this.locationSpace = 512;
         }
 
         public int Count()
@@ -52,7 +87,7 @@ namespace Extension.Script
 
         public void SetLocationSpace(int cabinLenght)
         {
-            this.LocationSpace = cabinLenght;
+            this.locationSpace = cabinLenght;
 
             if (cabinLenght < locationMarkDistance)
             {
@@ -117,7 +152,7 @@ namespace Extension.Script
         /// <param name="pHouse">强制所属</param>
         /// <param name="pAttacker">AE来源</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string type, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag = true)
+        public void Attach(string type, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag)
         {
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
             if (attachOnceFlag && aeDate.Data.AttachOnceInTechnoType)
@@ -307,7 +342,7 @@ namespace Extension.Script
             return 0;
         }
 
-        private CoordStruct MarkLocation(Pointer<ObjectClass> pOwner)
+        private CoordStruct MarkLocation()
         {
             CoordStruct location = pOwner.Ref.Base.GetCoords();
             if (default == lastLocation)
@@ -320,15 +355,14 @@ namespace Extension.Script
                 lastLocation = location;
                 double tempMileage = totleMileage + mileage;
                 // 记录下当前的位置信息
-                LocationMark locationMark = StandHelper.GetLocation(pOwner, new StandData());
-
+                LocationMark locationMark = pOwner.GetRelativeLocation(default, 0, false, false);
                 // 入队
-                LocationMarks.Insert(0, locationMark);
+                locationMarks.Insert(0, locationMark);
 
                 // 检查数量超过就删除最后一个
-                if (tempMileage > (Count() + 1) * LocationSpace)
+                if (tempMileage > (Count() + 1) * locationSpace)
                 {
-                    LocationMarks.RemoveAt(LocationMarks.Count - 1);
+                    locationMarks.RemoveAt(locationMarks.Count - 1);
                 }
                 else
                 {
@@ -338,9 +372,44 @@ namespace Extension.Script
             return location;
         }
 
+        private void UpdateStandLocation(Stand stand, ref int markIndex)
+        {
+            if (stand.Data.IsTrain)
+            {
+                // 查找可以用的记录点
+                double length = 0;
+                LocationMark preMark = null;
+                for (int j = markIndex; j < locationMarks.Count; j++)
+                {
+                    markIndex = j;
+                    LocationMark mark = locationMarks[j];
+                    if (null == preMark)
+                    {
+                        preMark = mark;
+                        continue;
+                    }
+                    length += mark.Location.DistanceFrom(preMark.Location);
+                    preMark = mark;
+                    if (length >= locationSpace)
+                    {
+                        break;
+                    }
+                }
+
+                if (null != preMark)
+                {
+                    stand.UpdateLocation(preMark);
+                    return;
+                }
+            }
+            // 获取挂载对象的位置和方向
+            LocationMark locationMark = pObject.GetRelativeLocation(stand.Data.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
+            stand.UpdateLocation(locationMark);
+        }
+
         public bool HasSpace()
         {
-            return totleMileage > Count() * LocationSpace;
+            return totleMileage > Count() * locationSpace;
         }
 
         public bool HasStand()
@@ -355,32 +424,46 @@ namespace Extension.Script
             return false;
         }
 
-        // public AttachStatusType CountAttachStatusMultiplier()
-        // {
-        //     AttachStatusType multiplier = new AttachStatusType();
-        //     foreach (AttachEffect ae in AttachEffects)
-        //     {
-        //         if (null != ae.AttachStatus && ae.AttachStatus.Active)
-        //         {
-        //             multiplier.FirepowerMultiplier *= ae.AttachStatus.Type.FirepowerMultiplier;
-        //             multiplier.ArmorMultiplier *= ae.AttachStatus.Type.ArmorMultiplier;
-        //             multiplier.SpeedMultiplier *= ae.AttachStatus.Type.SpeedMultiplier;
-        //             multiplier.ROFMultiplier *= ae.AttachStatus.Type.ROFMultiplier;
-        //             multiplier.Cloakable |= ae.AttachStatus.Type.Cloakable;
-        //             multiplier.ForceDecloak |= ae.AttachStatus.Type.ForceDecloak;
-        //             // Logger.Log("Count {0}, ae {1}", multiplier, ae.AttachStatus.Type);
-        //         }
-        //     }
-        //     return multiplier;
-        // }
+        public CrateBuffData CountAttachStatusMultiplier()
+        {
+            CrateBuffData multiplier = new CrateBuffData();
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                // if (null != ae.AttachStatus && ae.AttachStatus.Active)
+                // {
+                //     multiplier.FirepowerMultiplier *= ae.AttachStatus.Type.FirepowerMultiplier;
+                //     multiplier.ArmorMultiplier *= ae.AttachStatus.Type.ArmorMultiplier;
+                //     multiplier.SpeedMultiplier *= ae.AttachStatus.Type.SpeedMultiplier;
+                //     multiplier.ROFMultiplier *= ae.AttachStatus.Type.ROFMultiplier;
+                //     multiplier.Cloakable |= ae.AttachStatus.Type.Cloakable;
+                //     multiplier.ForceDecloak |= ae.AttachStatus.Type.ForceDecloak;
+                //     // Logger.Log("Count {0}, ae {1}", multiplier, ae.AttachStatus.Type);
+                // }
+            }
+            return multiplier;
+        }
+
+        public override void OnRender()
+        {
+            isDead = pObject.IsDead();
+            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.OnRender(location);
+                }
+            }
+        }
 
         public override void OnRenderEnd()
         {
-            renderFlag = !pObject.IsDead();
+            renderFlag = !isDead;
             if (renderFlag)
             {
                 // 记录下位置
-                CoordStruct location = MarkLocation(pOwner);
+                CoordStruct location = MarkLocation();
                 // 更新替身的位置
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
@@ -391,7 +474,7 @@ namespace Extension.Script
                         // 如果是替身，额外执行替身的定位操作
                         if (null != ae.Stand && ae.Stand.IsAlive())
                         {
-                            StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex); // 调整位置
+                            UpdateStandLocation(ae.Stand, ref markIndex); // 调整位置
                         }
                         ae.OnRenderEnd(location);
                     }
@@ -401,7 +484,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            bool isDead = pObject.IsDead();
+            isDead = pObject.IsDead();
             // 添加Section上记录的AE
             if (!pObject.IsDeadOrInvisible())
             {
@@ -412,10 +495,9 @@ namespace Extension.Script
 
             // 记录下位置
             CoordStruct location = pOwner.Ref.Base.GetCoords();
-
             if (!renderFlag)
             {
-                location = MarkLocation(pOwner);
+                location = MarkLocation();
             }
             // 逐个触发有效的AEbuff，并移除无效的AEbuff
             int markIndex = 0;
@@ -427,7 +509,7 @@ namespace Extension.Script
                     if (!renderFlag && null != ae.Stand && ae.Stand.IsAlive())
                     {
                         // 替身不需要渲染时，在update中调整替身的位置
-                        StandHelper.UpdateStandLocation(this, pOwner, ae.Stand, ref markIndex);
+                        UpdateStandLocation(ae.Stand, ref markIndex);
                     }
                     // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 执行更新");
                     ae.OnUpdate(location, isDead);
@@ -453,6 +535,20 @@ namespace Extension.Script
                 }
             }
             renderFlag = false;
+        }
+
+        public override void OnLateUpdate()
+        {
+            isDead = pObject.IsDead();
+            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.OnLateUpdate(location, isDead);
+                }
+            }
         }
 
         public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)

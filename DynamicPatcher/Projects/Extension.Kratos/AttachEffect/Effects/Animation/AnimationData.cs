@@ -67,6 +67,7 @@ namespace Extension.Ext
             this.ActiveAnim = reader.Get("ActiveAnim", this.ActiveAnim);
             this.HitAnim = reader.Get("HitAnim", this.HitAnim);
             this.DoneAnim = reader.Get("DoneAnim", this.DoneAnim);
+
             this.Enable = !IdleAnim.IsNullOrEmptyOrNone() || !ActiveAnim.IsNullOrEmptyOrNone() || !HitAnim.IsNullOrEmptyOrNone() || !DoneAnim.IsNullOrEmptyOrNone();
 
             this.RemoveInCloak = reader.Get("Anim.RemoveInCloak", this.RemoveInCloak);

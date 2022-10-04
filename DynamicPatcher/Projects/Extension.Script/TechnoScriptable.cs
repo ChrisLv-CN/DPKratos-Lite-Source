@@ -13,6 +13,8 @@ namespace Extension.Script
 
         void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
 
+        void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip);
+
         void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire);
         void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex);
 
@@ -40,13 +42,15 @@ namespace Extension.Script
 
         public virtual void OnPut(Pointer<CoordStruct> pLocation, DirType dirType) { }
         public virtual void OnRemove() { }
-        public virtual void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-            Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+        public virtual void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
+            Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         { }
         public virtual void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState,
             Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         { }
         public virtual void OnReceiveDamageDestroy() { }
+
+        public virtual void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip) { }
 
         public virtual void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire) { }
         public virtual void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex) { }

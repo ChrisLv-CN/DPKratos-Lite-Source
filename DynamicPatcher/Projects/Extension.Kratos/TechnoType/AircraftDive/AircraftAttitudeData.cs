@@ -34,30 +34,15 @@ namespace Extension.Ext
             ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
             this.Disable = avReader.Get("DisableAircraftAutoPitch", this.Disable);
 
-            ReadDir("SpawnTakingOffDir", avReader, ref this.SpawnTakeoffDir);
+            this.SpawnTakeoffDir = avReader.GetDir16("SpawnTakingOffDir", this.SpawnTakeoffDir);
             this.SpawnLandDir = SpawnTakeoffDir;
-            ReadDir("SpawnLandingDir", avReader, ref this.SpawnLandDir);
+            this.SpawnLandDir = avReader.GetDir16("SpawnLandingDir", this.SpawnLandDir);
 
             // 单位设置
             this.Disable = reader.Get("DisableAircraftAutoPitch", this.Disable);
 
-            ReadDir("SpawnTakingOffDir", reader, ref this.SpawnTakeoffDir);
-            ReadDir("SpawnLandingDir", reader, ref this.SpawnLandDir);
-        }
-
-        private int ReadDir(string key, ISectionReader reader, ref int field)
-        {
-            string dir = reader.Get(key, "N");
-            if (Enum.IsDefined(typeof(Direction), dir))
-            {
-                Direction direction = (Direction)Enum.Parse(typeof(Direction), dir, true);
-                field = (int)direction * 2;
-            }
-            else if (ExHelper.Number.IsMatch(dir))
-            {
-                field = Convert.ToInt32(dir);
-            }
-            return field;
+            this.SpawnTakeoffDir = reader.GetDir16("SpawnTakingOffDir", this.SpawnTakeoffDir);
+            this.SpawnLandDir = reader.GetDir16("SpawnLandingDir", this.SpawnLandDir);
         }
 
     }

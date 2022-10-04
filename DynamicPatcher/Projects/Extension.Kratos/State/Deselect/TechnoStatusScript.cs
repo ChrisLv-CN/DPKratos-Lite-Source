@@ -38,9 +38,9 @@ namespace Extension.Script
             }
         }
 
-        public override void OnSelect(ref bool selectable)
+        public bool OnSelect_Deselect()
         {
-            selectable = !disableSelectable;
+            return !disableSelectable;
         }
 
     }

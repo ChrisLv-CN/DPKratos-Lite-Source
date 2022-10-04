@@ -65,10 +65,9 @@ namespace Extension.Utilities
             CoordStruct turretOffset = default;
             if (isOnTurret)
             {
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext)
+                if (pTechno.TryGetImageConfig<TechnoTypeData>(out TechnoTypeData typeData))
                 {
-                    // turretOffset = ext.Type.Phobos.TurretOffset;
+                    turretOffset = typeData.TurretOffset;
                 }
                 else
                 {
@@ -88,14 +87,6 @@ namespace Extension.Utilities
             else
             {
                 SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToSingleVector3D();
-
-                // get nextframe location offset
-                // Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
-                // int speed = 0;
-                // if (pFoot.Ref.Locomotor.Is_Moving() && (speed = pFoot.Ref.GetCurrentSpeed()) > 0)
-                // {
-                //     turretOffset += new CoordStruct(speed, 0, 0);
-                // }
 
                 if (null != flh && default != flh)
                 {
@@ -194,6 +185,66 @@ namespace Extension.Utilities
             CoordStruct tempFLH = flh;
             tempFLH.Y *= flipY;
             return GetFLHAbsoluteCoords(location, tempFLH, bulletFacing);
+        }
+        #endregion
+
+        #region 获取绑定在身上的相对位置
+        public static unsafe LocationMark GetRelativeLocation(this Pointer<ObjectClass> pOwner, CoordStruct offset, int dir, bool isOnTurret, bool isOnWorld = false)
+        {
+            CoordStruct sourcePos = pOwner.Ref.Location;
+
+            CoordStruct targetPos = sourcePos;
+            DirStruct targetDir = default;
+            if (isOnWorld)
+            {
+                // 绑定世界坐标，朝向固定北向
+                targetDir = new DirStruct();
+                targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
+            }
+            else
+            {
+                // 绑定单体坐标
+                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    targetDir = pTechno.GetDirectionRelative(dir, isOnTurret);
+                    targetPos = pTechno.GetFLHAbsoluteCoords(offset, isOnTurret);
+                }
+                else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    // 增加抛射体偏移值取下一帧所在实际位置
+                    sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
+                    // 获取面向
+                    targetDir = ExHelper.Point2Dir(sourcePos, pBullet.Ref.TargetCoords);
+                    targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
+                }
+            }
+            return new LocationMark(targetPos, targetDir);
+        }
+
+        public static DirStruct GetDirectionRelative(this Pointer<TechnoClass> pMaster, int dir, bool isOnTurret)
+        {
+            // turn offset
+            DirStruct targetDir = ExHelper.DirNormalized(dir, 16);
+
+            if (pMaster.CastToFoot(out Pointer<FootClass> pFoot))
+            {
+                double targetRad = targetDir.radians();
+
+                DirStruct sourceDir = pMaster.Ref.Facing.current();
+                if (pFoot.Ref.Locomotor.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
+                {
+                    sourceDir = pFoot.Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>().Ref.LocomotionFacing.current();
+                }
+                if (isOnTurret || pFoot.Ref.Base.Base.Base.WhatAmI() == AbstractType.Aircraft) // WWSB Aircraft is a turret!!!
+                {
+                    sourceDir = pMaster.Ref.GetRealFacing().current();
+                }
+                double sourceRad = sourceDir.radians();
+                float angle = (float)(sourceRad - targetRad);
+                targetDir = ExHelper.Radians2Dir(angle);
+            }
+
+            return targetDir;
         }
         #endregion
 
