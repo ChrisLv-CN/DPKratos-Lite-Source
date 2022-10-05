@@ -153,20 +153,20 @@ namespace Extension.Ext
 
             ReadAnimationData(reader);
             ReadAttackBeaconData(reader);
-            // ReadAutoWeaponData(reader);
+            ReadAutoWeaponData(reader);
             ReadBlackHoleData(reader);
             ReadCrateBuffData(reader);
             // ReadDamageReactionData(reader);
             ReadDamageSelfData(reader);
             ReadDestroySelfData(reader);
+            ReadDeselectData(reader);
+            ReadDisableWeaponData(reader);
             ReadExtraFireData(reader);
             ReadFireSuperData(reader);
             ReadGiftBoxData(reader);
             ReadPaintballData(reader);
             ReadStandData(reader);
             // ReadTransformData(reader);
-            ReadDisableWeaponData(reader);
-            ReadDeselectData(reader);
             ReadOverrideWeaponData(reader);
 
             if (Enable)

@@ -25,6 +25,8 @@ namespace Extension.Script
 
         public bool SubjectToGround;
 
+        public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
+
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
@@ -120,6 +122,14 @@ namespace Extension.Script
                 }
             }
 
+        }
+
+        public override void OnDetonate(Pointer<CoordStruct> pCoords)
+        {
+            if (!pFakeTarget.IsNull)
+            {
+                pFakeTarget.Ref.UnInit();
+            }
         }
 
     }

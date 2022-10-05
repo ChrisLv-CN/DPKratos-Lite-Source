@@ -15,10 +15,12 @@ namespace Extension.Script
     // Shooter发射属于Attacker的Weapon朝Target
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt), typeof(BulletExt))]
-    // [UpdateBefore(typeof(TechnoStatusScript), typeof(BulletStatusScript))]
     public class AttachFireScript : ObjectScriptable
     {
         public AttachFireScript(IExtension owner) : base(owner) { }
+
+        // 发射自身武器的待发射的队列
+        private Queue<DelayFireWeapon> delayFires = new Queue<DelayFireWeapon>();
 
         // Burst发射模式下剩余待发射的队列
         private Queue<SimulateBurst> simulateBurstQueue = new Queue<SimulateBurst>();
@@ -27,10 +29,41 @@ namespace Extension.Script
         {
             if (pObject.IsDead() || pObject.IsInvisible())
             {
+                delayFires.Clear();
                 simulateBurstQueue.Clear();
                 return;
             }
             Pointer<ObjectClass> pShooter = pObject;
+            // 发射自身武器
+            if (pShooter.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                for (int i = 0; i < delayFires.Count; i++)
+                {
+                    DelayFireWeapon delayFire = delayFires.Dequeue();
+                    if (delayFire.TimesUp())
+                    {
+                        // 发射武器
+                        if (delayFire.FireOwnWeapon)
+                        {
+                            pTechno.Ref.Fire_IgnoreType(delayFire.pTarget, delayFire.WeaponIndex);
+                        }
+                        else
+                        {
+                            double rofMult = pTechno.GetROFMult();
+                            FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH, rofMult);
+                        }
+                        delayFire.ReduceOnce();
+                    }
+                    if (delayFire.NotDone())
+                    {
+                        delayFires.Enqueue(delayFire);
+                    }
+                }
+            }
+            else
+            {
+                delayFires.Clear();
+            }
             // 模拟Burst发射
             for (int i = 0; i < simulateBurstQueue.Count; i++)
             {
@@ -87,61 +120,98 @@ namespace Extension.Script
             return InRange(pTarget, burst.pWeaponType);
         }
 
+        public void FireOwnWeapon(int weaponIndex, Pointer<AbstractClass> pTarget, int delay = 0, int count = 1)
+        {
+            DelayFireWeapon delayFireWeapon = new DelayFireWeapon(weaponIndex, pTarget, delay, count);
+            delayFires.Enqueue(delayFireWeapon);
+        }
+
+        /// <summary>
+        /// 下订单发射自定义武器
+        /// </summary>
+        /// <param name="pAttacker"></param>
+        /// <param name="pTarget"></param>
+        /// <param name="pAttackingHouse"></param>
+        /// <param name="weaponId"></param>
+        /// <param name="flh"></param>
+        /// <param name="rofMult"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
         public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             string weaponId, CoordStruct flh,
             double rofMult = 1, FireBulletToTarget callback = null)
         {
-            Pointer<ObjectClass> pShooter = pObject;
             bool isFire = false;
             Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
             if (!pWeapon.IsNull)
             {
                 WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, weaponId).Data;
-                int burst = pWeapon.Ref.Burst;
-                int minRange = pWeapon.Ref.MinimumRange;
-                int range = pWeapon.Ref.Range;
-                if (pTarget.Ref.IsInAir() && pShooter.CastToTechno(out Pointer<TechnoClass> pTechno))
+                isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, rofMult, callback);
+            }
+            return isFire;
+        }
+
+        /// <summary>
+        /// 下订单发射自定义武器
+        /// </summary>
+        /// <param name="pAttacker"></param>
+        /// <param name="pTarget"></param>
+        /// <param name="pAttackingHouse"></param>
+        /// <param name="pWeapon"></param>
+        /// <param name="weaponTypeData"></param>
+        /// <param name="flh"></param>
+        /// <param name="rofMult"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
+            Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh,
+            double rofMult = 1, FireBulletToTarget callback = null)
+        {
+            bool isFire = false;
+            int burst = pWeapon.Ref.Burst;
+            int minRange = pWeapon.Ref.MinimumRange;
+            int range = pWeapon.Ref.Range;
+            if (pTarget.Ref.IsInAir() && pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                range += pTechno.Ref.Type.Ref.AirRangeBonus;
+            }
+            // 检查射程
+            if (!weaponTypeData.CheckRange || InRange(pTarget, pWeapon))
+            {
+                // 发射武器
+                if (burst > 1 && weaponTypeData.SimulateBurst)
                 {
-                    range += pTechno.Ref.Type.Ref.AirRangeBonus;
-                }
-                // 检查射程
-                if (!weaponTypeData.CheckRange || InRange(pTarget, pWeapon))
-                {
+                    // 模拟burst发射武器
+                    SimulateBurst newBurst = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, 1, callback);
+                    // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     // 发射武器
-                    if (burst > 1 && weaponTypeData.SimulateBurst)
+                    SimulateBurstFire(newBurst);
+                    // 入队
+                    simulateBurstQueue.Enqueue(newBurst);
+                    isFire = true;
+                }
+                else
+                {
+                    // 直接发射武器
+                    CoordStruct sourcePos = GetSourcePos(flh, out DirStruct facingDir);
+                    CoordStruct targetPos = pTarget.Ref.GetCoords();
+                    // 扇形攻击
+                    RadialFireHelper radialFireHelper = new RadialFireHelper(facingDir, burst, weaponTypeData.RadialAngle);
+                    BulletVelocity bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
+                    for (int i = 0; i < burst; i++)
                     {
-                        // 模拟burst发射武器
-                        SimulateBurst newBurst = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, 1, callback);
-                        // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
-                        // 发射武器
-                        SimulateBurstFire(newBurst);
-                        // 入队
-                        simulateBurstQueue.Enqueue(newBurst);
-                        isFire = true;
-                    }
-                    else
-                    {
-                        // 直接发射武器
-                        CoordStruct sourcePos = GetSourcePos(flh, out DirStruct facingDir);
-                        CoordStruct targetPos = pTarget.Ref.GetCoords();
-                        // 扇形攻击
-                        RadialFireHelper radialFireHelper = new RadialFireHelper(facingDir, burst, weaponTypeData.RadialAngle);
-                        BulletVelocity bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
-                        for (int i = 0; i < burst; i++)
+                        if (weaponTypeData.RadialFire)
                         {
-                            if (weaponTypeData.RadialFire)
-                            {
-                                bulletVelocity = radialFireHelper.GetBulletVelocity(i);
-                            }
-                            // 发射武器，全射出去
-                            Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pShooter, pAttacker, pTarget, pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
-                            if (null != callback)
-                            {
-                                callback(i, burst, pBullet, pTarget);
-                            }
+                            bulletVelocity = radialFireHelper.GetBulletVelocity(i);
                         }
-                        isFire = true;
+                        // 发射武器，全射出去
+                        Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pObject, pAttacker, pTarget, pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
+                        if (null != callback)
+                        {
+                            callback(i, burst, pBullet, pTarget);
+                        }
                     }
+                    isFire = true;
                 }
             }
             return isFire;

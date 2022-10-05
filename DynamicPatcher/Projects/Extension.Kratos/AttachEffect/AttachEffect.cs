@@ -55,22 +55,22 @@ namespace Extension.Script
             //TODO 增加新的AE
 
             InitStand(); // 替身需要第一个初始化
+            InitDestroySelf();
 
             InitAnimation();
             InitAttackBeacon();
-            // InitAutoWeapon();
+            InitAutoWeapon();
             InitBlackHole();
             InitCrateBuff();
             // InitDamageReaction();
             InitDamageSelf(); // AffectWho
-            InitDestroySelf();
-            InitExtraFire();
+            InitDeselect(); // AffectWho
+            InitDisableWeapon(); // AffectWho
+            InitExtraFire(); // AffectWho
             InitFireSuper(); // AffectWho
             InitGiftBox(); // AffectWho
             InitPaintball();
             // InitTransform();
-            InitDisableWeapon(); // AffectWho
-            InitDeselect(); // AffectWho
             InitOverrideWeapon(); // AffectWho
         }
 

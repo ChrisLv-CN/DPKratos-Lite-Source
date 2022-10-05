@@ -24,9 +24,6 @@ namespace Extension.Ext
         }
     }
 
-    /// <summary>
-    /// AE动画
-    /// </summary>
     [Serializable]
     public class DamageSelfData : EffectData
     {
