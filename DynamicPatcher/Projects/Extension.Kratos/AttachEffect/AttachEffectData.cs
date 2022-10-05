@@ -149,21 +149,25 @@ namespace Extension.Ext
         {
             this.Name = reader.Section;
 
+            //TODO 增加新的AE类型
+
             ReadAnimationData(reader);
-            // ReadAttachStatusData(reader);
+            ReadAttackBeaconData(reader);
             // ReadAutoWeaponData(reader);
-            // ReadBlackHoleData(reader);
+            ReadBlackHoleData(reader);
+            ReadCrateBuffData(reader);
             // ReadDamageReactionData(reader);
             // ReadDamageSelfData(reader);
-            // ReadDestroySelfData(reader);
-            // ReadFireSuperData(reader);
-            // ReadGiftBoxData(reader);
-            // ReadPaintballData(reader);
+            ReadDestroySelfData(reader);
+            ReadExtraFireData(reader);
+            ReadFireSuperData(reader);
+            ReadGiftBoxData(reader);
+            ReadPaintballData(reader);
             ReadStandData(reader);
             // ReadTransformData(reader);
-            // ReadDisableWeaponData(reader);
-            // ReadDeselectData(reader);
-            // ReadOverrideWeaponData(reader);
+            ReadDisableWeaponData(reader);
+            ReadDeselectData(reader);
+            ReadOverrideWeaponData(reader);
 
             if (Enable)
             {

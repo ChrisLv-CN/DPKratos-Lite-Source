@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public DisableWeaponData DisableWeaponData;
+
+        private void ReadDisableWeaponData(IConfigReader reader)
+        {
+            DisableWeaponData data = new DisableWeaponData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.DisableWeaponData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class DisableWeaponData : EffectData, IStateData
     {

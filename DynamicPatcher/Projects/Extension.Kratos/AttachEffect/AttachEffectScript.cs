@@ -429,16 +429,16 @@ namespace Extension.Script
             CrateBuffData multiplier = new CrateBuffData();
             foreach (AttachEffect ae in AttachEffects)
             {
-                // if (null != ae.AttachStatus && ae.AttachStatus.Active)
-                // {
-                //     multiplier.FirepowerMultiplier *= ae.AttachStatus.Type.FirepowerMultiplier;
-                //     multiplier.ArmorMultiplier *= ae.AttachStatus.Type.ArmorMultiplier;
-                //     multiplier.SpeedMultiplier *= ae.AttachStatus.Type.SpeedMultiplier;
-                //     multiplier.ROFMultiplier *= ae.AttachStatus.Type.ROFMultiplier;
-                //     multiplier.Cloakable |= ae.AttachStatus.Type.Cloakable;
-                //     multiplier.ForceDecloak |= ae.AttachStatus.Type.ForceDecloak;
-                //     // Logger.Log("Count {0}, ae {1}", multiplier, ae.AttachStatus.Type);
-                // }
+                if (null != ae.CrateBuff && ae.CrateBuff.IsAlive())
+                {
+                    multiplier.FirepowerMultiplier *= ae.CrateBuff.Data.FirepowerMultiplier;
+                    multiplier.ArmorMultiplier *= ae.CrateBuff.Data.ArmorMultiplier;
+                    multiplier.SpeedMultiplier *= ae.CrateBuff.Data.SpeedMultiplier;
+                    multiplier.ROFMultiplier *= ae.CrateBuff.Data.ROFMultiplier;
+                    multiplier.Cloakable |= ae.CrateBuff.Data.Cloakable;
+                    multiplier.ForceDecloak |= ae.CrateBuff.Data.ForceDecloak;
+                    // Logger.Log("Count {0}, ae {1}", multiplier, ae.AttachStatus.Type);
+                }
             }
             return multiplier;
         }

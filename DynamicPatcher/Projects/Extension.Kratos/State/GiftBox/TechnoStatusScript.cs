@@ -295,8 +295,8 @@ namespace Extension.Script
 
                             boxAEM.InheritedTo(giftAEM);
 
-                            // 继承状态机
-                            
+                            // TODO 继承状态机
+                            // 
                             // AttachEffectManager giftAEM = giftExt.AttachEffectManager;
                             // giftExt.AttachEffectManager = this.AttachEffectManager;
                             // this.AttachEffectManager = giftAEM;

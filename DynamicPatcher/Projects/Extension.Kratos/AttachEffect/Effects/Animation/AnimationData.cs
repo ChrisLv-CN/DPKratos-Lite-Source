@@ -13,7 +13,7 @@ namespace Extension.Ext
     {
         public AnimationData AnimationData;
 
-        private void ReadAnimationData(ISectionReader reader)
+        private void ReadAnimationData(IConfigReader reader)
         {
             AnimationData data = new AnimationData(reader);
             if (data.Enable)
@@ -56,12 +56,12 @@ namespace Extension.Ext
             this.Visibility = Relation.All;
         }
 
-        public AnimationData(ISectionReader reader) : this()
+        public AnimationData(IConfigReader reader) : this()
         {
             Read(reader);
         }
 
-        public void Read(ISectionReader reader)
+        public override void Read(IConfigReader reader)
         {
             this.IdleAnim = reader.Get("Animation", this.IdleAnim);
             this.ActiveAnim = reader.Get("ActiveAnim", this.ActiveAnim);

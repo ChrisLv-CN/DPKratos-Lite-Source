@@ -9,8 +9,24 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public FireSuperData FireSuperData;
+
+        private void ReadFireSuperData(IConfigReader reader)
+        {
+            FireSuperData data = new FireSuperData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.FireSuperData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
-    public class FireSuper
+    public class FireSuperEntity
     {
 
         public string[] Supers;
@@ -26,7 +42,7 @@ namespace Extension.Ext
         public bool ToTarget;
 
 
-        public FireSuper()
+        public FireSuperEntity()
         {
             this.Supers = null;
             this.Chances = null;
@@ -41,9 +57,9 @@ namespace Extension.Ext
             this.ToTarget = true;
         }
 
-        public FireSuper Clone()
+        public FireSuperEntity Clone()
         {
-            FireSuper data = new FireSuper();
+            FireSuperEntity data = new FireSuperEntity();
             data.Supers = null != this.Supers ? (string[])this.Supers.Clone() : null;
             data.Chances = null != this.Chances ? (double[])this.Chances.Clone() : null;
             data.InitDelay = this.InitDelay;
@@ -79,8 +95,8 @@ namespace Extension.Ext
     {
         public const string TITLE = "FireSuperWeapon.";
 
-        public FireSuper Data;
-        public FireSuper EliteData;
+        public FireSuperEntity Data;
+        public FireSuperEntity EliteData;
 
         public FireSuperData()
         {
@@ -92,14 +108,14 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            FireSuper data = new FireSuper();
+            FireSuperEntity data = new FireSuperEntity();
             data.Read(reader, TITLE);
             if (null != data.Supers && data.Supers.Length > 0)
             {
                 this.Data = data;
             }
 
-            FireSuper elite = null != this.Data ? Data.Clone() : new FireSuper();
+            FireSuperEntity elite = null != this.Data ? Data.Clone() : new FireSuperEntity();
             elite.Read(reader, TITLE + "Elite");
             if (null != elite.Supers && elite.Supers.Length > 0)
             {

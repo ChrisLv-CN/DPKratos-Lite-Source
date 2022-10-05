@@ -53,22 +53,27 @@ namespace Extension.Script
             this.duration = AEData.Duration;
             this.immortal = AEData.HoldDuration;
 
+            //TODO 增加新的AE
+
             InitStand(); // 替身需要第一个初始化
 
             InitAnimation();
+            InitAttackBeacon();
             // InitAttachStatus();
             // InitAutoWeapon();
-            // InitBlackHole();
+            InitBlackHole();
+            InitCrateBuff();
             // InitDamageReaction();
             // InitDamageSelf(); // AffectWho
-            // InitDestroySelf();
-            // InitFireSuper(); // AffectWho
-            // InitGiftBox(); // AffectWho
-            // InitPaintball();
+            InitDestroySelf();
+            InitExtraFire();
+            InitFireSuper(); // AffectWho
+            InitGiftBox(); // AffectWho
+            InitPaintball();
             // InitTransform();
-            // InitDisableWeapon(); // AffectWho
-            // InitDeselect(); // AffectWho
-            // InitOverrideWeapon(); // AffectWho
+            InitDisableWeapon(); // AffectWho
+            InitDeselect(); // AffectWho
+            InitOverrideWeapon(); // AffectWho
         }
 
         public void SetupLifeTimer()

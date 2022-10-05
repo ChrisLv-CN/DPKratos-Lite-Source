@@ -22,14 +22,14 @@ namespace Extension.Ext
 
         private static Queue<FireSuperWeapon> fireSuperWeaponQueue = new Queue<FireSuperWeapon>();
 
-        public static void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
+        public static void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperEntity data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(pHouse, cellStruct, data);
             fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
         }
 
-        public static void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuper data)
+        public static void Launch(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperEntity data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
             LaunchSuperWeapons(pHouse, cellStruct, data);
@@ -57,7 +57,7 @@ namespace Extension.Ext
             }
         }
 
-        private static void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuper data)
+        private static void LaunchSuperWeapons(Pointer<HouseClass> pHouse, CellStruct targetPos, FireSuperEntity data)
         {
             if (null != data)
             {

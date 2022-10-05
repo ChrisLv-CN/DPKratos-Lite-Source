@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public CrateBuffData CrateBuffData;
+
+        private void ReadCrateBuffData(IConfigReader reader)
+        {
+            CrateBuffData data = new CrateBuffData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.CrateBuffData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class CrateBuffData : EffectData, IStateData
     {

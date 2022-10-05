@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public PaintballData PaintballData;
+
+        private void ReadPaintballData(IConfigReader reader)
+        {
+            PaintballData data = new PaintballData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.PaintballData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class PaintballData : EffectData, IStateData
     {

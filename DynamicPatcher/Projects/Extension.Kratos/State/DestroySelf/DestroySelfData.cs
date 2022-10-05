@@ -8,6 +8,25 @@ using Extension.Utilities;
 
 namespace Extension.Ext
 {
+
+
+    public partial class AttachEffectData
+    {
+        public DestroySelfData DestroySelfData;
+
+        private void ReadDestroySelfData(IConfigReader reader)
+        {
+            DestroySelfData data = new DestroySelfData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.DestroySelfData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
+
     [Serializable]
     public class DestroySelfData : EffectData, IStateData
     {

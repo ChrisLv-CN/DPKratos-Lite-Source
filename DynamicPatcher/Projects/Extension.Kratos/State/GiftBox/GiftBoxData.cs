@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public GiftBoxData GiftBoxData;
+
+        private void ReadGiftBoxData(IConfigReader reader)
+        {
+            GiftBoxData data = new GiftBoxData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.GiftBoxData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class GiftBox
     {

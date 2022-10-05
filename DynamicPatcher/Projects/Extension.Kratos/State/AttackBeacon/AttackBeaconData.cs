@@ -9,6 +9,23 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    // AE
+    public partial class AttachEffectData
+    {
+        public AttackBeaconData AttackBeaconData;
+
+        private void ReadAttackBeaconData(IConfigReader reader)
+        {
+            AttackBeaconData data = new AttackBeaconData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.AttackBeaconData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class AttackBeaconData : EffectData, IStateData
     {

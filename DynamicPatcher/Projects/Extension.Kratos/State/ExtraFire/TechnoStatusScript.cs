@@ -45,7 +45,7 @@ namespace Extension.Script
                     flhData = pTechno.GetImageConfig<ExtraFireFLHData>();
                 }
 
-                ExtraFire data = fireData.Data;
+                ExtraFireEntity data = fireData.Data;
                 ExtraFireFLH flh = null != flhData ? flhData.Data : null;
 
                 if (pTechno.Ref.Veterancy.IsElite())

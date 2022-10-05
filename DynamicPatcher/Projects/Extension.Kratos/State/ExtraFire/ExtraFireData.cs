@@ -11,8 +11,24 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public ExtraFireData ExtraFireData;
+
+        private void ReadExtraFireData(IConfigReader reader)
+        {
+            ExtraFireData data = new ExtraFireData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.ExtraFireData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
-    public class ExtraFire
+    public class ExtraFireEntity
     {
 
         public string[] Primary;
@@ -20,16 +36,16 @@ namespace Extension.Ext
         public Dictionary<int, string[]> WeaponX;
 
 
-        public ExtraFire()
+        public ExtraFireEntity()
         {
             this.Primary = null;
             this.Secondary = null;
             this.WeaponX = null;
         }
 
-        public ExtraFire Clone()
+        public ExtraFireEntity Clone()
         {
-            ExtraFire data = new ExtraFire();
+            ExtraFireEntity data = new ExtraFireEntity();
             data.Primary = null != this.Primary ? (string[])this.Primary.Clone() : null;
             data.Secondary = null != this.Secondary ? (string[])this.Secondary.Clone() : null;
             data.WeaponX = null != this.WeaponX ? new Dictionary<int, string[]>(this.WeaponX) : null;
@@ -69,8 +85,8 @@ namespace Extension.Ext
     {
         public const string TITLE = "ExtraFire.";
 
-        public ExtraFire Data;
-        public ExtraFire EliteData;
+        public ExtraFireEntity Data;
+        public ExtraFireEntity EliteData;
 
         public ExtraFireData()
         {
@@ -82,14 +98,14 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            ExtraFire data = new ExtraFire();
+            ExtraFireEntity data = new ExtraFireEntity();
             data.Read(reader, TITLE);
             if (null != data && data.IsEnable())
             {
                 this.Data = data;
             }
 
-            ExtraFire elite = null != this.Data ? Data.Clone() : new ExtraFire();
+            ExtraFireEntity elite = null != this.Data ? Data.Clone() : new ExtraFireEntity();
             elite.Read(reader, TITLE + "Elite");
             if (null != elite&& elite.IsEnable())
             {

@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public OverrideWeaponData OverrideWeaponData;
+
+        private void ReadOverrideWeaponData(IConfigReader reader)
+        {
+            OverrideWeaponData data = new OverrideWeaponData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.OverrideWeaponData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class OverrideWeapon
     {

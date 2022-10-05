@@ -10,6 +10,23 @@ using Extension.Utilities;
 
 namespace Extension.Ext
 {
+    
+    public partial class AttachEffectData
+    {
+        public BlackHoleData BlackHoleData;
+
+        private void ReadBlackHoleData(IConfigReader reader)
+        {
+            BlackHoleData data = new BlackHoleData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.BlackHoleData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class BlackHole
     {

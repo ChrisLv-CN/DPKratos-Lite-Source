@@ -9,6 +9,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public DeselectData DeselectData;
+
+        private void ReadDeselectData(IConfigReader reader)
+        {
+            DeselectData data = new DeselectData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.DeselectData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public class DeselectData : EffectData, IStateData
     {

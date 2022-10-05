@@ -17,7 +17,7 @@ namespace Extension.Ext
     {
         public SwizzleablePointer<HouseClass> House;
         public CellStruct Location;
-        public FireSuper Data;
+        public FireSuperEntity Data;
 
         private int count;
         private int initDelay;
@@ -25,7 +25,7 @@ namespace Extension.Ext
         private int delay;
         private TimerStruct delayTimer;
 
-        public FireSuperWeapon(Pointer<HouseClass> pHouse, CellStruct location, FireSuper data)
+        public FireSuperWeapon(Pointer<HouseClass> pHouse, CellStruct location, FireSuperEntity data)
         {
             this.House = new SwizzleablePointer<HouseClass>(pHouse);
             this.Location = location;

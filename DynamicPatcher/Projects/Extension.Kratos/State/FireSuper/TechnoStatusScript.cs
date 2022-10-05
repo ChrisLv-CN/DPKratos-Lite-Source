@@ -32,7 +32,7 @@ namespace Extension.Script
         {
             if (FireSuperState.IsActive() && null != FireSuperState.Data)
             {
-                FireSuper data = FireSuperState.Data.Data;
+                FireSuperEntity data = FireSuperState.Data.Data;
                 if (pTechno.Ref.Veterancy.IsElite())
                 {
                     data = FireSuperState.Data.EliteData;
