@@ -77,6 +77,11 @@ namespace Extension.Utilities
             return pWH.CanAffectHouse(pHosue, pAttackingHouse, out whData);
         }
 
+        public static bool CanDamageMe(this Pointer<TechnoClass> pTechno, int damage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH)
+        {
+            return pTechno.CanDamageMe(damage, distanceFromEpicenter, pWH, out int realDamage);
+        }
+
         public static bool CanDamageMe(this Pointer<TechnoClass> pTechno, int damage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, out int realDamage, bool effectsRequireDamage = false)
         {
             // 计算实际伤害

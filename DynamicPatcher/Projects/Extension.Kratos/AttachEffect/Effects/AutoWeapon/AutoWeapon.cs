@@ -243,6 +243,7 @@ namespace Extension.Script
             }
         }
 
+        //TODO 攻击者标记工作不正常
         // 发射武器前设定攻击者和目标
         private bool TryGetShooterAndTarget(Pointer<ObjectClass> pReceiver, Pointer<TechnoClass> pReceiverOwner, Pointer<HouseClass> pReceiverHouse, Pointer<AbstractClass> pReceiverTarget, out Pointer<TechnoClass> pShooter, out Pointer<TechnoClass> pWeaponOwner, out Pointer<AbstractClass> pTarget, out bool dontMakeFakeTarget)
         {

@@ -24,7 +24,6 @@ namespace Extension.Ext
 
         // Kratos
         public bool AffectsAir = true;
-        public bool AffectsBullet = false;
 
         public bool ClearTarget = false;
 

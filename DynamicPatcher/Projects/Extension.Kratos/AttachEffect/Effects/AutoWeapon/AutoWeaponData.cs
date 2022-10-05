@@ -141,8 +141,13 @@ namespace Extension.Ext
             this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.FireOnce);
             this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.FireOnce);
 
+            // 攻击者标记
             this.IsAttackerMark = reader.Get(TITLE + "IsAttackerMark", this.FireOnce);
             this.ReceiverAttack = reader.Get(TITLE + "ReceiverAttack", this.FireOnce);
+            if (!ReceiverAttack)
+            {
+                this.ReceiverOwnBullet = false;
+            }
             this.ReceiverOwnBullet = reader.Get(TITLE + "ReceiverOwnBullet", this.FireOnce);
         }
 

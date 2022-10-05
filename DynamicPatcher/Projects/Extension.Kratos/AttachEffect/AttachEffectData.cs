@@ -77,7 +77,6 @@ namespace Extension.Ext
         public string Next; // 结束后播放下一个AE
 
         public bool AttachOnceInTechnoType; // 写在TechnoType上只在创建时赋予一次
-        public bool AttachWithDamage; // 弹头附加，随着伤害附加，而不是按弹头爆炸位置附加，如在使用AmbientDamage时
 
         // 赋予对象过滤
         public string[] AffectTypes; // 可影响的单位
@@ -121,7 +120,6 @@ namespace Extension.Ext
             this.Next = null;
 
             this.AttachOnceInTechnoType = false;
-            this.AttachWithDamage = false;
 
             // 赋予对象过滤
             this.AffectTypes = null;
@@ -192,7 +190,6 @@ namespace Extension.Ext
                 this.Next = reader.Get("Next", this.Next);
 
                 this.AttachOnceInTechnoType = reader.Get("AttachOnceInTechnoType", this.AttachOnceInTechnoType);
-                this.AttachWithDamage = reader.Get("AttachWithDamage", this.AttachWithDamage);
 
                 // 赋予对象过滤
                 this.AffectTypes = reader.GetList<string>("AffectTypes", this.AffectTypes);

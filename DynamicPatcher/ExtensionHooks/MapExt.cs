@@ -25,12 +25,15 @@ namespace ExtensionHooks
                 Pointer<WarheadTypeClass> pWH = R->Stack<IntPtr>(0x8);
                 bool affectsTiberium = R->Stack<bool>(0xC);
                 Pointer<HouseClass> pAttackingHouse = R->Stack<IntPtr>(0x10);
-                // Logger.Log($"{Game.CurrentFrame} - 轰炸地区 {pLocation.Data} damage {R->EDX}, warhead {pWH} [{pWH.Ref.Base.ID}], shooter {pAttacker}, owner {pAttackingHouse}");
-
-                // Find all stand, check distance and blown it up.
-                AttachEffectScript.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
-                // Find and Attach Effects.
-                AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttackingHouse);
+                if (!pWH.IsNull)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - 轰炸地区 {pLocation.Data} damage {R->EDX}, warhead {pWH} [{pWH.Ref.Base.ID}], shooter {pAttacker}, owner {pAttackingHouse}");
+                    // 抛射体爆炸OnDetonate()后会调用该事件
+                    // Find all stand, check distance and blown it up.
+                    AttachEffectScript.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
+                    // Find and Attach Effects.
+                    AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttackingHouse);
+                }
             }
             catch (Exception e)
             {
