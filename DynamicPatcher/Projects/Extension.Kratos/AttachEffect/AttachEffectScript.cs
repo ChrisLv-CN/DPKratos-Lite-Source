@@ -160,7 +160,29 @@ namespace Extension.Script
                 return;
             }
             // Logger.Log("AE {0} AttachOnceInTechnoType = {1}, AttachOnceFlag = {2}", aeType.Name, aeType.AttachOnceInTechnoType, attachOnceFlag);
-            Attach(aeDate, pHouse, pAttacker);
+            Attach(aeDate.Data, pHouse, pAttacker);
+        }
+
+        /// <summary>
+        /// 附加AE
+        /// </summary>
+        /// <param name="aeData">要附加的AE类型</param>
+        public void Attach(AttachEffectData aeData)
+        {
+            // 写在type上附加的AE，所属是自己，攻击者是自己
+            Pointer<HouseClass> pHouse = IntPtr.Zero;
+            Pointer<TechnoClass> pAttacker = IntPtr.Zero;
+            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                pHouse = pTechno.Ref.Owner;
+                pAttacker = pTechno;
+            }
+            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                pHouse = pBullet.GetSourceHouse();
+                pAttacker = pBullet.Ref.Owner;
+            }
+            Attach(aeData, pHouse, pAttacker);
         }
 
         /// <summary>
@@ -169,20 +191,19 @@ namespace Extension.Script
         /// <param name="aeData">要附加的AE类型</param>
         /// <param name="pHouse">指定的所属</param>
         /// <param name="pAttacker">来源</param>
-        public void Attach(IConfigWrapper<AttachEffectData> aeData, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public void Attach(AttachEffectData data, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
         {
-            if (!aeData.Data.Enable)
+            if (!data.Enable)
             {
-                Logger.LogWarning($"Attempt to attach an invalid AE [{aeData.Data.Name}] to [{section}]");
+                Logger.LogWarning($"Attempt to attach an invalid AE [{data.Name}] to [{section}]");
                 return;
             }
             // 是否在名单上
-            if (!aeData.Data.CanAffectType(pOwner))
+            if (!data.CanAffectType(pOwner))
             {
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{aeData.Data.Name}] 的名单内，不能赋予");
                 return;
             }
-            AttachEffectData data = aeData.Data;
             // 检查叠加
             bool add = data.Cumulative == CumulativeMode.YES;
             if (!add)
@@ -265,7 +286,7 @@ namespace Extension.Script
             // 可以添加AE
             if (add && data.GetDuration() != 0)
             {
-                AttachEffect ae = aeData.CreateAE();
+                AttachEffect ae = data.CreateAE();
                 // 入队
                 int index = FindInsertIndex(ae);
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}");

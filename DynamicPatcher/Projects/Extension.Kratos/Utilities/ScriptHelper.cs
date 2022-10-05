@@ -168,6 +168,60 @@ namespace Extension.Utilities
         }
         #endregion
 
+        #region AE管理器
+        // 泛型
+        public static T GetComponent<T>(this Pointer<ObjectClass> pObject) where T : Component
+        {
+            if (!pObject.IsNull)
+            {
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    return pTechno.GetComponent<T>();
+                }
+                else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    return pBullet.GetComponent<T>();
+                }
+            }
+            return null;
+        }
+        public static bool TryGetComponent<T>(this Pointer<ObjectClass> pObject, out T script) where T : Component
+        {
+            return null != (script = pObject.GetComponent<T>());
+        }
+
+        // 便利
+        public static AttachEffectScript GetAEManegr(this Pointer<ObjectClass> pObject)
+        {
+            return pObject.GetComponent<AttachEffectScript>();
+        }
+
+        public static bool TryGetAEManager(this Pointer<ObjectClass> pObject, out AttachEffectScript aeManager)
+        {
+            return pObject.TryGetComponent<AttachEffectScript>(out aeManager);
+        }
+
+        public static AttachEffectScript GetAEManegr(this Pointer<TechnoClass> pTechno)
+        {
+            return pTechno.GetComponent<AttachEffectScript>();
+        }
+
+        public static bool TryGetAEManager(this Pointer<TechnoClass> pTechno, out AttachEffectScript aeManager)
+        {
+            return pTechno.TryGetComponent<AttachEffectScript>(out aeManager);
+        }
+
+        public static AttachEffectScript GetAEManegr(this Pointer<BulletClass> pBullet)
+        {
+            return pBullet.GetComponent<AttachEffectScript>();
+        }
+
+        public static bool TryGetAEManager(this Pointer<BulletClass> pBullet, out AttachEffectScript aeManager)
+        {
+            return pBullet.TryGetComponent<AttachEffectScript>(out aeManager);
+        }
+        #endregion
+
         #region 替身
         public static bool AmIStand(this Pointer<TechnoClass> pStand)
         {
@@ -191,8 +245,8 @@ namespace Extension.Utilities
             }
             return false;
         }
-
         #endregion
+
         #region 黑洞
         public static bool TryGetBlackHoleState(this Pointer<ObjectClass> pObject, out BlackHoleState blackHoleState)
         {

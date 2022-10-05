@@ -157,7 +157,7 @@ namespace Extension.Ext
             ReadBlackHoleData(reader);
             ReadCrateBuffData(reader);
             // ReadDamageReactionData(reader);
-            // ReadDamageSelfData(reader);
+            ReadDamageSelfData(reader);
             ReadDestroySelfData(reader);
             ReadExtraFireData(reader);
             ReadFireSuperData(reader);
@@ -287,9 +287,9 @@ namespace Extension.Ext
 
     public static class AttachEffectDataHelper
     {
-        public static AttachEffect CreateAE(this IConfigWrapper<AttachEffectData> effectData)
+        public static AttachEffect CreateAE(this AttachEffectData effectData)
         {
-            if (null != effectData && effectData.Data.Enable)
+            if (null != effectData && effectData.Enable)
             {
                 return new AttachEffect(effectData);
             }

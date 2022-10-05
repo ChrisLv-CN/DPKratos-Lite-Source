@@ -19,8 +19,7 @@ namespace Extension.Script
     public partial class AttachEffect : IEffectAction
     {
 
-        private IConfigWrapper<AttachEffectData> aeData;
-        public AttachEffectData AEData => aeData.Data;
+        public AttachEffectData AEData;
 
         public SwizzleablePointer<ObjectClass> pOwner; // AE附着对象
         public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
@@ -37,9 +36,9 @@ namespace Extension.Script
 
         private List<IEffect> effects = new List<IEffect>();
 
-        public AttachEffect(IConfigWrapper<AttachEffectData> aeData)
+        public AttachEffect(AttachEffectData data)
         {
-            this.aeData = aeData;
+            this.AEData = data;
 
             this.pOwner = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
             this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
@@ -59,12 +58,11 @@ namespace Extension.Script
 
             InitAnimation();
             InitAttackBeacon();
-            // InitAttachStatus();
             // InitAutoWeapon();
             InitBlackHole();
             InitCrateBuff();
             // InitDamageReaction();
-            // InitDamageSelf(); // AffectWho
+            InitDamageSelf(); // AffectWho
             InitDestroySelf();
             InitExtraFire();
             InitFireSuper(); // AffectWho
