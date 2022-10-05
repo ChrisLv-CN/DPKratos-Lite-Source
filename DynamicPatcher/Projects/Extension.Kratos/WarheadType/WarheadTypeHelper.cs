@@ -49,6 +49,11 @@ namespace Extension.Utilities
         public static bool CanAffectHouse(this Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pOwnerHouse, Pointer<HouseClass> pTargetHouse, out WarheadTypeData whData)
         {
             whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            return pWH.CanAffectHouse(pOwnerHouse, pTargetHouse, whData);
+        }
+
+        public static bool CanAffectHouse(this Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pOwnerHouse, Pointer<HouseClass> pTargetHouse, WarheadTypeData whData)
+        {
             if (!pOwnerHouse.IsNull && !pTargetHouse.IsNull)
             {
                 if (pOwnerHouse == pTargetHouse)

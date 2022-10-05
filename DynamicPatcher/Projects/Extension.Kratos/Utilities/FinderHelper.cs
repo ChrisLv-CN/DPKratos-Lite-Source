@@ -146,60 +146,6 @@ namespace Extension.Utilities
             while (!pObject.IsNull && !(pObject = pObject.Ref.NextObject).IsNull);
         }
 
-        // Finder all stand, check distance and blown it up.
-        public static void FindAndDamageStand(CoordStruct location, int damage, Pointer<ObjectClass> pAttacker,
-           Pointer<WarheadTypeClass> pWH, bool affectsTiberium, Pointer<HouseClass> pAttackingHouse)
-        {
-            // 虽然不知道为什么但是有可能会出现空指针
-            if (pWH.IsNull)
-            {
-                return;
-            }
-
-            double spread = pWH.Ref.CellSpread * 256;
-
-            HashSet<DamageGroup> stands = new HashSet<DamageGroup>();
-            TechnoClass.Array.FindObject((pTechno) =>
-            {
-                // Stand always not on map.
-                if (!pTechno.Ref.Base.IsOnMap && !(pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded))
-                {
-                    if (pTechno.AmIStand(out StandData standData))
-                    {
-                        // 检查距离
-                        CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
-                        double dist = targetPos.DistanceFrom(location);
-                        if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTechno.InAir(true))
-                        {
-                            dist *= 0.5;
-                        }
-                        if (dist <= spread)
-                        {
-                            // 找到一个最近的替身，检查替身是否可以受伤，以及弹头是否可以影响该替身
-                            if (!standData.Immune
-                                && pTechno.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
-                                && pTechno.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
-                            )
-                            {
-                                DamageGroup damageGroup = new DamageGroup();
-                                damageGroup.Target = pTechno;
-                                damageGroup.Distance = dist;
-                                stands.Add(damageGroup);
-                            }
-                        }
-                    }
-                }
-                return false;
-            });
-
-            foreach (DamageGroup damageGroup in stands)
-            {
-                damageGroup.Target.Ref.Base.ReceiveDamage(damage, (int)damageGroup.Distance, pWH, pAttacker, false, false, pAttackingHouse);
-            }
-        }
-
-        /*
-        [Obsolete]
         public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter)
         {
             HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
@@ -218,11 +164,21 @@ namespace Extension.Utilities
                 CellStruct offset = enumerator.Current;
                 if (MapClass.Instance.TryGetCellAt(cur + offset, out Pointer<CellClass> pCell))
                 {
-                    FindTechnoInCell(pCell, (pTarget) =>
+                    pCell.FindTechnoInCell((pTarget) =>
                     {
                         pTechnoSet.Add(pTarget);
                         return false;
                     });
+                }
+                // 获取JJ
+                if (includeInAir)
+                {
+                    Pointer<TechnoClass> pJJ = pCell.Ref.Jumpjet.Convert<TechnoClass>();
+                    if (!pJJ.IsDeadOrInvisible())
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
+                        pTechnoSet.Add(pJJ);
+                    }
                 }
             } while (enumerator.MoveNext());
 
@@ -231,18 +187,17 @@ namespace Extension.Utilities
             if (includeInAir)
             {
                 // 获取所有在天上的玩意儿，JJ，飞起来的坦克，包含路过的飞机
-                ExHelper.FindTechno(IntPtr.Zero, (pTechno) =>
+                ExHelper.FindFoot((pTarget) =>
                 {
+                    Pointer<TechnoClass> pTechno = pTarget.Convert<TechnoClass>();
                     if (pTechno.Ref.Base.GetHeight() > 0 && pTechno.Ref.Base.Location.DistanceFrom(location) <= spread * 256)
                     {
                         pTechnoSet.Add(pTechno.Convert<TechnoClass>());
                     }
                     return false;
-                }, true, true, true, true);
+                }, location, spread);
             }
-
             // Logger.Log("includeAir = {0}, pTechnoSet.Count = {1}", includeInAir, pTechnoSet.Count);
-
             // 筛选并去掉不可用项目
             List<Pointer<TechnoClass>> pTechnoList = new List<Pointer<TechnoClass>>();
             foreach (Pointer<TechnoClass> pTechno in pTechnoSet)
@@ -279,7 +234,6 @@ namespace Extension.Utilities
             }
             return pTechnoList;
         }
-        */
 
     }
 }

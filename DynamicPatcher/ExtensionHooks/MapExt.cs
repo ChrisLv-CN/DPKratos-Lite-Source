@@ -15,7 +15,7 @@ namespace ExtensionHooks
     {
 
         [Hook(HookType.AresHook, Address = 0x489280, Size = 6)]
-        public static unsafe UInt32 _MapClass_DamageArea(REGISTERS* R)
+        public static unsafe UInt32 MapClass_DamageArea(REGISTERS* R)
         {
             try
             {
@@ -27,8 +27,10 @@ namespace ExtensionHooks
                 Pointer<HouseClass> pAttackingHouse = R->Stack<IntPtr>(0x10);
                 // Logger.Log($"{Game.CurrentFrame} - 轰炸地区 {pLocation.Data} damage {R->EDX}, warhead {pWH} [{pWH.Ref.Base.ID}], shooter {pAttacker}, owner {pAttackingHouse}");
 
-                // Finder all stand, check distance and blown it up.
-                ExHelper.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, affectsTiberium, pAttackingHouse);
+                // Find all stand, check distance and blown it up.
+                AttachEffectScript.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
+                // Find and Attach Effects.
+                AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttackingHouse);
             }
             catch (Exception e)
             {

@@ -100,7 +100,7 @@ namespace Extension.Script
         /// </summary>
         /// <param name="typeData">section的AE清单</param>
         /// <param name="pHouse">强制所属</param>
-        public void Attach(AttachEffectTypeData typeData)
+        public void Attach(AttachEffectTypeData typeData, bool fromDamage = false)
         {
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Length > 0)
@@ -118,7 +118,7 @@ namespace Extension.Script
                     pHouse = pBullet.GetSourceHouse();
                     pAttacker = pBullet.Ref.Owner;
                 }
-                Attach(typeData.AttachEffectTypes, pHouse, pAttacker, attachEffectOnceFlag);
+                Attach(typeData.AttachEffectTypes, pHouse, pAttacker, attachEffectOnceFlag, fromDamage);
             }
 
             if (typeData.StandTrainCabinLength > 0)
@@ -133,14 +133,14 @@ namespace Extension.Script
         /// <param name="aeTypes"></param>
         /// <param name="pHouse"></param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string[] aeTypes, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag)
+        public void Attach(string[] aeTypes, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag, bool fromDamage = false)
         {
             if (null != aeTypes && aeTypes.Length > 0)
             {
                 foreach (string type in aeTypes)
                 {
                     // Logger.Log("事件{0}添加AE类型{1}", onUpdate ? "OnUpdate" : "OnInit", type);
-                    Attach(type, pHouse, pAttacker, attachOnceFlag);
+                    Attach(type, pHouse, pAttacker, attachOnceFlag, fromDamage);
                 }
             }
         }
@@ -152,7 +152,7 @@ namespace Extension.Script
         /// <param name="pHouse">强制所属</param>
         /// <param name="pAttacker">AE来源</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string type, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag)
+        public void Attach(string type, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag, bool fromDamage = false)
         {
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
             if (attachOnceFlag && aeDate.Data.AttachOnceInTechnoType)
@@ -160,14 +160,14 @@ namespace Extension.Script
                 return;
             }
             // Logger.Log("AE {0} AttachOnceInTechnoType = {1}, AttachOnceFlag = {2}", aeType.Name, aeType.AttachOnceInTechnoType, attachOnceFlag);
-            Attach(aeDate.Data, pHouse, pAttacker);
+            Attach(aeDate.Data, pHouse, pAttacker, fromDamage);
         }
 
         /// <summary>
         /// 附加AE
         /// </summary>
         /// <param name="aeData">要附加的AE类型</param>
-        public void Attach(AttachEffectData aeData)
+        public void Attach(AttachEffectData aeData, bool fromDamage = false)
         {
             // 写在type上附加的AE，所属是自己，攻击者是自己
             Pointer<HouseClass> pHouse = IntPtr.Zero;
@@ -182,7 +182,7 @@ namespace Extension.Script
                 pHouse = pBullet.GetSourceHouse();
                 pAttacker = pBullet.Ref.Owner;
             }
-            Attach(aeData, pHouse, pAttacker);
+            Attach(aeData, pHouse, pAttacker, fromDamage);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Extension.Script
         /// <param name="aeData">要附加的AE类型</param>
         /// <param name="pHouse">指定的所属</param>
         /// <param name="pAttacker">来源</param>
-        public void Attach(AttachEffectData data, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        public void Attach(AttachEffectData data, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool fromDamage)
         {
             if (!data.Enable)
             {
@@ -202,6 +202,12 @@ namespace Extension.Script
             if (!data.CanAffectType(pOwner))
             {
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{aeData.Data.Name}] 的名单内，不能赋予");
+                return;
+            }
+            // 通过伤害赋予的AE没有通过伤害进行赋予，不能赋予
+            if (data.AttachWithDamage != fromDamage)
+            {
+                // Logger.Log($"{Game.CurrentFrame} AE类 [{aeData.Data.Name}] 仅能赋予伤害来源{data.AttachWithDamage}与当前来源{fromDamage}不符，不能赋予单位 [{section}]");
                 return;
             }
             // 检查叠加
@@ -617,6 +623,42 @@ namespace Extension.Script
         public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
+            // 受到伤害，为我自己添加AE
+            AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
+            {
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    if (pTechno.CanAffectMe(pAttackingHouse, pWH) && pTechno.CanDamageMe(pDamage.Data, distanceFromEpicenter, pWH, out int realDamage))
+                    {
+                        if (!pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno))
+                        {
+                            pAttackerTechno = pTechno;
+                        }
+                        Attach(aeTypeData.AttachEffectTypes, pAttackingHouse, pAttackerTechno, false, true);
+                        if (aeTypeData.StandTrainCabinLength > 0)
+                        {
+                            SetLocationSpace(aeTypeData.StandTrainCabinLength);
+                        }
+                    }
+                }
+                else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    Pointer<HouseClass> pSourceHouse = pBullet.GetSourceHouse();
+                    if (pWH.CanAffectHouse(pSourceHouse, pAttackingHouse))
+                    {
+                        if (!pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno))
+                        {
+                            pAttackerTechno = pBullet.Ref.Owner;
+                        }
+                        Attach(aeTypeData.AttachEffectTypes, pAttackingHouse, pAttackerTechno, false, true);
+                        if (aeTypeData.StandTrainCabinLength > 0)
+                        {
+                            SetLocationSpace(aeTypeData.StandTrainCabinLength);
+                        }
+                    }
+                }
+            }
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.IsActive())
@@ -627,8 +669,40 @@ namespace Extension.Script
 
         }
 
+        /// <summary>
+        /// 抛射体爆炸，搜索附近单位并为他们附加AE
+        /// </summary>
+        /// <param name="pCoords"></param>
         public override void OnDetonate(Pointer<CoordStruct> pCoords)
         {
+
+            Pointer<BulletClass> pBullet = pOwner.Convert<BulletClass>();
+            Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
+            if (!pWH.IsNull)
+            {
+                AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+                if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
+                {
+                    // 爆炸的位置离目标位置非常近视为命中
+                    CoordStruct targetLocation = pCoords.Data;
+                    // 炸膛或者垂直抛射体不检查与目标的贴近距离
+                    bool snapped = pBullet.Ref.Type.Ref.Dropping || pBullet.Ref.Type.Ref.Vertical;
+                    int snapDistance = 64;
+                    Pointer<AbstractClass> pBulletTarget = pBullet.Ref.Target;
+                    if (!pBulletTarget.IsNull && pBullet.Ref.Base.DistanceFrom(pBulletTarget.Convert<ObjectClass>()) < snapDistance)
+                    {
+                        targetLocation = pBulletTarget.Convert<AbstractClass>().Ref.GetCoords();
+                        snapped = true;
+                    }
+                    if (!pBullet.TryGetStatus(out BulletStatusScript status) || !status.LifeData.SkipAE)
+                    {
+                        // 抛射体所属阵营
+                        Pointer<HouseClass> pAttackingHouse = pBullet.GetSourceHouse();
+                        // 搜索并附加效果
+                        FindAndAttach(targetLocation, pBullet.Ref.Base.Health, pWH, pAttackingHouse, pObject);
+                    }
+                }
+            }
             DestroyAll(pCoords.Data);
         }
 
@@ -686,6 +760,133 @@ namespace Extension.Script
                 }
             }
         }
+
+        /// <summary>
+        /// 搜索爆炸位置物体并附加AE
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="damage"></param>
+        /// <param name="pWH"></param>
+        /// <param name="pAttackingHouse"></param>
+        /// <param name="exclude"></param>
+        public static void FindAndAttach(CoordStruct location, int damage, Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
+        {
+            AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
+            {
+                WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+
+                // 检索爆炸范围内的单位类型
+                List<Pointer<TechnoClass>> pTechnoList = ExHelper.GetCellSpreadTechnos(location, pWH.Ref.CellSpread, warheadTypeData.AffectsAir, false);
+                // Logger.Log("弹头{0}半径{1}, 影响的单位{2}个", pWH.Ref.Base.ID, pWH.Ref.CellSpread, pTechnoList.Count);
+                foreach (Pointer<TechnoClass> pTarget in pTechnoList)
+                {
+                    // 检查死亡
+                    if (pTarget.IsDeadOrInvisible() || pTarget.Convert<ObjectClass>() == exclude)
+                    {
+                        continue;
+                    }
+
+                    int distanceFromEpicenter = (int)location.DistanceFrom(pTarget.Ref.Base.Location);
+                    Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
+                    // 可影响可伤害
+                    if (pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)// 检查所属权限
+                        && pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int realDamage)// 检查护甲
+                        && (pTarget.Ref.Base.Health - realDamage) > 0 // 收到本次伤害后会死，就不再进行赋予
+                    )
+                    {
+                        // 赋予AE
+                        if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
+                        {
+                            aeManager.Attach(aeTypeData);
+                        }
+                    }
+                }
+
+                // 检索爆炸范围内的抛射体类型
+                if (warheadTypeData.AffectsBullet)
+                {
+                    BulletClass.Array.FindObject((pTarget) =>
+                    {
+                        if (!pTarget.IsDeadOrInvisible() && pTarget.Convert<ObjectClass>() != exclude)
+                        {
+                            // 可影响
+                            Pointer<HouseClass> pTargetSourceHouse = pTarget.GetSourceHouse();
+                            if (pWH.CanAffectHouse(pAttackingHouse, pTargetSourceHouse, warheadTypeData))
+                            {
+                                // 赋予AE
+                                if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
+                                {
+                                    aeManager.Attach(aeTypeData);
+                                }
+                            }
+                        }
+                        return false;
+                    }, location, pWH.Ref.CellSpread);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 查找爆炸位置的替身并对其造成伤害
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="damage"></param>
+        /// <param name="pAttacker"></param>
+        /// <param name="pWH"></param>
+        /// <param name="pAttackingHouse"></param>
+        /// <param name="exclue"></param>
+        public static void FindAndDamageStand(CoordStruct location, int damage, Pointer<ObjectClass> pAttacker,
+           Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
+        {
+            // 虽然不知道为什么但是有可能会出现空指针
+            if (pWH.IsNull)
+            {
+                return;
+            }
+
+            double spread = pWH.Ref.CellSpread * 256;
+
+            HashSet<DamageGroup> stands = new HashSet<DamageGroup>();
+            TechnoClass.Array.FindObject((pTechno) =>
+            {
+                // Stand always not on map.
+                if (!pTechno.IsDeadOrInvisible() && pTechno.Convert<ObjectClass>() != exclude && !pTechno.Ref.Base.IsOnMap && !(pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded))
+                {
+                    if (pTechno.AmIStand(out StandData standData))
+                    {
+                        // 检查距离
+                        CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
+                        double dist = targetPos.DistanceFrom(location);
+                        if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTechno.InAir(true))
+                        {
+                            dist *= 0.5;
+                        }
+                        if (dist <= spread)
+                        {
+                            // 找到一个最近的替身，检查替身是否可以受伤，以及弹头是否可以影响该替身
+                            if (!standData.Immune
+                                && pTechno.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
+                                && pTechno.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
+                            )
+                            {
+                                DamageGroup damageGroup = new DamageGroup();
+                                damageGroup.Target = pTechno;
+                                damageGroup.Distance = dist;
+                                stands.Add(damageGroup);
+                            }
+                        }
+                    }
+                }
+                return false;
+            });
+
+            foreach (DamageGroup damageGroup in stands)
+            {
+                damageGroup.Target.Ref.Base.ReceiveDamage(damage, (int)damageGroup.Distance, pWH, pAttacker, false, false, pAttackingHouse);
+            }
+        }
+
     }
 
 }

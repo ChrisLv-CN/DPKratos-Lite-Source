@@ -66,10 +66,15 @@ namespace Extension.Utilities
             return realDamage;
         }
 
-        public static bool CanAffectMe(this Pointer<TechnoClass> pTechno, Pointer<HouseClass> pAttackHouse, Pointer<WarheadTypeClass> pWH)
+        public static bool CanAffectMe(this Pointer<TechnoClass> pTechno, Pointer<HouseClass> pAttackingHouse, Pointer<WarheadTypeClass> pWH)
         {
-            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-            return pWH.CanAffectHouse(pHouse, pAttackHouse);
+            return pTechno.CanAffectMe(pAttackingHouse, pWH, out WarheadTypeData whData);
+        }
+
+        public static bool CanAffectMe(this Pointer<TechnoClass> pTechno, Pointer<HouseClass> pAttackingHouse, Pointer<WarheadTypeClass> pWH, out WarheadTypeData whData)
+        {
+            Pointer<HouseClass> pHosue = pTechno.Ref.Owner;
+            return pWH.CanAffectHouse(pHosue, pAttackingHouse, out whData);
         }
 
         public static bool CanDamageMe(this Pointer<TechnoClass> pTechno, int damage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, out int realDamage, bool effectsRequireDamage = false)
@@ -101,6 +106,5 @@ namespace Extension.Utilities
             }
             return true;
         }
-
     }
 }
