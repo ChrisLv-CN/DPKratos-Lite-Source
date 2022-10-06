@@ -23,6 +23,11 @@ namespace Extension.Script
             this.targetPos = targetPos;
             this.Velocity = bulletVelocity;
         }
+
+        public void ResetVelocity(Pointer<BulletClass> pBullet)
+        {
+            this.Velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
+        }
     }
 
     [Serializable]
@@ -97,6 +102,19 @@ namespace Extension.Script
             {
                 // 强制修正速度
                 pBullet.Ref.Velocity = straightBullet.Velocity;
+            }
+        }
+
+        public bool IsStraight()
+        {
+            return null != straightBullet;
+        }
+
+        public void ResetVelocity()
+        {
+            if (null != straightBullet)
+            {
+                straightBullet.ResetVelocity(pBullet);
             }
         }
 

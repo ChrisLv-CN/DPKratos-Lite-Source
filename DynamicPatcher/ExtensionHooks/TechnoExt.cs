@@ -119,6 +119,47 @@ namespace ExtensionHooks
             return 0;
         }
 
+        #region UnitClass Deplayed
+        [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+                if (pTechno.TryGetComponent<DeployFireOnceScript>(out DeployFireOnceScript deployer))
+                {
+                    deployer.UnitDeployFireOnce();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // [Hook(HookType.AresHook, Address = 0x739B6A, Size = 6)] // Has Anim
+        // [Hook(HookType.AresHook, Address = 0x739C6A, Size = 6)] // No Anim
+        // Phobos Skip ↑ those address.
+        [Hook(HookType.AresHook, Address = 0x739C74, Size = 6)]
+        public static unsafe UInt32 UnitClass_Deployed(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetComponent<UnitDeployerScript>(out UnitDeployerScript deployer))
+                {
+                    deployer.UnitDeployToTransform();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        #endregion
+
         [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
         public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
         {

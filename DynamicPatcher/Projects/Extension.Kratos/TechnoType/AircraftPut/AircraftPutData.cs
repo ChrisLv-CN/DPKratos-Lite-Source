@@ -29,7 +29,7 @@ namespace Extension.Ext
         public override void Read(IConfigReader reader)
         {
             // 全局设置
-            ISectionReader generalReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionGeneral);
+            ISectionReader generalReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionGeneral);
             this.PadAircraftTypes = generalReader.GetList("PadAircraft", this.PadAircraftTypes);
 
             this.NoHelipadPutOffset = generalReader.Get("AircraftNoHelipadPutOffset", this.NoHelipadPutOffset);

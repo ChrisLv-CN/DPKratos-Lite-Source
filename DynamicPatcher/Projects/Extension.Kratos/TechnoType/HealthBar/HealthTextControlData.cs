@@ -26,7 +26,7 @@ namespace Extension.Ext
 
         public HealthTextControlData()
         {
-            ISectionReader sectionReader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), RulesExt.SectionAudioVisual);
+            ISectionReader sectionReader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), RulesClass.SectionAudioVisual);
 
             this.Hidden = sectionReader.Get(HealthTextData.TITLE + "Hidden", false);
 

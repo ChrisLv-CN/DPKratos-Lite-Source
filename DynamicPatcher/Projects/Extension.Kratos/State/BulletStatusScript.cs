@@ -90,6 +90,7 @@ namespace Extension.Script
             if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
                 OnUpdate_BlackHole();
+                OnUpdate_RecalculateStatus();
             }
         }
 

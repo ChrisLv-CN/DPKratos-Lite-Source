@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using System;
 using DynamicPatcher;
 using PatcherYRpp;
@@ -28,7 +29,7 @@ namespace Extension.Ext
         public override void Read(IConfigReader reader)
         {
             // 全局设置
-            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
+            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
             this.Disable = avReader.Get("DisableAircraftAutoPitch", this.Disable);
 
             this.SpawnTakeoffDir = avReader.GetDir16("SpawnTakingOffDir", this.SpawnTakeoffDir);

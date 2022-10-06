@@ -138,17 +138,22 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            base.Read(reader, TITLE);
+            Read(reader, TITLE);
+        }
+
+        public override void Read(IConfigReader reader, string title)
+        {
+            base.Read(reader, title);
 
             GiftBox data = new GiftBox();
-            data.Read(reader, TITLE);
+            data.Read(reader, title);
             if (null != data.Gifts && data.Gifts.Length > 0)
             {
                 this.Data = data;
             }
 
             GiftBox elite = null != this.Data ? Data.Clone() : new GiftBox();
-            elite.Read(reader, TITLE + "Elite");
+            elite.Read(reader, title + "Elite");
             if (null != elite.Gifts && elite.Gifts.Length > 0)
             {
                 this.EliteData = elite;
@@ -159,16 +164,16 @@ namespace Extension.Ext
             if (this.Enable)
             {
                 // 通用设置
-                this.Remove = reader.Get(TITLE + "Remove", this.Remove);
-                this.Destroy = reader.Get(TITLE + "Explodes", this.Destroy);
-                this.RandomRange = reader.Get(TITLE + "RandomRange", this.RandomRange);
-                this.EmptyCell = reader.Get(TITLE + "RandomToEmptyCell", this.EmptyCell);
+                this.Remove = reader.Get(title + "Remove", this.Remove);
+                this.Destroy = reader.Get(title + "Explodes", this.Destroy);
+                this.RandomRange = reader.Get(title + "RandomRange", this.RandomRange);
+                this.EmptyCell = reader.Get(title + "RandomToEmptyCell", this.EmptyCell);
 
-                this.OpenWhenDestoryed = reader.Get(TITLE + "OpenWhenDestoryed", this.OpenWhenDestoryed);
-                this.OpenHealthPercent = reader.GetPercent(TITLE + "OpenWhenHealthPercent", this.OpenHealthPercent);
+                this.OpenWhenDestoryed = reader.Get(title + "OpenWhenDestoryed", this.OpenWhenDestoryed);
+                this.OpenHealthPercent = reader.GetPercent(title + "OpenWhenHealthPercent", this.OpenHealthPercent);
                 this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
 
-                this.IsTransform = reader.Get(TITLE + "IsTransform", this.IsTransform);
+                this.IsTransform = reader.Get(title + "IsTransform", this.IsTransform);
                 if (IsTransform)
                 {
                     this.Remove = true; // 释放后移除
@@ -176,7 +181,7 @@ namespace Extension.Ext
                     this.InheritHealth = true; // 继承血量
                 }
 
-                this.HealthPercent = reader.GetPercent(TITLE + "HealthPercent", this.HealthPercent);
+                this.HealthPercent = reader.GetPercent(title + "HealthPercent", this.HealthPercent);
                 if (HealthPercent <= 0)
                 {
                     // 设置了0，自动，当IsTransform时，按照礼盒的比例
@@ -190,14 +195,25 @@ namespace Extension.Ext
                     this.InheritHealth = false;
                 }
 
-                this.InheritTarget = reader.Get(TITLE + "InheritTarget", this.InheritTarget);
-                this.InheritExperience = reader.Get(TITLE + "InheritExp", this.InheritExperience);
-                this.InheritAmmo = reader.Get(TITLE + "InheritAmmo", this.InheritAmmo);
-                this.InheritAE = reader.Get(TITLE + "InheritAE", this.InheritAE);
-                this.ForceMission = reader.Get(TITLE + "ForceMission", Mission.None);
+                this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);
+                this.InheritExperience = reader.Get(title + "InheritExp", this.InheritExperience);
+                this.InheritAmmo = reader.Get(title + "InheritAmmo", this.InheritAmmo);
+                this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
+                this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
 
-                this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", null);
+                this.AttachEffects = reader.GetList<string>(title + "AttachEffects", null);
             }
+        }
+
+        public void ForTransform()
+        {
+            this.Remove = true;
+            this.Destroy = false;
+            this.OpenWhenDestoryed = false;
+            this.OpenWhenHealthPercent = false;
+            this.IsTransform = true;
+            this.InheritHealth = true;
+            this.HealthPercent = 0;
         }
 
     }

@@ -81,7 +81,7 @@ namespace Extension.Ext
         public override void Read(IConfigReader reader)
         {
             int infDeath = reader.Get("InfDeath", 0);
-            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
+            ISectionReader avReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
             Read(avReader);
             Read(avReader, TITLE + infDeath + ".");
             Read(reader);

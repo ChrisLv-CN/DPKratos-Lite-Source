@@ -56,6 +56,104 @@ namespace ExtensionHooks
             return BulletExt.BulletClass_Save_Suffix(R);
         }
 
+        // 除 ROT>0 和 Vertical 之外的抛射体会在此根据重力对储存的向量变量进行运算
+        // 对Arcing抛射体的重力进行削减
+        [Hook(HookType.AresHook, Address = 0x46745C, Size = 7)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocity(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                if (pBullet.AmIArcing() && pBullet.TryGetStatus(out BulletStatusScript status) && status.SpeedChanged)
+                {
+                    Pointer<BulletVelocity> pVelocity = R->lea_Stack<IntPtr>(0x90); // 已经算过重力的速度
+                    BulletVelocity velocity = pBullet.Ref.Velocity;
+                    // Logger.Log("Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                    // velocity *= 0;
+                    pVelocity.Ref.X = velocity.X;
+                    pVelocity.Ref.Y = velocity.Y;
+                    pVelocity.Ref.Z = status.LocationLocked ? 0 : velocity.Z; // 锁定状态，竖直方向向量0
+                    // Logger.Log(" - Arcing当前车速 {0} - {1}, {2}", pBullet.Ref.Speed, velocity, pVelocity.IsNull ? "null" : pVelocity.Data);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // 除 ROT>0 和 Vertical 之外的抛射体会在Label_158根据速度向量获取坐标
+        // Arcing抛射体即使向量非常小也会试图移动1点
+        [Hook(HookType.AresHook, Address = 0x4677C2, Size = 5)]
+        public static unsafe UInt32 BulletClass_Update_ChangeVelocity_Locked(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->EBP;
+                if (pBullet.AmIArcing() && pBullet.TryGetStatus(out BulletStatusScript status))
+                {
+                    if (status.SpeedChanged && status.LocationLocked)
+                    {
+                        // Logger.Log("Label_158 当前坐标 {0} - 坐标 {{\"X\":{1}, \"Y\":{2}, \"Z\":{3}}}", pBullet.Ref.Base.Location, R->ESI, R->EDI, R->EAX);
+                        CoordStruct location = pBullet.Ref.Base.Location;
+                        R->ESI = (uint)location.X;
+                        R->EDI = (uint)location.Y;
+                        R->EAX = (uint)location.Y; // 不要问为什么不是Z
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        // Take over to create Warhead Anim
+        [Hook(HookType.AresHook, Address = 0x469C4E, Size = 5)]
+        public static unsafe UInt32 BulletClass_Detonate_WHAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                Pointer<AnimTypeClass> pAnimType = (IntPtr)R->EBX;
+                CoordStruct location = R->Stack<CoordStruct>(0x64);
+                // Logger.Log($"{Game.CurrentFrame} - 抛射体 {pBullet} [{pBullet.Ref.Type.Ref.Base.Base.ID}] 所属 {(pBullet.Ref.Owner.IsNull ? "null" : pBullet.Ref.Owner.Ref.Owner)} 播放弹头动画 {pAnimType} [{pAnimType.Ref.Base.Base.ID}], 位置 {location}");
+                // 播放弹头动画
+                // Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
+                Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location, 0, 1, BlitterFlags.Flat | BlitterFlags.bf_400 | BlitterFlags.Centered, -15, false);
+                pAnim.SetAnimOwner(pBullet);
+                pAnim.SetCreater(pBullet);
+                return 0x469D06;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x469EB4, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate_WHDebris_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                Pointer<AnimClass> pAnim = (IntPtr)R->EDI;
+                if (!pAnim.IsNull)
+                {
+                    pAnim.SetAnimOwner(pBullet);
+                    pAnim.SetCreater(pBullet);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return (uint)0;
+        }
+
         // 导弹类抛射体当高度低于地面高度时强制引爆
         [Hook(HookType.AresHook, Address = 0x466E18, Size = 6)]
         public static unsafe UInt32 BulletClass_CheckHight_UnderGround(REGISTERS* R)

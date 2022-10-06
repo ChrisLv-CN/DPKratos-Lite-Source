@@ -9,7 +9,7 @@ using Extension.Ext;
 
 namespace ExtensionHooks
 {
-    public class SWTypeExtHooks
+    public class SuperWeaponTypeExtHooks
     {
         [Hook(HookType.AresHook, Address = 0x6CE6F6, Size = 5)]
         public static unsafe UInt32 SuperWeaponTypeClass_CTOR(REGISTERS* R)

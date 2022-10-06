@@ -18,22 +18,125 @@ namespace Extension.Script
         private SwizzleablePointer<TechnoClass> creater = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         private bool createrIsDeadth = false;
 
-        public void OnUpdate_Damage()
-        {
-            // 断言第一次执行update时，所属已被设置
-            if (!initInvisibleFlag)
-            {
-                // 初始化
-                AnimVisibilityData data = Ini.GetConfig<AnimVisibilityData>(Ini.ArtDependency, section).Data;
-                UpdateVisibility(data.Visibility);
-            }
-        }
+        private TimerStruct weaponDelay;
+        private bool initDelayFlag = false;
 
         public void SetCreater(Pointer<TechnoClass> pTechno)
         {
             if (AnimDamageData.KillByCreater)
             {
                 creater.Pointer = pTechno;
+            }
+        }
+
+        public void OnUpdate_Damage()
+        {
+            if (!initDelayFlag)
+            {
+                initDelayFlag = true;
+                weaponDelay.Start(AnimDamageData.InitDelay);
+            }
+            if (!createrIsDeadth)
+            {
+                if (creater.IsNull)
+                {
+                    if (AnimDamageData.KillByCreater && !pAnim.Ref.OwnerObject.IsNull && pAnim.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
+                    {
+                        creater.Pointer = pTechno;
+                    }
+                    else
+                    {
+                        createrIsDeadth = true;
+                    }
+                }
+                else if (creater.Pointer.IsDead())
+                {
+                    creater.Pointer = IntPtr.Zero;
+                    createrIsDeadth = true;
+                }
+            }
+        }
+
+        public void Explosion_Damage(bool isBounce = false, bool bright = false)
+        {
+            Pointer<AnimTypeClass> pAnimType = pAnim.Ref.Type;
+            if (!pAnimType.IsNull)
+            {
+                CoordStruct location = pAnim.Ref.Base.Base.GetCoords();
+                if (isBounce)
+                {
+                    location = pAnim.Ref.Bounce.GetCoords();
+                }
+                AnimTypeExt typeExt = AnimTypeExt.ExtMap.Find(pAnimType);
+                int damage = (int)pAnimType.Ref.Damage;
+                if (damage != 0 || (!AnimDamageData.Weapon.IsNullOrEmptyOrNone() && AnimDamageData.UseWeaponDamage))
+                {
+                    // 制造伤害
+                    string weaponType = AnimDamageData.Weapon;
+                    Pointer<WarheadTypeClass> pWH = pAnimType.Ref.Warhead;
+                    // 检查动画类型有没有写弹头
+                    if (!weaponType.IsNullOrEmptyOrNone())
+                    {
+                        // 用武器
+                        Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponType);
+                        // 使用武器的伤害数值
+                        if (AnimDamageData.UseWeaponDamage)
+                        {
+                            damage = pWeapon.Ref.Damage;
+                        }
+                        if (damage != 0)
+                        {
+                            if (!pWeapon.IsNull)
+                            {
+                                if (weaponDelay.Expired())
+                                {
+                                    // Logger.Log($"{Game.CurrentFrame} - 动画 {pAnim} [{pAnimType.Ref.Base.Base.ID}] 用武器播放伤害 TypeDamage = {damage}, AnimDamage = {pAnim.Ref.Damage}, Weapon = {weaponType}");
+                                    pWH = pWeapon.Ref.Warhead;
+                                    bool isBright = bright || pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
+                                    Pointer<BulletTypeClass> pBulletType = pWeapon.Ref.Projectile;
+                                    Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(IntPtr.Zero, creater, damage, pWH, pWeapon.Ref.Speed, isBright);
+                                    pBullet.Ref.WeaponType = pWeapon;
+                                    pBullet.SetSourceHouse(pAnim.Ref.Owner);
+                                    pBullet.Ref.Detonate(location);
+                                    pBullet.Ref.Base.UnInit();
+                                    weaponDelay.Start(AnimDamageData.Delay);
+                                }
+                            }
+                        }
+                    }
+                    else if (!pWH.IsNull)
+                    {
+                        // 用弹头
+                        if (weaponDelay.Expired())
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} - 动画 {pAnim} [{pAnimType.Ref.Base.Base.ID}] 用弹头播放伤害 TypeDamage = {damage}, AnimDamage = {pAnim.Ref.Damage}, Warhead = {pAnimType.Ref.Warhead}");
+                            MapClass.DamageArea(location, damage, creater, pWH, true, pAnim.Ref.Owner);
+                            weaponDelay.Start(AnimDamageData.Delay);
+                            if (bright)
+                            {
+                                MapClass.FlashbangWarheadAt(damage, pWH, location);
+                            }
+                            // 播放弹头动画
+                            if (AnimDamageData.PlayWarheadAnim)
+                            {
+                                LandType landType = LandType.Clear;
+                                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                                {
+                                    landType = pCell.Ref.LandType;
+                                }
+                                Pointer<AnimTypeClass> pWHAnimType = MapClass.SelectDamageAnimation(damage, pWH, landType, location);
+                                // Logger.Log($"{Game.CurrentFrame} - Anim {pAnim} [{pAnimType.Ref.Base.Base.ID}] play warhead's Anim [{(pWHAnimType.IsNull ? "null" : pWHAnimType.Ref.Base.Base.ID)}]");
+                                if (!pWHAnimType.IsNull)
+                                {
+                                    Pointer<AnimClass> pWHAnim = YRMemory.Create<AnimClass>(pWHAnimType, location);
+                                    pWHAnim.Ref.Owner = pAnim.Ref.Owner;
+                                }
+                            }
+                        }
+                    }
+
+                }
+
             }
         }
 

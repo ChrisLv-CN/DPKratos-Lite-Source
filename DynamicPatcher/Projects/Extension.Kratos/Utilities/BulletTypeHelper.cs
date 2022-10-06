@@ -78,6 +78,14 @@ namespace Extension.Utilities
             return IntPtr.Zero;
         }
 
+        public static unsafe void SetSourceHouse(this Pointer<BulletClass> pBullet, Pointer<HouseClass> pHouse)
+        {
+            if (!pHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status))
+            {
+                status.pSourceHouse.Pointer = pHouse;
+            }
+        }
+
         public static unsafe bool AmIArcing(this Pointer<BulletClass> pBullet)
         {
             return pBullet.Ref.Type.Ref.Arcing || pBullet.Ref.Type.Ref.ROT <= 0;

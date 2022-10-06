@@ -22,7 +22,7 @@ namespace Extension.Script
 
         public void OnPut_Paintball()
         {
-            ISectionReader reader = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual);
+            ISectionReader reader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
             deactivateDimEMP = reader.Get("DeactivateDimEMP", deactivateDimEMP);
             deactivateDimPowered = reader.Get("DeactivateDimPowered", deactivateDimPowered);
 

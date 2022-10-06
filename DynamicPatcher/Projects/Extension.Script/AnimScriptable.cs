@@ -11,7 +11,9 @@ namespace Extension.Script
 
     public interface IAnimScriptable : IAbstractScriptable
     {
-
+        void OnLoop();
+        void OnDone();
+        void OnNext(Pointer<AnimTypeClass> pNext);
     }
 
 #if USE_ANIM_EXT
@@ -29,6 +31,9 @@ namespace Extension.Script
         public void OnInit() { }
         public void OnUnInit() { }
 
+        public virtual void OnLoop() { }
+        public virtual void OnDone() { }
+        public virtual void OnNext(Pointer<AnimTypeClass> pNext) { }
 
         [Obsolete("not support OnPut in AnimScriptable yet", true)]
         public void OnPut(CoordStruct coord, Direction faceDir)

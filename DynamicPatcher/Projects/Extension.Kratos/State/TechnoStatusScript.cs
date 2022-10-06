@@ -68,7 +68,7 @@ namespace Extension.Script
 
         public override void Awake()
         {
-            this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
+            this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
             this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 

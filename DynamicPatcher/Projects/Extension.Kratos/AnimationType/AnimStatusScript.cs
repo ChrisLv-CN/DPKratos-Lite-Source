@@ -26,6 +26,7 @@ namespace Extension.Script
         public override void OnUpdate()
         {
             OnUpdate_Visibility();
+            OnUpdate_Damage();
         }
 
     }
