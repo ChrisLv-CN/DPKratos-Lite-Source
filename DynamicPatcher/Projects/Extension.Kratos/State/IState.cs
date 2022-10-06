@@ -29,6 +29,8 @@ namespace Extension.Ext
         protected bool infinite;
         protected TimerStruct timer;
 
+        private int frame; // 当前帧
+
         public State()
         {
             this.active = false;
@@ -56,7 +58,7 @@ namespace Extension.Ext
                 infinite = false;
                 timer.Start(duration);
             }
-            // Logger.Log($"{Game.CurrentFrame}, Enable AE State {Data.GetType().Name}, token {Token}");
+            // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
             OnEnable();
         }
 
@@ -75,7 +77,7 @@ namespace Extension.Ext
                 this.infinite = false;
                 this.timer.Start(0);
 
-                // Logger.Log($"{Game.CurrentFrame}, Disable AE State {Data.GetType().Name}, token {Token}");
+                // Logger.Log($"{Game.CurrentFrame} Disable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
                 OnDisable();
             }
         }
@@ -84,28 +86,20 @@ namespace Extension.Ext
 
         public bool IsActive()
         {
-            return infinite || timer.InProgress();
+            // 当前帧内持续有效，下一帧检查计时器
+            bool isActiveNow = active;
+            int currentFrame = Game.CurrentFrame;
+            if (frame != currentFrame)
+            {
+                frame = currentFrame;
+                active = infinite || timer.InProgress();
+                // if (!active && !Token.IsNullOrEmptyOrNone() && null != Data)
+                // {
+                //     Logger.Log($"{Game.CurrentFrame}, State {(null != Data ? Data.GetType().Name : "Null")} Time's up, token {Token}");
+                // }
+            }
+            return isActiveNow;
         }
 
     }
-
-    [Serializable]
-    public class AEState<T> : State<T> where T : IStateData, new()
-    {
-
-        // public AttachEffect AE;
-
-        // public void EnableAndReplace<TT>(Effect<TT> effect) where TT : IEffectType, IStateData, new()
-        // {
-        //     // 激活新的效果，关闭旧的效果
-        //     if (!string.IsNullOrEmpty(Token) && Token != effect.Token && null != AE && AE.IsActive())
-        //     {
-        //         AE.Disable(AE.Location);
-        //     }
-        //     this.AE = effect.AE;
-        //     Enable(effect.AEType.GetDuration(), effect.Token, effect.Type);
-        // }
-
-    }
-
 }

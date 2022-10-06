@@ -171,14 +171,10 @@ namespace Extension.Utilities
                     });
                 }
                 // 获取JJ
-                if (includeInAir)
+                if (includeInAir && !pCell.Ref.Jumpjet.IsNull)
                 {
-                    Pointer<TechnoClass> pJJ = pCell.Ref.Jumpjet.Convert<TechnoClass>();
-                    if (!pJJ.IsDeadOrInvisible())
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
-                        pTechnoSet.Add(pJJ);
-                    }
+                    // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
+                    pTechnoSet.Add(pCell.Ref.Jumpjet.Convert<TechnoClass>());
                 }
             } while (enumerator.MoveNext());
 

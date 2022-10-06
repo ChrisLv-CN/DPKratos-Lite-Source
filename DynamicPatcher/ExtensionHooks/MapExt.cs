@@ -32,7 +32,7 @@ namespace ExtensionHooks
                     // Find all stand, check distance and blown it up.
                     AttachEffectScript.FindAndDamageStand(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
                     // Find and Attach Effects.
-                    AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttackingHouse);
+                    AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttacker, pAttackingHouse);
                 }
             }
             catch (Exception e)

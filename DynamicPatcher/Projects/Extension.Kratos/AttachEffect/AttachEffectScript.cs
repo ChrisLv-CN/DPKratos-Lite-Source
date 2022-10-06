@@ -100,7 +100,7 @@ namespace Extension.Script
         /// </summary>
         /// <param name="typeData">section的AE清单</param>
         /// <param name="pHouse">强制所属</param>
-        public void Attach(AttachEffectTypeData typeData)
+        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource)
         {
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Length > 0)
@@ -108,12 +108,17 @@ namespace Extension.Script
                 // 写在type上附加的AE，所属是自己，攻击者是自己
                 Pointer<HouseClass> pHouse = IntPtr.Zero;
                 Pointer<TechnoClass> pAttacker = IntPtr.Zero;
-                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+                Pointer<ObjectClass> pSourceObject = pSource;
+                if (pSource.IsNull)
+                {
+                    pSourceObject = pObject;
+                }
+                if (pSourceObject.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
                     pHouse = pTechno.Ref.Owner;
                     pAttacker = pTechno;
                 }
-                else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+                else if (pSourceObject.CastToBullet(out Pointer<BulletClass> pBullet))
                 {
                     pHouse = pBullet.GetSourceHouse();
                     pAttacker = pBullet.Ref.Owner;
@@ -289,7 +294,7 @@ namespace Extension.Script
                 AttachEffect ae = data.CreateAE();
                 // 入队
                 int index = FindInsertIndex(ae);
-                Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}");
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(pOwner, pHouse, pAttacker);
@@ -510,7 +515,7 @@ namespace Extension.Script
             if (!pObject.IsDeadOrInvisible())
             {
                 AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section).Data;
-                Attach(aeTypeData);
+                Attach(aeTypeData, pOwner);
                 this.attachEffectOnceFlag = true;
             }
 
@@ -696,7 +701,7 @@ namespace Extension.Script
         /// <param name="pWH"></param>
         /// <param name="pAttackingHouse"></param>
         /// <param name="exclude"></param>
-        public static void FindAndAttach(CoordStruct location, int damage, Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
+        public static void FindAndAttach(CoordStruct location, int damage, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
         {
             AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
             if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
@@ -717,7 +722,7 @@ namespace Extension.Script
                     // 检索爆炸范围内的单位类型
                     List<Pointer<TechnoClass>> pTechnoList = ExHelper.GetCellSpreadTechnos(location, pWH.Ref.CellSpread, warheadTypeData.AffectsAir, false);
 
-                    Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
+                    // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                     foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                     {
                         // 检查死亡
@@ -728,7 +733,7 @@ namespace Extension.Script
 
                         int distanceFromEpicenter = (int)location.DistanceFrom(pTarget.Ref.Base.Location);
                         Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
-                        Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 可以影响 [{pTarget.Ref.Type.Ref.Base.Base.ID}] {pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)}, 可以伤害 {pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int r)}, 实际伤害 {r}");
+                        // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 可以影响 [{pTarget.Ref.Type.Ref.Base.Base.ID}] {pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)}, 可以伤害 {pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int r)}, 实际伤害 {r}");
                         // 可影响可伤害
                         if (pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)// 检查所属权限
                             && pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int realDamage)// 检查护甲
@@ -738,8 +743,8 @@ namespace Extension.Script
                             // 赋予AE
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
-                                Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}] 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
-                                aeManager.Attach(aeTypeData);
+                                // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}] 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
+                                aeManager.Attach(aeTypeData, pAttacker);
                             }
                         }
                     }
@@ -759,7 +764,7 @@ namespace Extension.Script
                                 // 赋予AE
                                 if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                                 {
-                                    aeManager.Attach(aeTypeData);
+                                    aeManager.Attach(aeTypeData, pAttacker);
                                 }
                             }
                         }

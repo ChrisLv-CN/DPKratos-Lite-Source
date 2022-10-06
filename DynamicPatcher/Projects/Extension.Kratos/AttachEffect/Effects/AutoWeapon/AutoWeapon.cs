@@ -86,11 +86,13 @@ namespace Extension.Script
             CoordStruct targetFLH = data.TargetFLH;
 
             // bool attackerInvisible = pAttacker.IsNull || pAttacker.Ref.Base.Health <= 0 || !pAttacker.Ref.Base.IsAlive || pAttacker.Ref.Base.InLimbo || pAttacker.Ref.IsImmobilized || !pAttacker.Ref.Transporter.IsNull;
-            bool attackerInvisible = AE.pSource.Pointer.IsDeadOrInvisible() || AE.pSource.Ref.IsImmobilized || !AE.pSource.Ref.Transporter.IsNull;
+            bool attackerInvisible = AE.pSource.Pointer.IsDead() || AE.pSource.Ref.IsImmobilized || AE.pSource.Pointer.WhoIsShooter().IsDeadOrInvisible();
             bool bulletOwnerInvisible = isOnBullet && (pReceiverOwner.IsDeadOrInvisible() || pReceiverOwner.Ref.IsImmobilized || !pReceiverOwner.Ref.Transporter.IsNull);
+            // Logger.Log($"{Game.CurrentFrame} - AE.pSource = {AE.pSource.Pointer} pSource.IsDead() = {AE.pSource.Pointer.IsDead()}, attackerInvisible = {attackerInvisible}, bulletOwnerInvisible = {bulletOwnerInvisible}");
             // 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE
             if (Data.IsAttackerMark ? (attackerInvisible || bulletOwnerInvisible) : !Data.ReceiverAttack)
             {
+                // Logger.LogWarning($"{Game.CurrentFrame} - 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE");
                 Disable(AE.Location);
                 return;
             }
@@ -116,13 +118,13 @@ namespace Extension.Script
                 // 发射单位自身的武器
                 if (!pShooter.IsNull)
                 {
-                    // Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Data.Ref.Base.Base.ID, pTarget.Ref.Data.Ref.Base.ID, weaponIndex);
+                    // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.Base.ID}] 即将向 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 发射自身的武器 {weaponIndex}");
                     // 检查武器是否存在，是否ROF结束
                     Pointer<WeaponStruct> pWeaponStruct = pShooter.Ref.GetWeapon(weaponIndex);
                     if (!pWeaponStruct.IsNull && !pWeaponStruct.Ref.WeaponType.IsNull && CheckROF(pWeaponStruct.Ref.WeaponType))
                     {
                         // 可以发射
-                        // Logger.Log("{0}朝{1}发射自身的武器{2}", pShooter.Ref.Data.Ref.Base.Base.ID, pTarget.Ref.Data.Ref.Base.ID, weaponIndex);
+                        // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.Base.ID}] 向 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 发射自身的武器 {weaponIndex}");
                         // 准备发射，获取发射位置
                         GetFireLocation(pReceiverOwner, pShooter, fireFLH, pTarget, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
                         if (needFakeTarget && !pReceiverHouse.IsNull && default != fakeTargetPos)
@@ -262,7 +264,7 @@ namespace Extension.Script
                 pShooter = AE.pSource;
                 pWeaponOwner = AE.pSource;
                 pTarget = pReceiver.Convert<AbstractClass>();
-                // Logger.Log("由攻击者{0}朝向持有者{1}开火", pShooter.Ref.Data.Ref.Base.Base.ID, pTarget.Ref.Data.Ref.Base.ID);
+                // Logger.Log($"{Game.CurrentFrame} 由攻击者 [{pShooter.Ref.Type.Ref.Base.Base.ID}] 朝向持有者 [{pReceiver.Ref.Type.Ref.Base.ID}] 开火");
             }
 
             // 更改所属
@@ -273,7 +275,7 @@ namespace Extension.Script
             else
             {
                 pWeaponOwner = AE.pSource;
-                // Logger.Log("武器所属变更为攻击者{0}", pShooter.Ref.Data.Ref.Base.Base.ID);
+                // Logger.Log($"{Game.CurrentFrame} 武器所属变更为攻击者 [{pShooter.Ref.Type.Ref.Base.Base.ID}]");
             }
 
             // 设定目标
@@ -286,15 +288,24 @@ namespace Extension.Script
                 if (Data.ReceiverAttack)
                 {
                     pTarget = AE.pSource.Pointer.Convert<AbstractClass>();
+                    // Logger.Log($"{Game.CurrentFrame} 武器的目标变更为AE来源 [{AE.pSource.Ref.Type.Ref.Base.Base.ID}]");
                 }
             }
             else if (Data.FireToTarget)
             {
                 pTarget = pReceiverTarget;
-                // Logger.Log("设定目标为附属对象的目标{0}", pTarget.IsNull ? "null" : pTarget.Ref.WhatAmI());
+                // Logger.Log($"{Game.CurrentFrame} 设定目标为附属对象的目标 [{(pTarget.IsNull ? "null" : pTarget.Ref.WhatAmI())}]");
                 // 如果附属对象的目标不存在，此时应为无法开火，固定返回true不创建假目标
                 dontMakeFakeTarget = true;
             }
+            
+            // 检查攻击目标是否藏在载具内，设定攻击目标为载具
+            if (!pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pTagretTechno))
+            {
+                pTarget = pTagretTechno.WhoIsShooter().Convert<AbstractClass>();
+                // Logger.Log($"{Game.CurrentFrame} 设定的目标 藏在载具内 查找到载具 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 设定为新的目标");
+            }
+
             return pTarget.IsNull;
         }
 

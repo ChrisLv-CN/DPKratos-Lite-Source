@@ -75,7 +75,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
-    <Compile Include="**\**\*.cs" />
     <Compile Remove="obj\**\*.*" />
   </ItemGroup>
   <ItemGroup />

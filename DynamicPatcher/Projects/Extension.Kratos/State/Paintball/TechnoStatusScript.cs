@@ -61,7 +61,7 @@ namespace Extension.Script
                 return;
             }
 
-            // Logger.Log($"{Game.CurrentFrame} - {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}");
+            // Logger.Log($"{Game.CurrentFrame} - [{section}] {pTechno} change color {PaintballState.Data.Color} {changeColor}, change bright {changeBright}, stats.Token {PaintballState.Token}");
             if (changeColor)
             {
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
