@@ -164,7 +164,7 @@ namespace Extension.Ext
             ReadGiftBoxData(reader);
             ReadPaintballData(reader);
             ReadStandData(reader);
-            // ReadTransformData(reader);
+            ReadTransformData(reader);
             ReadOverrideWeaponData(reader);
 
             if (Enable)
