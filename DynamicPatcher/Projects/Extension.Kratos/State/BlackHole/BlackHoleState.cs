@@ -74,7 +74,11 @@ namespace Extension.Ext
             if (null != data && data.Range > 0)
             {
                 Reload(data.Rate);
-
+                // 检查平民
+                if (Data.DeactiveWhenCivilian && pHouse.IsCivilian())
+                {
+                    return;
+                }
                 CoordStruct location = pBlackHole.Ref.Base.GetCoords();
                 if (Data.AffectBullet)
                 {

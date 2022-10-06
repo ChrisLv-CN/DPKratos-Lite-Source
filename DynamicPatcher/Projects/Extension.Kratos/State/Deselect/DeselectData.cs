@@ -35,6 +35,8 @@ namespace Extension.Ext
         public DeselectData()
         {
             this.Disable = false;
+
+            this.AffectWho = AffectWho.ALL;
         }
 
         public override void Read(IConfigReader reader)

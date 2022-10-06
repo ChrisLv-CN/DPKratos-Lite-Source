@@ -47,6 +47,8 @@ namespace Extension.Ext
             this.ROFMultiplier = 1.0;
             this.Cloakable = false;
             this.ForceDecloak = false;
+
+            this.AffectWho = AffectWho.ALL;
         }
 
         public static CrateBuffData operator +(CrateBuffData a, CrateBuffData b)

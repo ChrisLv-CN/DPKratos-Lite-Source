@@ -38,6 +38,8 @@ namespace Extension.Ext
         {
             this.Disable = false;
             this.OnLandTypes = null;
+
+            this.AffectWho = AffectWho.ALL;
         }
 
         public override void Read(IConfigReader reader)

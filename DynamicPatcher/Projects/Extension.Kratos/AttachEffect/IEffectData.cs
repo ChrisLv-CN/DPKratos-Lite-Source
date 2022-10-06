@@ -16,7 +16,7 @@ namespace Extension.Ext
     [Serializable]
     public enum AffectWho
     {
-        ALL = 0, MASTER = 1, STAND = 2
+        MASTER = 0, STAND = 1, ALL = 2, 
     }
 
     public class AffectWhoParser : KEnumParser<AffectWho>
@@ -56,7 +56,7 @@ namespace Extension.Ext
         public EffectData()
         {
             this.Enable = false;
-            this.AffectWho = AffectWho.ALL;
+            this.AffectWho = AffectWho.MASTER;
             this.DeactiveWhenCivilian = false;
         }
 

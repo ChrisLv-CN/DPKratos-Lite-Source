@@ -298,15 +298,8 @@ namespace Extension.Script
                             boxAEM.InheritedTo(giftAEM);
                             // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
 
-                            // TODO 继承状态机
-                            // 
-                            // AttachEffectManager giftAEM = giftExt.AttachEffectManager;
-                            // giftExt.AttachEffectManager = this.AttachEffectManager;
-                            // this.AttachEffectManager = giftAEM;
-
-                            // GiftBoxState giftState = giftExt.AttachEffectManager.GiftBoxState;
-                            // giftExt.AttachEffectManager.GiftBoxState = this.AttachEffectManager.GiftBoxState;
-                            // this.AttachEffectManager.GiftBoxState = giftState;
+                            // 继承除了GiftBox之外的状态机
+                            InheritedStatsTo(giftStatus);
                         }
 
                         // 附加AE

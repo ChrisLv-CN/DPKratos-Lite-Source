@@ -55,23 +55,23 @@ namespace Extension.Script
             //TODO 增加新的AE
 
             InitStand(); // 替身需要第一个初始化
-            InitDestroySelf();
+            InitDestroySelf(); // state AffectWho
 
             InitAnimation();
-            InitAttackBeacon();
+            InitAttackBeacon(); // state AffectWho
             InitAutoWeapon();
-            InitBlackHole();
-            InitCrateBuff();
+            InitBlackHole(); // state AffectWho
+            InitCrateBuff(); // state AffectWho
             // InitDamageReaction();
-            InitDamageSelf(); // AffectWho
-            InitDeselect(); // AffectWho
-            InitDisableWeapon(); // AffectWho
-            InitExtraFire(); // AffectWho
-            InitFireSuper(); // AffectWho
-            InitGiftBox(); // AffectWho
-            InitPaintball();
+            InitDamageSelf(); // state AffectWho
+            InitDeselect(); // state AffectWho
+            InitDisableWeapon(); // state AffectWho
+            InitExtraFire(); // state AffectWho
+            InitFireSuper(); // state AffectWho
+            InitGiftBox(); // state AffectWho
+            InitPaintball(); // always same JoJo and Stand
             // InitTransform();
-            InitOverrideWeapon(); // AffectWho
+            InitOverrideWeapon(); // state AffectWho
         }
 
         public void SetupLifeTimer()

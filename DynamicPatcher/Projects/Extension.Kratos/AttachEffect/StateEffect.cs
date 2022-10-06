@@ -52,13 +52,21 @@ namespace Extension.Ext
                         state.Enable(AE.AEData.GetDuration(), Token, data);
                         break;
                     case AffectWho.STAND:
-                        //TODO state?.EnableAEStatsToStand(AE.AEData.GetDuration(), Token, data);
+                        EnableAEStatsToStand(data);
                         break;
                     default:
                         state.Enable(AE.AEData.GetDuration(), Token, data);
-                        //TODO OwnerAEM?.EnableAEStatsToStand(AE.AEData.GetDuration(), Token, data);
+                        EnableAEStatsToStand(data);
                         break;
                 }
+            }
+        }
+
+        private void EnableAEStatsToStand(IStateData data)
+        {
+            if (!pOwner.IsNull && pOwner.TryGetAEManager(out AttachEffectScript aeManager))
+            {
+                aeManager.EnableAEStatsToStand(AE.AEData.GetDuration(), Token, data);
             }
         }
 

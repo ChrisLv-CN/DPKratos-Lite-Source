@@ -28,6 +28,44 @@ namespace Extension.Script
         public DrivingState DrivingState;
         private Mission lastMission;
 
+        /// <summary>
+        /// 继承除了GiftBox之外的状态
+        /// </summary>
+        /// <param name="heir"></param>
+        private void InheritedStatsTo(TechnoStatusScript heir)
+        {
+            // 炒粉
+            heir.AttackBeaconState = this.AttackBeaconState;
+            this.AttackBeaconState = new AttackBeaconState();
+            // 黑洞
+            heir.BlackHoleState = this.BlackHoleState;
+            this.BlackHoleState = new BlackHoleState();
+            // Buff
+            heir.CrateBuffState = this.CrateBuffState;
+            this.CrateBuffState = new State<CrateBuffData>();
+            // 不可选择
+            heir.DeselectState = this.DeselectState;
+            this.DeselectState = new State<DeselectData>();
+            // 自毁
+            heir.DestroySelfState = this.DestroySelfState;
+            this.DestroySelfState = new DestroySelfState();
+            // 关闭武器
+            heir.DisableWeaponState = this.DisableWeaponState;
+            this.DisableWeaponState = new State<DisableWeaponData>();
+            // 额外武器
+            heir.ExtraFireState = this.ExtraFireState;
+            this.ExtraFireState = new State<ExtraFireData>();
+            // 发射超武
+            heir.FireSuperState = this.FireSuperState;
+            this.FireSuperState = new State<FireSuperData>();
+            // 覆盖武器
+            heir.OverrideWeaponState = this.OverrideWeaponState;
+            this.OverrideWeaponState = new OverrideWeaponState();
+            // 染色弹
+            heir.PaintballState = this.PaintballState;
+            this.PaintballState = new PaintballState();
+        }
+
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesExt.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);

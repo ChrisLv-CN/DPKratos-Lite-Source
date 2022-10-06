@@ -48,8 +48,6 @@ namespace Extension.Ext
             this.IgnoreArmor = true;
             this.Decloak = false;
             this.Peaceful = false;
-
-            this.AffectWho = AffectWho.MASTER;
         }
 
         public DamageSelfData(IConfigReader reader) : this()

@@ -39,6 +39,13 @@ namespace Extension.Script
                 bool noLimit = null == data.Types || data.Types.Length <= 0;
                 // Find self Unit and set ther Target
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+
+                // 检查平民
+                if (data.DeactiveWhenCivilian && pHouse.IsCivilian())
+                {
+                    return;
+                }
+
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 // find candidate
                 Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>> candidates = new Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>>();
