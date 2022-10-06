@@ -12,12 +12,9 @@ namespace Extension.Ext
     [Serializable]
     public class AircraftAttitudeData : INIConfig
     {
-        [INIField(Key = "DisableAircraftAutoPitch")]
         public bool Disable;
 
-        [INIField(Key = "SpawnTakingOffDir")]
         public int SpawnTakeoffDir;
-        [INIField(Key = "SpawnLandingDir")]
         public int SpawnLandDir;
 
         public AircraftAttitudeData()

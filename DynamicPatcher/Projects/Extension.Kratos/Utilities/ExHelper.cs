@@ -122,21 +122,6 @@ namespace Extension.Utilities
             }
         }
 
-        public static int CountAircraft(Pointer<HouseClass> pHouse, List<String> padList)
-        {
-            int count = 0;
-            AircraftClass.Array.FindObject((pTarget) =>
-            {
-                if (padList.Contains(pTarget.Ref.Type.Ref.Base.Base.Base.ID)
-                    && pTarget.Ref.Type.Ref.AirportBound)
-                {
-                    count++;
-                }
-                return false;
-            }, default, 0, pHouse);
-            return count;
-        }
-
         public static CoordStruct OneCellOffsetToTarget(CoordStruct sourcePos, CoordStruct targetPos)
         {
             double angle = Math.Atan2((targetPos.Y - sourcePos.Y), (targetPos.X - sourcePos.X));
