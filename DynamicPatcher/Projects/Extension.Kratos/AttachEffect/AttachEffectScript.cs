@@ -294,7 +294,7 @@ namespace Extension.Script
                 AttachEffect ae = data.CreateAE();
                 // 入队
                 int index = FindInsertIndex(ae);
-                Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 持续时间 {data.GetDuration()}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 持续时间 {data.GetDuration()}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(pOwner, pHouse, pAttacker);
@@ -594,14 +594,14 @@ namespace Extension.Script
                     {
                         DisableDelayTimers[data.Name] = new TimerStruct(delay);
                     }
-                    Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
                     ae.Disable(location);
                     AttachEffects.Remove(ae);
                     // 如果有Next，则赋予新的AE
                     string nextAE = data.Next;
                     if (!string.IsNullOrEmpty(nextAE))
                     {
-                        Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
+                        // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
                         Attach(nextAE, ae.pSourceHouse, ae.pSource, false);
                     }
                 }

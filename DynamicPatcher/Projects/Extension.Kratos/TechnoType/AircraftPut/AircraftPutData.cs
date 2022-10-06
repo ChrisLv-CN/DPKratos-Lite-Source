@@ -18,16 +18,12 @@ namespace Extension.Ext
         public CoordStruct NoHelipadPutOffset;
         public bool ForcePutOffset;
 
-        public bool RemoveIfNoDocks;
-
         public AircraftPutData()
         {
             this.PadAircraftTypes = null;
 
             this.NoHelipadPutOffset = default;
             this.ForcePutOffset = false;
-
-            this.RemoveIfNoDocks = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -42,7 +38,6 @@ namespace Extension.Ext
                 this.NoHelipadPutOffset *= 256;
             }
             this.ForcePutOffset = generalReader.Get("AircraftForcePutOffset", this.ForcePutOffset);
-            this.RemoveIfNoDocks = generalReader.Get("AircraftRemoveIfNoDocks", this.RemoveIfNoDocks);
 
             // 单位设置
             CoordStruct offset = reader.Get<CoordStruct>("NoHelipadPutOffset", default);
@@ -51,7 +46,6 @@ namespace Extension.Ext
                 this.NoHelipadPutOffset = offset * 256;
             }
             this.ForcePutOffset = reader.Get("ForcePutOffset", this.ForcePutOffset);
-            this.RemoveIfNoDocks = reader.Get("RemoveIfNoDocks", this.RemoveIfNoDocks);
         }
 
     }

@@ -171,7 +171,7 @@ namespace Extension.Utilities
                     });
                 }
                 // 获取JJ
-                if (includeInAir && !pCell.Ref.Jumpjet.IsNull)
+                if (includeInAir && !pCell.IsNull && !pCell.Ref.Jumpjet.IsNull)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
                     pTechnoSet.Add(pCell.Ref.Jumpjet.Convert<TechnoClass>());

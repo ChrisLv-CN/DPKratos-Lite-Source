@@ -36,23 +36,14 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
         {
-            // 停机坪满了移除飞机
-            if (pTechno.Convert<AircraftClass>().Ref.Type.Ref.AirportBound && aircraftPutData.RemoveIfNoDocks)
+            // 停机坪满了，不移动飞机的位置
+            if (pTechno.Convert<AircraftClass>().Ref.Type.Ref.AirportBound)
             {
-                if (pTechno.Ref.Owner.Ref.AirportDocks <= 0 || pTechno.Ref.Owner.Ref.AirportDocks < CountAircraft(aircraftPutData.PadAircraftTypes))
+                Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+                // Logger.Log($"{Game.CurrentFrame} put [{section}]{pTechno} 当前有停机坪数量 {pHouse.Ref.AirportDocks}, 机场数量 {pHouse.Ref.NumAirpads}, 飞机数量 {AircraftClass.Array.Count()}");
+                if (pHouse.Ref.AirportDocks <= 0 || pHouse.Ref.AirportDocks < CountAircraft(aircraftPutData.PadAircraftTypes))
                 {
-                    int cost = pTechno.Ref.Type.Ref.Cost;
-                    if (cost > 0)
-                    {
-                        pTechno.Ref.Owner.Ref.GiveMoney(cost);
-                    }
-                    else
-                    {
-                        pTechno.Ref.Owner.Ref.TakeMoney(-cost);
-                    }
-                    pTechno.Ref.Base.Remove();
-                    pTechno.Ref.Base.UnInit();
-                    return;
+                    aircraftPutOffsetFlag = true;
                 }
             }
 
