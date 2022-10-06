@@ -137,18 +137,18 @@ namespace Extension.Ext
 
 
             this.FireOnce = reader.Get(TITLE + "FireOnce", this.FireOnce);
-            this.FireToTarget = reader.Get(TITLE + "FireToTarget", this.FireOnce);
-            this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.FireOnce);
-            this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.FireOnce);
+            this.FireToTarget = reader.Get(TITLE + "FireToTarget", this.FireToTarget);
+            this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
+            this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.IsOnWorld);
 
             // 攻击者标记
-            this.IsAttackerMark = reader.Get(TITLE + "IsAttackerMark", this.FireOnce);
-            this.ReceiverAttack = reader.Get(TITLE + "ReceiverAttack", this.FireOnce);
+            this.IsAttackerMark = reader.Get(TITLE + "IsAttackerMark", this.IsAttackerMark);
+            this.ReceiverAttack = reader.Get(TITLE + "ReceiverAttack", this.ReceiverAttack);
             if (!ReceiverAttack)
             {
                 this.ReceiverOwnBullet = false;
             }
-            this.ReceiverOwnBullet = reader.Get(TITLE + "ReceiverOwnBullet", this.FireOnce);
+            this.ReceiverOwnBullet = reader.Get(TITLE + "ReceiverOwnBullet", this.ReceiverOwnBullet);
         }
 
     }

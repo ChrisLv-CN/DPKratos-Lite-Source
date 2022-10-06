@@ -57,7 +57,7 @@ namespace Extension.Ext
             {
                 BrightMultiplier = 2.0f;
             }
-            this.Enable = this.Color != default || this.BrightMultiplier != 1.0f;
+            this.Enable = default != this.Color || this.BrightMultiplier != 1.0f;
         }
 
     }

@@ -206,7 +206,7 @@ namespace Extension.Script
             // 是否在名单上
             if (!data.CanAffectType(pOwner))
             {
-                Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{data.Name}] 的名单内，不能赋予");
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{data.Name}] 的名单内，不能赋予");
                 return;
             }
             // 检查叠加
@@ -294,7 +294,7 @@ namespace Extension.Script
                 AttachEffect ae = data.CreateAE();
                 // 入队
                 int index = FindInsertIndex(ae);
-                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
+                Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 持续时间 {data.GetDuration()}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(pOwner, pHouse, pAttacker);
@@ -548,14 +548,14 @@ namespace Extension.Script
                     {
                         DisableDelayTimers[data.Name] = new TimerStruct(delay);
                     }
-                    // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
+                    Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
                     ae.Disable(location);
                     AttachEffects.Remove(ae);
                     // 如果有Next，则赋予新的AE
                     string nextAE = data.Next;
                     if (!string.IsNullOrEmpty(nextAE))
                     {
-                        // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
+                        Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
                         Attach(nextAE, ae.pSourceHouse, ae.pSource, false);
                     }
                 }
@@ -656,14 +656,13 @@ namespace Extension.Script
 
         public override void OnUnInit()
         {
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
                 if (ae.IsAnyAlive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - {ae.Type.Name} 注销，执行关闭");
-                    ae.Disable(location);
+                    ae.Disable(lastLocation);
                 }
                 // Logger.Log($"{Game.CurrentFrame} - {ae.Type.Name} 注销，移出列表");
                 AttachEffects.Remove(ae);
@@ -743,7 +742,7 @@ namespace Extension.Script
                             // 赋予AE
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
-                                // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}] 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
+                                Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}] 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                                 aeManager.Attach(aeTypeData, pAttacker);
                             }
                         }

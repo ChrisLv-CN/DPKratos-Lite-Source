@@ -135,7 +135,7 @@ namespace Extension.Script
             {
                 PitchAngle = 0f;
             }
-            else if (headTo != default)
+            else if (default != headTo)
             {
                 Pointer<FlyLocomotionClass> pFly = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<FlyLocomotionClass>();
                 // 检查状态

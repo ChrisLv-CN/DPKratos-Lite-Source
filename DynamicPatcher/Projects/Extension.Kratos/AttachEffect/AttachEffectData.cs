@@ -169,7 +169,10 @@ namespace Extension.Ext
 
             if (Enable)
             {
-                this.Duration = reader.Get("Duration", this.Duration);
+                int druation = reader.Get("Duration", 0);
+                if (druation != 0) {
+                    this.Duration = druation;
+                }
                 this.HoldDuration = Duration <= 0;
                 this.HoldDuration = reader.Get("HoldDuration", this.HoldDuration);
 

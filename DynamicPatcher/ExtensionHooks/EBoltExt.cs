@@ -34,7 +34,7 @@ namespace ExtensionHooks
         {
             Pointer<EBolt> pEBolt = R->Stack<IntPtr>(0x40);
             EBoltExt ext = EBoltExt.ExtMap.Find(pEBolt);
-            if (null != ext && ext.Color1 != default)
+            if (null != ext && default != ext.Color1)
             {
                 R->EAX = (uint)Drawing.Color16bit(ext.Color1);
                 return 0x4C24E4;
@@ -47,7 +47,7 @@ namespace ExtensionHooks
         {
             Pointer<EBolt> pEBolt = R->Stack<IntPtr>(0x40);
             EBoltExt ext = EBoltExt.ExtMap.Find(pEBolt);
-            if (null != ext && ext.Color2 != default)
+            if (null != ext && default != ext.Color2)
             {
                 R->Stack<int>(0x18, Drawing.Color16bit(ext.Color2));
                 return 0x4C25FD;
@@ -60,7 +60,7 @@ namespace ExtensionHooks
         {
             Pointer<EBolt> pEBolt = R->Stack<IntPtr>(0x40);
             EBoltExt ext = EBoltExt.ExtMap.Find(pEBolt);
-            if (null != ext && ext.Color3 != default)
+            if (null != ext && default != ext.Color3)
             {
                 R->EBX = R->EBX - 2;
                 R->EAX = (uint)Drawing.Color16bit(ext.Color3);

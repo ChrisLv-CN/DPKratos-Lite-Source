@@ -159,7 +159,7 @@ namespace Extension.Script
             {
                 if (!effect.IsAlive())
                 {
-                    // Logger.Log($"{Game.CurrentFrame} - AE {Name} 模块 {effect.GetType().Name} 狗带了");
+                    // Logger.Log($"{Game.CurrentFrame} - AE [{AEData.Name}] 模块 {effect.GetType().Name} 狗带了");
                     return false;
                 }
             }
@@ -179,6 +179,7 @@ namespace Extension.Script
         {
             if (!pSource.IsNull && pSource.Pointer.IsDead())
             {
+                // Logger.Log($"{Game.CurrentFrame} AE [{AEData.Name}] 来源 {pSource.Pointer} 未指定 或者已死亡，AE失效.");
                 pSource.Pointer = IntPtr.Zero;
             }
         }
