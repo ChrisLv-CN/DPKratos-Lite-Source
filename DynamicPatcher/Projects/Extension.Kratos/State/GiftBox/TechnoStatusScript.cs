@@ -59,6 +59,7 @@ namespace Extension.Script
 
             if (GiftBoxState.IsActive())
             {
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
                 {
                     // 开盒
@@ -203,7 +204,7 @@ namespace Extension.Script
                     Pointer<TechnoClass> pGift = GiftBoxHelper.CreateAndPutTechno(id, pHouse, location, pCell);
                     if (!pGift.IsNull)
                     {
-                        Logger.Log($"{Game.CurrentFrame} 成功释放礼物 [{id}]{pGift}, 位置 {location}");
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成功释放礼物 [{id}]{pGift}, 位置 {location}");
                         Pointer<TechnoTypeClass> pGiftType = pGift.Ref.Type;
                         TechnoStatusScript giftStatus = pGift.GetStatus();
                         if (data.IsTransform)
@@ -259,7 +260,7 @@ namespace Extension.Script
                         {
                             int strength = pGiftType.Ref.Base.Strength;
                             int health = (int)(strength * healthPercent);
-                            Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
+                            // Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
                             if (health <= 0)
                             {
                                 health = 1;
@@ -295,7 +296,7 @@ namespace Extension.Script
                             AttachEffectScript boxAEM = pTechno.GetComponent<AttachEffectScript>();
 
                             boxAEM.InheritedTo(giftAEM);
-                            Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
+                            // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
 
                             // TODO 继承状态机
                             // 

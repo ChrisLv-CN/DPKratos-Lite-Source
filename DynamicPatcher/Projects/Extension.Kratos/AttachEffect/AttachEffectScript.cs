@@ -742,7 +742,7 @@ namespace Extension.Script
                             // 赋予AE
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
-                                Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}] 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
+                                // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                                 aeManager.Attach(aeTypeData, pAttacker);
                             }
                         }

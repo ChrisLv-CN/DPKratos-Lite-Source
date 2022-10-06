@@ -58,7 +58,7 @@ namespace Extension.Ext
                 infinite = false;
                 timer.Start(duration);
             }
-            Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
+            // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
             OnEnable();
         }
 
@@ -77,7 +77,7 @@ namespace Extension.Ext
                 this.infinite = false;
                 this.timer.Start(0);
 
-                Logger.Log($"{Game.CurrentFrame} Disable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
+                // Logger.Log($"{Game.CurrentFrame} Disable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
                 OnDisable();
             }
         }
@@ -93,10 +93,10 @@ namespace Extension.Ext
             {
                 frame = currentFrame;
                 active = infinite || timer.InProgress();
-                if (!active && !Token.IsNullOrEmptyOrNone() && null != Data)
-                {
-                    Logger.Log($"{Game.CurrentFrame}, State {(null != Data ? Data.GetType().Name : "Null")} Time's up, token {Token}");
-                }
+                // if (!active && !Token.IsNullOrEmptyOrNone() && null != Data)
+                // {
+                //     Logger.Log($"{Game.CurrentFrame}, State {(null != Data ? Data.GetType().Name : "Null")} Time's up, token {Token}");
+                // }
             }
             return isActiveNow;
         }

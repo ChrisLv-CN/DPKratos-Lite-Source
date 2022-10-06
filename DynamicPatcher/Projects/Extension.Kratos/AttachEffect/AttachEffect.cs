@@ -159,7 +159,7 @@ namespace Extension.Script
             {
                 if (!effect.IsAlive())
                 {
-                    // Logger.Log($"{Game.CurrentFrame} - AE [{AEData.Name}] 模块 {effect.GetType().Name} 狗带了");
+                    // Logger.Log($"{Game.CurrentFrame} - [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner.Pointer} 上的 AE [{AEData.Name}] 模块 {effect.GetType().Name} 狗带了");
                     return false;
                 }
             }
