@@ -28,10 +28,6 @@ namespace Extension.Script
     [Serializable]
     public class Transform : Effect<TransformData>
     {
-        private SwizzleablePointer<WarheadTypeClass> pWH = new SwizzleablePointer<WarheadTypeClass>(IntPtr.Zero);
-        private BulletDamageData bulletDamageData = new BulletDamageData(1);
-        private TimerStruct ROFTimer;
-
         public override void OnEnable()
         {
             if (!pOwner.IsNull

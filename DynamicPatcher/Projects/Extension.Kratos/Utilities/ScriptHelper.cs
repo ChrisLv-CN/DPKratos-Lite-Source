@@ -235,12 +235,11 @@ namespace Extension.Utilities
 
         public static bool AmIStand(this Pointer<TechnoClass> pStand, out TechnoStatusScript standStatus, out StandData standData)
         {
-            standStatus = null;
             standData = null;
-            if (pStand.TryGetStatus(out TechnoStatusScript technoStatus)
-                    && !technoStatus.MyMaster.IsNull)
+            if (pStand.TryGetStatus(out standStatus)
+                    && !standStatus.MyMaster.IsNull)
             {
-                standData = technoStatus.StandData;
+                standData = standStatus.StandData;
                 return true;
             }
             return false;

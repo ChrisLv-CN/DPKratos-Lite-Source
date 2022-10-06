@@ -23,7 +23,7 @@ namespace Extension.Ext
             }
         }
 
-        public const string Label = "DPKratos";
+        public const string Label = "Kratos";
 
         private static string version;
         public static string Version
@@ -32,15 +32,11 @@ namespace Extension.Ext
             {
                 if (string.IsNullOrEmpty(version))
                 {
-                    object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false);
-                    if (attributes.Length > 0)
+                    version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                    string[] v = version.Split('.');
+                    if (v.Length > 2)
                     {
-                        version = ((AssemblyFileVersionAttribute)attributes[0]).Version; // DP.Kratos.x.x
-                        string[] v = version.Split('.');
-                        if (v.Length > 2)
-                        {
-                            version = v[1] + "." + v[2];
-                        }
+                        version = v[2] + "." + v[3];
                     }
                 }
                 return version;
@@ -57,7 +53,7 @@ namespace Extension.Ext
 
         public static void SendActiveMessage(object sender, EventArgs args)
         {
-            string message = "build " + Version + " is active, have fun.";
+            string message = "Lite version " + Version + " is active, have fun.";
             MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 150, true);
             EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.GScreenRenderEvent, SendActiveMessage);
             if (!disableAntiModifyMO && CCINIClass.INI_Ruels_FileName == "RULESMO.INI")
@@ -68,7 +64,7 @@ namespace Extension.Ext
 
         public static void DrawVersionText(object sender, EventArgs args)
         {
-            string text = Label + " build " + Version;
+            string text = "Kratos-Lite Ver." + Version;
             RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
             RectangleStruct sidebarRect = Surface.Sidebar.Ref.GetRect();
             int x = sidebarRect.Width / 2 - textRect.Width / 2;
