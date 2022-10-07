@@ -27,8 +27,8 @@ namespace Extension.Ext
     {
         public string Token;
         public T Data;
+        public AttachEffect AE;
 
-        protected AttachEffect AE;
         protected Pointer<ObjectClass> pOwner => AE.pOwner;
 
         protected bool active;

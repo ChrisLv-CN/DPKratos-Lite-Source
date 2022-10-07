@@ -22,6 +22,7 @@ namespace Extension.Ext
     public class State<T> : IState where T : IStateData, new()
     {
         public string Token;
+        public AttachEffect AE;
 
         public T Data;
 
@@ -36,6 +37,17 @@ namespace Extension.Ext
             this.active = false;
             this.infinite = false;
             this.timer.Start(0);
+        }
+
+        public void EnableAndReplace<TT>(Effect<TT> effect) where TT : EffectData, IStateData, new()
+        {
+            // 激活新的效果，关闭旧的效果
+            if (!string.IsNullOrEmpty(Token) && Token != effect.Token && null != AE && AE.IsActive())
+            {
+                AE.Disable(AE.Location);
+            }
+            this.AE = effect.AE;
+            Enable(AE.AEData.GetDuration(), effect.Token, effect.Data);
         }
 
         public void Enable(IStateData data)

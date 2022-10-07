@@ -48,6 +48,22 @@ namespace Extension.Ext
             }
         }
 
+        public DamageText Clone()
+        {
+            DamageText data = new DamageText(true);
+            CopyTo(data);
+
+            data.Hidden = this.Hidden;
+            data.Detail = this.Detail;
+            data.Rate = this.Rate;
+            data.XOffset = this.XOffset;
+            data.YOffset = this.YOffset;
+            data.RollSpeed = this.RollSpeed;
+            data.Duration = this.Duration;
+
+            return data;
+        }
+
         public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);

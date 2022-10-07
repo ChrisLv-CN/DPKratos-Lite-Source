@@ -147,7 +147,7 @@ namespace Extension.Script
             }
         }
 
-        private bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextData damageTextType)
+        public bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextData damageTextType)
         {
             damageTextType = null;
             if (!SkipDamageText && !pTechno.IsInvisible() && !pTechno.IsCloaked() && !pWH.IsNull)
@@ -160,7 +160,7 @@ namespace Extension.Script
             return true;
         }
 
-        private void OrderDamageText(string text, CoordStruct location, DamageText data)
+        public void OrderDamageText(string text, CoordStruct location, DamageText data)
         {
             int x = MathEx.Random.Next(data.XOffset.X, data.XOffset.Y);
             int y = MathEx.Random.Next(data.YOffset.X, data.YOffset.Y) - 15; // 离地高度
