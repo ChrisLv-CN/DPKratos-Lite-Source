@@ -11,7 +11,7 @@ using Extension.Utilities;
 namespace Extension.Script
 {
     [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
+    [GlobalScriptable(typeof(AnimExt))]
     [UpdateAfter(typeof(AnimStatusScript))]
     public class PlaySuperScript : AnimScriptable
     {

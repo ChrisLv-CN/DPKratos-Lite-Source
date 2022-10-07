@@ -47,6 +47,7 @@ namespace Miscellaneous
         {
             EventSystem.PointerExpire.AddPermanentHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ObjectFinderHandler);
 
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, ScriptManagerHandler);
             EventSystem.SaveGame.AddPermanentHandler(EventSystem.SaveGame.LoadGameEvent, ScriptManagerHandler);
         }
 
@@ -69,12 +70,18 @@ namespace Miscellaneous
 
         private static void ScriptManagerHandler(object sender, EventArgs e)
         {
-            var args = (LoadGameEventArgs)e;
-
-            if (args.IsStart)
+            if (e is LoadGameEventArgs)
+            {
+                if (((LoadGameEventArgs)e).IsStart)
+                {
+                    RunClassConstructor(typeof(ScriptManager));
+                    EventSystem.SaveGame.RemovePermanentHandler(EventSystem.SaveGame.LoadGameEvent, ScriptManagerHandler);
+                }
+            }
+            else
             {
                 RunClassConstructor(typeof(ScriptManager));
-                EventSystem.SaveGame.RemovePermanentHandler(EventSystem.SaveGame.LoadGameEvent, ScriptManagerHandler);
+                EventSystem.General.RemovePermanentHandler(EventSystem.General.ScenarioStartEvent, ScriptManagerHandler);
             }
         }
     }
