@@ -76,7 +76,7 @@ namespace Extension.Script
 
         public unsafe bool OnRegisterDestruction_StandUnit(Pointer<TechnoClass> pKiller, int cost)
         {
-            if (!pKiller.IsDead() && cost != 0)
+            if (cost != 0 && !pKiller.IsDead())
             {
                 // Logger.Log("{0} 被 {1} 杀死了，价值 {2}，杀手{3}，等级{4}", pTechno.Ref.Type.Ref.Base.Base.ID, pKiller.Ref.Type.Ref.Base.Base.ID, cost, pKiller.Ref.Type.Ref.Trainable ? "可以升级" : "不可训练", pKiller.Ref.Veterancy.Veterancy);
                 // Killer是Stand，而且Master可训练
