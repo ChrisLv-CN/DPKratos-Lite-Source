@@ -18,7 +18,7 @@ namespace Extension.Script
 
         private Dictionary<string, TimerStruct> extraFireROF = new Dictionary<string, TimerStruct>();
 
-        public void OnPut_ExtraFire()
+        public void InitState_ExtraFire()
         {
             // 初始化状态机
             ExtraFireData data = Ini.GetConfig<ExtraFireData>(Ini.RulesDependency, section).Data;

@@ -20,7 +20,7 @@ namespace Extension.Script
         private float deactivateDimEMP = 0.8f;
         private float deactivateDimPowered = 0.5f;
 
-        public void OnPut_Paintball()
+        public void InitState_Paintball()
         {
             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
             deactivateDimEMP = reader.Get("DeactivateDimEMP", deactivateDimEMP);

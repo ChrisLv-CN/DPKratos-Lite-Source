@@ -28,6 +28,8 @@ namespace Extension.Script
         public DrivingState DrivingState;
         private Mission lastMission;
 
+        private bool initStateFlag = false;
+
         /// <summary>
         /// 继承除了GiftBox之外的状态
         /// </summary>
@@ -74,15 +76,20 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> coord, DirType dirType)
         {
-            OnPut_AttackBeacon();
-            OnPut_BlackHole();
-            OnPut_Deselect();
-            OnPut_DestroySelf();
-            OnPut_ExtraFire();
-            OnPut_FireSuper();
-            OnPut_GiftBox();
-            OnPut_OverrideWeapon();
-            OnPut_Paintball();
+            if (!initStateFlag)
+            {
+                initStateFlag = true;
+                InitState_AttackBeacon();
+                InitState_BlackHole();
+                InitState_DamageReaction();
+                InitState_Deselect();
+                InitState_DestroySelf();
+                InitState_ExtraFire();
+                InitState_FireSuper();
+                InitState_GiftBox();
+                InitState_OverrideWeapon();
+                InitState_Paintball();
+            }
         }
 
         public override void OnUpdate()
@@ -119,6 +126,7 @@ namespace Extension.Script
                 }
                 OnUpdate_AttackBeacon();
                 OnUpdate_BlackHole();
+                OnUpdate_DamageReaction();
                 OnUpdate_Deselect();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
@@ -142,7 +150,7 @@ namespace Extension.Script
                 {
                     ClearTarget();
                 }
-
+                OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
                 OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
             }
         }

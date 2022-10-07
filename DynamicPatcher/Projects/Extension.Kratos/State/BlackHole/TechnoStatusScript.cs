@@ -24,7 +24,7 @@ namespace Extension.Script
         private TimerStruct blackHoleDamageDelay;
         private bool lostControl;
 
-        public void OnPut_BlackHole()
+        public void InitState_BlackHole()
         {
             // 初始化状态机
             BlackHoleData data = Ini.GetConfig<BlackHoleData>(Ini.RulesDependency, section).Data;

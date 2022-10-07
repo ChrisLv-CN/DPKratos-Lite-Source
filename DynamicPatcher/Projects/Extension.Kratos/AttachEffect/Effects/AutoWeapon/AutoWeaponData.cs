@@ -71,6 +71,10 @@ namespace Extension.Ext
             this.FireFLH = reader.Get(title + "FireFLH", this.FireFLH);
             this.TargetFLH = reader.Get(title + "TargetFLH", this.TargetFLH);
             this.MoveTo = reader.Get(title + "MoveTo", this.MoveTo);
+            if (default != MoveTo)
+            {
+                this.TargetFLH = FireFLH + MoveTo;
+            }
         }
 
     }

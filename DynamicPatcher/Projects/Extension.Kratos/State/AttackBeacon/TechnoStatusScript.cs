@@ -17,9 +17,10 @@ namespace Extension.Script
 
         public AttackBeaconState AttackBeaconState = new AttackBeaconState();
 
+
         public bool AttackBeaconRecruited = false; // 被征召
 
-        public void OnPut_AttackBeacon()
+        public void InitState_AttackBeacon()
         {
             // 初始化状态机
             AttackBeaconData data = Ini.GetConfig<AttackBeaconData>(Ini.RulesDependency, section).Data;

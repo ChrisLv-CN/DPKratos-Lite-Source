@@ -17,7 +17,7 @@ namespace Extension.Script
 
         public GiftBoxState GiftBoxState = new GiftBoxState();
 
-        public void OnPut_GiftBox()
+        public void InitState_GiftBox()
         {
             GiftBoxData giftBoxTypeData  = Ini.GetConfig<GiftBoxData>(Ini.RulesDependency, section).Data;
             if (null != giftBoxTypeData.Data || null != giftBoxTypeData.EliteData)

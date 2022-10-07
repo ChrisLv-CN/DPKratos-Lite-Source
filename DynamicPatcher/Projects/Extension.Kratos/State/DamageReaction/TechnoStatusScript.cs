@@ -17,7 +17,7 @@ namespace Extension.Script
 
         public DamageReactionState DamageReactionState = new DamageReactionState();
 
-        public void OnPut_DamageReaction()
+        public void InitState_DamageReaction()
         {
             // 初始化状态机
             DamageReactionData data = Ini.GetConfig<DamageReactionData>(Ini.RulesDependency, section).Data;
@@ -27,10 +27,15 @@ namespace Extension.Script
             }
         }
 
+        public void OnUpdate_DamageReaction()
+        {
+            DamageReactionState.Update(pTechno.Ref.Veterancy.IsElite());
+        }
+
         public void OnReceiveDamage_DamageReaction(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
                     Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            
+
             // 无视防御的真实伤害不做任何响应
             if (!ignoreDefenses)
             {
