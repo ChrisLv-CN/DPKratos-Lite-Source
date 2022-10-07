@@ -45,6 +45,9 @@ namespace Extension.Script
             // Buff
             heir.CrateBuffState = this.CrateBuffState;
             this.CrateBuffState = new State<CrateBuffData>();
+            // 伤害响应
+            heir.DamageReactionState = this.DamageReactionState;
+            this.DamageReactionState = new DamageReactionState();
             // 不可选择
             heir.DeselectState = this.DeselectState;
             this.DeselectState = new State<DeselectData>();

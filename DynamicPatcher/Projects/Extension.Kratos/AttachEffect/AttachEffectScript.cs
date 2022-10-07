@@ -53,6 +53,12 @@ namespace Extension.Script
         // 将AE转移给其他对象
         public void InheritedTo(AttachEffectScript heir)
         {
+            // 更改AE记录的附着对象
+            foreach (AttachEffect ae in this.AttachEffects)
+            {
+                ae.AEManager = heir;
+            }
+            // 转移给继任者
             heir.AttachEffects = this.AttachEffects;
             heir.DisableDelayTimers = this.DisableDelayTimers;
 
@@ -63,6 +69,7 @@ namespace Extension.Script
             heir.attachEffectOnceFlag = this.attachEffectOnceFlag;
 
             heir.locationSpace = this.locationSpace;
+
 
             // 转移完成后，重置
             Awake();
@@ -297,7 +304,7 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 持续时间 {data.GetDuration()}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}");
                 AttachEffects.Insert(index, ae);
                 // 激活
-                ae.Enable(pOwner, pHouse, pAttacker);
+                ae.Enable(this, pHouse, pAttacker);
             }
         }
 
@@ -754,7 +761,7 @@ namespace Extension.Script
                 bool findTechno = false;
                 bool findBullet = false;
                 // 快速检索是否需要查找单位或者抛射体清单
-                foreach(string ae in aeTypeData.AttachEffectTypes)
+                foreach (string ae in aeTypeData.AttachEffectTypes)
                 {
                     AttachEffectData aeData = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, ae).Data;
                     findTechno |= aeData.AffectTechno;

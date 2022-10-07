@@ -21,7 +21,9 @@ namespace Extension.Script
 
         public AttachEffectData AEData;
 
-        public SwizzleablePointer<ObjectClass> pOwner; // AE附着对象
+        public AttachEffectScript AEManager;
+
+        public Pointer<ObjectClass> pOwner => AEManager.pOwner; // AE附着对象
         public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
         public SwizzleablePointer<TechnoClass> pSource; // AE来源
 
@@ -40,7 +42,6 @@ namespace Extension.Script
         {
             this.AEData = data;
 
-            this.pOwner = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
             this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
             this.pSource = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
             int initDelay = AEData.InitialRandomDelay.GetRandomValue(AEData.InitialDelay);
@@ -91,10 +92,10 @@ namespace Extension.Script
             }
         }
 
-        public void Enable(Pointer<ObjectClass> pOwner, Pointer<HouseClass> pSourceHouse, SwizzleablePointer<TechnoClass> pSource)
+        public void Enable(AttachEffectScript AEManager, Pointer<HouseClass> pSourceHouse, SwizzleablePointer<TechnoClass> pSource)
         {
             this.Active = true;
-            this.pOwner.Pointer = pOwner;
+            this.AEManager = AEManager;
             this.pSourceHouse.Pointer = pSourceHouse;
             this.pSource.Pointer = pSource;
             if (!delayToEnable || initialDelayTimer.Expired())
