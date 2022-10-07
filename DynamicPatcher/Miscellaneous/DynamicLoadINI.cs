@@ -1,37 +1,34 @@
 
+using System.Text;
 using System;
-using System.IO;
-using System.Threading;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using DynamicPatcher;
-using PatcherYRpp;
-using Extension.Ext;
-using Extension.Script;
-using Extension.Decorators;
-using Extension.Utilities;
-using System.Threading.Tasks;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using DynamicPatcher;
+using PatcherYRpp;
+using PatcherYRpp.FileFormats;
 using Extension;
 using Extension.INI;
-using PatcherYRpp.FileFormats;
 
 namespace Miscellaneous
 {
     public class DynamicLoadINI
     {
-#if REALTIME_INI
         // the list of ini to ignore appling changes
         static string[] ignoreList = new[]
         {
             "ra2md.ini",
             // reshader
             "reshade.ini",
-            "DefaultPreset.ini"
+            "DefaultPreset.ini",
+            "ddraw.ini"
 
         }.Select(i => i.ToLower().Replace(@"\", "/")).ToArray();
 
@@ -45,14 +42,14 @@ namespace Miscellaneous
 
         static string FindMainINI(string name)
         {
-            Func<Pointer<CCINIClass>, bool> IsMainINI = (Pointer<CCINIClass> pINI) => 
+            Func<Pointer<CCINIClass>, bool> IsMainINI = (Pointer<CCINIClass> pINI) =>
             {
-	            string section = "#include";
-	            int length = pINI.Ref.GetKeyCount(section);
+                string section = "#include";
+                int length = pINI.Ref.GetKeyCount(section);
                 INIReader reader = new INIFileReader(pINI);
                 for (int i = 0; i < length; i++)
                 {
-		            string key = pINI.Ref.GetKeyName(section, i);
+                    string key = pINI.Ref.GetKeyName(section, i);
                     string sub_name = null;
                     if (reader.Read(section, key, ref sub_name))
                     {
@@ -71,7 +68,7 @@ namespace Miscellaneous
                 INIConstant.RulesName, INIConstant.ArtName, INIConstant.AiName,
                 INIConstant.GameModeName, INIConstant.MapName,
             };
-            
+
             foreach (var iniName in mainINIs)
             {
                 using var ini = CreateAndReadINI(iniName);
@@ -424,35 +421,85 @@ namespace Miscellaneous
 
         private static List<CodeWatcher> watchers = new();
 
+        private static bool enableRealtimeINI = false;
+
         [Hook(HookType.WriteBytesHook, Address = 0x7E03E8, Size = 1)]
         static public unsafe byte[] Watch()
         {
-            string watchDir = AppDomain.CurrentDomain.BaseDirectory;
-
-            Logger.LogWithColor("realtime ini feature will be activated a bit later.", ConsoleColor.Magenta);
-            Task.Delay(TimeSpan.FromSeconds(2.5)).ContinueWith(_ =>
+            // 读取配置文件决定是否开启动态INI
+            string firePath = System.IO.Directory.GetCurrentDirectory() + "\\DynamicPatcher\\compiler.config.json";
+            string json = null;
+            using (FileStream fs = new FileStream(firePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
-                // show active message
-                Logger.LogWarning("************************************************************************");
-                Logger.LogWarning("watching configure files ({1}) at directory {0}", watchDir, string.Join(", ", watchList));
-                Logger.LogWarning("realtime ini feature only support rules, art, ai, game mode ini, map now");
-                Logger.LogWarning("all other ini will be ignored");
-                Logger.LogWarning("this is a experimental feature that is not perfect");
-                Logger.LogWarning("remove preprocessor_symbols->REALTIME_INI if unwanted.");
-                Logger.LogWarning("************************************************************************");
-
-                foreach (var filter in watchList)
+                using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
                 {
-                    var watcher = new CodeWatcher(AppDomain.CurrentDomain.BaseDirectory, filter);
-
-                    watcher.OnCodeChanged += OnINIChange;
-                    watcher.StartWatchPath();
-
-                    watchers.Add(watcher);
+                    json = reader.ReadToEnd();
                 }
-                
-                EnsureOneInstance();
-            });
+            }
+            if (!string.IsNullOrEmpty(json))
+            {
+                JObject jsonObject = JObject.Parse(json);
+                JToken args = jsonObject.GetValue("preprocessor_symbols");
+                if (null != args)
+                {
+                    foreach (JToken arg in args)
+                    {
+                        if (enableRealtimeINI = (string)arg == "REALTIME_INI")
+                        {
+                            break;
+                        }
+                    }
+                }
+                if (enableRealtimeINI)
+                {
+                    JToken ignoreIni = jsonObject.GetValue("realtime_ignore");
+                    if (null != ignoreIni)
+                    {
+                        List<string> ignoreIniFiles = new List<string>();
+                        foreach (JToken ini in ignoreIni)
+                        {
+                            string iniStr = (string)ini;
+                            if (!string.IsNullOrEmpty(iniStr))
+                            {
+                                ignoreIniFiles.Add(iniStr.ToLower().Replace(@"\", "/"));
+                            }
+                        }
+                        if (ignoreIniFiles.Count() > 0)
+                        {
+                            ignoreList = ignoreIniFiles.ToArray();
+                        }
+                    }
+                }
+            }
+            if (enableRealtimeINI)
+            {
+                string watchDir = AppDomain.CurrentDomain.BaseDirectory;
+
+                Logger.LogWithColor("realtime ini feature will be activated a bit later.", ConsoleColor.Magenta);
+                Task.Delay(TimeSpan.FromSeconds(2.5)).ContinueWith(_ =>
+                {
+                    // show active message
+                    Logger.LogWarning("************************************************************************");
+                    Logger.LogWarning("watching configure files ({1}) at directory {0}", watchDir, string.Join(", ", watchList));
+                    Logger.LogWarning("realtime ini feature only support rules, art, ai, game mode ini, map now");
+                    Logger.LogWarning("all other ini will be ignored");
+                    Logger.LogWarning("this is a experimental feature that is not perfect");
+                    Logger.LogWarning("remove preprocessor_symbols->REALTIME_INI if unwanted.");
+                    Logger.LogWarning("************************************************************************");
+
+                    foreach (var filter in watchList)
+                    {
+                        var watcher = new CodeWatcher(AppDomain.CurrentDomain.BaseDirectory, filter);
+
+                        watcher.OnCodeChanged += OnINIChange;
+                        watcher.StartWatchPath();
+
+                        watchers.Add(watcher);
+                    }
+
+                    EnsureOneInstance();
+                });
+            }
 
             return new byte[] { 0 };
         }
@@ -475,6 +522,5 @@ namespace Miscellaneous
             watchers.ForEach(w => w.Stop());
             watchers.Clear();
         }
-#endif
     }
 }

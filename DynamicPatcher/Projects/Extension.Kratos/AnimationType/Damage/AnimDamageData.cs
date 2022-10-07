@@ -48,9 +48,9 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            ISectionReader general = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionGeneral);
-            this.AllowAnimDamageTakeOverByKratos = general.Get("AllowAnimDamageTakeOverByKratos", this.AllowAnimDamageTakeOverByKratos);
-            this.AllowDamageIfDebrisHitWater = general.Get("AllowDamageIfDebrisHitWater", this.AllowDamageIfDebrisHitWater);
+            ISectionReader combat = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionCombatDamage);
+            this.AllowAnimDamageTakeOverByKratos = combat.Get("AllowAnimDamageTakeOverByKratos", this.AllowAnimDamageTakeOverByKratos);
+            this.AllowDamageIfDebrisHitWater = combat.Get("AllowDamageIfDebrisHitWater", this.AllowDamageIfDebrisHitWater);
 
             this.Damage = reader.Get("Damage", this.Damage);
             this.InitDelay =  reader.Get("Damage.InitDelay", this.InitDelay);

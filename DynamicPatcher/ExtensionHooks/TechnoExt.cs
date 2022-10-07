@@ -780,5 +780,37 @@ namespace ExtensionHooks
 
         #endregion ---------- Stand ----------
 
+        [Hook(HookType.AresHook, Address = 0x639DD8, Size = 5)]
+        public static unsafe UInt32 PlanningManager_AllowAircraftsWaypoint(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (Pointer<TechnoClass>)R->ESI;
+                switch (pTechno.Ref.BaseAbstract.WhatAmI())
+                {
+                    case AbstractType.Infantry:
+                    case AbstractType.Unit:
+                        return 0x639DDD;
+                    case AbstractType.Aircraft:
+                        if (!pTechno.Ref.Type.Ref.Spawned)
+                        {
+                            return 0x639DDD;
+                        }
+                        else
+                        {
+                            return 0x639E03;
+                        }
+                    default:
+                        return 0x639E03;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0x639E03;
+        }
+
     }
 }

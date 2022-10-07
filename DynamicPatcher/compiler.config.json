@@ -7,6 +7,7 @@
     "System.Windows.Forms.dll",
     "System.Drawing.dll",
     "System.Numerics.dll",
+    "Newtonsoft.Json.dll",
 
     "PatcherYRpp.dll",
     "PatcherYRpp.Utilities.dll",
@@ -35,5 +36,11 @@
   "emit_pdb": true,
   "force_compile": false,
   "pack_assembly": true,
-  "optimization_level": "debug"
+  "optimization_level": "debug",
+  "realtime_ignore": [
+    "ra2md.ini",
+    "reshade.ini",
+    "DefaultPreset.ini",
+    "ddraw.ini"
+  ]
 }

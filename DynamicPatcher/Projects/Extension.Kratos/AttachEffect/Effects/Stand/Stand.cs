@@ -32,7 +32,7 @@ namespace Extension.Script
         public SwizzleablePointer<TechnoClass> pStand;
 
         private Pointer<ObjectClass> pMaster => AE.pOwner;
-        private bool isBuilding = false;
+        private bool standIsBuilding = false;
         private bool onStopCommand = false;
         private bool notBeHuman = false;
 
@@ -85,7 +85,7 @@ namespace Extension.Script
                                 // 染色
                                 standStatus.PaintballState = masterStatus.PaintballState;
                                 // 箱子
-                                
+
                             }
                         }
                         else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
@@ -99,7 +99,7 @@ namespace Extension.Script
                     bool canGuard = AE.pSourceHouse.Ref.ControlledByHuman();
                     if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Building)
                     {
-                        isBuilding = true;
+                        standIsBuilding = true;
                         canGuard = true;
                     }
                     else
@@ -215,7 +215,7 @@ namespace Extension.Script
 
         public override void OnRenderEnd(CoordStruct location)
         {
-            if (!isBuilding && pMaster.CastToFoot(out Pointer<FootClass> pMasterFoot))
+            if (!standIsBuilding && pMaster.CastToFoot(out Pointer<FootClass> pMasterFoot))
             {
                 // synch Tilt
                 if (!Data.IsTrain)
@@ -409,12 +409,6 @@ namespace Extension.Script
             pStand.Ref.Base.Mark(MarkType.UP); // 拔起，不在地图上
             // pStand.Ref.Base.IsOnMap = false;
             // pStand.Ref.Base.NeedsRedraw = true;
-            if (pStand.Ref.Base.Base.WhatAmI() != AbstractType.Building)
-            {
-                pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
-                // pStand.Pointer.Convert<FootClass>().Ref.Jumpjet_LocationClear();
-                // Logger.Log("Stand {0} Locomotor {1}", Type.Type, pStand.Pointer.Convert<FootClass>().Ref.Locomotor);
-            }
 
             if (Data.SameHouse)
             {
@@ -478,6 +472,12 @@ namespace Extension.Script
             {
                 if (pMaster.Ref.Owner == pStand.Ref.Owner)
                 {
+                    // synch focus
+                    if (standIsBuilding)
+                    {
+                        pStand.Ref.Focus = pMaster.Ref.Focus;
+                    }
+                    // check poweroff
                     Pointer<BuildingClass> pBuilding = pMaster.Convert<BuildingClass>();
                     if (!masterPowerOff)
                     {
