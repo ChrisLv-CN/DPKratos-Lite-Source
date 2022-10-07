@@ -62,7 +62,7 @@ namespace Extension.Script
             InitAutoWeapon();
             InitBlackHole(); // state AffectWho
             InitCrateBuff(); // state AffectWho
-            // InitDamageReaction();
+            InitDamageReaction();
             InitDamageSelf(); // state AffectWho
             InitDeselect(); // state AffectWho
             InitDisableWeapon(); // state AffectWho

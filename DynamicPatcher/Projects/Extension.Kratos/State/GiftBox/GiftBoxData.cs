@@ -161,48 +161,45 @@ namespace Extension.Ext
 
             this.Enable = null != this.Data || null != this.EliteData;
 
-            if (this.Enable)
+            // 通用设置
+            this.Remove = reader.Get(title + "Remove", this.Remove);
+            this.Destroy = reader.Get(title + "Explodes", this.Destroy);
+            this.RandomRange = reader.Get(title + "RandomRange", this.RandomRange);
+            this.EmptyCell = reader.Get(title + "RandomToEmptyCell", this.EmptyCell);
+
+            this.OpenWhenDestoryed = reader.Get(title + "OpenWhenDestoryed", this.OpenWhenDestoryed);
+            this.OpenHealthPercent = reader.GetPercent(title + "OpenWhenHealthPercent", this.OpenHealthPercent);
+            this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
+
+            this.IsTransform = reader.Get(title + "IsTransform", this.IsTransform);
+            if (IsTransform)
             {
-                // 通用设置
-                this.Remove = reader.Get(title + "Remove", this.Remove);
-                this.Destroy = reader.Get(title + "Explodes", this.Destroy);
-                this.RandomRange = reader.Get(title + "RandomRange", this.RandomRange);
-                this.EmptyCell = reader.Get(title + "RandomToEmptyCell", this.EmptyCell);
-
-                this.OpenWhenDestoryed = reader.Get(title + "OpenWhenDestoryed", this.OpenWhenDestoryed);
-                this.OpenHealthPercent = reader.GetPercent(title + "OpenWhenHealthPercent", this.OpenHealthPercent);
-                this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
-
-                this.IsTransform = reader.Get(title + "IsTransform", this.IsTransform);
-                if (IsTransform)
-                {
-                    this.Remove = true; // 释放后移除
-                    this.Destroy = false; // 静默删除
-                    this.InheritHealth = true; // 继承血量
-                }
-
-                this.HealthPercent = reader.GetPercent(title + "HealthPercent", this.HealthPercent);
-                if (HealthPercent <= 0)
-                {
-                    // 设置了0，自动，当IsTransform时，按照礼盒的比例
-                    this.HealthPercent = 1;
-                    this.InheritHealth = true;
-                }
-                else
-                {
-                    // 固定比例
-                    this.HealthPercent = HealthPercent > 1 ? 1 : HealthPercent;
-                    this.InheritHealth = false;
-                }
-
-                this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);
-                this.InheritExperience = reader.Get(title + "InheritExp", this.InheritExperience);
-                this.InheritAmmo = reader.Get(title + "InheritAmmo", this.InheritAmmo);
-                this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
-                this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
-
-                this.AttachEffects = reader.GetList<string>(title + "AttachEffects", null);
+                this.Remove = true; // 释放后移除
+                this.Destroy = false; // 静默删除
+                this.InheritHealth = true; // 继承血量
             }
+
+            this.HealthPercent = reader.GetPercent(title + "HealthPercent", this.HealthPercent);
+            if (HealthPercent <= 0)
+            {
+                // 设置了0，自动，当IsTransform时，按照礼盒的比例
+                this.HealthPercent = 1;
+                this.InheritHealth = true;
+            }
+            else
+            {
+                // 固定比例
+                this.HealthPercent = HealthPercent > 1 ? 1 : HealthPercent;
+                this.InheritHealth = false;
+            }
+
+            this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);
+            this.InheritExperience = reader.Get(title + "InheritExp", this.InheritExperience);
+            this.InheritAmmo = reader.Get(title + "InheritAmmo", this.InheritAmmo);
+            this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
+            this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
+
+            this.AttachEffects = reader.GetList<string>(title + "AttachEffects", null);
         }
 
         public void ForTransform()

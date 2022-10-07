@@ -30,7 +30,10 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+        }
 
+        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        {
             CoordStruct sourcePos = pBullet.Ref.SourceCoords;
             CoordStruct targetPos = pBullet.Ref.TargetCoords;
 

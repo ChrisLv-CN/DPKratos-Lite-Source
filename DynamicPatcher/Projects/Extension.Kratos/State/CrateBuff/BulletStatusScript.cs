@@ -15,8 +15,6 @@ namespace Extension.Script
     public partial class BulletStatusScript
     {
 
-        public State<CrateBuffData> CrateBuffState = new State<CrateBuffData>();
-
         public RecordBulletStatus RecordBulletStatus;
         public bool SpeedChanged = false;
         public bool LocationLocked = false;

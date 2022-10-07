@@ -30,6 +30,10 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+        }
+
+        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        {
             // 高抛导弹
             if (!pBullet.Ref.WeaponType.IsNull && pBullet.Ref.WeaponType.Ref.Lobber)
             {

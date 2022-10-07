@@ -22,17 +22,30 @@ namespace ExtensionHooks
         [Hook(HookType.AresHook, Address = 0x4F4583, Size = 6)] // GScreenClass_Render
         public static unsafe UInt32 GScreenClass_Render(REGISTERS* R)
         {
-            EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, EventArgs.Empty);
-
+            try
+            {
+                EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
             return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x6A70AE, Size = 5)] // SidebarClass_Draw_It
         public static unsafe UInt32 SidebarClass_Draw_It(REGISTERS* R)
         {
-            // Logger.Log($"{Game.CurrentFrame} SidebarClass_Draw_It call"); // before GScreen
-            EventSystem.GScreen.Broadcast(EventSystem.GScreen.SidebarRenderEvent, EventArgs.Empty);
+            try
+            {
+                // Logger.Log($"{Game.CurrentFrame} SidebarClass_Draw_It call"); // before GScreen
+                EventSystem.GScreen.Broadcast(EventSystem.GScreen.SidebarRenderEvent, EventArgs.Empty);
+            }
+            catch (Exception e)
+            {
 
+                Logger.PrintException(e);
+            }
             return 0;
         }
 

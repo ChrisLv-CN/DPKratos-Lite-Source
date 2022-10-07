@@ -26,6 +26,7 @@ namespace Extension.Script
 
         public void ResetVelocity(Pointer<BulletClass> pBullet)
         {
+            // Logger.Log($"{Game.CurrentFrame} 重新设置直线导弹的向量，当前记录 {this.Velocity}");
             this.Velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
         }
     }
@@ -65,34 +66,40 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+            // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 是直线类型的导弹 {pBullet.Ref.Type.Ref.ROT}, 初始位置 {pBullet.Ref.SourceCoords}, 目标位置 {pBullet.Ref.TargetCoords}, 速度向量 {pBullet.Ref.Velocity}");
+            // BulletEffectHelper.RedLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
+        }
 
-            // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 是直线类型的导弹 {pBullet.Ref.Type.Ref.ROT}");
-
-            // 直线弹道
-            CoordStruct sourcePos = pBullet.Ref.SourceCoords;
-            CoordStruct targetPos = pBullet.Ref.TargetCoords;
-
-            // 绝对直线，重设目标坐标
-            if (trajectoryData.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
+        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        {
+            if (null == straightBullet)
             {
-                // Logger.Log("{0} 绝对直线弹道", pBullet.Ref.Type.Ref.Base.Base.ID);
-                double distance = targetPos.DistanceFrom(sourcePos);
-                DirStruct facing = pBullet.Ref.Owner.Ref.GetRealFacing().current();
-                targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct((int)distance, 0, 0), facing);
-                pBullet.Ref.TargetCoords = targetPos;
+                // 直线弹道
+                CoordStruct sourcePos = pBullet.Ref.SourceCoords;
+                CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
-                // BulletEffectHelper.BlueLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
-            }
+                // 绝对直线，重设目标坐标
+                if (trajectoryData.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
+                {
+                    // Logger.Log("{0} 绝对直线弹道", pBullet.Ref.Type.Ref.Base.Base.ID);
+                    double distance = targetPos.DistanceFrom(sourcePos);
+                    DirStruct facing = pBullet.Ref.Owner.Ref.GetRealFacing().current();
+                    targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct((int)distance, 0, 0), facing);
+                    pBullet.Ref.TargetCoords = targetPos;
 
-            // 重设速度
-            BulletVelocity velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
-            straightBullet = new StraightBullet(sourcePos, targetPos, velocity);
+                    // BulletEffectHelper.BlueLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
+                }
+                // 重设速度
+                BulletVelocity velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
+                straightBullet = new StraightBullet(sourcePos, targetPos, velocity);
 
-            // 设置触碰引信
-            if (pBullet.Ref.Type.Ref.Proximity)
-            {
-                // this.Proximity = new Proximity(pBullet.Ref.Owner, pBullet.Ref.Type.Ref.CourseLockDuration);
-                proximity.ActiveProximity();
+                // Logger.Log($"{Game.CurrentFrame} 计算直线导弹[{section}]{pBullet}的向量，记录向量 {velocity}");
+
+                // 设置触碰引信
+                if (pBullet.Ref.Type.Ref.Proximity)
+                {
+                    proximity.ActiveProximity();
+                }
             }
         }
 

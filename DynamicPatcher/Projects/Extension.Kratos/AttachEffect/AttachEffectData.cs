@@ -154,7 +154,7 @@ namespace Extension.Ext
             ReadAutoWeaponData(reader);
             ReadBlackHoleData(reader);
             ReadCrateBuffData(reader);
-            // ReadDamageReactionData(reader);
+            ReadDamageReactionData(reader);
             ReadDamageSelfData(reader);
             ReadDestroySelfData(reader);
             ReadDeselectData(reader);

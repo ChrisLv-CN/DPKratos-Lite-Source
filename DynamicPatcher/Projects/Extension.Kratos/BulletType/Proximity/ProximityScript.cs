@@ -92,7 +92,7 @@ namespace Extension.Script
         private Proximity proximity;
         private int proximityRange = -1;
 
-        public override void Awake()
+        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
         {
             // 设置提前引爆抛射体
             Pointer<WeaponTypeClass> pWeapon = pBullet.Ref.WeaponType;
