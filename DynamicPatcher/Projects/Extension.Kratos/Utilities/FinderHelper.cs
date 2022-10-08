@@ -12,6 +12,7 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
     public delegate bool Found<T>(Pointer<T> pTarget);
+    public delegate bool FoundIndex<T>(Pointer<T> pTarget, int index);
 
     public static partial class ExHelper
     {
@@ -52,6 +53,18 @@ namespace Extension.Utilities
         public static void FindOwnerTechno(Pointer<HouseClass> pHouse, Found<TechnoClass> func, bool allied = false, bool enemies = false)
         {
             TechnoClass.Array.FindObject(func, default, 0, pHouse, true, allied, enemies, false);
+        }
+
+        public static void FindIndex<T>(this DynamicVectorClass<Pointer<T>> array, FoundIndex<T> func)
+        {
+            for (int i = array.Count - 1; i >= 0; i--)
+            {
+                Pointer<T> pT = array.Get(i);
+                if (!pT.IsNull && func(pT, i))
+                {
+                    break;
+                }
+            }
         }
 
         public static void FindObject<T>(this DynamicVectorClass<Pointer<T>> array, Found<T> func,

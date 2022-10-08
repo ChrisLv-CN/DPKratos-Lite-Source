@@ -88,9 +88,19 @@ namespace Extension.Ext
             {
                 case 7:
                     message = "Detected that you are modifying \"Mental Omega\" without authorization.";
+                    VocClass.Speak("EVA_NuclearSiloDetected");
                     break;
                 case 6:
                     message = "Self-Destruction countdown...";
+                    VocClass.Speak("Mis_A12_EvaCountdown");
+                    break;
+                case 5:
+                    message = antiModifyMessageIndex.ToString();
+                    int nukeSiren = VocClass.FindIndex("NukeSiren");
+                    if (nukeSiren > -1)
+                    {
+                        VocClass.PlayGlobal(nukeSiren, 0x2000, 1.0f);
+                    }
                     break;
                 default:
                     message = antiModifyMessageIndex.ToString();
@@ -98,18 +108,19 @@ namespace Extension.Ext
             }
             if (antiModifyDelay.Expired())
             {
-                antiModifyDelay.Start(120);
-                if (antiModifyMessageIndex >= 0)
+                antiModifyDelay.Start(90);
+                if (antiModifyMessageIndex > 0)
                 {
                     MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, -1, true);
                 }
                 if (antiModifyMessageIndex == 0)
                 {
+                    VocClass.Speak("EVA_NuclearMissileLaunched");
                     MessageListClass.Instance.PrintMessage(Label, "KABOOOOOOOOOOOOOOM!!!", ColorSchemeIndex.Red, -1, true);
                 }
                 antiModifyMessageIndex--;
             }
-            if (antiModifyMessageIndex < 0)
+            if (antiModifyMessageIndex < -2)
             {
                 var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
                 func(0x7DC720, IntPtr.Zero);
