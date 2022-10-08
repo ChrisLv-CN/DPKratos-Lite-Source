@@ -720,6 +720,32 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // Stand support radar
+        [Hook(HookType.AresHook, Address = 0x508EC6, Size = 5)]
+        public static unsafe UInt32 HouseClass_RadarUpdate_Stand(REGISTERS* R)
+        {
+            // isOnMap = 0x508ECD, noOnMap = 0x508F08
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+            if (pTechno.Ref.Base.IsOnMap || pTechno.AmIStand())
+            {
+                return 0x508ECD;
+            }
+            return 0x508F08;
+        }
+
+        // Stand support spysat
+        [Hook(HookType.AresHook, Address = 0x508F9B, Size = 5)]
+        public static unsafe UInt32 HouseClass_SpySatUpdate_Stand(REGISTERS* R)
+        {
+            // isOnMap = 0x508FA2, noOnMap = 0x508FF6
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            if (pTechno.Ref.Base.IsOnMap || pTechno.AmIStand())
+            {
+                return 0x508FA2;
+            }
+            return 0x508FF6;
+        }
+
         #region Stand Drawing
         [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
         public static unsafe UInt32 TechnoClass_GetZAdjust_Stand(REGISTERS* R)
