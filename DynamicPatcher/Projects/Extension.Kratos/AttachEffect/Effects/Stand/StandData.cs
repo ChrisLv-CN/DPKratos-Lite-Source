@@ -65,6 +65,7 @@ namespace Extension.Ext
         // public Direction Direction; // 相对朝向
         public int Direction; // 相对朝向，16分圆，[0-15]
         public bool LockDirection; // 强制朝向，不论替身在做什么
+        public bool FreeDirection; // 完全不控制朝向
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
 
@@ -106,6 +107,7 @@ namespace Extension.Ext
             this.Offset = default;
             this.Direction = 0;
             this.LockDirection = false;
+            this.FreeDirection = false;
             this.IsOnTurret = false;
             this.IsOnWorld = false;
 
@@ -156,6 +158,7 @@ namespace Extension.Ext
                 this.Offset = reader.Get(TITLE + "Offset", this.Offset);
                 this.Direction = reader.GetDir16(TITLE + "Direction", this.Direction);
                 this.LockDirection = reader.Get(TITLE + "LockDirection", this.LockDirection);
+                this.FreeDirection = reader.Get(TITLE + "FreeDirection", this.FreeDirection);
                 this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
                 this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.IsOnWorld);
 

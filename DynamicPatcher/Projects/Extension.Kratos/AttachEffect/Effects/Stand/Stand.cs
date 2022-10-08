@@ -608,23 +608,26 @@ namespace Extension.Script
 
         public void SetDirection(DirStruct direction, bool forceSetTurret)
         {
-            if (pStand.Ref.HasTurret() || Data.LockDirection)
+            if (!Data.FreeDirection)
             {
-                // Logger.Log("设置替身{0}身体的朝向", Type.Type);
-                // 替身有炮塔直接转身体
-                pStand.Ref.Facing.set(direction);
-            }
-            // 检查是否需要同步转炮塔
-            if ((pStand.Ref.Target.IsNull || Data.LockDirection) && !pStand.Ref.Type.Ref.TurretSpins)
-            {
-                // Logger.Log("设置替身{0}炮塔的朝向", Type.Type);
-                if (forceSetTurret)
+                if (pStand.Ref.HasTurret() || Data.LockDirection)
                 {
-                    ForceSetFacing(direction);
+                    // Logger.Log("设置替身{0}身体的朝向", Type.Type);
+                    // 替身有炮塔直接转身体
+                    pStand.Ref.Facing.set(direction);
                 }
-                else
+                // 检查是否需要同步转炮塔
+                if ((pStand.Ref.Target.IsNull || Data.LockDirection) && !pStand.Ref.Type.Ref.TurretSpins)
                 {
-                    TurnTurretFacing(direction);
+                    // Logger.Log("设置替身{0}炮塔的朝向", Type.Type);
+                    if (forceSetTurret)
+                    {
+                        ForceSetFacing(direction);
+                    }
+                    else
+                    {
+                        TurnTurretFacing(direction);
+                    }
                 }
             }
 
