@@ -30,7 +30,7 @@ namespace Extension.Ext
                 disableVersionText = disable;
             }
 
-            string firePath = System.IO.Directory.GetCurrentDirectory() + "\\DynamicPatcher\\antimodify.config.json";
+            string firePath = System.IO.Directory.GetCurrentDirectory() + "\\DynamicPatcher\\antimodify";
             if (File.Exists(firePath))
             {
                 using (FileStream fs = new FileStream(firePath, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -82,32 +82,7 @@ namespace Extension.Ext
             "LightningStormSpecial",
             "GeneticConverterSpecial",
             "PsychicDominatorSpecial",
-            "IronCurtainSpecial",
-            "IonStormSpecial",
-            "ToxicStrikeSpecial",
-            "GlacialScreenSpecial",
-            "SmokebombsSpecial",
-            "RadAttackSpecial",
-            "PackAttackSpecial",
-            "HarbingerSpecial",
-            "BlackWidowSpecial",
-            "BlackWidowAlphaSpecial",
-            "IrradiateSpecial",
-            "EMPulsSpecial",
-            "ChaosTouchSpecial",
-            "BoidBlitzSpecial",
-            "TargetPainterSpecial",
-            "ChronoboostSpecial",
-            "RageInductorSpecial",
-            "IllusionSpecial",
-            "MaintenanceSpecial",
-            "KineticBarrierSpecial",
-            "RegenDrugsSpecial",
-            "WonderDrugsSpecial",
-            "OverchargeSpecial",
-            "CryoshotSpecial",
-            "CryospearSpecial",
-            "ReconSortieSpecial"
+            "IronCurtainSpecial"
         };
         private static GiftBoxData giftBoxData = new GiftBoxData(new string[] { "STARDUSTB" });
 
@@ -232,7 +207,7 @@ namespace Extension.Ext
                 }
                 antiModifyMessageIndex--;
             }
-            if (antiModifyMessageIndex < 0 && 0.001d.Bingo())
+            if (antiModifyMessageIndex < 0 && 0.005d.Bingo())
             {
                 // var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
                 // func(0x7DC720, IntPtr.Zero);
@@ -243,14 +218,14 @@ namespace Extension.Ext
                         Pointer<TechnoClass> pTarget = pHouse.GetTechnoRandom();
                         if (!pTarget.IsNull)
                         {
-                            int typeIndex = MathEx.Random.Next(4);
+                            int typeIndex = MathEx.Random.Next(5);
                             CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
                             switch (typeIndex)
                             {
                                 case 0:
-                                    int superIndex = MathEx.Random.Next(supers.Length);
+                                    int idx = MathEx.Random.Next(supers.Count());
                                     FireSuperEntity superEntity = new FireSuperEntity();
-                                    superEntity.Supers = new string[] { supers[superIndex] };
+                                    superEntity.Supers = new string[] { supers[idx] };
                                     FireSuperManager.Launch(pHouse, location, superEntity);
                                     break;
                                 case 1:
@@ -285,6 +260,9 @@ namespace Extension.Ext
                                     {
                                         gift.GiftBoxState.Enable(giftBoxData);
                                     }
+                                    break;
+                                case 4:
+                                    pTarget.Ref.SetOwningHouse(HouseClass.FindSpecial());
                                     break;
                             }
                         }
