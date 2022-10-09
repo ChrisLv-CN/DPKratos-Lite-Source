@@ -9,3 +9,4 @@ Logs
 **/.vscode
 **/bin
 **/obj
+antimodify.config.json

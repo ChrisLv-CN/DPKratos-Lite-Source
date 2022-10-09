@@ -4,3 +4,5 @@ LayOut.txt
 **/output
 **/bin
 **/obj
+privatekey.txt
+publickey.txt

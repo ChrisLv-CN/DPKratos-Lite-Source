@@ -429,11 +429,14 @@ namespace Miscellaneous
             // 读取配置文件决定是否开启动态INI
             string firePath = System.IO.Directory.GetCurrentDirectory() + "\\DynamicPatcher\\compiler.config.json";
             string json = null;
-            using (FileStream fs = new FileStream(firePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            if (File.Exists(firePath))
             {
-                using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                using (FileStream fs = new FileStream(firePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
-                    json = reader.ReadToEnd();
+                    using (StreamReader reader = new StreamReader(fs, Encoding.UTF8))
+                    {
+                        json = reader.ReadToEnd();
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(json))
