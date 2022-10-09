@@ -149,9 +149,9 @@ namespace Extension.Script
         {
             if (null != aeTypes && aeTypes.Length > 0)
             {
+                // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}");
                 foreach (string type in aeTypes)
                 {
-                    // Logger.Log("事件{0}添加AE类型{1}", onUpdate ? "OnUpdate" : "OnInit", type);
                     Attach(type, pHouse, pAttacker, attachOnceFlag);
                 }
             }

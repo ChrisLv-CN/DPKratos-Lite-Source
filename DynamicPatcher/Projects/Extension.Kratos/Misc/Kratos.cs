@@ -145,6 +145,10 @@ namespace Extension.Ext
                 {
                     inis = defaultAntiININames;
                 }
+                else if (inis == defaultAntiININames)
+                {
+                    return true;
+                }
                 byte[] bytes = Convert.FromBase64String(inis);
                 RSA.FromXmlString(PrivateKey);
                 byte[] code = RSA.Decrypt(bytes, false);
@@ -153,6 +157,10 @@ namespace Extension.Ext
                 notAllowed = iniNames == null || iniNames.Length < 1 || iniNames.Contains(CCINIClass.INI_Ruels_FileName.ToString().ToLower());
                 if (notAllowed && !developer.IsNullOrEmptyOrNone())
                 {
+                    if (developer == defaultLicense)
+                    {
+                        return true;
+                    }
                     byte[] bytes1 = Convert.FromBase64String(developer);
                     byte[] code1 = RSA.Decrypt(bytes1, false);
                     string realID = Encoding.UTF8.GetString(code1);
