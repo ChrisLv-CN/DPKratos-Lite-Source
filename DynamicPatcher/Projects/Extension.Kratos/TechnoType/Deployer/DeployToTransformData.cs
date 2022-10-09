@@ -24,7 +24,7 @@ namespace Extension.Ext
                 string[] gifts = reader.GetList<string>("DeployToTransform", null);
                 if (null != gifts && gifts.Length > 0)
                 {
-                    GiftBox data = new GiftBox();
+                    GiftBoxEntity data = new GiftBoxEntity();
                     data.Read(reader, TITLE);
                     data.Gifts = gifts;
                     this.Data = data;

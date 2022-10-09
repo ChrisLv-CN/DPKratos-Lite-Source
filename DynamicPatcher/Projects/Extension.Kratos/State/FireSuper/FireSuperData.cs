@@ -57,6 +57,11 @@ namespace Extension.Ext
             this.ToTarget = true;
         }
 
+        public FireSuperEntity(string[] supers) : this()
+        {
+            this.Supers = supers;
+        }
+
         public FireSuperEntity Clone()
         {
             FireSuperEntity data = new FireSuperEntity();

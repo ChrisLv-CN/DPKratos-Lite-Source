@@ -53,8 +53,9 @@ namespace Extension.Ext
             this.AllowDamageIfDebrisHitWater = combat.Get("AllowDamageIfDebrisHitWater", this.AllowDamageIfDebrisHitWater);
 
             this.Damage = reader.Get("Damage", this.Damage);
-            this.InitDelay =  reader.Get("Damage.InitDelay", this.InitDelay);
             this.Delay =  reader.Get("Damage.Delay", this.Delay);
+            // Ares 习惯，InitDelay 与 Delay相同
+            this.InitDelay =  reader.Get("Damage.InitDelay", this.Delay);
 
             this.KillByCreater =  reader.Get("Damage.KillByCreater", this.KillByCreater);
 

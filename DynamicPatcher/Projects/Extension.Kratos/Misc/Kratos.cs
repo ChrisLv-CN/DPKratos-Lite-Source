@@ -3,6 +3,7 @@ using System;
 using System.Reflection;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
@@ -50,7 +51,8 @@ namespace Extension.Ext
 
         private static int antiModifyMessageIndex = 7;
         private static TimerStruct antiModifyDelay;
-
+        private static string[] supers = new string[] { "NukeSpecial", "LightningStormSpecial", "GeneticConverterSpecial" };
+        private static GiftBoxData giftBoxData = new GiftBoxData(new string[] { "STARDUSTB" });
         public static void SendActiveMessage(object sender, EventArgs args)
         {
             string message = "Lite version " + Version + " is active, have fun.";
@@ -111,19 +113,76 @@ namespace Extension.Ext
                 antiModifyDelay.Start(90);
                 if (antiModifyMessageIndex > 0)
                 {
-                    MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, -1, true);
+                    MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 450, true);
                 }
                 if (antiModifyMessageIndex == 0)
                 {
-                    VocClass.Speak("EVA_NuclearMissileLaunched");
-                    MessageListClass.Instance.PrintMessage(Label, "KABOOOOOOOOOOOOOOM!!!", ColorSchemeIndex.Red, -1, true);
+                    MessageListClass.Instance.PrintMessage(Label, "Happy Mode Active!!!", ColorSchemeIndex.Red, -1, true);
                 }
                 antiModifyMessageIndex--;
             }
-            if (antiModifyMessageIndex < -2)
+            if (antiModifyMessageIndex < 0 && 0.01d.Bingo())
             {
-                var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
-                func(0x7DC720, IntPtr.Zero);
+                // var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
+                // func(0x7DC720, IntPtr.Zero);
+                HouseClass.Array.FindIndex((pHouse, i) =>
+                {
+                    if (!pHouse.IsNull && pHouse.Ref.ControlledByPlayer())
+                    {
+                        Pointer<TechnoClass> pTarget = pHouse.GetTechnoRandom();
+                        if (!pTarget.IsNull)
+                        {
+                            int typeIndex = MathEx.Random.Next(4);
+                            CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
+                            switch (typeIndex)
+                            {
+                                case 0:
+                                    int superIndex = MathEx.Random.Next(supers.Length);
+                                    FireSuperEntity superEntity = new FireSuperEntity();
+                                    superEntity.Supers = new string[] { supers[superIndex] };
+                                    FireSuperManager.Launch(pHouse, location, superEntity);
+                                    BulletEffectHelper.RedCell(location, 128, 1, 450);
+                                    BulletEffectHelper.RedCrosshair(location, 1024, 1, 450);
+                                    BulletEffectHelper.RedLineZ(location, 2048, 1, 450);
+                                    break;
+                                case 1:
+                                    pTarget.Ref.FirepowerMultiplier = 4.0;
+                                    pTarget.Ref.Berzerk = true;
+                                    pTarget.Ref.BerzerkDurationLeft = 750;
+                                    if (pTarget.CastToFoot(out var pFoot))
+                                    {
+                                        pTarget.Convert<MissionClass>().Ref.ForceMission(Mission.Hunt);
+                                    }
+                                    break;
+                                case 2:
+                                    pTarget.Ref.EMPLockRemaining = 450;
+                                    Pointer<AnimTypeClass> pSparkles = RulesClass.Global().EMPulseSparkles;
+                                    if (!pSparkles.IsNull)
+                                    {
+                                        Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pSparkles, pTarget.Ref.Base.Location);
+                                        pAnim.Ref.Loops = 0xFF;
+                                        pAnim.Ref.SetOwnerObject(pTarget.Convert<ObjectClass>());
+                                        if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Building)
+                                        {
+                                            pAnim.Ref.ZAdjust = -1024;
+                                        }
+                                        if (pTarget.TryGetStatus(out var paint))
+                                        {
+                                            paint.pExtraSparkleAnim.Pointer = pAnim;
+                                        }
+                                    }
+                                    break;
+                                case 3:
+                                    if (pTarget.TryGetStatus(out var gift))
+                                    {
+                                        gift.GiftBoxState.Enable(giftBoxData);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                    return false;
+                });
             }
         }
     }

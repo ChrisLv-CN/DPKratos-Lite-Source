@@ -26,7 +26,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class GiftBox
+    public class GiftBoxEntity
     {
         public string[] Gifts;
         public int[] Nums;
@@ -38,7 +38,7 @@ namespace Extension.Ext
         public Point2D RandomDelay;
 
 
-        public GiftBox()
+        public GiftBoxEntity()
         {
             this.Gifts = null;
             this.Nums = null;
@@ -50,9 +50,14 @@ namespace Extension.Ext
             this.RandomDelay = default;
         }
 
-        public GiftBox Clone()
+        public GiftBoxEntity(string[] gifts) : this()
         {
-            GiftBox data = new GiftBox();
+            this.Gifts = gifts;
+        }
+
+        public GiftBoxEntity Clone()
+        {
+            GiftBoxEntity data = new GiftBoxEntity();
             data.Gifts = null != this.Gifts ? (string[])this.Gifts.Clone() : null;
             data.Nums = null != this.Nums ? (int[])this.Nums.Clone() : null;
             data.Chances = null != this.Chances ? (double[])this.Chances.Clone() : null;
@@ -85,8 +90,8 @@ namespace Extension.Ext
 
         public const string TITLE = "GiftBox.";
 
-        public GiftBox Data;
-        public GiftBox EliteData;
+        public GiftBoxEntity Data;
+        public GiftBoxEntity EliteData;
         public bool Remove;
         public bool Destroy;
         public int RandomRange;
@@ -136,6 +141,12 @@ namespace Extension.Ext
             this.AttachEffects = null;
         }
 
+        public GiftBoxData(string[] gifts) : this()
+        {
+            this.Data = new GiftBoxEntity(gifts);
+            this.EliteData = this.Data;
+        }
+
         public override void Read(IConfigReader reader)
         {
             Read(reader, TITLE);
@@ -145,14 +156,14 @@ namespace Extension.Ext
         {
             base.Read(reader, title);
 
-            GiftBox data = new GiftBox();
+            GiftBoxEntity data = new GiftBoxEntity();
             data.Read(reader, title);
             if (null != data.Gifts && data.Gifts.Length > 0)
             {
                 this.Data = data;
             }
 
-            GiftBox elite = null != this.Data ? Data.Clone() : new GiftBox();
+            GiftBoxEntity elite = null != this.Data ? Data.Clone() : new GiftBoxEntity();
             elite.Read(reader, title + "Elite");
             if (null != elite.Gifts && elite.Gifts.Length > 0)
             {

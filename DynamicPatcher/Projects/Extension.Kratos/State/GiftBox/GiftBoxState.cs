@@ -34,7 +34,7 @@ namespace Extension.Ext
             this.isElite = isElite;
         }
 
-        private GiftBox GetGiftBoxData()
+        private GiftBoxEntity GetGiftBoxData()
         {
             if (isElite && null != Data.EliteData)
             {
@@ -50,7 +50,7 @@ namespace Extension.Ext
 
         public void Reset()
         {
-            GiftBox data = GetGiftBoxData();
+            GiftBoxEntity data = GetGiftBoxData();
             this.IsOpen = false;
             this.delay = data.RandomDelay.GetRandomValue(data.Delay);
             if (this.delay > 0)
@@ -71,7 +71,7 @@ namespace Extension.Ext
 
         public List<string> GetGiftList()
         {
-            GiftBox data = GetGiftBoxData();
+            GiftBoxEntity data = GetGiftBoxData();
             List<string> gifts = new List<string>();
             if (null != data)
             {

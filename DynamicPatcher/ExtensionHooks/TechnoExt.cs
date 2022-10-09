@@ -252,7 +252,7 @@ namespace ExtensionHooks
                 if (pTechno.TryGetStatus(out TechnoStatusScript status))
                 {
                     status.TechnoClass_DrawSHP_Paintball(R);
-                    status.UnitClass_DrawSHP_Colour(R);
+                    status.TechnoClass_DrawSHP_Colour(R);
                 }
             }
             catch (Exception e)

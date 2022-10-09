@@ -244,5 +244,21 @@ namespace Extension.Utilities
             return pTechnoList;
         }
 
+        public static Pointer<TechnoClass> GetTechnoRandom(this Pointer<HouseClass> pHouse)
+        {
+            int maxValue = TechnoClass.Array.Count();
+            if (maxValue > 0)
+            {
+                int targetIndex = MathEx.Random.Next(maxValue);
+                Pointer<TechnoClass> pTarget = TechnoClass.Array[targetIndex];
+                if (pTarget.IsNull || pTarget.Ref.Owner.IsNull || pTarget.Ref.Owner != pHouse)
+                {
+                    return pHouse.GetTechnoRandom();
+                }
+                return pTarget;
+            }
+            return IntPtr.Zero;
+        }
+
     }
 }

@@ -31,6 +31,10 @@ namespace Extension.Script
 
         public void OnUpdate_Damage()
         {
+            if (pAnim.IsNull)
+            {
+                return;
+            }
             if (!initDelayFlag)
             {
                 initDelayFlag = true;
@@ -59,6 +63,10 @@ namespace Extension.Script
 
         public void Explosion_Damage(bool isBounce = false, bool bright = false)
         {
+            if (pAnim.IsNull)
+            {
+                return;
+            }
             Pointer<AnimTypeClass> pAnimType = pAnim.Ref.Type;
             if (!pAnimType.IsNull)
             {
@@ -67,7 +75,6 @@ namespace Extension.Script
                 {
                     location = pAnim.Ref.Bounce.GetCoords();
                 }
-                AnimTypeExt typeExt = AnimTypeExt.ExtMap.Find(pAnimType);
                 int damage = (int)pAnimType.Ref.Damage;
                 if (damage != 0 || (!AnimDamageData.Weapon.IsNullOrEmptyOrNone() && AnimDamageData.UseWeaponDamage))
                 {
@@ -79,14 +86,14 @@ namespace Extension.Script
                     {
                         // 用武器
                         Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponType);
-                        // 使用武器的伤害数值
-                        if (AnimDamageData.UseWeaponDamage)
+                        if (!pWeapon.IsNull)
                         {
-                            damage = pWeapon.Ref.Damage;
-                        }
-                        if (damage != 0)
-                        {
-                            if (!pWeapon.IsNull)
+                            // 使用武器的伤害数值
+                            if (AnimDamageData.UseWeaponDamage)
+                            {
+                                damage = pWeapon.Ref.Damage;
+                            }
+                            if (damage != 0)
                             {
                                 if (weaponDelay.Expired())
                                 {

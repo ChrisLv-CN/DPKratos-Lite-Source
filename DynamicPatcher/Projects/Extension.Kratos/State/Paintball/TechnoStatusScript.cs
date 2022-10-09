@@ -17,8 +17,13 @@ namespace Extension.Script
 
         public PaintballState PaintballState = new PaintballState();
 
+        public SwizzleablePointer<AnimClass> pExtraSparkleAnim = new SwizzleablePointer<AnimClass>(IntPtr.Zero);
+
         private float deactivateDimEMP = 0.8f;
         private float deactivateDimPowered = 0.5f;
+
+        private bool buildingWasBerzerk = false;
+        private bool buildingWasEMP = false;
 
         public void InitState_Paintball()
         {
@@ -35,14 +40,54 @@ namespace Extension.Script
 
         public void OnUpdate_Paintball()
         {
-            if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
+            if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building && !pTechno.AmIStand())
             {
+                if (pTechno.Ref.Berzerk)
+                {
+                    if (!buildingWasBerzerk)
+                    {
+                        buildingWasBerzerk = true;
+                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                    }
+                }
+                else
+                {
+                    if (buildingWasBerzerk)
+                    {
+                        buildingWasBerzerk = false;
+                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                    }
+                }
+
+                if (pTechno.Ref.IsUnderEMP())
+                {
+                    if (!buildingWasEMP)
+                    {
+                        buildingWasEMP = true;
+                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                    }
+                }
+                else
+                {
+                    if (buildingWasEMP)
+                    {
+                        buildingWasEMP = true;
+                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                    }
+                }
+
                 if (PaintballState.IsActive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}, ForceShilded {pTechno.Ref.IsForceShilded}");
                     pTechno.Ref.Base.Mark(MarkType.CHANGE);
                 }
+            }
 
+            // 移除额外的EMP动画
+            if (!pExtraSparkleAnim.IsNull && !pTechno.Ref.IsUnderEMP())
+            {
+                pExtraSparkleAnim.Ref.Loops = 0;
+                pExtraSparkleAnim.Pointer = IntPtr.Zero;
             }
         }
 
@@ -78,39 +123,39 @@ namespace Extension.Script
         /// SHP载具染色
         /// </summary>
         /// <param name="R"></param>
-        public unsafe void UnitClass_DrawSHP_Colour(REGISTERS* R)
+        public unsafe void TechnoClass_DrawSHP_Colour(REGISTERS* R)
         {
-            if (!pTechno.IsNull && !pTechno.Ref.IsVoxel() && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+            if (!pTechno.IsNull && !pTechno.Ref.IsVoxel())
             {
                 //== Colour ==
                 // ForceShield
                 // LaserTarget
-                // Berzerk
-                if (pTechno.Ref.Berzerk)
+                // Berzerk, 建筑不支持狂暴染色
+                if (pTechno.Ref.Berzerk) // paint color to building
                 {
                     R->EAX = RulesClass.BerserkColor.Add2RGB565();
                     // R->EAX = Drawing.Color16bit(color);
                     // R->EBP = 200;
                     // R->EAX = 0x42945536;
                 }
-                // add PowerUp
 
                 //== Darker ==
-                // IronCurtain
-                // EMP
+                // IronCurtain, SHP载具支持铁幕染色
+                // EMP, 建筑不支持变黑
                 // NoPower
-                if (pTechno.Ref.Base.IsIronCurtained())
-                {
-                    // SHP载具支持铁幕染色
-                    // R->EBP = (uint)pTechno.Ref.ApplyEffectBright((int)R->EBP);
-                }
-                else if (pTechno.Ref.IsUnderEMP() && pTechno.Ref.EMPLockRemaining > 0)
+                if (pTechno.Ref.IsUnderEMP())
                 {
                     R->EBP = GetBright(R->EBP, deactivateDimEMP);
                 }
-                else if (!pTechno.Ref.Base.IsActive() && pTechno.Ref.Type.Ref.PoweredUnit)
+                else
                 {
-                    R->EBP = GetBright(R->EBP, deactivateDimPowered);
+                    if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Unit)
+                    {
+                        if (!pTechno.Ref.Base.IsActive() && pTechno.Ref.Type.Ref.PoweredUnit)
+                        {
+                            R->EBP = GetBright(R->EBP, deactivateDimPowered);
+                        }
+                    }
                 }
             }
         }
@@ -131,6 +176,17 @@ namespace Extension.Script
 
         public unsafe void TechnoClass_DrawSHP_Paintball_BuildAnim(REGISTERS* R)
         {
+            uint bright = R->Stack<uint>(0x38);
+            if (pTechno.Ref.Berzerk) // paint color to building's Anim
+            {
+                R->EBP = RulesClass.BerserkColor.Add2RGB565();
+            }
+
+            if (pTechno.Ref.IsUnderEMP())
+            {
+                R->Stack<uint>(0x38, (uint)GetBright(bright, deactivateDimEMP));
+            }
+
             if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.IsForceShilded || pTechno.Ref.Base.IsIronCurtained())
             {
                 return;
@@ -143,13 +199,26 @@ namespace Extension.Script
             }
             if (changeBright)
             {
-                uint bright = R->Stack<uint>(0x38);
                 R->Stack<uint>(0x38, PaintballState.GetBright(bright));
             }
         }
 
         public unsafe void TechnoClass_DrawVXL_Paintball(REGISTERS* R, bool isBuilding)
         {
+            if (isBuilding)
+            {
+                // Vxl turret
+                uint bright = R->Stack<uint>(0x20);
+                if (pTechno.Ref.Berzerk) // paint color to building's Anim
+                {
+                    R->Stack<uint>(0x24, RulesClass.BerserkColor.Add2RGB565());
+                }
+
+                if (pTechno.Ref.IsUnderEMP())
+                {
+                    R->Stack<uint>(0x20, (uint)GetBright(bright, deactivateDimEMP));
+                }
+            }
 
             if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.IsForceShilded || pTechno.Ref.Base.IsIronCurtained())
             {
