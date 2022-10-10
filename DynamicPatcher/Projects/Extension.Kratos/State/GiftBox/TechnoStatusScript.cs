@@ -19,7 +19,7 @@ namespace Extension.Script
 
         public void InitState_GiftBox()
         {
-            GiftBoxData giftBoxTypeData  = Ini.GetConfig<GiftBoxData>(Ini.RulesDependency, section).Data;
+            GiftBoxData giftBoxTypeData = Ini.GetConfig<GiftBoxData>(Ini.RulesDependency, section).Data;
             if (null != giftBoxTypeData.Data || null != giftBoxTypeData.EliteData)
             {
                 GiftBoxState.Enable(giftBoxTypeData);
@@ -28,37 +28,11 @@ namespace Extension.Script
 
         public void OnUpdate_GiftBox()
         {
-            // 记录盒子的状态
             GiftBoxState.Update(pTechno.Ref.Veterancy.IsElite());
-            GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
-            GiftBoxState.Group = pTechno.Ref.Group;
-            // 记录朝向
-            if (pTechno.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
-            {
-                // 飞机朝向是TurretFacing
-                GiftBoxState.BodyDir = pTechno.Ref.GetRealFacing().current();
-            }
-            else if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
-            {
-                ILocomotion loco = pFoot.Ref.Locomotor;
-                if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
-                {
-                    // JJ朝向是单独的Facing
-                    Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
-                    GiftBoxState.BodyDir = pLoco.Ref.LocomotionFacing.current();
-                }
-                else
-                {
-                    GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
-                }
-            }
-            else
-            {
-                GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
-            }
-
             if (GiftBoxState.IsActive())
             {
+                // 记录盒子的状态
+                GiftBoxState.SaveStatue(pTechno);
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
                 if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
                 {

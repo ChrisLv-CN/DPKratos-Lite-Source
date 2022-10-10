@@ -44,6 +44,7 @@ namespace Extension.Script
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
+        private IConfigWrapper<AttachEffectTypeData> aeTypeData = null;
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
         private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
         private bool isDead = false;
@@ -87,6 +88,8 @@ namespace Extension.Script
             this.totleMileage = 0;
 
             this.locationSpace = 512;
+
+            this.aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section);
         }
 
         public int Count()
@@ -567,10 +570,9 @@ namespace Extension.Script
         {
             isDead = pObject.IsDead();
             // 添加Section上记录的AE
-            if (!isDead && !pObject.IsInvisible())
+            if (!isDead && !pObject.IsInvisible() && null != aeTypeData)
             {
-                AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section).Data;
-                Attach(aeTypeData, pOwner);
+                Attach(aeTypeData.Data, pOwner);
                 this.attachEffectOnceFlag = true;
             }
 
@@ -851,30 +853,27 @@ namespace Extension.Script
             TechnoClass.Array.FindObject((pTechno) =>
             {
                 // Stand always not on map.
-                if (!pTechno.IsDeadOrInvisible() && pTechno.Convert<ObjectClass>() != exclude && !pTechno.Ref.Base.IsOnMap && !(pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded))
+                if (!pTechno.IsDeadOrInvisible() && pTechno.Convert<ObjectClass>() != exclude && !pTechno.Ref.Base.IsOnMap && !(pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded) &&  pTechno.AmIStand(out StandData standData))
                 {
-                    if (pTechno.AmIStand(out StandData standData))
+                    // 检查距离
+                    CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
+                    double dist = targetPos.DistanceFrom(location);
+                    if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTechno.InAir(true))
                     {
-                        // 检查距离
-                        CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
-                        double dist = targetPos.DistanceFrom(location);
-                        if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTechno.InAir(true))
+                        dist *= 0.5;
+                    }
+                    if (dist <= spread)
+                    {
+                        // 找到一个最近的替身，检查替身是否可以受伤，以及弹头是否可以影响该替身
+                        if (!standData.Immune
+                            && pTechno.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
+                            && pTechno.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
+                        )
                         {
-                            dist *= 0.5;
-                        }
-                        if (dist <= spread)
-                        {
-                            // 找到一个最近的替身，检查替身是否可以受伤，以及弹头是否可以影响该替身
-                            if (!standData.Immune
-                                && pTechno.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
-                                && pTechno.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
-                            )
-                            {
-                                DamageGroup damageGroup = new DamageGroup();
-                                damageGroup.Target = pTechno;
-                                damageGroup.Distance = dist;
-                                stands.Add(damageGroup);
-                            }
+                            DamageGroup damageGroup = new DamageGroup();
+                            damageGroup.Target = pTechno;
+                            damageGroup.Distance = dist;
+                            stands.Add(damageGroup);
                         }
                     }
                 }

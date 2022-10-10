@@ -34,6 +34,38 @@ namespace Extension.Ext
             this.isElite = isElite;
         }
 
+        public void SaveStatue(Pointer<TechnoClass> pTechno)
+        {
+            // 保存记录
+            this.IsSelected = pTechno.Ref.Base.IsSelected;
+            this.Group = pTechno.Ref.Group;
+            // 记录朝向
+            if (pTechno.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
+            {
+                // 飞机朝向是TurretFacing
+                this.BodyDir = pTechno.Ref.GetRealFacing().current();
+            }
+            else if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+            {
+                ILocomotion loco = pFoot.Ref.Locomotor;
+                if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
+                {
+                    // JJ朝向是单独的Facing
+                    Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                    this.BodyDir = pLoco.Ref.LocomotionFacing.current();
+                }
+                else
+                {
+                    this.BodyDir = pTechno.Ref.Facing.current();
+                }
+            }
+            else
+            {
+                this.BodyDir = pTechno.Ref.Facing.current();
+            }
+
+        }
+
         private GiftBoxEntity GetGiftBoxData()
         {
             if (isElite && null != Data.EliteData)

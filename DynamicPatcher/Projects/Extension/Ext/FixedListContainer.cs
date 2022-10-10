@@ -1,35 +1,39 @@
-﻿using System;
+﻿using DynamicPatcher;
+using PatcherYRpp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DynamicPatcher;
-using PatcherYRpp;
 
 namespace Extension.Ext
 {
     /// <summary>
-    /// 
+    /// Store TExt with fixed index in list
     /// </summary>
     /// <typeparam name="TExt"></typeparam>
     /// <typeparam name="TBase"></typeparam>
-    public class MapContainer<TExt, TBase> : Container<TExt, TBase> where TExt : Extension<TBase>
+    public class FixedListContainer<TExt, TBase> : Container<TExt, TBase> where TExt : Extension<TBase>
     {
-        Dictionary<Pointer<TBase>, TExt> m_Items;
+        List<TExt> m_Items;
 
         ExtensionFactory<TExt, TBase> m_Factory;
 
-        public MapContainer(string name, ExtensionFactory<TExt, TBase> factory = null) : base(name)
+        Func<Pointer<TBase>, int> m_GetIdx;
+
+        public FixedListContainer(string name, ExtensionFactory<TExt, TBase> factory = null, Func<Pointer<TBase>, int> getIdx = null) : base(name)
         {
-            m_Items = new Dictionary<Pointer<TBase>, TExt>();
+            m_Items = new List<TExt>();
             m_Factory = factory ?? new LambdaExtensionFactory<TExt, TBase>();
+            m_GetIdx = getIdx ?? (ptr => ptr.Cast<AbstractClass>().Ref.GetArrayIndex());
         }
 
         public override TExt Find(Pointer<TBase> key)
         {
-            if (m_Items.TryGetValue(key, out TExt ext))
+            int idx = m_GetIdx(key);
+            if (m_Items.Count > idx)
             {
-                return ext;
+                return m_Items[idx];
             }
             return null;
         }
@@ -37,19 +41,30 @@ namespace Extension.Ext
         protected override TExt Allocate(Pointer<TBase> key)
         {
             TExt val = m_Factory.Create(key);
-            m_Items.Add(key, val);
+            SetItem(key, val);
 
             return val;
         }
 
         protected override void SetItem(Pointer<TBase> key, TExt ext)
         {
-            m_Items[key] = ext;
+            int idx = m_GetIdx(key);
+            if (m_Items.Count <= idx)
+            {
+                // fill null in gap
+                int growth = idx - m_Items.Count + 1;
+                for (int i = 0; i < growth; i++)
+                {
+                    m_Items.Add(null);
+                }
+            }
+
+            m_Items[idx] = ext;
         }
 
         public override void RemoveItem(Pointer<TBase> key)
         {
-            m_Items.Remove(key);
+            SetItem(key, null);
         }
 
         public override void Clear()
@@ -60,7 +75,5 @@ namespace Extension.Ext
                 m_Items.Clear();
             }
         }
-
     }
-
 }

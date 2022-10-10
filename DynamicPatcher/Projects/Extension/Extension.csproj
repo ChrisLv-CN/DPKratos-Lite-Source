@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Components\Component.cs" />
     <Compile Include="Components\ComponentManager.cs" />
+    <Compile Include="Components\ComponentTraitQuery.cs" />
     <Compile Include="Components\GameObject.cs" />
     <Compile Include="Components\YRTransform.cs" />
     <Compile Include="Coroutines\Coroutine.cs" />
@@ -66,8 +67,9 @@
     <Compile Include="Ext\CommonExtension.cs" />
     <Compile Include="Ext\ECSInstanceExtension.cs" />
     <Compile Include="Ext\ExtensionFactory.cs" />
-    <Compile Include="Ext\GOInstanceExtension.cs" />
     <Compile Include="Ext\Extension.cs" />
+    <Compile Include="Ext\FixedListContainer.cs" />
+    <Compile Include="Ext\GOInstanceExtension.cs" />
     <Compile Include="Ext\InstanceExtension.cs" />
     <Compile Include="Ext\MapContainer.cs" />
     <Compile Include="Ext\TypeExtension.cs" />

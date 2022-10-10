@@ -41,7 +41,7 @@ namespace Extension.INI
     public abstract class INIConfig
     {
         /// <summary>
-        /// read data from reader
+        /// Read data from reader.
         /// </summary>
         /// <param name="ini"></param>
         public abstract void Read(IConfigReader ini);
@@ -50,6 +50,12 @@ namespace Extension.INI
     [Serializable]
     public abstract class INIAutoConfig : INIConfig
     {
+        /// <summary>
+        /// Post process after auto reading.
+        /// </summary>
+        /// <param name="ini"></param>
+        public virtual void Post(IConfigReader ini) { }
+
         public sealed override void Read(IConfigReader ini)
         {
             FieldInfo[] fields = this.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
@@ -77,6 +83,8 @@ namespace Extension.INI
                     field.SetValue(this, val);
                 }
             }
+
+            Post(ini);
         }
     }
 

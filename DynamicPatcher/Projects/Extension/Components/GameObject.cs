@@ -24,7 +24,7 @@ namespace Extension.Components
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        Component[] GetComponents(Func<Component, bool> predicate);
+        Component[] GetComponents(Predicate<Component> predicate);
         Component[] GetComponents();
         Component[] GetComponents(Type type);
         TComponent[] GetComponents<TComponent>() where TComponent : Component;
@@ -45,7 +45,7 @@ namespace Extension.Components
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        Component[] GetComponentsInChildren(Func<Component, bool> predicate);
+        Component[] GetComponentsInChildren(Predicate<Component> predicate);
         Component[] GetComponentsInChildren();
         Component[] GetComponentsInChildren(Type type);
         TComponent[] GetComponentsInChildren<TComponent>() where TComponent : Component;
@@ -66,7 +66,7 @@ namespace Extension.Components
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        Component[] GetComponentsInParent(Func<Component, bool> predicate);
+        Component[] GetComponentsInParent(Predicate<Component> predicate);
         Component[] GetComponentsInParent();
         Component[] GetComponentsInParent(Type type);
         TComponent[] GetComponentsInParent<TComponent>() where TComponent : Component;
