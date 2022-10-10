@@ -30,9 +30,10 @@ namespace Extension.Script
     {
         public override void OnEnable()
         {
+            TransformScript script = null;
             if (!pOwner.IsNull
                 && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno)
-                && pTechno.TryGetComponent<TransformScript>(out TransformScript script))
+                && null != (script = pTechno.FindOrAllocate<TransformScript>()))
             {
                 script.TryConvertTypeTo(Data.TransformToType);
             }
@@ -40,9 +41,10 @@ namespace Extension.Script
 
         public override void OnDisable(CoordStruct location)
         {
+            TransformScript script = null;
             if (!pOwner.IsNull
                 && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno)
-                && pTechno.TryGetComponent<TransformScript>(out TransformScript script))
+                && null != (script = pTechno.FindOrAllocate<TransformScript>()))
             {
                 script.CancelConverType(Data.TransformToType);
             }

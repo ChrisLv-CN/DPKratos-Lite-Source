@@ -64,6 +64,10 @@ namespace Extension.Utilities
         {
             return null != (script = pTechno.GetComponent<T>());
         }
+        public static T FindOrAllocate<T>(this Pointer<TechnoClass> pTechno) where T : Component
+        {
+            return pTechno.Convert<ObjectClass>().FindOrAllocate<T>();
+        }
 
         // 便利
         public static TechnoStatusScript GetStatus(this Pointer<TechnoClass> pTechno)
@@ -125,7 +129,10 @@ namespace Extension.Utilities
         {
             return null != (script = pBullet.GetComponent<T>());
         }
-
+        public static T FindOrAllocate<T>(this Pointer<BulletClass> pBullet) where T : Component
+        {
+            return pBullet.Convert<ObjectClass>().FindOrAllocate<T>();
+        }
         // 便利
         public static BulletStatusScript GetStatus(this Pointer<BulletClass> pBullet)
         {
@@ -168,7 +175,7 @@ namespace Extension.Utilities
         }
         #endregion
 
-        #region AE管理器
+        #region ObjectClass
         // 泛型
         public static T GetComponent<T>(this Pointer<ObjectClass> pObject) where T : Component
         {
@@ -190,6 +197,57 @@ namespace Extension.Utilities
             return null != (script = pObject.GetComponent<T>());
         }
 
+        public static T FindOrAllocate<T>(this Pointer<ObjectClass> pObject) where T : Component
+        {
+            T component = null;
+            IExtension extension = null;
+            if (!pObject.IsNull)
+            {
+                GameObject gameObject = null;
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                    if (null != ext)
+                    {
+                        extension = ext;
+                        gameObject = ext.GameObject;
+                    }
+                }
+                else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                    if (null != ext)
+                    {
+                        extension = ext;
+                        gameObject = ext.GameObject;
+                    }
+                }
+                if (null != gameObject)
+                {
+                    component = gameObject.GetComponent<T>();
+                    if (null == component)
+                    {
+                        if (typeof(TechnoScriptable).IsAssignableFrom(typeof(T)))
+                        {
+                            gameObject.CreateScriptComponent(typeof(T).FullName, typeof(T).Name, (TechnoExt)extension);
+                        }
+                        else if (typeof(BulletScriptable).IsAssignableFrom(typeof(T)))
+                        {
+                            gameObject.CreateScriptComponent(typeof(T).FullName, typeof(T).Name, (BulletExt)extension);
+                        }
+                        else
+                        {
+                            gameObject.CreateScriptComponent(typeof(T).FullName, typeof(T).Name, extension);
+                        }
+                        component = gameObject.GetComponent<T>();
+                    }
+                }
+            }
+            return component;
+        }
+        #endregion
+
+        #region AE管理器
         // 便利
         public static AttachEffectScript GetAEManegr(this Pointer<ObjectClass> pObject)
         {

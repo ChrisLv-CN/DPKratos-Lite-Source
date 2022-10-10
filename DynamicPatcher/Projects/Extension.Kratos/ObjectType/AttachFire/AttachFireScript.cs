@@ -13,8 +13,9 @@ namespace Extension.Script
 {
 
     // Shooter发射属于Attacker的Weapon朝Target
+    // 动态挂载，没有任务就不挂这个脚本
     [Serializable]
-    [GlobalScriptable(typeof(TechnoExt), typeof(BulletExt))]
+    // [GlobalScriptable(typeof(TechnoExt), typeof(BulletExt))]
     public class AttachFireScript : ObjectScriptable
     {
         public AttachFireScript(IExtension owner) : base(owner) { }
@@ -25,12 +26,20 @@ namespace Extension.Script
         // Burst发射模式下剩余待发射的队列
         private Queue<SimulateBurst> simulateBurstQueue = new Queue<SimulateBurst>();
 
+        public void FireMissionDone()
+        {
+            delayFires.Clear();
+            simulateBurstQueue.Clear();
+            // 不必移除，就挂着
+            // Logger.Log($"{Game.CurrentFrame} fire mission is done, remove.");
+            // GameObject.RemoveComponent(this);
+        }
+
         public override void OnUpdate()
         {
-            if (pObject.IsDead() || pObject.IsInvisible())
+            if (pObject.IsDead() || pObject.IsInvisible() || (!delayFires.Any() && !simulateBurstQueue.Any()))
             {
-                delayFires.Clear();
-                simulateBurstQueue.Clear();
+                FireMissionDone();
                 return;
             }
             Pointer<ObjectClass> pShooter = pObject;

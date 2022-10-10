@@ -11,14 +11,13 @@ using Extension.Utilities;
 
 namespace Extension.Script
 {
-
-
+    // 动态挂载
     [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(AttachEffectScript))]
+    // [GlobalScriptable(typeof(TechnoExt))]
+    // [UpdateAfter(typeof(AttachEffectScript))]
     public class TransformScript : TechnoScriptable
     {
-        public TransformScript(TechnoExt owner) : base(owner) { }
+        public TransformScript(IExtension owner) : base((TechnoExt)owner) { }
 
 
         private ConvertTypeStatus convertTypeStatus;
@@ -67,6 +66,12 @@ namespace Extension.Script
                 case AbstractType.Aircraft:
                     pTechno.Convert<AircraftClass>().Ref.Type = pNewType.Convert<AircraftTypeClass>();
                     break;
+            }
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 变身 [{pNewType.Ref.Base.Base.ID}]");
+            // 刷新尾巴
+            if (pTechno.TryGetComponent<TechnoTrailScript>(out TechnoTrailScript trailScript))
+            {
+                trailScript.SetupTrails();
             }
         }
 

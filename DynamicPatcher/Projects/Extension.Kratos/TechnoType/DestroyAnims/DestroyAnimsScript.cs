@@ -27,6 +27,11 @@ namespace Extension.Script
 
         public override void Awake()
         {
+            if (pTechno.Ref.Base.Base.WhatAmI() != AbstractType.Unit || !data.Wreck)
+            {
+                GameObject.RemoveComponent(this);
+                return;
+            }
             this.IAmWreak = data.Wreck;
         }
 

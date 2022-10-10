@@ -156,7 +156,8 @@ namespace Extension.Script
                     if (!pTarget.IsNull)
                     {
                         // 发射武器
-                        if (pShooter.TryGetComponent<AttachFireScript>(out AttachFireScript attachFire))
+                        AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
+                        if (null != attachFire)
                         {
                             attachFire.FireOwnWeapon(weaponIndex, pTarget);
                         }
@@ -208,7 +209,8 @@ namespace Extension.Script
                                 {
                                     // Logger.Log($"{Game.CurrentFrame} - [{pShooter.Ref.Type.Ref.Base.ID}]{pShooter} 发射自动武器 [{weaponId}], 攻击者 [{(pAttacker.IsNull ? "Null" : pAttacker.Ref.Type.Ref.Base.Base.ID)}]{pAttacker}, 目标 [{(pTarget.CastToObject(out Pointer<ObjectClass> pTargetObject) ? pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{pTarget}");
                                     // 发射自定义武器
-                                    if (pShooter.TryGetComponent<AttachFireScript>(out AttachFireScript attachFire))
+                                    AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
+                                    if (null != attachFire)
                                     {
                                         attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, rofMult, callback);
                                     }

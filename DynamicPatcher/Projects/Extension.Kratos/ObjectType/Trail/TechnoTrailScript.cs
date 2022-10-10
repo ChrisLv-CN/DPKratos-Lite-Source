@@ -27,11 +27,23 @@ namespace Extension.Script
         private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private List<Trail> trails;
 
-        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
+        public void SetupTrails(List<Trail> trails = null)
         {
-            if (TrailHelper.TryGetTrails(section, out List<Trail> trails))
+            if ((null != trails && trails.Any()) || TrailHelper.TryGetTrails(section, out trails))
             {
                 this.trails = trails;
+            }
+            else
+            {
+                this.trails = null;
+            }
+        }
+
+        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
+        {
+            if (null == this.trails)
+            {
+                SetupTrails();
             }
         }
 

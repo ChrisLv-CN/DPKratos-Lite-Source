@@ -138,7 +138,8 @@ namespace Extension.Script
                                         }
                                     }
                                     Pointer<TechnoClass> pShooter = pTechno.WhoIsShooter();
-                                    if (pShooter.TryGetComponent<AttachFireScript>(out AttachFireScript attachFire))
+                                    AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
+                                    if (null != attachFire)
                                     {
                                         if (weaponTypeData.Feedback)
                                         {
