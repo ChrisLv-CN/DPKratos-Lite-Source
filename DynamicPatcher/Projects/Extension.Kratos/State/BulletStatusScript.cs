@@ -13,7 +13,7 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(BulletExt))]
-    [UpdateBefore(typeof(AttachEffectScript))]
+    // [UpdateAfter(typeof(AttachEffectScript))]
     public partial class BulletStatusScript : BulletScriptable
     {
         public BulletStatusScript(BulletExt owner) : base(owner) { }

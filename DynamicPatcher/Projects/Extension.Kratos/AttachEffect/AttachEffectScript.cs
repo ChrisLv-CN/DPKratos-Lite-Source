@@ -29,8 +29,8 @@ namespace Extension.Script
     /// </summary>
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt), typeof(BulletExt))]
-    [UpdateAfter(typeof(TechnoStatusScript), typeof(BulletStatusScript))]
-    public class AttachEffectScript : ObjectScriptable
+    [UpdateBefore(typeof(TechnoStatusScript), typeof(BulletStatusScript))]
+    public partial class AttachEffectScript : ObjectScriptable
     {
         public AttachEffectScript(IExtension owner) : base(owner) { }
 
@@ -49,6 +49,8 @@ namespace Extension.Script
         private bool isDead = false;
 
         private int locationSpace; // 替身火车的车厢间距
+
+        private bool initEffectFlag;
 
         // 将AE转移给其他对象
         public void InheritedTo(AttachEffectScript heir)
@@ -565,7 +567,7 @@ namespace Extension.Script
         {
             isDead = pObject.IsDead();
             // 添加Section上记录的AE
-            if (!pObject.IsDeadOrInvisible())
+            if (!isDead && !pObject.IsInvisible())
             {
                 AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section).Data;
                 Attach(aeTypeData, pOwner);
@@ -644,6 +646,11 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
         {
+            if (!initEffectFlag)
+            {
+                initEffectFlag = true;
+                InitEffect_DamageSelf();
+            }
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.IsActive())

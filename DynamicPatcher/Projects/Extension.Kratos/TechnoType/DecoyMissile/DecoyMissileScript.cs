@@ -15,7 +15,6 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(AttachEffectScript))]
     public class DecoyMissileScript : TechnoScriptable
     {
         public DecoyMissileScript(TechnoExt owner) : base(owner) { }

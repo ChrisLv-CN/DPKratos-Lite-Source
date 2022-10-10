@@ -13,7 +13,7 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateBefore(typeof(AttachEffectScript))]
+    // [UpdateAfter(typeof(AttachEffectScript))]
     public partial class TechnoStatusScript : TechnoScriptable
     {
         public TechnoStatusScript(TechnoExt owner) : base(owner) { }
