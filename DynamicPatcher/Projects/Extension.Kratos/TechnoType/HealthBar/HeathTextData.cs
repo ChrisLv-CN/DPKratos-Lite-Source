@@ -187,6 +187,8 @@ namespace Extension.Ext
         public void Read(ISectionReader reader, string title = TITLE)
         {
             this.Hidden = reader.Get(title + "Hidden", Hidden);
+            // Phobos
+            this.Hidden = reader.Get("HealthBar.Hide", Hidden);
 
             this.Green.Read(reader, title);
             this.Yellow.Read(reader, title);

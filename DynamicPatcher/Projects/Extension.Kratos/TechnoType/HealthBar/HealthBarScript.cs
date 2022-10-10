@@ -56,6 +56,10 @@ namespace Extension.Script
                     healthTextTypeData.Read(reader);
                 }
             }
+            if (null == healthTextTypeData || healthTextTypeData.Hidden)
+            {
+                GameObject.RemoveComponent(this);
+            }
         }
 
         public override void DrawHealthBar(int barLength, Pointer<Point2D> pPos, Pointer<RectangleStruct> pBound, bool isBuilding)
