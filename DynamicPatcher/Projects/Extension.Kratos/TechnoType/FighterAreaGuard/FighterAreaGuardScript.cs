@@ -50,6 +50,20 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+
+            var radius = data.GuardRadius * 256;
+
+            areaGuardCoords = new List<CoordStruct>()
+            {
+                new CoordStruct(0,radius,0),
+                new CoordStruct((int)(0.85*radius),(int)(0.85*radius),0),
+                new CoordStruct(radius,0,0),
+                new CoordStruct((int)(0.85*radius),(int)(-0.85*radius),0),
+                new CoordStruct(0,-radius,0),
+                new CoordStruct((int)(-0.85*radius),(int)(-0.85*radius),0),
+                new CoordStruct(-radius,0,0),
+                new CoordStruct((int)(-0.85*radius),(int)(0.85*radius),0),
+            };
         }
 
         public override void OnUpdate()
@@ -127,7 +141,26 @@ namespace Extension.Script
                     }
                     else if (mission.Ref.CurrentMission == Mission.Attack)
                     {
-                        return;
+                        bool skip = true;
+                        if (isAreaProtecting && data.ChaseRange != -1 && areaProtectTo != null)
+                        {
+                            var sourceDest = data.FindRangeAroundSelf ? Owner.OwnerObject.Ref.Base.Base.GetCoords() : areaProtectTo;
+                            if (!Owner.OwnerObject.Ref.Target.IsNull)
+                            {
+                                //超出追击距离停止追击
+                                var distance = sourceDest.DistanceFrom(Owner.OwnerObject.Ref.Target.Ref.GetCoords());
+                                if (distance == double.NaN || distance > data.ChaseRange * 256)
+                                {
+                                    Owner.OwnerObject.Ref.SetTarget(default);
+                                    mission.Ref.ForceMission(Mission.Stop);
+                                }
+                            }
+                        }
+
+                        if (skip)
+                        {
+                            return;
+                        }
                     }
                     else if (mission.Ref.CurrentMission == Mission.Enter)
                     {
@@ -157,6 +190,8 @@ namespace Extension.Script
 
                         if (data.AutoFire)
                         {
+                            var targetDest = data.FindRangeAroundSelf ? Owner.OwnerObject.Ref.Base.Base.GetCoords() : dest;
+
                             if (areaProtectTo.DistanceFrom(pTechno.Ref.Base.Base.GetCoords()) <= 2000)
                             {
                                 if (areaGuardTargetCheckRof-- <= 0)
@@ -176,7 +211,7 @@ namespace Extension.Script
                                             {
                                                 bounsRange = data.GuardRange;
                                             }
-                                            if ((targetPos - new CoordStruct(0, 0, height)).DistanceFrom(dest) <= (data.GuardRange * 256 + bounsRange) && type != AbstractType.Building)
+                                            if ((targetPos - new CoordStruct(0, 0, height)).DistanceFrom(targetDest) <= (data.GuardRange * 256 + bounsRange) && type != AbstractType.Building)
                                             {
                                                 pTargetTechno = pTarget;
                                                 return true;

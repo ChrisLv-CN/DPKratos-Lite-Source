@@ -18,6 +18,10 @@ namespace Extension.Ext
         public int GuardRange;
         public bool AutoFire;
         public int MaxAmmo;
+        public int GuardRadius;
+        public bool FindRangeAroundSelf;
+        public bool FindRangeBySelf;
+        public int ChaseRange;
 
         public FighterAreaGuardData()
         {
@@ -25,6 +29,9 @@ namespace Extension.Ext
             GuardRange = 5;
             AutoFire = false;
             MaxAmmo = 1;
+            GuardRadius = 5;
+            FindRangeAroundSelf = false;
+            ChaseRange = 30;
         }
 
         public override void Read(IConfigReader reader)
@@ -33,6 +40,9 @@ namespace Extension.Ext
             this.GuardRange = reader.Get(TITLE + "GuardRange", this.GuardRange);
             this.AutoFire = reader.Get(TITLE + "AutoFire", this.AutoFire);
             this.MaxAmmo = reader.Get(TITLE + "Ammo", this.MaxAmmo);
+            this.GuardRadius = reader.Get(TITLE + "GuardRadius", this.GuardRadius);
+            this.FindRangeAroundSelf = reader.Get(TITLE + "FindRangeAroundSelf", this.FindRangeBySelf);
+            this.ChaseRange = reader.Get(TITLE + "ChaseRange", this.ChaseRange);
         }
     }
 
