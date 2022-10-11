@@ -36,7 +36,7 @@ namespace Extension.Utilities
             if (!pWH.IsNull)
             {
                 WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-                return whData.PreImpactAnim.IsNullOrEmptyOrNone();
+                return !whData.PreImpactAnim.IsNullOrEmptyOrNone();
             }
             return false;
         }
