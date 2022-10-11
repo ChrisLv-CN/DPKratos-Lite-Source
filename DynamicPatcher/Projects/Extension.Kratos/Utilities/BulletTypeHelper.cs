@@ -14,7 +14,6 @@ namespace Extension.Utilities
 
     public static class BulletTypeHelper
     {
-
         public static unsafe BulletVelocity GetVelocity(this Pointer<BulletClass> pBullet)
         {
             return GetVelocity(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, pBullet.Ref.Speed);

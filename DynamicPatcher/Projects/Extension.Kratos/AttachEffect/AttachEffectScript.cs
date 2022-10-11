@@ -109,33 +109,16 @@ namespace Extension.Script
 
         /// <summary>
         /// 从单位自身的section中获取AE清单并附加
+        /// 弹头爆炸赋予受害者AE
         /// </summary>
         /// <param name="typeData">section的AE清单</param>
-        /// <param name="pHouse">强制所属</param>
-        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource)
+        /// <param name="pSource">AE来源，即攻击者</param>
+        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource = default)
         {
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Length > 0)
             {
-                // 写在type上附加的AE，所属是自己，攻击者是自己
-                Pointer<HouseClass> pHouse = IntPtr.Zero;
-                Pointer<TechnoClass> pAttacker = IntPtr.Zero;
-                Pointer<ObjectClass> pSourceObject = pSource;
-                if (pSource.IsNull)
-                {
-                    pSourceObject = pObject;
-                }
-                if (pSourceObject.CastToTechno(out Pointer<TechnoClass> pTechno))
-                {
-                    pHouse = pTechno.Ref.Owner;
-                    pAttacker = pTechno;
-                }
-                else if (pSourceObject.CastToBullet(out Pointer<BulletClass> pBullet))
-                {
-                    pHouse = pBullet.GetSourceHouse();
-                    pAttacker = pBullet.Ref.Owner;
-                }
-                Attach(typeData.AttachEffectTypes, pHouse, pAttacker, attachEffectOnceFlag);
+                Attach(typeData.AttachEffectTypes, pSource, attachEffectOnceFlag);
             }
 
             if (typeData.StandTrainCabinLength > 0)
@@ -148,16 +131,16 @@ namespace Extension.Script
         /// 遍历AE清单并逐个附加
         /// </summary>
         /// <param name="aeTypes"></param>
-        /// <param name="pHouse"></param>
+        /// <param name="pSource"></param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string[] aeTypes, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag = false)
+        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, bool attachOnceFlag = false)
         {
             if (null != aeTypes && aeTypes.Length > 0)
             {
                 // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}");
                 foreach (string type in aeTypes)
                 {
-                    Attach(type, pHouse, pAttacker, attachOnceFlag);
+                    Attach(type, pSource, attachOnceFlag);
                 }
             }
         }
@@ -166,10 +149,9 @@ namespace Extension.Script
         /// 按照AE的section来添加AE
         /// </summary>
         /// <param name="type">AE的section</param>
-        /// <param name="pHouse">强制所属</param>
-        /// <param name="pAttacker">AE来源</param>
+        /// <param name="pSource">AE来源</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string type, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker, bool attachOnceFlag = false)
+        public void Attach(string type, Pointer<ObjectClass> pSource = default, bool attachOnceFlag = false)
         {
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
             if (attachOnceFlag && aeDate.Data.AttachOnceInTechnoType)
@@ -177,7 +159,7 @@ namespace Extension.Script
                 return;
             }
             // Logger.Log("AE {0} AttachOnceInTechnoType = {1}, AttachOnceFlag = {2}", aeType.Name, aeType.AttachOnceInTechnoType, attachOnceFlag);
-            Attach(aeDate.Data, pHouse, pAttacker);
+            Attach(aeDate.Data, pSource);
         }
 
         /// <summary>
@@ -187,32 +169,24 @@ namespace Extension.Script
         public void Attach(AttachEffectData aeData)
         {
             // 写在type上附加的AE，所属是自己，攻击者是自己
-            Pointer<HouseClass> pHouse = IntPtr.Zero;
-            Pointer<TechnoClass> pAttacker = IntPtr.Zero;
-            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
-            {
-                pHouse = pTechno.Ref.Owner;
-                pAttacker = pTechno;
-            }
-            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
-            {
-                pHouse = pBullet.GetSourceHouse();
-                pAttacker = pBullet.Ref.Owner;
-            }
-            Attach(aeData, pHouse, pAttacker);
+            Attach(aeData, pOwner);
         }
 
         /// <summary>
         /// 附加AE
         /// </summary>
         /// <param name="aeData">要附加的AE类型</param>
-        /// <param name="pHouse">指定的所属</param>
-        /// <param name="pAttacker">来源</param>
-        public void Attach(AttachEffectData data, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pAttacker)
+        /// <param name="pSource">来源</param>
+        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource)
         {
             if (!data.Enable)
             {
                 Logger.LogWarning($"Attempt to attach an invalid AE [{data.Name}] to [{section}]");
+                return;
+            }
+            // 检查是否穿透铁幕
+            if (!data.PenetratesIronCurtain && pObject.Ref.IsIronCurtained())
+            {
                 return;
             }
             // 是否在名单上
@@ -220,6 +194,48 @@ namespace Extension.Script
             {
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{data.Name}] 的名单内，不能赋予");
                 return;
+            }
+            Pointer<HouseClass> pHouse = IntPtr.Zero;
+            Pointer<TechnoClass> pAttacker = IntPtr.Zero;
+            // 调整所属
+            if (pSource.IsNull)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，未标记来源，来源设置为自身");
+                pSource = pOwner;
+            }
+            if (pSource.CastToTechno(out Pointer<TechnoClass> pSourceTechno))
+            {
+                pHouse = pSourceTechno.Ref.Owner;
+                pAttacker = pSourceTechno;
+            }
+            else if (pSource.CastToBullet(out Pointer<BulletClass> pSourceBullet))
+            {
+                pHouse = pSourceBullet.GetSourceHouse();
+                pAttacker = pSourceBullet.Ref.Owner;
+            }
+            else
+            {
+                Logger.LogWarning($"Attach AE [{data.Name}] to [{section}] form a unknow source [{pSource.Ref.Base.WhatAmI()}]");
+                return;
+            }
+            // 调整所属
+            if (pOwner != pSource && data.OwnerTarget)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，来源为外部，更改所属为接受者");
+                // 所属设为接受者
+                if (pOwner.CastToTechno(out Pointer<TechnoClass> pOwnerTechno))
+                {
+                    pHouse = pOwnerTechno.Ref.Owner;
+                }
+                else if (pOwner.CastToBullet(out Pointer<BulletClass> pOwnerBullet))
+                {
+                    pHouse = pOwnerBullet.GetSourceHouse();
+                }
+            }
+            // 调整攻击者
+            if (!pAttacker.IsDead() && data.FromTransporter)
+            {
+                pAttacker = pAttacker.WhoIsShooter();
             }
             // 检查叠加
             bool add = data.Cumulative == CumulativeMode.YES;
@@ -613,7 +629,7 @@ namespace Extension.Script
                     if (!string.IsNullOrEmpty(nextAE))
                     {
                         // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
-                        Attach(nextAE, ae.pSourceHouse, ae.pSource, false);
+                        Attach(nextAE, ae.pOwner, false);
                     }
                 }
             }

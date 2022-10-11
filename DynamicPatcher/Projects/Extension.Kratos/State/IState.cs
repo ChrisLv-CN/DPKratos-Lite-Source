@@ -52,6 +52,7 @@ namespace Extension.Ext
 
         public void Enable(IStateData data)
         {
+            this.AE = null;
             Enable(-1, null, data);
         }
 

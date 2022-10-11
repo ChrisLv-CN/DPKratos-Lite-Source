@@ -27,6 +27,8 @@ namespace Extension.Script
 
         public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
+        private bool initStateFlag = false;
+
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
@@ -55,9 +57,24 @@ namespace Extension.Script
             // 初始化抛射体的伤害信息
             DamageData = new BulletDamageData(health);
             // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
+        }
 
-            Awake_BlackHole();
-            Awake_DestroySelf();
+        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        {
+            if (!initStateFlag)
+            {
+                initStateFlag = true;
+                // InitState_AttackBeacon();
+                InitState_BlackHole();
+                // InitState_DamageReaction();
+                // InitState_Deselect();
+                InitState_DestroySelf();
+                // InitState_ExtraFire();
+                // InitState_FireSuper();
+                InitState_GiftBox();
+                // InitState_OverrideWeapon();
+                // InitState_Paintball();
+            }
         }
 
         public override void OnUpdate()
@@ -86,10 +103,10 @@ namespace Extension.Script
                     return;
                 }
             }
-
             if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
                 OnUpdate_BlackHole();
+                OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
             }
         }
@@ -131,6 +148,8 @@ namespace Extension.Script
             {
                 pFakeTarget.Ref.UnInit();
             }
+
+            OnReceiveDamageDestroy_GiftBox();
         }
 
     }

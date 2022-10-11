@@ -49,13 +49,13 @@ namespace Extension.Ext
                 switch (Data.AffectWho)
                 {
                     case AffectWho.MASTER:
-                        state.Enable(AE.AEData.GetDuration(), Token, data);
+                        state.EnableAndReplace(this);
                         break;
                     case AffectWho.STAND:
                         EnableAEStatsToStand(data);
                         break;
                     default:
-                        state.Enable(AE.AEData.GetDuration(), Token, data);
+                        state.EnableAndReplace(this);
                         EnableAEStatsToStand(data);
                         break;
                 }

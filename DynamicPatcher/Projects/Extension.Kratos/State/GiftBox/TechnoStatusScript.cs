@@ -110,7 +110,7 @@ namespace Extension.Script
 
         private void ReleseGift(List<string> gifts, GiftBoxData data)
         {
-            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+            Pointer<HouseClass> pHouse = null != GiftBoxState.AE ? GiftBoxState.AE.pSourceHouse : pTechno.Ref.Owner;
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             Mission curretMission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
 
@@ -280,7 +280,7 @@ namespace Extension.Script
                         if (null != data.AttachEffects)
                         {
                             AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
-                            giftAEM.Attach(data.AttachEffects, pHouse, pGift, false);
+                            giftAEM.Attach(data.AttachEffects);
                         }
 
                         if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)

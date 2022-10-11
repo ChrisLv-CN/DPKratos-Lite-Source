@@ -36,8 +36,7 @@ namespace Extension.Script
                 Pointer<HouseClass> pHouse = pBullet.GetStatus().pSourceHouse;
 
                 CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
-                CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
-                DirStruct bulletFacing = ExHelper.Point2Dir(location, forwardLocation);
+                DirStruct bulletFacing = pBullet.Facing(location);
                 foreach (Trail trail in trails)
                 {
                     CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);

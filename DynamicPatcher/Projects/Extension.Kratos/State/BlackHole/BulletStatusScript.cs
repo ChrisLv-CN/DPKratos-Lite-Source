@@ -23,7 +23,7 @@ namespace Extension.Script
         private BlackHoleData blackHoleData;
         private TimerStruct blackHoleDamageDelay;
 
-        public void Awake_BlackHole()
+        public void InitState_BlackHole()
         {
             // 初始化状态机
             BlackHoleData BlackHoleData = Ini.GetConfig<BlackHoleData>(Ini.RulesDependency, section).Data;
