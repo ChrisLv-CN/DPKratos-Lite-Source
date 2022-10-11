@@ -77,8 +77,10 @@ namespace Extension.Script
             this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 
-        public override void OnPut(Pointer<CoordStruct> coord, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
         {
+            OnPut_StandUnit(pCoord, dirType);
+
             if (!initStateFlag)
             {
                 initStateFlag = true;
@@ -144,6 +146,11 @@ namespace Extension.Script
             }
         }
 
+        public override void OnRemove()
+        {
+            OnRemove_StandUnit();
+        }
+
         public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
             if (!pTechno.IsDeadOrInvisible() && !pTechno.Ref.Target.IsNull)
@@ -165,6 +172,8 @@ namespace Extension.Script
 
         public override void OnReceiveDamageDestroy()
         {
+            OnReceiveDamageDestroy_StandUnit();
+
             OnReceiveDamageDestroy_GiftBox();
         }
 

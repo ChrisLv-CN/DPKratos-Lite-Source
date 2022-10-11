@@ -13,11 +13,42 @@ namespace Extension.Script
 
     public partial class TechnoStatusScript : TechnoScriptable
     {
+        public static Dictionary<TechnoExt, StandData> StandArray = new Dictionary<TechnoExt, StandData>();
 
         public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         public StandData StandData;
 
         public bool VirtualUnit;
+
+        public void OnPut_StandUnit(Pointer<CoordStruct> pCoord, DirType dirType)
+        {
+            // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} put on the map");
+            if (!MyMaster.IsNull)
+            {
+                // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, add to list.");
+                StandArray.Add(Owner, StandData);
+            }
+        }
+
+        public void OnReceiveDamageDestroy_StandUnit()
+        {
+            // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} take damage to dead");
+            if (!MyMaster.IsNull)
+            {
+                // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
+                StandArray.Remove(Owner);
+            }
+        }
+
+        public void OnRemove_StandUnit()
+        {
+            // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} remove on the map");
+            if (!MyMaster.IsNull)
+            {
+                // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
+                StandArray.Remove(Owner);
+            }
+        }
 
         public bool OnSelect_VirtualUnit()
         {

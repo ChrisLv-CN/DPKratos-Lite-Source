@@ -113,7 +113,7 @@ namespace Extension.Script
 
                     if (!pMaster.IsInvisible())
                     {
-                        // Logger.Log($"{Game.CurrentFrame} - put stand on {location}");
+                        // Logger.Log($"{Game.CurrentFrame} - put stand [{Data.Type}]{pStand.Pointer} on {location}");
                         // 在格子位置刷出替身单位
                         if (!TryPutStand(location))
                         {

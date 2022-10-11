@@ -850,6 +850,40 @@ namespace Extension.Script
             double spread = pWH.Ref.CellSpread * 256;
 
             HashSet<DamageGroup> stands = new HashSet<DamageGroup>();
+            // Logger.Log($"{Game.CurrentFrame}, 替身列表里有 {TechnoStatusScript.StandArray.Count()} 个记录");
+            foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
+            {
+                if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                {
+                    Pointer<TechnoClass> pStand = stand.Key.OwnerObject;
+                    StandData standData = stand.Value;
+                    if (!standData.Immune && !pStand.Ref.Base.IsIronCurtained() && !pStand.Ref.IsForceShilded)
+                    {
+                        // 检查距离
+                        CoordStruct targetPos = pStand.Ref.Base.Base.GetCoords();
+                        double dist = targetPos.DistanceFrom(location);
+                        // Logger.Log($"{Game.CurrentFrame} 检查替身 [{pStand.Ref.Type.Ref.Base.Base.ID}]{pStand} 与目标点的距离 {dist}");
+                        if (pStand.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pStand.InAir(true))
+                        {
+                            dist *= 0.5;
+                        }
+                        if (dist <= spread)
+                        {
+                            // 找到一个最近的替身，检查替身是否可以受伤，以及弹头是否可以影响该替身
+                            if (pStand.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
+                                && pStand.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
+                            )
+                            {
+                                DamageGroup damageGroup = new DamageGroup();
+                                damageGroup.Target = pStand;
+                                damageGroup.Distance = dist;
+                                stands.Add(damageGroup);
+                            }
+                        }
+                    }
+                }
+            }
+            /*
             TechnoClass.Array.FindObject((pTechno) =>
             {
                 // Stand always not on map.
@@ -879,6 +913,7 @@ namespace Extension.Script
                 }
                 return false;
             });
+            */
 
             // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的替身{stands.Count()}个，造成伤害 {damage}");
             foreach (DamageGroup damageGroup in stands)
