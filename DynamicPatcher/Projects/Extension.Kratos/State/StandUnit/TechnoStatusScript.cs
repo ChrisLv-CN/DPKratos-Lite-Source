@@ -14,39 +14,63 @@ namespace Extension.Script
     public partial class TechnoStatusScript : TechnoScriptable
     {
         public static Dictionary<TechnoExt, StandData> StandArray = new Dictionary<TechnoExt, StandData>();
+        public static List<TechnoExt> VirtualUnitArray = new List<TechnoExt>();
 
         public SwizzleablePointer<TechnoClass> MyMaster = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
         public StandData StandData;
+        public bool MyMasterIsAnim;
 
         public bool VirtualUnit;
+
+        public void InitState_VirtualUnit()
+        {
+            VirtualUnit = Ini.GetSection(Ini.RulesDependency, section).Get("VirtualUnit", false);
+        }
 
         public void OnPut_StandUnit(Pointer<CoordStruct> pCoord, DirType dirType)
         {
             // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} put on the map");
-            if (!MyMaster.IsNull)
+            if (!MyMaster.IsNull || MyMasterIsAnim)
             {
                 // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, add to list.");
                 StandArray.Add(Owner, StandData);
+            }
+            if (VirtualUnit)
+            {
+                pTechno.Ref.Base.Mark(MarkType.UP);
+                // 单位既是替身又是虚单位，只加入替身清单
+                if (!StandArray.ContainsKey(Owner))
+                {
+                    VirtualUnitArray.Add(Owner);
+                }
             }
         }
 
         public void OnReceiveDamageDestroy_StandUnit()
         {
-            // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} take damage to dead");
-            if (!MyMaster.IsNull)
+            // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 被炸死, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
+            if (!MyMaster.IsNull || MyMasterIsAnim)
             {
                 // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
                 StandArray.Remove(Owner);
+            }
+            if (VirtualUnit)
+            {
+                VirtualUnitArray.Remove(Owner);
             }
         }
 
         public void OnRemove_StandUnit()
         {
             // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} remove on the map");
-            if (!MyMaster.IsNull)
+            if (!MyMaster.IsNull || MyMasterIsAnim)
             {
                 // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
                 StandArray.Remove(Owner);
+            }
+            if (VirtualUnit)
+            {
+                VirtualUnitArray.Remove(Owner);
             }
         }
 
@@ -58,8 +82,9 @@ namespace Extension.Script
         public unsafe void OnReceiveDamage_Stand(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
                     Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
+            // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 收到伤害, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
             // 无视防御的真实伤害不做任何分摊
-            if (!ignoreDefenses)
+            if (!ignoreDefenses && !MyMasterIsAnim)
             {
                 if (null != StandData)
                 {
@@ -107,7 +132,7 @@ namespace Extension.Script
 
         public unsafe bool OnRegisterDestruction_StandUnit(Pointer<TechnoClass> pKiller, int cost)
         {
-            if (cost != 0 && !pKiller.IsDead())
+            if (cost != 0 && !MyMasterIsAnim && !pKiller.IsDead())
             {
                 // Logger.Log("{0} 被 {1} 杀死了，价值 {2}，杀手{3}，等级{4}", pTechno.Ref.Type.Ref.Base.Base.ID, pKiller.Ref.Type.Ref.Base.Base.ID, cost, pKiller.Ref.Type.Ref.Trainable ? "可以升级" : "不可训练", pKiller.Ref.Veterancy.Veterancy);
                 // Killer是Stand，而且Master可训练

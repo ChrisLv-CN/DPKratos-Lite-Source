@@ -94,6 +94,7 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
+                InitState_VirtualUnit();
             }
         }
 

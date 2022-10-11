@@ -149,6 +149,11 @@ namespace Extension.Ext
             Read(reader);
         }
 
+        public override void Read(IConfigReader reader)
+        {
+            this.Read(reader);
+        }
+
         public void Read(ISectionReader reader)
         {
             this.Type = reader.Get(TITLE + "Type", this.Type);
