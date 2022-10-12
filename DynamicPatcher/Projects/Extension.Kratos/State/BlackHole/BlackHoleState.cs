@@ -82,8 +82,7 @@ namespace Extension.Ext
                 CoordStruct location = pBlackHole.Ref.Base.GetCoords();
                 if (Data.AffectBullet)
                 {
-                    // 查找所有的抛射体，并重设目标
-
+                    // 查找所有的抛射体
                     BulletClass.Array.FindObject((pTarget) =>
                     {
                         // 过滤指定类型
@@ -140,9 +139,12 @@ namespace Extension.Ext
                     // 筛查所有的单位，并设置黑洞
                     foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
                     {
-                        if (!pTarget.IsDeadOrInvisible() && pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
+                        if (!pTarget.IsDeadOrInvisible() && pBlackHole != pTarget.Convert<ObjectClass>()
+                            && Data.CanAffectType(pTarget)
                             && (Data.Weight <= 0 || pTarget.Ref.Type.Ref.Weight <= Data.Weight) // 排除质量较大的对象
                             && pTarget.TryGetStatus(out TechnoStatusScript targetStatus)
+                            && targetStatus.MyMaster.IsNull && !targetStatus.MyMasterIsAnim // 过滤掉替身
+                            && !targetStatus.VirtualUnit // 过滤虚单位
                             && (Data.AffectBlackHole || !targetStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
                         )
                         {
