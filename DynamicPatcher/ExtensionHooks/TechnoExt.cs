@@ -119,6 +119,30 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FF28F, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_ROFMultiplier(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
+                if (pTechno.Ref.CurrentBurstIndex >= pWeapon.Ref.Burst && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                {
+                    int rof = (int)R->EAX;
+                    double rofMult = aeManager.CountAttachStatusMultiplier().ROFMultiplier;
+                    // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
+                    R->EAX = (uint)(rof * rofMult);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+
+
         #region UnitClass Deplayed
         [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
         public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
