@@ -125,6 +125,10 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetComponent<AutoFireAreaWeaponScript>(out AutoFireAreaWeaponScript autoFire) && autoFire.SkipROF)
+                {
+                    return 0x6FF2BE; // skip ROF
+                }
                 Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
                 if (pTechno.Ref.CurrentBurstIndex >= pWeapon.Ref.Burst && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
                 {
@@ -133,6 +137,30 @@ namespace ExtensionHooks
                     // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
                     R->EAX = (uint)(rof * rofMult);
                 }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+
+        [Hook(HookType.AresHook, Address = 0x6FF29E, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_SkipROF(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                // Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
+                // if (pTechno.Ref.CurrentBurstIndex >= pWeapon.Ref.Burst && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                // {
+                //     int rof = (int)R->EAX;
+                //     double rofMult = aeManager.CountAttachStatusMultiplier().ROFMultiplier;
+                //     // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
+                //     R->EAX = (uint)(rof * rofMult);
+                // }
+                // return 0x6FF2BE; // skip ROF
             }
             catch (Exception e)
             {

@@ -20,6 +20,8 @@ namespace Extension.Script
     {
         public AutoFireAreaWeaponScript(TechnoExt owner) : base(owner) { }
 
+        public bool SkipROF;
+
         private AutoFireAreaWeaponData data => Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section).Data;
 
         private TimerStruct reloadTimer;
@@ -74,12 +76,16 @@ namespace Extension.Script
                         CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                         if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)
                         {
+                            SkipROF = true;
                             pTechno.Ref.Fire_IgnoreType(pCell.Convert<AbstractClass>(), data.WeaponIndex);
+                            SkipROF = false;
                         }
                     }
                     else
                     {
+                        SkipROF = true;
                         pTechno.Ref.Fire_IgnoreType(pTechno.Convert<AbstractClass>(), data.WeaponIndex);
+                        SkipROF = false;
                     }
 
                 }
