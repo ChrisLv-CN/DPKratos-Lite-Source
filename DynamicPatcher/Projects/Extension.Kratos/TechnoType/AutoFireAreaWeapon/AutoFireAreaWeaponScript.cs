@@ -63,7 +63,12 @@ namespace Extension.Script
                             pTechno.Ref.ReloadNow();
                         }
                     }
-                    reloadTimer.Start(pWeapon.Ref.WeaponType.Ref.ROF);
+                    int rof = pWeapon.Ref.WeaponType.Ref.ROF;
+                    if (pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                    {
+                        rof = (int)(rof * aeManager.CountAttachStatusMultiplier().ROFMultiplier);
+                    }
+                    reloadTimer.Start(rof);
                     if (data.TargetToGround)
                     {
                         CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
