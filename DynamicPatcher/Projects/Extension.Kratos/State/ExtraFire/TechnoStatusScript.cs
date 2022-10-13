@@ -90,6 +90,10 @@ namespace Extension.Script
                 if (null != weapons)
                 {
                     double rofMult = pTechno.GetROFMult(); // ExHelper.GetROFMult(OwnerObject);
+                    if (pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                    {
+                        rofMult *= aeManager.CountAttachStatusMultiplier().ROFMultiplier;
+                    }
                     // 循环武器清单并发射
                     foreach (string weaponId in weapons)
                     {
@@ -144,11 +148,11 @@ namespace Extension.Script
                                         if (weaponTypeData.Feedback)
                                         {
                                             // 调转枪口干自己
-                                            attachFire.FireCustomWeapon(IntPtr.Zero, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, weaponId, customFLH, rofMult);
+                                            attachFire.FireCustomWeapon(IntPtr.Zero, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, weaponId, customFLH);
                                         }
                                         else
                                         {
-                                            attachFire.FireCustomWeapon(pTechno, pTarget, pTechno.Ref.Owner, weaponId, customFLH, rofMult);
+                                            attachFire.FireCustomWeapon(pTechno, pTarget, pTechno.Ref.Owner, weaponId, customFLH);
                                         }
                                     }
                                 }

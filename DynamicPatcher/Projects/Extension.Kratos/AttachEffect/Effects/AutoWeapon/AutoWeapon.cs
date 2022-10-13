@@ -44,8 +44,6 @@ namespace Extension.Script
 
             AutoWeaponEntity data = Data.Data;
 
-            double rofMult = 1;
-
             Pointer<TechnoClass> pReceiverOwner = IntPtr.Zero; // 附着的对象，如果是Bullet类型，则是Bullet的发射者
             Pointer<HouseClass> pReceiverHouse = IntPtr.Zero; // 附着的对象的所属
             Pointer<AbstractClass> pReceiverTarget = IntPtr.Zero; // 附着的对象当前的目标
@@ -62,7 +60,6 @@ namespace Extension.Script
                 {
                     data = Data.EliteData;
                 }
-                rofMult = pReceiverOwner.GetROFMult(); // ExHelper.GetROFMult(pReceiverOwner);
             }
             else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
             {
@@ -114,7 +111,7 @@ namespace Extension.Script
             bool weaponLaunch = false;
             bool needFakeTarget = false;
             // 装订射击诸元
-            if ((needFakeTarget = TryGetShooterAndTarget(pOwner, pReceiverOwner, pReceiverHouse, pReceiverTarget,
+            if ((needFakeTarget = TryGetShooterAndTarget(pReceiverOwner, pReceiverHouse, pReceiverTarget,
                 out Pointer<ObjectClass> pShooter, out Pointer<TechnoClass> pAttacker, out Pointer<HouseClass> pAttackingHouse, out Pointer<AbstractClass> pTarget,
                 out bool dontMakeFakeTarget))
                 && dontMakeFakeTarget
@@ -134,7 +131,9 @@ namespace Extension.Script
             if (weaponIndex >= 0 && pShooter.CastToTechno(out Pointer<TechnoClass> pShooterTechno))
             {
                 // 发射单位自身的武器
-
+                // 获取发射单位的ROF加成
+                double rofMult = pShooterTechno.GetROFMult();
+                rofMult *= AE.AEManager.CountAttachStatusMultiplier().ROFMultiplier;
                 // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.Base.ID}] 即将向 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 发射自身的武器 {weaponIndex}");
                 // 检查武器是否存在，是否ROF结束
                 Pointer<WeaponStruct> pWeaponStruct = pShooterTechno.Ref.GetWeapon(weaponIndex);
@@ -185,6 +184,13 @@ namespace Extension.Script
                     }
                     weaponTypes = randomWeaponTypes.ToArray();
                 }
+                // 获取ROF加成
+                double rofMult = 1.0f;
+                if (!pAttacker.IsNull)
+                {
+                    rofMult = pAttacker.GetROFMult(); // 获取阵营和精英加成
+                    rofMult *= AE.AEManager.CountAttachStatusMultiplier().ROFMultiplier; // 获取AE加成
+                }
                 // 正式发射武器
                 foreach (string weaponId in weaponTypes)
                 {
@@ -212,7 +218,7 @@ namespace Extension.Script
                                     AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
                                     if (null != attachFire)
                                     {
-                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, rofMult, callback);
+                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, callback);
                                     }
                                     weaponLaunch = true;
                                     // 进入冷却
@@ -270,7 +276,7 @@ namespace Extension.Script
         }
 
         // 发射武器前设定攻击者和目标
-        private bool TryGetShooterAndTarget(Pointer<ObjectClass> pReceiver, Pointer<TechnoClass> pReceiverOwner, Pointer<HouseClass> pReceiverHouse, Pointer<AbstractClass> pReceiverTarget,
+        private bool TryGetShooterAndTarget(Pointer<TechnoClass> pReceiverOwner, Pointer<HouseClass> pReceiverHouse, Pointer<AbstractClass> pReceiverTarget,
             out Pointer<ObjectClass> pShooter, out Pointer<TechnoClass> pAttacker, out Pointer<HouseClass> pAttackingHouse, out Pointer<AbstractClass> pTarget,
             out bool dontMakeFakeTarget)
         {
@@ -290,7 +296,7 @@ namespace Extension.Script
                 pShooter = pOwner;
                 pAttacker = AE.pSource;
                 pAttackingHouse = AE.pSourceHouse;
-                pTarget = pReceiver.Convert<AbstractClass>();
+                pTarget = pOwner.Convert<AbstractClass>();
                 // Logger.Log($"{Game.CurrentFrame} 由单位 [{pShooter.Ref.Type.Ref.Base.ID}]{pShooter} 朝向持有者 [{pReceiver.Ref.Type.Ref.Base.ID}]{pReceiver} 发射武器, 武器属于攻击者 [{pAttacker.Ref.Type.Ref.Base.Base.ID}]{pAttacker}");
             }
 

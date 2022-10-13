@@ -58,8 +58,7 @@ namespace Extension.Script
                         }
                         else
                         {
-                            double rofMult = pTechno.GetROFMult();
-                            FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH, rofMult);
+                            FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH);
                         }
                         delayFire.ReduceOnce();
                     }
@@ -143,19 +142,17 @@ namespace Extension.Script
         /// <param name="pAttackingHouse"></param>
         /// <param name="weaponId"></param>
         /// <param name="flh"></param>
-        /// <param name="rofMult"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
         public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
-            string weaponId, CoordStruct flh,
-            double rofMult = 1, FireBulletToTarget callback = null)
+            string weaponId, CoordStruct flh, FireBulletToTarget callback = null)
         {
             bool isFire = false;
             Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
             if (!pWeapon.IsNull)
             {
                 WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, weaponId).Data;
-                isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, rofMult, callback);
+                isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, callback);
             }
             return isFire;
         }
@@ -169,12 +166,10 @@ namespace Extension.Script
         /// <param name="pWeapon"></param>
         /// <param name="weaponTypeData"></param>
         /// <param name="flh"></param>
-        /// <param name="rofMult"></param>
         /// <param name="callback"></param>
         /// <returns></returns>
         public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
-            Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh,
-            double rofMult = 1, FireBulletToTarget callback = null)
+            Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh, FireBulletToTarget callback = null)
         {
             bool isFire = false;
             int burst = pWeapon.Ref.Burst;
