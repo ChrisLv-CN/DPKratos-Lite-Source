@@ -220,6 +220,9 @@ namespace Extension.Utilities
         public bool IsSupported;
         public bool Fade;
 
+        public ColorStruct[] ColorList;
+        public bool ColorListRandom;
+
         public LaserType(bool def)
         {
             if (def)
@@ -238,6 +241,9 @@ namespace Extension.Utilities
             this.IsHouseColor = false;
             this.IsSupported = false;
             this.Fade = true;
+
+            this.ColorList = null;
+            this.ColorListRandom = false;
         }
 
         public void SetInnerColor(int R, int G, int B)

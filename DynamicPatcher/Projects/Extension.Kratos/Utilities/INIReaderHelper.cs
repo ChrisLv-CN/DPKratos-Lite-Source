@@ -59,6 +59,7 @@ namespace Extension.Utilities
         public static Regex Number = new Regex(@"^\d+$");
         public static Regex PercentFloat = new Regex(@"^\d?\.\d+$");
         public static Regex PercentNumber = new Regex(@"^\d+$");
+        public static Regex Brackets = new Regex(@"(?is)(?<=\()[^\)]+(?=\))");
 
         public static double PercentStrToDouble(string chanceStr, double defVal = 1)
         {
@@ -169,7 +170,56 @@ namespace Extension.Utilities
                     return dir * 2;
                 }
             }
-            return default;
+            return defVal;
+        }
+
+        public static ColorStruct[] GetColorList(this ISectionReader reader, string key, ColorStruct[] defVal)
+        {
+            string listStr = reader.Get<string>(key, null);
+            if (!listStr.IsNullOrEmptyOrNone())
+            {
+                List<ColorStruct> colorList = null;
+                // 查找(括起来的内容)
+                MatchCollection mc = Brackets.Matches(listStr);
+                foreach (Match m in mc)
+                {
+                    string rgb = m.Value;
+                    if (!rgb.IsNullOrEmptyOrNone())
+                    {
+                        string[] rgbs = ParserExtension.SplitValue(rgb);
+                        if (null != rgbs && rgbs.Length >= 3)
+                        {
+                            ColorStruct color = new ColorStruct();
+                            for (int i = 0; i < 3; i++)
+                            {
+                                int value = Convert.ToInt32(rgbs[i].Trim());
+                                switch (i)
+                                {
+                                    case 0:
+                                        color.R = (byte)value;
+                                        break;
+                                    case 1:
+                                        color.G = (byte)value;
+                                        break;
+                                    case 2:
+                                        color.B = (byte)value;
+                                        break;
+                                }
+                            }
+                            if (null == colorList)
+                            {
+                                colorList = new List<ColorStruct>();
+                            }
+                            colorList.Add(color);
+                        }
+                    }
+                }
+                if (null != colorList && colorList.Any())
+                {
+                    return colorList.ToArray();
+                }
+            }
+            return defVal;
         }
 
     }

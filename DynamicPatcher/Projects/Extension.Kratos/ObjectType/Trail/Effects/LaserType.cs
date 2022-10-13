@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.INI;
@@ -30,6 +32,22 @@ namespace Extension.Ext
 
             this.LaserType.Duration = reader.Get("Laser.Duration", this.LaserType.Duration);
             this.LaserType.Thickness = reader.Get("Laser.Thickness", this.LaserType.Thickness);
+
+            List<ColorStruct> colorList = new List<ColorStruct>();
+            for (int i = 0; i < 128; i++)
+            {
+                string key = "Laser.Color" + i;
+                ColorStruct color = reader.Get<ColorStruct>(key, default);
+                if (default != color)
+                {
+                    colorList.Add(color);
+                }
+            }
+            if (null != colorList && colorList.Any())
+            {
+                this.LaserType.ColorList = colorList.ToArray();
+            }
+            this.LaserType.ColorListRandom = reader.Get("Laser.ColorListRandom", this.LaserType.ColorListRandom);
         }
     }
 }

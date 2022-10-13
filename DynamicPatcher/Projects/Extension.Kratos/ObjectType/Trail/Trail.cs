@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Script;
@@ -20,6 +21,8 @@ namespace Extension.Ext
 
         private bool forceDraw;
         private DrivingState drivingState;
+
+        private int laserColorIndex = 0;
 
         public Trail(IConfigWrapper<TrailType> type) : base(type)
         {
@@ -150,7 +153,26 @@ namespace Extension.Ext
                     {
                         houseColor = pHouse.Ref.LaserColor;
                     }
-                    BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType, Type.LaserType.IsHouseColor ? houseColor : default);
+                    // 修改渲染的颜色
+                    if (null != Type.LaserType.ColorList && Type.LaserType.ColorList.Count() > 0)
+                    {
+                        ColorStruct[] colorList = Type.LaserType.ColorList;
+                        int count = colorList.Count();
+                        // 随机
+                        laserColorIndex = Type.LaserType.ColorListRandom ? MathEx.Random.Next(count) : laserColorIndex;
+                        ColorStruct color = colorList[laserColorIndex];
+                        // Logger.Log($"{Game.CurrentFrame} 颜色列表有{count}种颜色，取第{laserColorIndex}个，{color}");
+                        if (++laserColorIndex >= count)
+                        {
+                            laserColorIndex = 0;
+                        }
+                        Type.LaserType.InnerColor = color;
+                        BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType);
+                    }
+                    else
+                    {
+                        BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType, Type.LaserType.IsHouseColor ? houseColor : default);
+                    }
                     break;
                 case TrailMode.ELECTIRIC:
                     BulletEffectHelper.DrawBolt(sourcePos, targetPos, Type.BoltType);
