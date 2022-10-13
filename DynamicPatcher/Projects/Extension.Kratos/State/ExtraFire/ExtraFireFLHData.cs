@@ -50,7 +50,14 @@ namespace Extension.Ext
                     {
                         this.WeaponXFLH = new Dictionary<int, CoordStruct>();
                     }
-                    this.WeaponXFLH.Add(i, weaponFLH);
+                    if (this.WeaponXFLH.ContainsKey(i))
+                    {
+                        this.WeaponXFLH[i] = weaponFLH;
+                    }
+                    else
+                    {
+                        this.WeaponXFLH.Add(i, weaponFLH);
+                    }
                 }
             }
 

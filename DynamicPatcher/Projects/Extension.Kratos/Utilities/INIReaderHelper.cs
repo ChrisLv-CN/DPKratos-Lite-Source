@@ -163,6 +163,7 @@ namespace Extension.Utilities
                     {
                         return dir % 16;
                     }
+                    return dir;
                 }
                 else if (Enum.IsDefined(typeof(Direction), dirStr))
                 {

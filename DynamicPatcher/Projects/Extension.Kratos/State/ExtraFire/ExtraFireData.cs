@@ -66,7 +66,14 @@ namespace Extension.Ext
                     {
                         this.WeaponX = new Dictionary<int, string[]>();
                     }
-                    this.WeaponX.Add(i, weapons);
+                    if (this.WeaponX.ContainsKey(i))
+                    {
+                        this.WeaponX[i] = weapons;
+                    }
+                    else
+                    {
+                        this.WeaponX.Add(i, weapons);
+                    }
                 }
             }
 
@@ -107,7 +114,7 @@ namespace Extension.Ext
 
             ExtraFireEntity elite = null != this.Data ? Data.Clone() : new ExtraFireEntity();
             elite.Read(reader, TITLE + "Elite");
-            if (null != elite&& elite.IsEnable())
+            if (null != elite && elite.IsEnable())
             {
                 this.EliteData = elite;
             }
