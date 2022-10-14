@@ -201,7 +201,7 @@ namespace Extension.Script
                                     Pointer<TechnoClass> pTargetTechno = IntPtr.Zero;
                                     TechnoClass.Array.FindObject((pTarget) =>
                                     {
-                                        if (!pTarget.IsDeadOrInvisible())
+                                        if (!pTarget.IsDeadOrInvisible() && !pTarget.Ref.Type.Ref.Base.Insignificant) // 过滤不重要目标
                                         {
                                             CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
                                             int height = pTarget.Ref.Base.GetHeight();
