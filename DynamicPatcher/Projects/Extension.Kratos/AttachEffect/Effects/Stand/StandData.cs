@@ -95,6 +95,8 @@ namespace Extension.Ext
         public bool PromoteFromMaster; // 与使者同等级
         public double ExperienceToMaster; // 经验给使者
 
+        public bool SelectToMaster; // 选中替身时，改为选中使者
+
         public bool VirtualUnit; // 虚单位
 
         public bool IsTrain; // 火车类型
@@ -136,6 +138,8 @@ namespace Extension.Ext
 
             this.PromoteFromMaster = false;
             this.ExperienceToMaster = 0.0;
+
+            this.SelectToMaster = false;
 
             this.VirtualUnit = true;
 
@@ -192,6 +196,8 @@ namespace Extension.Ext
 
                 this.PromoteFromMaster = reader.Get(TITLE + "PromoteFromMaster", this.PromoteFromMaster);
                 this.ExperienceToMaster = reader.GetPercent(TITLE + "ExperienceToMaster", this.ExperienceToMaster);
+
+                this.SelectToMaster = reader.Get(TITLE + "SelectToMaster", this.SelectToMaster);
 
                 this.VirtualUnit = reader.Get(TITLE + "VirtualUnit", this.VirtualUnit);
 

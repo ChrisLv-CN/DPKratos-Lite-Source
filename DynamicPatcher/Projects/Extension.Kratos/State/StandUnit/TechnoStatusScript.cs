@@ -76,6 +76,10 @@ namespace Extension.Script
 
         public bool OnSelect_VirtualUnit()
         {
+            if (!MyMaster.IsNull && null != StandData && StandData.SelectToMaster)
+            {
+                MyMaster.Ref.Base.Select();
+            }
             return !VirtualUnit;
         }
 
