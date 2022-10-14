@@ -59,6 +59,7 @@ namespace Extension.Script
                         }
                         else
                         {
+                            pTechno.Ref.Base.Health = 0;
                             pTechno.Ref.Base.UnInit();
                         }
                     }

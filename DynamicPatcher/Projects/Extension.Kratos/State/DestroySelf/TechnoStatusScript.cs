@@ -35,6 +35,7 @@ namespace Extension.Script
                 if (DestroySelfState.Data.Peaceful)
                 {
                     pTechno.Ref.Base.Remove();
+                    pTechno.Ref.Base.Health = 0;
                     pTechno.Ref.Base.UnInit();
                 }
                 else
