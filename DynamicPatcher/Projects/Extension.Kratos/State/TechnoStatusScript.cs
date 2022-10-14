@@ -154,12 +154,15 @@ namespace Extension.Script
 
         public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            if (!pTechno.IsDeadOrInvisible() && !pTechno.Ref.Target.IsNull)
+            if (!pTechno.IsDeadOrInvisible())
             {
-                WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-                if (warheadTypeData.ClearTarget)
+                if (!pTechno.Ref.Target.IsNull)
                 {
-                    ClearTarget();
+                    WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+                    if (warheadTypeData.ClearTarget)
+                    {
+                        ClearTarget();
+                    }
                 }
                 OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
                 OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);

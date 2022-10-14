@@ -82,7 +82,7 @@ namespace Extension.Script
         public unsafe void OnReceiveDamage_Stand(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
                     Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 收到伤害, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
+            // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 收到伤害, Damage = {pDamage.Ref}, ignoreDefenses = {ignoreDefenses}, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
             // 无视防御的真实伤害不做任何分摊
             if (!ignoreDefenses && !MyMasterIsAnim)
             {
@@ -90,6 +90,7 @@ namespace Extension.Script
                 {
                     if (pDamage.Ref >= 0 || StandData.AllowShareRepair)
                     {
+                        // Logger.Log($"{Game.CurrentFrame} 替身[{section}]{pTechno} 收到伤害 {pDamage.Ref}, Immune={StandData.Immune}, DamageToMaster={StandData.DamageToMaster}");
                         // I'm stand
                         if (StandData.Immune)
                         {
