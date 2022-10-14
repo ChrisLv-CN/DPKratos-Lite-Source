@@ -131,6 +131,7 @@ namespace Extension.Script
                 this.smooth = false;
                 this.lockAngle = true;
             }
+            // 检查是在倾斜地面上平飞还是爬坡，检查前后两个地块的高度没有明显的偏差
             if (pTechno.IsDeadOrInvisibleOrCloaked())
             {
                 PitchAngle = 0f;
@@ -145,26 +146,31 @@ namespace Extension.Script
                 }
                 else
                 {
-                    // 计算俯仰角度
-                    double dist = lastLocation.DistanceFrom(headTo);
-                    double deltaZ = lastLocation.Z - headTo.Z;
-                    double angle = Math.Asin(Math.Abs(deltaZ) / dist);
-                    // Logger.Log($"{Game.CurrentFrame} 计算俯冲角度 {angle}， 距离 {dist}， 高度差 {deltaZ}， 正弦值 {deltaZ / dist} location {lastLocation} headTo = {headTo}");
-                    int z = pTechno.Ref.Base.GetHeight() - pFly.Ref.FlightLevel;
-                    if (z > 0)
-                    {
-                        // 俯冲
-                        targetAngle = (float)angle;
-                    }
-                    else if (z < 0)
-                    {
-                        // 爬升
-                        targetAngle = -(float)angle;
-                    }
-                    else
+                    int z = pTechno.Ref.Base.GetHeight() - pFly.Ref.FlightLevel; // 上升还是下降
+                    double deltaZ = lastLocation.Z - headTo.Z; // 高度差
+                    double zz = Math.Abs(deltaZ);
+                    if (z == 0 || zz < 20) // 消除小幅度的抖动
                     {
                         // 平飞
                         targetAngle = 0f;
+                    }
+                    else
+                    {
+                        // 计算俯仰角度
+                        double dist = lastLocation.DistanceFrom(headTo);
+                        double angle = Math.Asin(zz / dist);
+                        // Logger.Log($"{Game.CurrentFrame} 计算俯冲角度 {angle}， 距离 {dist}， 高度差 {deltaZ}， 正弦值 {deltaZ / dist} location {lastLocation} headTo = {headTo}");
+
+                        if (z > 0)
+                        {
+                            // 俯冲
+                            targetAngle = (float)angle;
+                        }
+                        else
+                        {
+                            // 爬升
+                            targetAngle = -(float)angle;
+                        }
                     }
                 }
             }
