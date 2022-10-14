@@ -31,12 +31,12 @@ namespace Extension.Script
             }
             Pointer<WeaponTypeClass> pWeapon = IntPtr.Zero;
             Pointer<WeaponTypeClass> pEliteWeapon = IntPtr.Zero;
-            if (data.Weapon.IsNullOrEmptyOrNone())
+            if (!data.Weapon.IsNullOrEmptyOrNone())
             {
                 pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(data.Weapon);
                 pEliteWeapon = pWeapon;
             }
-            if (data.EliteWeapon.IsNullOrEmptyOrNone())
+            if (!data.EliteWeapon.IsNullOrEmptyOrNone())
             {
                 pEliteWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(data.EliteWeapon);
             }
@@ -127,7 +127,6 @@ namespace Extension.Script
                         vR.Z *= 2;
                         CoordStruct velocityL = ExHelper.GetFLH(new CoordStruct(), vL, facing.target());
                         CoordStruct velocityR = ExHelper.GetFLH(new CoordStruct(), vR, facing.target());
-
                         for (int i = 0; i < 2; i++)
                         {
                             CoordStruct initTarget = targetL;
@@ -146,9 +145,10 @@ namespace Extension.Script
                             decoyMissile.AddDecoy(pBullet, port, decoyMissile.Data.Life);
                         }
                     }
-                    ExHelper.FindBulletTargetMe(pTechno, (pBullet) =>
+                    // 将来袭导弹目标设定到最近的诱饵上
+                    pTechno.FindBulletTargetMe((pBullet) =>
                     {
-                        CoordStruct pos = pBullet.Ref.Base.Location;
+                        CoordStruct pos = pBullet.Ref.Base.Base.GetCoords();
                         Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
                         if (!pDecoy.IsDeadOrInvisible()
                             && pDecoy.Ref.Base.Location.DistanceFrom(pBullet.Ref.Base.Location) <= distance * 2)
@@ -158,15 +158,15 @@ namespace Extension.Script
                         }
                         return false;
                     });
-
                 }
                 else
                 {
-                    ExHelper.FindBulletTargetMe(pTechno, (pBullet) =>
+                    // 检查到有一发朝向自己发射的导弹时，启动热诱弹发射
+                    pTechno.FindBulletTargetMe((pBullet) =>
                     {
                         if (location.DistanceFrom(pBullet.Ref.Base.Location) <= distance)
                         {
-                            decoyMissile.Fire = true;
+                            decoyMissile.Fire = true; // 开始抛洒诱饵
                             CoordStruct pos = pBullet.Ref.Base.Location;
                             Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
                             if (!pDecoy.IsDeadOrInvisible())
@@ -177,7 +177,6 @@ namespace Extension.Script
                         }
                         return false;
                     });
-
                 }
             }
         }

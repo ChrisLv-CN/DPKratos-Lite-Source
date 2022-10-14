@@ -44,15 +44,7 @@ namespace Extension.Ext
             this.ForPassengers = reader.Get("AntiMissile.ForPassengers", this.ForPassengers);
             this.ScanAll = reader.Get("AntiMissile.ScanAll", this.ScanAll);
             this.Range = reader.Get("AntiMissile.Range", this.Range);
-            if (Range > 0)
-            {
-                this.Range *= 256;
-            }
             this.EliteRange = reader.Get("AntiMissile.EliteRange", this.Range);
-            if (EliteRange > 0 && EliteRange != Range)
-            {
-                this.EliteRange *= 256;
-            }
             this.Rate = reader.Get("AntiMissile.Rate", this.Rate);
         }
 

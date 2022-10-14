@@ -74,14 +74,37 @@ namespace Extension.Script
                         {
                             scanRange = AntiBulletData.EliteRange;
                         }
+
                         // Logger.Log($"{Game.CurrentFrame} 开始搜索抛射体，Range = {AntiBulletData.Range}，EliteRange = {AntiBulletData.EliteRange}，Rate = {AntiBulletData.Rate}");
-                        ExHelper.FindBulletTargetHouse(pTechno, (pBullet) =>
+                        CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                        // 搜索周围的所有的抛射体
+                        BulletClass.Array.FindObject((pBullet) =>
                         {
-                            if (AntiBulletData.ScanAll || pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
+                            if (pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && bulletStatus.LifeData.Interceptable)
                             {
-                                // Scan Target
-                                if (pTechno.Ref.Base.DistanceFrom(pBullet.Convert<ObjectClass>()) <= scanRange
-                                    && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && bulletStatus.LifeData.Interceptable)
+                                bool attackHouse = false;
+                                if (AntiBulletData.ScanAll)
+                                {
+                                    // 抛射体是否攻击自己阵营或者友军阵营
+                                    Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+                                    if (!pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pBulletTarget))
+                                    {
+                                        Pointer<HouseClass> pBulletTargetHouse = pBulletTarget.Ref.Owner;
+                                        attackHouse = pBulletTargetHouse == pTechno.Ref.Owner || pBulletTargetHouse.Ref.IsAlliedWith(pTechno.Ref.Owner);
+                                    }
+                                    else
+                                    {
+                                        // 抛射体的所属是敌人
+                                        Pointer<HouseClass> pBulletHouse = pBullet.GetHouse();
+                                        attackHouse = pBulletHouse.IsNull || !pBulletHouse.Ref.IsAlliedWith(pTechno.Ref.Owner);
+                                    }
+                                }
+                                else if (pBullet.Ref.Target == pTechno.Convert<AbstractClass>())
+                                {
+                                    // 抛射体是否在攻击自己
+                                    attackHouse = true;
+                                }
+                                if (attackHouse)
                                 {
                                     // 确认目标
                                     // Logger.Log($"{Game.CurrentFrame} 确认目标 {pBullet}");
@@ -98,7 +121,8 @@ namespace Extension.Script
                                 }
                             }
                             return false;
-                        });
+                        }, location, scanRange);
+
                     }
                 }
             }

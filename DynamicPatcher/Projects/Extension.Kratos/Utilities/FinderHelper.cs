@@ -17,37 +17,18 @@ namespace Extension.Utilities
     public static partial class ExHelper
     {
 
-        public static void FindBulletTargetHouse(this Pointer<TechnoClass> pTechno, Found<BulletClass> func, bool allied = true)
+        public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, Found<BulletClass> func)
         {
-            ref DynamicVectorClass<Pointer<BulletClass>> bullets = ref BulletClass.Array;
-            for (int i = bullets.Count - 1; i >= 0; i--)
+            BulletClass.Array.FindObject((pBullet) =>
             {
-                Pointer<BulletClass> pBullet = bullets.Get(i);
-                if (pBullet.IsDeadOrInvisible()
-                    || pBullet.Ref.Type.Ref.Inviso
-                    || null == pBullet.Ref.Owner || pBullet.Ref.Owner.IsNull || pBullet.Ref.Owner.Ref.Owner == pTechno.Ref.Owner
-                    || (allied && pBullet.Ref.Owner.Ref.Owner.Ref.IsAlliedWith(pTechno.Ref.Owner)))
+                // 抛射体拥有目标，且目标是自己
+                Pointer<AbstractClass> pBulletTarget = pBullet.Ref.Target;
+                if (!pBulletTarget.IsNull && pBulletTarget == pTechno.Convert<AbstractClass>())
                 {
-                    continue;
+                    return func(pBullet);
                 }
-
-                if (func(pBullet))
-                {
-                    break;
-                }
-            }
-        }
-
-        public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, Found<BulletClass> func, bool allied = true)
-        {
-            FindBulletTargetHouse(pTechno, (pBullet) =>
-            {
-                if (pBullet.Ref.Target != pTechno.Convert<AbstractClass>())
-                {
-                    return false;
-                }
-                return func(pBullet);
-            }, allied);
+                return false;
+            });
         }
 
         public static void FindOwnerTechno(Pointer<HouseClass> pHouse, Found<TechnoClass> func, bool allied = false, bool enemies = false)
