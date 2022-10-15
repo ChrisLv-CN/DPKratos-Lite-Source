@@ -293,7 +293,7 @@ namespace Extension.Script
                 // IsAttackerMark=yes时ReceiverAttack和ReceiverOwnBullet默认值为no
                 // 若无显式修改，此时应为攻击者朝AE附属对象进行攻击
                 // 由攻击者开火，朝向AE附属对象进行攻击
-                pShooter = pOwner;
+                pShooter = AE.pSource.Pointer.Convert<ObjectClass>();
                 pAttacker = AE.pSource;
                 pAttackingHouse = AE.pSourceHouse;
                 pTarget = pOwner.Convert<AbstractClass>();
