@@ -52,6 +52,19 @@ namespace Extension.Script
         {
             if (!pTechno.IsDeadOrInvisible())
             {
+                // WWSB 飞机在天上，Mission变成了Sleep
+                Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
+                if (pTechno.InAir() && pMission.Ref.CurrentMission == Mission.Sleep)
+                {
+                    if (!pTechno.Ref.Target.IsNull)
+                    {
+                        pMission.Ref.ForceMission(Mission.Attack);
+                    }
+                    else
+                    {
+                        pMission.Ref.ForceMission(Mission.Enter);
+                    }
+                }
                 // 角度差比Step大
                 if (smooth && PitchAngle != targetAngle && Math.Abs(targetAngle - PitchAngle) > angelStep)
                 {

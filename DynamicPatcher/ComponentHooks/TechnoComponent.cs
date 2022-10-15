@@ -414,7 +414,8 @@ namespace ComponentHooks
         }
 
 
-        [Hook(HookType.AresHook, Address = 0x730E8F, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x730DEB, Size = 6)] //Building
+        [Hook(HookType.AresHook, Address = 0x730E56, Size = 6)]
         public static unsafe UInt32 ObjectClass_GuardCommand(REGISTERS* R)
         {
             Pointer<ObjectClass> pObject = (IntPtr)R->ESI;
@@ -427,7 +428,7 @@ namespace ComponentHooks
             return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x730F1C, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x730EEB, Size = 6)]
         public static unsafe UInt32 ObjectClass_StopCommand(REGISTERS* R)
         {
             Pointer<ObjectClass> pObject = (IntPtr)R->ESI;

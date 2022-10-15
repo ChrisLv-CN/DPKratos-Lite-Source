@@ -526,6 +526,63 @@ namespace ExtensionHooks
         //     return 0;
         // }
 
+
+        [Hook(HookType.AresHook, Address = 0x41A697, Size = 6)]
+        public static unsafe UInt32 AircraftClass_Mission_Guard_NoTarget_Enter(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 警戒状态，没有目标，返航");
+            if (pTechno.TryGetComponent<AircraftAreaGuardScript>(out AircraftAreaGuardScript fighter)
+                && fighter.IsAreaGuardRolling())
+            {
+                // 不返回机场，而是继续前进直到目的地
+                return 0x41A6AC;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x41A96C, Size = 6)]
+        public static unsafe UInt32 AircraftClass_Mission_GuardArea_NoTarget_Enter(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 区域警戒，没有目标，返航");
+            if (pTechno.TryGetComponent<AircraftAreaGuardScript>(out AircraftAreaGuardScript fighter))
+            {
+                // Logger.Log($"{Game.CurrentFrame} 傻逼飞机正在执行Area_Guard任务但是没有目标，试图返航");
+                // 不返回机场，而是继续前进直到目的地
+                fighter.StartAreaGuard();
+                return 0x41A97A;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4CF780, Size = 5)]
+        public static unsafe UInt32 FlyLocomotionClass_Draw_Matrix_Rolling(REGISTERS* R)
+        {
+            // 传入的矩阵是EAX，下一步是将临时的矩阵复制给EAX
+            // Logger.Log($"{Game.CurrentFrame} FlyLoco {R->ESI - 4} 获取飞机的矩阵 {R->EAX} {R->Stack<IntPtr>(0x40)} {R->Stack<IntPtr>(0xC)} {R->Stack<Matrix3DStruct>(0x8)}");
+            Pointer<FlyLocomotionClass> pFly = (IntPtr)R->ESI - 4;
+            Pointer<TechnoClass> pTechno = pFly.Convert<LocomotionClass>().Ref.LinkedTo.Convert<TechnoClass>();
+            if (pTechno.Ref.Type.Ref.RollAngle != 0 // 可以倾转
+                && pTechno.TryGetComponent<AircraftAreaGuardScript>(out AircraftAreaGuardScript fighter)
+                && fighter.State == AircraftGuardState.ROLLING)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 区域警戒状态，保持倾斜");
+                // 不允许倾
+                // return 0x4CF809;
+                // 保持倾斜
+                if (fighter.Clockwise)
+                {
+                    return 0x4CF7B0; // 右倾
+                }
+                else
+                {
+                    return 0x4CF7DF; // 左倾
+                }
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x4CF80D, Size = 5)]
         public static unsafe UInt32 FlyLocomotionClass_Draw_Matrix(REGISTERS* R)
         {

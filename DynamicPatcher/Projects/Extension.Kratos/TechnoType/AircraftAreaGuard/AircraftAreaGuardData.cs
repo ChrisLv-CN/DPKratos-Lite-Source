@@ -10,7 +10,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class FighterAreaGuardData : INIConfig
+    public class AircraftAreaGuardData : INIConfig
     {
         public const string TITLE = "Fighter.";
 
@@ -20,18 +20,21 @@ namespace Extension.Ext
         public int MaxAmmo;
         public int GuardRadius;
         public bool FindRangeAroundSelf;
-        public bool FindRangeBySelf;
         public int ChaseRange;
+        public bool Clockwise;
+        public bool Randomwise;
 
-        public FighterAreaGuardData()
+        public AircraftAreaGuardData()
         {
-            AreaGuard = false;
-            GuardRange = 5;
-            AutoFire = false;
-            MaxAmmo = 1;
-            GuardRadius = 5;
-            FindRangeAroundSelf = false;
-            ChaseRange = 30;
+            this.AreaGuard = false;
+            this.GuardRange = 5;
+            this.AutoFire = false;
+            this.MaxAmmo = 1;
+            this.GuardRadius = 5;
+            this.FindRangeAroundSelf = false;
+            this.ChaseRange = 30;
+            this.Clockwise = false;
+            this.Randomwise = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -41,8 +44,10 @@ namespace Extension.Ext
             this.AutoFire = reader.Get(TITLE + "AutoFire", this.AutoFire);
             this.MaxAmmo = reader.Get(TITLE + "Ammo", this.MaxAmmo);
             this.GuardRadius = reader.Get(TITLE + "GuardRadius", this.GuardRadius);
-            this.FindRangeAroundSelf = reader.Get(TITLE + "FindRangeAroundSelf", this.FindRangeBySelf);
+            this.FindRangeAroundSelf = reader.Get(TITLE + "FindRangeAroundSelf", this.FindRangeAroundSelf);
             this.ChaseRange = reader.Get(TITLE + "ChaseRange", this.ChaseRange);
+            this.Clockwise = reader.Get(TITLE + "Clockwise", this.Clockwise);
+            this.Randomwise = reader.Get(TITLE + "Randomwise", this.Randomwise);
         }
     }
 

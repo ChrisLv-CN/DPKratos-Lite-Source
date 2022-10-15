@@ -158,6 +158,17 @@ namespace PatcherYRpp.Utilities
             return facing.current().ToVector3();
         }
 
+        // Direct multiplication pow    from Phobos
+        public static double FastPow(this double x, double n)
+        {
+            double r = 1.0;
+            while (n > 0)
+            {
+                r *= x;
+                --n;
+            }
+            return r;
+        }
 
         #endregion
 

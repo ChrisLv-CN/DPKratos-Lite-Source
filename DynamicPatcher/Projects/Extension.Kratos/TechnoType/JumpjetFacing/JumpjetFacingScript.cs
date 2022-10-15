@@ -88,8 +88,8 @@ namespace Extension.Script
                             int selfIndex = ExHelper.Dir2FacingIndex(selfDir, facing);
                             if (selfIndex != toIndex)
                             {
-                                DirStruct targetDir = ExHelper.DirNormalized(toIndex, facing);
-                                TurnTo(targetDir);
+                                // DirStruct targetDir = ExHelper.DirNormalized(toIndex, facing);
+                                TurnTo(toDir);
                                 // Logger.Log("需要转向, 当前朝向{0}, 目标朝向{1}", ExHelper.Dir2FacingIndex(selfDir, facing), ExHelper.Dir2FacingIndex(toDir, facing));
                             }
                             else

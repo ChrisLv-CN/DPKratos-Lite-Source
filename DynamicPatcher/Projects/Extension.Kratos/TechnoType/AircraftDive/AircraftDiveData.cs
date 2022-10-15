@@ -28,7 +28,7 @@ namespace Extension.Ext
         {
             this.Enable = false;
             this.Distance = 10;
-            this.FlightLevel = 500;
+            this.FlightLevel = 5 * Game.LevelHeight;
             this.PullUpAfterFire = false;
         }
 

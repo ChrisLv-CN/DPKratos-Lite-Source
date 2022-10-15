@@ -102,18 +102,6 @@ namespace Extension.Utilities
             return chance >= 1 || chance >= MathEx.Random.NextDouble();
         }
 
-        // Direct multiplication pow    from Phobos
-        public static double FastPow(this double x, double n)
-        {
-            double r = 1.0;
-            while (n > 0)
-            {
-                r *= x;
-                --n;
-            }
-            return r;
-        }
-
         public static int Category(this LandType landType)
         {
             switch (landType)
