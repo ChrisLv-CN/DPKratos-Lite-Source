@@ -47,6 +47,7 @@ namespace Extension.Script
                     return;
                 }
 
+                Pointer<AbstractClass> pTechnoAbs = pTechno.Convert<AbstractClass>();
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 // find candidate
                 Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>> candidates = new Dictionary<string, SortedList<double, List<Pointer<TechnoClass>>>>();
@@ -62,28 +63,43 @@ namespace Extension.Script
                         {
                             if (data.Force || pTarget.Ref.Target.IsNull || pTarget.Ref.Target != pTechno.Convert<AbstractClass>())
                             {
-                                // find one
-                                SortedList<double, List<Pointer<TechnoClass>>> technoDistanceSorted = null;
-                                if (candidates.ContainsKey(type))
+                                bool canFire = false;
+                                int weaponIdx = pTarget.Ref.SelectWeapon(pTechnoAbs);
+                                FireError fireError = pTarget.Ref.GetFireError(pTechnoAbs, weaponIdx, true);
+                                switch (fireError)
                                 {
-                                    technoDistanceSorted = candidates[type];
+                                    case FireError.ILLEGAL:
+                                    case FireError.CANT:
+                                        break;
+                                    default:
+                                        canFire = true;
+                                        break;
                                 }
-                                else
+                                if (canFire)
                                 {
-                                    technoDistanceSorted = new SortedList<double, List<Pointer<TechnoClass>>>();
-                                    candidates.Add(type, technoDistanceSorted);
+                                    // find one
+                                    SortedList<double, List<Pointer<TechnoClass>>> technoDistanceSorted = null;
+                                    if (candidates.ContainsKey(type))
+                                    {
+                                        technoDistanceSorted = candidates[type];
+                                    }
+                                    else
+                                    {
+                                        technoDistanceSorted = new SortedList<double, List<Pointer<TechnoClass>>>();
+                                        candidates.Add(type, technoDistanceSorted);
+                                    }
+                                    if (technoDistanceSorted.ContainsKey(distance))
+                                    {
+                                        technoDistanceSorted[distance].Add(pTarget);
+                                    }
+                                    else
+                                    {
+                                        List<Pointer<TechnoClass>> recruits = new List<Pointer<TechnoClass>>();
+                                        recruits.Add(pTarget);
+                                        technoDistanceSorted.Add(distance, recruits);
+                                    }
+                                    candidates[type] = technoDistanceSorted;
                                 }
-                                if (technoDistanceSorted.ContainsKey(distance))
-                                {
-                                    technoDistanceSorted[distance].Add(pTarget);
-                                }
-                                else
-                                {
-                                    List<Pointer<TechnoClass>> recruits = new List<Pointer<TechnoClass>>();
-                                    recruits.Add(pTarget);
-                                    technoDistanceSorted.Add(distance, recruits);
-                                }
-                                candidates[type] = technoDistanceSorted;
                             }
                         }
                     }
