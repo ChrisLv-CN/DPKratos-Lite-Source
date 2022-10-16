@@ -40,7 +40,7 @@ namespace Extension.Script
                 // 子弹的方向
                 GiftBoxState.BodyDir = pBullet.Facing();
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
-                if (!GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
+                if (!GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
                 {
                     // 开盒
                     GiftBoxState.IsOpen = true;
@@ -71,7 +71,7 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamageDestroy_GiftBox()
         {
-            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestoryed && !GiftBoxState.IsOpen)
+            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.IsOpen)
             {
                 // 开盒
                 GiftBoxState.IsOpen = true;

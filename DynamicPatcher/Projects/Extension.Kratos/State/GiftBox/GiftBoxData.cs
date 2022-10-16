@@ -96,7 +96,7 @@ namespace Extension.Ext
         public bool Destroy;
         public int RandomRange;
         public bool EmptyCell;
-        public bool OpenWhenDestoryed;
+        public bool OpenWhenDestroyed;
         public bool OpenWhenHealthPercent;
         public double OpenHealthPercent;
 
@@ -125,7 +125,7 @@ namespace Extension.Ext
             this.Destroy = false;
             this.RandomRange = 0;
             this.EmptyCell = false;
-            this.OpenWhenDestoryed = false;
+            this.OpenWhenDestroyed = false;
             this.OpenWhenHealthPercent = false;
             this.OpenHealthPercent = 0;
 
@@ -178,7 +178,7 @@ namespace Extension.Ext
             this.RandomRange = reader.Get(title + "RandomRange", this.RandomRange);
             this.EmptyCell = reader.Get(title + "RandomToEmptyCell", this.EmptyCell);
 
-            this.OpenWhenDestoryed = reader.Get(title + "OpenWhenDestoryed", this.OpenWhenDestoryed);
+            this.OpenWhenDestroyed = reader.Get(title + "OpenWhenDestroyed", this.OpenWhenDestroyed);
             this.OpenHealthPercent = reader.GetPercent(title + "OpenWhenHealthPercent", this.OpenHealthPercent);
             this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
 
@@ -217,7 +217,7 @@ namespace Extension.Ext
         {
             this.Remove = true;
             this.Destroy = false;
-            this.OpenWhenDestoryed = false;
+            this.OpenWhenDestroyed = false;
             this.OpenWhenHealthPercent = false;
             this.IsTransform = true;
             this.InheritHealth = true;

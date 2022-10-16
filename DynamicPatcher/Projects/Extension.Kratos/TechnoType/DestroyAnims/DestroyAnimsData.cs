@@ -45,7 +45,7 @@ namespace Extension.Ext
         [INIField(Key = "DestroyAnims.Random")]
         public bool DestroyAnimsRandom = true;
 
-        [INIField(Key = "DestoryAnims.WreckType")]
+        [INIField(Key = "DestroyAnims.WreckType")]
         public string WreckType = null;
 
         [INIField(Key = "DestroyAnims.WreckOwner")]

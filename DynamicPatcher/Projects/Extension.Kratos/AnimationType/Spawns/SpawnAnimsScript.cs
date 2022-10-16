@@ -13,31 +13,29 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
+        private SpawnAnimsData spawnAnimsData => Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
 
         public void OnNext_SpawnAnims(Pointer<AnimTypeClass> pNext)
         {
-            SpawnAnimsData data = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
-            if (data.TriggerOnNext)
+            if (spawnAnimsData.TriggerOnNext)
             {
-                ExpandAnims.PlayExpandAnims(data, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
+                ExpandAnims.PlayExpandAnims(spawnAnimsData, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
             }
         }
 
         public void OnDone_SpawnAnims()
         {
-            SpawnAnimsData data = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
-            if (data.TriggerOnDone)
+            if (spawnAnimsData.TriggerOnDone)
             {
-                ExpandAnims.PlayExpandAnims(data, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
+                ExpandAnims.PlayExpandAnims(spawnAnimsData, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
             }
         }
 
         public void OnLoop_SpawnAnims()
         {
-            SpawnAnimsData data = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
-            if (data.TriggerOnLoop)
+            if (spawnAnimsData.TriggerOnLoop)
             {
-                ExpandAnims.PlayExpandAnims(data, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
+                ExpandAnims.PlayExpandAnims(spawnAnimsData, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
             }
         }
 
