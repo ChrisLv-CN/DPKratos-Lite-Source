@@ -34,7 +34,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             // 停机坪满了，不移动飞机的位置
             if (pTechno.Convert<AircraftClass>().Ref.Type.Ref.AirportBound)

@@ -76,7 +76,8 @@ namespace ComponentHooks
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 Pointer<CoordStruct> pCoord = R->Stack<IntPtr>(-0x20);
                 // Logger.Log("BulletExt init {0} {1}", ext == null?"Ext is null":"is ready.", pCoord.Data);
-                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnPut(pCoord, default));
+                DirType dirType = DirType.N;
+                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnPut(pCoord, ref dirType));
             }
             catch (Exception e)
             {

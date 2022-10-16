@@ -31,6 +31,8 @@ namespace Extension.Script
         private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private CoordStruct lastLocation;
 
+        private bool initFlag = false;
+
         public override void Awake()
         {
             ILocomotion locomotion = null;
@@ -50,6 +52,14 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            if (!initFlag)
+            {
+                initFlag = true;
+                int dir = GetPoseDir();
+                DirStruct dirStruct = ExHelper.DirNormalized(dir, 8);
+                pTechno.Ref.Facing.set(dirStruct);
+                pTechno.Ref.TurretFacing.set(dirStruct);
+            }
             if (!pTechno.IsDeadOrInvisible())
             {
                 // WWSB 飞机在天上，Mission变成了Sleep
@@ -187,6 +197,25 @@ namespace Extension.Script
                     }
                 }
             }
+        }
+
+        public int GetPoseDir()
+        {
+            Pointer<RadioClass> pAircraft = pTechno.Convert<RadioClass>();
+            if (pAircraft.Ref.IsInRadioContact())
+            {
+                Pointer<BuildingClass> pAirport = pAircraft.Ref.ContactWithWhom();
+                // 傻逼飞机是几号停机位
+                int index = pAirport.Convert<RadioClass>().Ref.GetContactIndex(pAircraft);
+                if (index < 12)
+                {
+                    Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
+                    AircraftDockingOffsetData data = pAirport.Convert<TechnoClass>().GetImageConfig<AircraftDockingOffsetData>();
+                    // 取设置的dir
+                    return data.Direction[index];
+                }
+            }
+            return RulesClass.Global().PoseDir;
         }
     }
 }

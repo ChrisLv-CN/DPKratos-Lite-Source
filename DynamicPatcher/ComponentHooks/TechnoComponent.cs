@@ -94,8 +94,10 @@ namespace ComponentHooks
                 Pointer<CoordStruct> pCoord = R->Stack<Pointer<CoordStruct>>(0x4);
                 DirType faceDir = R->Stack<DirType>(0x8);
 
+                // the Aircraft put dir is not 0-255, but 0-7
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnPut(pCoord, faceDir));
+                ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnPut(pCoord, ref faceDir));
+                R->Stack<DirType>(0x8, faceDir);
             }
             catch (Exception e)
             {

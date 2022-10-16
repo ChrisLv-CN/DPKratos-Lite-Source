@@ -40,7 +40,7 @@ namespace Extension.Script
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
 
-        public virtual void OnPut(Pointer<CoordStruct> pLocation, DirType dirType) { }
+        public virtual void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType) { }
         public virtual void OnRemove() { }
         public virtual void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)

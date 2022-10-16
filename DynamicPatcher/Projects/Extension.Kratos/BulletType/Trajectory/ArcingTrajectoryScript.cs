@@ -32,7 +32,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             CoordStruct sourcePos = pBullet.Ref.SourceCoords;
             CoordStruct targetPos = pBullet.Ref.TargetCoords;

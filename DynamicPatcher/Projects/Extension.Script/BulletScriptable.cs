@@ -27,7 +27,7 @@ namespace Extension.Script
         public virtual void OnInit() { }
         public virtual void OnUnInit() { }
 
-        public virtual void OnPut(Pointer<CoordStruct> pLocation, DirType dirType) { }
+        public virtual void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType) { }
 
         [Obsolete("not support OnRemove in BulletScriptable yet", true)]
         public void OnRemove()

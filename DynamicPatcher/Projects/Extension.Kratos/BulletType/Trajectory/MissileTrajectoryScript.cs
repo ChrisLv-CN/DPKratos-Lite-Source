@@ -32,7 +32,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             // 高抛导弹
             if (!pBullet.Ref.WeaponType.IsNull && pBullet.Ref.WeaponType.Ref.Lobber)

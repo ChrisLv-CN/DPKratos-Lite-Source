@@ -662,7 +662,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
             if (!initEffectFlag)
             {

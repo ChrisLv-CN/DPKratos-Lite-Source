@@ -70,7 +70,7 @@ namespace Extension.Script
             // BulletEffectHelper.RedLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
         }
 
-        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             if (null == straightBullet)
             {

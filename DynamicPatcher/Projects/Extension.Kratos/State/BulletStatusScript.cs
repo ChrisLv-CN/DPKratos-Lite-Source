@@ -59,7 +59,7 @@ namespace Extension.Script
             // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
         }
 
-        public override void OnPut(Pointer<CoordStruct> pLocation, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             if (!initStateFlag)
             {

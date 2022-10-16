@@ -77,7 +77,7 @@ namespace Extension.Script
             this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 
-        public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
+        public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
             OnPut_StandUnit(pCoord, dirType);
 

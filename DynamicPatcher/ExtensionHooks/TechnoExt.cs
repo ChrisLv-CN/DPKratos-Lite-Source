@@ -656,22 +656,13 @@ namespace ExtensionHooks
         public static unsafe UInt32 IFlyControl_Landing_Direction(REGISTERS* R)
         {
             // Logger.Log($"{Game.CurrentFrame} 飞机降落获取朝向，要用IFlyControl {R->EDI} 和RadioClass {R->ESI}");
-            Pointer<RadioClass> pAircraft = (IntPtr)R->ESI;
-            if (pAircraft.Ref.IsInRadioContact())
+            Pointer<TechnoClass> pAircraft = (IntPtr)R->ESI;
+            if (pAircraft.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude))
             {
-                Pointer<BuildingClass> pAirport = pAircraft.Ref.ContactWithWhom();
-                // 傻逼飞机是几号停机位
-                int index = pAirport.Convert<RadioClass>().Ref.GetContactIndex(pAircraft);
-                if (index < 12)
-                {
-                    // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
-                    string section = pAirport.Ref.Type.Ref.Base.Base.Base.ID;
-                    AircraftDockingOffsetData data = Ini.GetConfig<AircraftDockingOffsetData>(Ini.ArtDependency, section).Data;
-                    // 取设置的dir
-                    R->EAX = (uint)data.Direction[index];
-                    // WWSB，只支持8向
-                    return 0x41B7BC;
-                }
+                // 取设置的dir
+                R->EAX = (uint)attitude.GetPoseDir();
+                // WWSB，只支持8向
+                return 0x41B7BC;
             }
             R->EAX = (uint)RulesClass.Global().PoseDir;
             return 0x41B7BC; // 这个地址会跳到下面去pop EDI
