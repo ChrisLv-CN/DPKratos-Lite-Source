@@ -18,7 +18,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TerrainClass> pTerrain = (IntPtr)R->ESI;
-                Logger.Log($"{Game.CurrentFrame} [{pTerrain.Ref.Type.Ref.Base.Base.ID}]{pTerrain} is dead");
+                // Logger.Log($"{Game.CurrentFrame} [{pTerrain.Ref.Type.Ref.Base.Base.ID}]{pTerrain} is dead");
                 TerrainDestroyAnim.PlayDestroyAnim(pTerrain);
             }
             catch (Exception e)

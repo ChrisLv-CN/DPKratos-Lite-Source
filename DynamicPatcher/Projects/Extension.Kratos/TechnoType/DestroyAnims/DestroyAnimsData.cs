@@ -37,30 +37,50 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class DestroyAnimsData : INIAutoConfig
+    public class DestroyAnimsData : INIConfig
     {
-        [INIField(Key = "DestroyAnims")]
-        public string[] DestroyAnims = null;
+        public const string TITLE = "DestroyAnims.";
 
-        [INIField(Key = "DestroyAnims.Random")]
-        public bool DestroyAnimsRandom = true;
+        public string[] Anims;
+        public bool Random;
+        public bool PlayInAir;
 
-        [INIField(Key = "DestroyAnims.WreckType")]
-        public string WreckType = null;
+        public string WreckType;
+        public WreckOwner WreckOwner;
+        public Mission WreckMission;
 
-        [INIField(Key = "DestroyAnims.WreckOwner")]
-        public WreckOwner WreckOwner = WreckOwner.INVOKER;
-
-        [INIField(Key = "DestroyAnims.WreckMission")]
-        public Mission WreckMission = Mission.Sleep;
-
-        [INIField(Key = "Wreck")]
         public bool Wreck = false;
 
         static DestroyAnimsData()
         {
             new WreckOwnerParser().Register();
             new MissionParser().Register();
+        }
+
+        public DestroyAnimsData()
+        {
+            this.Anims = null;
+            this.Random = true;
+            this.PlayInAir = false;
+
+            this.WreckType = null;
+            this.WreckOwner = WreckOwner.INVOKER;
+            this.WreckMission = Mission.Sleep;
+
+            this.Wreck = false;
+        }
+
+        public override void Read(IConfigReader reader)
+        {
+            this.Anims = reader.GetList("DestroyAnims", this.Anims);
+            this.Random = reader.Get(TITLE + "Random", this.Random);
+            this.PlayInAir = reader.Get(TITLE + "PlayInAir", this.PlayInAir);
+
+            this.WreckType = reader.Get(TITLE + "WreckType", this.WreckType);
+            this.WreckOwner = reader.Get(TITLE + "WreckOwner", this.WreckOwner);
+            this.WreckMission = reader.Get(TITLE + "WreckMission", this.WreckMission);
+
+            this.Wreck = reader.Get(TITLE + "Wreck", this.Wreck);
         }
 
     }
