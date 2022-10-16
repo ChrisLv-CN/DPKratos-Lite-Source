@@ -236,7 +236,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
-                if (pAnim.TryGetStatus(out AnimStatusScript status) && status.AnimDamageData.AllowAnimDamageTakeOverByKratos)
+                if (CombatDamage.Data.AllowAnimDamageTakeOverByKratos && pAnim.TryGetStatus(out AnimStatusScript status))
                 {
                     status.Explosion_Damage();
                     // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] 爆炸啦");
@@ -258,7 +258,7 @@ namespace ExtensionHooks
             {
                 Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
                 // 碎片、流星敲地板，砸水中不执行
-                if (pAnim.TryGetStatus(out AnimStatusScript status) && status.AnimDamageData.AllowAnimDamageTakeOverByKratos)
+                if (CombatDamage.Data.AllowAnimDamageTakeOverByKratos && pAnim.TryGetStatus(out AnimStatusScript status))
                 {
                     status.Explosion_Damage(true, true);
                     // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] 碎片敲地板爆炸啦");
@@ -281,7 +281,7 @@ namespace ExtensionHooks
                 Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
                 if (pAnim.TryGetStatus(out AnimStatusScript status))
                 {
-                    if (status.AnimDamageData.AllowAnimDamageTakeOverByKratos && status.AnimDamageData.AllowDamageIfDebrisHitWater)
+                    if (CombatDamage.Data.AllowAnimDamageTakeOverByKratos && CombatDamage.Data.AllowDamageIfDebrisHitWater)
                     {
                         status.Explosion_Damage(true);
                     }
@@ -309,7 +309,7 @@ namespace ExtensionHooks
                 Pointer<AnimClass> pAnim = (IntPtr)R->ESI;
                 if (pAnim.TryGetStatus(out AnimStatusScript status))
                 {
-                    if (status.AnimDamageData.AllowAnimDamageTakeOverByKratos && status.AnimDamageData.AllowDamageIfDebrisHitWater)
+                    if (CombatDamage.Data.AllowAnimDamageTakeOverByKratos && CombatDamage.Data.AllowDamageIfDebrisHitWater)
                     {
                         status.Explosion_Damage(true);
                     }

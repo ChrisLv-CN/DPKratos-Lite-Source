@@ -94,7 +94,7 @@ namespace Extension.Script
 
         public int Count()
         {
-            return AttachEffects.Count;
+            return AttachEffects.Count();
         }
 
         public void SetLocationSpace(int cabinLenght)
@@ -903,13 +903,13 @@ namespace Extension.Script
            Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, out DamageGroup damageGroup)
         {
             damageGroup = default;
-            if (!pTarget.IsNull && !pTarget.Ref.Type.IsNull && !pTarget.Ref.Type.Ref.Base.Immune && !pTarget.Ref.Base.IsIronCurtained() && !pTarget.Ref.IsForceShilded)
+            if (!pTarget.IsNull && !pTarget.Ref.Type.IsNull && !pTarget.IsImmune())
             {
                 // 检查距离
                 CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
                 double dist = targetPos.DistanceFrom(location);
                 // Logger.Log($"{Game.CurrentFrame} 检查目标 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 与目标点的距离 {dist}");
-                if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTarget.InAir(true))
+                if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTarget.InAir())
                 {
                     dist *= 0.5;
                 }

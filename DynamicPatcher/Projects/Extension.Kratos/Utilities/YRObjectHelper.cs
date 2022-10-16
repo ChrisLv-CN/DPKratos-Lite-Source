@@ -11,64 +11,8 @@ using Extension.Utilities;
 
 namespace Extension.Utilities
 {
-
-    [Flags]
-    public enum Relation
-    {
-        NONE = 0x0, OWNER = 0x1, ALLIES = 0x2, ENEMIES = 0x4,
-
-        Team = OWNER | ALLIES,
-        NotAllies = OWNER | ENEMIES,
-        NotOwner = ALLIES | ENEMIES,
-        All = OWNER | ALLIES | ENEMIES
-    }
-    public class RelationParser : KEnumParser<Relation>
-    {
-        public override bool ParseInitials(string t, ref Relation buffer)
-        {
-            switch(t)
-            {
-                case "O":
-                    buffer = Relation.OWNER;
-                    return true;
-                case "A":
-                    buffer = Relation.Team;
-                    return true;
-                case "E":
-                    buffer = Relation.ENEMIES;
-                    return true;
-            }
-            return false;
-        }
-    }
-
     public static partial class ExHelper
     {
-
-        public static bool IsCivilian(this Pointer<HouseClass> pHouse)
-        {
-            return pHouse.IsNull || pHouse.Ref.Defeated || pHouse.Ref.Type.IsNull
-                || HouseClass.CIVILIAN == pHouse.Ref.Type.Ref.Base.ID
-                || HouseClass.SPECIAL == pHouse.Ref.Type.Ref.Base.ID; // 被狙掉驾驶员的阵营是Special
-        }
-
-        public static Relation GetRelationWithPlayer(this Pointer<HouseClass> pHouse)
-        {
-            return pHouse.GetRelation(HouseClass.Player);
-        }
-
-        public static Relation GetRelation(this Pointer<HouseClass> pHosue, Pointer<HouseClass> pTargetHouse)
-        {
-            if (pHosue == pTargetHouse)
-            {
-                return Relation.OWNER;
-            }
-            if (pHosue.Ref.IsAlliedWith(pTargetHouse))
-            {
-                return Relation.ALLIES;
-            }
-            return Relation.ENEMIES;
-        }
 
         public static CoordStruct ToCoordStruct(this BulletVelocity bulletVelocity)
         {

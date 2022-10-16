@@ -190,5 +190,10 @@ namespace Extension.Script
             return false;
         }
 
+        public bool AmIStand()
+        {
+            return !MyMaster.IsNull;
+        }
+
     }
 }

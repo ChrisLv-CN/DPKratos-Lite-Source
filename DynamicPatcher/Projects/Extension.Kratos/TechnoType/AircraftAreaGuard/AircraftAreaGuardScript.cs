@@ -357,10 +357,23 @@ namespace Extension.Script
 
         private bool CheckTarget(Pointer<TechnoClass> pTarget)
         {
-            if (!pTarget.IsDeadOrInvisible() && !pTarget.Ref.Type.Ref.Base.Insignificant
-                            && (!pTarget.Ref.Owner.IsCivilian() || true) // TODO Ares 攻击平民目标
-                            && !pTarget.Ref.Owner.Ref.IsAlliedWith(pTechno.Ref.Owner)
-            )
+            bool pick = false;
+            if (!pTarget.IsDeadOrInvisible() && !pTarget.Ref.Type.Ref.Base.Insignificant && !pTarget.Ref.Owner.Ref.IsAlliedWith(pTechno.Ref.Owner))
+            {
+                pick = true;
+                // 检查平民
+                if (pTarget.Ref.Owner.IsCivilian())
+                {
+                    // Ares 的平民敌对目标
+                    pick = Ini.GetSection(Ini.RulesDependency, pTarget.Ref.Type.Ref.Base.Base.ID).Get("CivilianEnemy", false);
+                    // Ares 的反击平民
+                    if (!pick && pTechno.Ref.Owner.AutoRepel() && !pTarget.Ref.Target.IsNull && pTarget.Ref.Target.CastToTechno(out Pointer<TechnoClass> pTargetTarget))
+                    {
+                        pick = pTechno.Ref.Owner.Ref.IsAlliedWith(pTargetTarget.Ref.Owner);
+                    }
+                }
+            }
+            if (pick)
             {
                 // 能否对其进行攻击
                 Pointer<AbstractClass> pTargetAbs = pTarget.Convert<AbstractClass>();
@@ -370,12 +383,11 @@ namespace Extension.Script
                 {
                     case FireError.ILLEGAL:
                     case FireError.CANT:
+                        pick = false;
                         break;
-                    default:
-                        return true;
                 }
             }
-            return false;
+            return pick;
         }
 
     }

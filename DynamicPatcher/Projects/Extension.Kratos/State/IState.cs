@@ -71,6 +71,7 @@ namespace Extension.Ext
                 infinite = false;
                 timer.Start(duration);
             }
+            this.frame = Game.CurrentFrame;
             // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
             OnEnable();
         }
@@ -100,18 +101,20 @@ namespace Extension.Ext
         public bool IsActive()
         {
             // 当前帧内持续有效，下一帧检查计时器
-            bool isActiveNow = active;
-            int currentFrame = Game.CurrentFrame;
-            if (frame != currentFrame)
+            if (active)
             {
-                frame = currentFrame;
-                active = infinite || timer.InProgress();
-                // if (!active && !Token.IsNullOrEmptyOrNone() && null != Data)
-                // {
-                //     Logger.Log($"{Game.CurrentFrame}, State {(null != Data ? Data.GetType().Name : "Null")} Time's up, token {Token}");
-                // }
+                int currentFrame = Game.CurrentFrame;
+                if (frame != currentFrame)
+                {
+                    frame = currentFrame;
+                    active = infinite || timer.InProgress();
+                    // if (!active && !Token.IsNullOrEmptyOrNone() && null != Data)
+                    // {
+                    //     Logger.Log($"{Game.CurrentFrame}, State {(null != Data ? Data.GetType().Name : "Null")} Time's up, token {Token}");
+                    // }
+                }
             }
-            return isActiveNow;
+            return active;
         }
 
     }

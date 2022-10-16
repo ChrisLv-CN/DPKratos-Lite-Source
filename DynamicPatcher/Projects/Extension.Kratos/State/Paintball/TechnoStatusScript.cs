@@ -40,7 +40,7 @@ namespace Extension.Script
 
         public void OnUpdate_Paintball()
         {
-            if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building && !pTechno.AmIStand())
+            if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building && !AmIStand())
             {
                 if (pTechno.Ref.Berzerk)
                 {

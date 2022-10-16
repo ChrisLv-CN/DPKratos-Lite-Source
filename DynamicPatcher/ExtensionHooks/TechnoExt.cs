@@ -1,10 +1,12 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
+using Extension.INI;
 using Extension.Utilities;
 using Extension.Script;
 
@@ -653,6 +655,25 @@ namespace ExtensionHooks
 
         #region ========== Stand ==========
 
+        [Hook(HookType.AresHook, Address = 0x5F6B90, Size = 5)]
+        public static unsafe UInt32 ObjectClass_In_Air_Stand(REGISTERS* R)
+        {
+            // InOnMap ? 5F6B97 : 5F6BAF
+            try
+            {
+                Pointer<ObjectClass> pObject = (IntPtr)R->ECX;
+                if (pObject.TryGetTechnoStatus(out TechnoStatusScript technoStatus) && technoStatus.AmIStand())
+                {
+                    return 0x5F6B97;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         // 替身需要显示在上层时，修改了渲染的层，导致单位在试图攻击替身时，需要武器具备AA
         [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
         public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)
@@ -669,7 +690,7 @@ namespace ExtensionHooks
                     {
                         if (pTechno.AmIStand(out StandData data))
                         {
-                            if (pTechno.InAir(true))
+                            if (pTechno.InAir())
                             {
                                 // in air
                                 return inAir;
@@ -710,6 +731,88 @@ namespace ExtensionHooks
             }
             return 0;
         }
+
+        #region Pick Stand as Target
+        //6F9256 6 AircraftType IsOnMap ? 6F925C : 6F9377
+        [Hook(HookType.AresHook, Address = 0x4D9947, Size = 6)]
+        public static unsafe UInt32 FootClass_Greatest_Threat_GetTarget(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<AbstractClass> pTarget = (IntPtr)R->EAX;
+            if (pTarget.IsNull && CombatDamage.Data.AllowAutoPickStandAsTarget)
+            {
+                // no target, extend find Stand
+                // 搜索符合条件的替身
+                // Logger.Log($"{Game.CurrentFrame}, {pTechno}自动搜索目标, 替身列表里有 {TechnoStatusScript.StandArray.Count()} 个记录");
+                foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
+                {
+                    if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                    {
+                        Pointer<TechnoClass> pStand = stand.Key.OwnerObject;
+                        if (!stand.Value.Immune && !pStand.Ref.Type.IsNull && !pStand.Ref.Type.Ref.Base.Insignificant && !pStand.IsImmune())
+                        {
+                            // 是否可以攻击，并获得攻击使用的武器序号
+                            bool canFire = true;
+                            pTarget = pStand.Convert<AbstractClass>();
+                            int weaponIdx = pTechno.Ref.SelectWeapon(pTarget);
+                            FireError fireError = pTechno.Ref.GetFireError(pTarget, weaponIdx, true);
+                            switch (fireError)
+                            {
+                                case FireError.ILLEGAL:
+                                case FireError.CANT:
+                                    canFire = false;
+                                    break;
+                            }
+                            // Logger.Log($"{Game.CurrentFrame}  {pTechno}找到的替身 [{pStand.Ref.Type.Ref.Base.Base.ID}]{pStand} 选用武器{weaponIdx} FireError = {fireError}");
+                            if (canFire)
+                            {
+                                // 检查射程
+                                canFire = pTechno.Ref.IsCloseEnough(pTarget, weaponIdx);
+                                if (canFire)
+                                {
+                                    // 检查所属
+                                    int damage = pTechno.Ref.Combat_Damage(weaponIdx);
+                                    if (damage < 0)
+                                    {
+                                        // 维修武器
+                                        canFire = pTechno.Ref.Owner.Ref.IsAlliedWith(pStand.Ref.Owner) && pStand.Ref.Base.Health < pStand.Ref.Type.Ref.Base.Strength;
+                                    }
+                                    else
+                                    {
+                                        // 只允许攻击敌人
+                                        canFire = !pTechno.Ref.Owner.Ref.IsAlliedWith(pStand.Ref.Owner);
+                                        if (canFire)
+                                        {
+                                            // 检查平民
+                                            if (pStand.Ref.Owner.IsCivilian())
+                                            {
+                                                // Ares 的平民敌对目标
+                                                canFire = Ini.GetSection(Ini.RulesDependency, pStand.Ref.Type.Ref.Base.Base.ID).Get("CivilianEnemy", false);
+                                                // Ares 的反击平民
+                                                if (!canFire && pTechno.Ref.Owner.AutoRepel() && !pStand.Ref.Target.IsNull && pStand.Ref.Target.CastToTechno(out Pointer<TechnoClass> pTargetTarget))
+                                                {
+                                                    canFire = pTechno.Ref.Owner.Ref.IsAlliedWith(pTargetTarget.Ref.Owner);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                if (canFire)
+                                {
+                                    // Pick this Stand as Target
+                                    R->EAX = (uint)pStand;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+            return 0;
+        }
+
+        #endregion
 
         #region Amin ChronoSparkle
         [Hook(HookType.AresHook, Address = 0x414C27, Size = 5)]

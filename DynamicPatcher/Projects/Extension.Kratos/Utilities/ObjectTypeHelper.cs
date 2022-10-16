@@ -123,17 +123,23 @@ namespace Extension.Utilities
             return pTechno.IsDeadOrInvisible() || pTechno.IsCloaked();
         }
 
-        public static bool InAir(this Pointer<TechnoClass> pTechno, bool stand = false)
+        public static bool InAir(this Pointer<TechnoClass> pTechno)
         {
-            if (!pTechno.IsNull)
+            return pTechno.Ref.Base.Base.IsInAir();
+        }
+
+        public static bool IsImmune(this Pointer<TechnoClass> pTechno, bool checkStand = false)
+        {
+            bool immune = pTechno.Ref.Base.Type.Ref.Immune;
+            if (!immune && checkStand && pTechno.AmIStand(out StandData standData))
             {
-                if (stand)
-                {
-                    return pTechno.Ref.Base.GetHeight() > Game.LevelHeight * 2;
-                }
-                return pTechno.Ref.Base.Base.IsInAir();
+                immune = standData.Immune;
             }
-            return false;
+            if (!immune)
+            {
+                immune = pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded;
+            }
+            return immune;
         }
         #endregion
 
