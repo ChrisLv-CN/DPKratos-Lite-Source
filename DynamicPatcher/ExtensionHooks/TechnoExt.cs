@@ -654,26 +654,6 @@ namespace ExtensionHooks
         #endregion
 
         #region ========== Stand ==========
-
-        [Hook(HookType.AresHook, Address = 0x5F6B90, Size = 5)]
-        public static unsafe UInt32 ObjectClass_In_Air_Stand(REGISTERS* R)
-        {
-            // InOnMap ? 5F6B97 : 5F6BAF
-            try
-            {
-                Pointer<ObjectClass> pObject = (IntPtr)R->ECX;
-                if (pObject.TryGetTechnoStatus(out TechnoStatusScript technoStatus) && technoStatus.AmIStand())
-                {
-                    return 0x5F6B97;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-
         // 替身需要显示在上层时，修改了渲染的层，导致单位在试图攻击替身时，需要武器具备AA
         [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
         public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)

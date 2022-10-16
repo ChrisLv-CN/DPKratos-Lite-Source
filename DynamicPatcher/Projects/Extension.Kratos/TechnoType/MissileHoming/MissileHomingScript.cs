@@ -31,7 +31,7 @@ namespace Extension.Script
             {
                 GameObject.RemoveComponent(this);
                 return;
-            }            
+            }
             MissileHomingData missileHomingData = Ini.GetConfig<MissileHomingData>(Ini.RulesDependency, section).Data;
             this.IsHoming = missileHomingData.Homing;
         }

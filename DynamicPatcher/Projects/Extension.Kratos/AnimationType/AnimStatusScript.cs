@@ -29,5 +29,20 @@ namespace Extension.Script
             OnUpdate_Damage();
         }
 
+        public override void OnLoop()
+        {
+            OnLoop_SpawnAnims();
+        }
+
+        public override void OnDone()
+        {
+            OnDone_SpawnAnims();
+        }
+
+        public override void OnNext(Pointer<AnimTypeClass> pNext)
+        {
+            OnNext_SpawnAnims(pNext);
+        }
+
     }
 }
