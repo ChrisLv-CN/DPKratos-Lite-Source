@@ -44,7 +44,7 @@ namespace Extension.Script
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
-        private IConfigWrapper<AttachEffectTypeData> aeTypeData = null;
+        private AttachEffectTypeData aeTypeData => Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section).Data;
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
         private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
         private bool isDead = false;
@@ -88,8 +88,6 @@ namespace Extension.Script
             this.totleMileage = 0;
 
             this.locationSpace = 512;
-
-            this.aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section);
         }
 
         public int Count()
@@ -258,7 +256,7 @@ namespace Extension.Script
                     if (data.Group < 0)
                     {
                         // 找同名
-                        if (temp.AEData == data)
+                        if (temp.AEData.Name == data.Name)
                         {
                             // 找到了
                             find = true;
@@ -588,7 +586,7 @@ namespace Extension.Script
             // 添加Section上记录的AE
             if (!isDead && !pObject.IsInvisible() && null != aeTypeData)
             {
-                Attach(aeTypeData.Data, pOwner);
+                Attach(aeTypeData, pOwner);
                 this.attachEffectOnceFlag = true;
             }
 
@@ -807,7 +805,11 @@ namespace Extension.Script
                         {
                             continue;
                         }
-
+                        // 过滤替身和虚单位
+                        if (pTarget.TryGetStatus(out var status) && (!status.MyMaster.IsNull || status.MyMasterIsAnim || status.VirtualUnit))
+                        {
+                            continue;
+                        }
                         int distanceFromEpicenter = (int)location.DistanceFrom(pTarget.Ref.Base.Location);
                         Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
                         // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 可以影响 [{pTarget.Ref.Type.Ref.Base.Base.ID}] {pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)}, 可以伤害 {pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int r)}, 实际伤害 {r}");
