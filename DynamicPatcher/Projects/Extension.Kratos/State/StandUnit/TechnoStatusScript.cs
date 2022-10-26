@@ -24,7 +24,10 @@ namespace Extension.Script
 
         public void InitState_VirtualUnit()
         {
-            VirtualUnit = Ini.GetSection(Ini.RulesDependency, section).Get("VirtualUnit", false);
+            if (Ini.GetSection(Ini.RulesDependency, section).Get("VirtualUnit", false))
+            {
+                VirtualUnit = true;
+            }
         }
 
         public void OnPut_StandUnit(Pointer<CoordStruct> pCoord, DirType dirType)

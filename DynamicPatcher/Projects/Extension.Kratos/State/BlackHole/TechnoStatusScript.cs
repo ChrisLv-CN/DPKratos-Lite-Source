@@ -62,7 +62,6 @@ namespace Extension.Script
                             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                             // 从占据的格子中移除自己
                             pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
-                            pTechno.Ref.Base.Mark(MarkType.UP);
                             // 停止移动
                             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             ILocomotion loco = pFoot.Ref.Locomotor;
@@ -142,8 +141,10 @@ namespace Extension.Script
                             }
 
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得新位置坐标 {nextPos} 原始位置 {sourcePos} {(!canMove ? "受到阻挡不能前进，返回" : "")}");
-                            // 被黑洞吸走
+                            // 被黑洞吸走                            
+                            pTechno.Ref.Base.Mark(MarkType.UP);
                             pTechno.Ref.Base.SetLocation(nextPos);
+                            pTechno.Ref.Base.Mark(MarkType.DOWN);
                             // 设置动作
                             if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
                             {
@@ -248,7 +249,6 @@ namespace Extension.Script
 
         public void CancelBlackHole()
         {
-            pTechno.Ref.Base.Mark(MarkType.DOWN);
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 不再受 黑洞 {pBlackHole.Pointer} 的影响");
             if (captureByBlackHole && !IsBuilding && !pTechno.IsDeadOrInvisible())
             {

@@ -10,22 +10,57 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class WarheadTypeData : INIAutoConfig
+    public class WarheadTypeData : INIConfig
     {
         // YR
         // Ares
-        public bool AffectsOwner = true;
-        public bool AffectsAllies = true;
-        public bool AffectsEnemies = true;
-        public bool EffectsRequireDamage = false;
-        public bool EffectsRequireVerses = true;
-        public bool AllowZeroDamage = false;
-        public string PreImpactAnim = null;
+        public bool AffectsOwner;
+        public bool AffectsAllies;
+        public bool AffectsEnemies;
+        public bool EffectsRequireDamage;
+        public bool EffectsRequireVerses;
+        public bool AllowZeroDamage;
+        public string PreImpactAnim;
 
         // Kratos
-        public bool AffectsAir = true;
+        public bool AffectsAir;
 
-        public bool ClearTarget = false;
+        public bool ClearTarget;
+
+        public WarheadTypeData()
+        {
+            // Ares
+            this.AffectsOwner = true;
+            this.AffectsAllies = true;
+            this.AffectsEnemies = true;
+            this.EffectsRequireDamage = false;
+            this.EffectsRequireVerses = true;
+            this.AllowZeroDamage = false;
+            this.PreImpactAnim = null;
+
+            // Kratos
+            this.AffectsAir = true;
+
+            this.ClearTarget = false;
+        }
+
+        public override void Read(IConfigReader reader)
+        {
+            // Ares
+            this.AffectsAllies = reader.Get("AffectsAllies", this.AffectsAllies);
+            this.AffectsOwner = reader.Get("AffectsOwner", this.AffectsAllies);
+
+            this.AffectsEnemies = reader.Get("AffectsEnemies", this.AffectsEnemies);
+            this.EffectsRequireDamage = reader.Get("EffectsRequireDamage", this.EffectsRequireDamage);
+            this.EffectsRequireVerses = reader.Get("EffectsRequireVerses", this.EffectsRequireVerses);
+            this.AllowZeroDamage = reader.Get("AllowZeroDamage", this.AllowZeroDamage);
+            this.PreImpactAnim = reader.Get("PreImpactAnim", this.PreImpactAnim);
+
+            // Kratos
+            this.AffectsAir = reader.Get("AffectsAir", this.AffectsAir);
+
+            this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
+        }
 
     }
 
