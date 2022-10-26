@@ -34,7 +34,7 @@ namespace Extension.Script
                 // 记录盒子的状态
                 GiftBoxState.SaveStatue(pTechno);
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
-                if (!GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
+                if (GiftBoxState.CanOpen() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
                 {
                     // 开盒
                     GiftBoxState.IsOpen = true;
@@ -74,7 +74,7 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamage2_GiftBox(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (damageState != DamageState.NowDead && GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenHealthPercent)
+            if (!pTechno.IsDeadOrInvisible() && damageState != DamageState.NowDead && GiftBoxState.CanOpen() && GiftBoxState.Data.OpenWhenHealthPercent)
             {
                 // 计算血量百分比是否达到开启条件
                 double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
@@ -96,7 +96,7 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamageDestroy_GiftBox()
         {
-            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.IsOpen)
+            if (GiftBoxState.CanOpen() && GiftBoxState.Data.OpenWhenDestroyed)
             {
                 // 开盒
                 GiftBoxState.IsOpen = true;
