@@ -209,7 +209,7 @@ namespace Extension.Script
                 int index = pAirport.Convert<RadioClass>().Ref.GetContactIndex(pAircraft);
                 if (index < 12)
                 {
-                    Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
+                    // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
                     AircraftDockingOffsetData data = pAirport.Convert<TechnoClass>().GetImageConfig<AircraftDockingOffsetData>();
                     // 取设置的dir
                     return data.Direction[index];

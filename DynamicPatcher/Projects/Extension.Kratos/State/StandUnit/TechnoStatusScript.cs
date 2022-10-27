@@ -66,15 +66,8 @@ namespace Extension.Script
         public void OnRemove_StandUnit()
         {
             // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} remove on the map");
-            if (!MyMaster.IsNull || MyMasterIsAnim)
-            {
-                // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
-                StandArray.Remove(Owner);
-            }
-            if (VirtualUnit)
-            {
-                VirtualUnitArray.Remove(Owner);
-            }
+            StandArray.Remove(Owner);
+            VirtualUnitArray.Remove(Owner);
         }
 
         public bool OnSelect_VirtualUnit()

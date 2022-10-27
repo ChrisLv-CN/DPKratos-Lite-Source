@@ -525,6 +525,19 @@ namespace Extension.Script
         public CrateBuffData CountAttachStatusMultiplier()
         {
             CrateBuffData multiplier = new CrateBuffData();
+            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno)
+                && pTechno.AmIStand(out TechnoStatusScript status, out StandData standData)
+                && standData.IsVirtualTurret
+                && !status.MyMasterIsAnim
+                && !status.MyMaster.IsNull
+                && status.MyMaster.Pointer.TryGetAEManager(out AttachEffectScript aem)
+            )
+            {
+                // 替身是虚拟炮塔，buff加成取JOJO身上的
+                multiplier = aem.CountAttachStatusMultiplier();
+                return multiplier;
+            }
+            // 统计AE加成
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (null != ae.CrateBuff && ae.CrateBuff.IsAlive())

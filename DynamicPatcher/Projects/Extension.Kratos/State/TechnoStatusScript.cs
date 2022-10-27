@@ -152,6 +152,11 @@ namespace Extension.Script
             OnRemove_StandUnit();
         }
 
+        public override void OnUnInit()
+        {
+            OnRemove_StandUnit();
+        }
+
         public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
             if (!pTechno.IsDeadOrInvisible())

@@ -99,6 +99,8 @@ namespace Extension.Ext
 
         public bool VirtualUnit; // 虚单位
 
+        public bool IsVirtualTurret; // 虚拟炮塔
+
         public bool IsTrain; // 火车类型
         public bool CabinHead; // 插入车厢前端
         public int CabinGroup; // 车厢分组
@@ -142,6 +144,8 @@ namespace Extension.Ext
             this.SelectToMaster = false;
 
             this.VirtualUnit = true;
+
+            this.IsVirtualTurret = true;
 
             this.IsTrain = false;
             this.CabinHead = false;
@@ -200,6 +204,8 @@ namespace Extension.Ext
                 this.SelectToMaster = reader.Get(TITLE + "SelectToMaster", this.SelectToMaster);
 
                 this.VirtualUnit = reader.Get(TITLE + "VirtualUnit", this.VirtualUnit);
+
+                this.IsVirtualTurret = reader.Get(TITLE + "IsVirtualTurret", this.IsVirtualTurret);
 
                 this.IsTrain = reader.Get(TITLE + "IsTrain", this.IsTrain);
                 this.CabinHead = reader.Get(TITLE + "CabinHead", this.CabinHead);

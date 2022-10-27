@@ -185,10 +185,11 @@ namespace Extension.Script
 
         private void ExplodesOrDisappear(bool remove)
         {
-            // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {Type.Type} 注销");
+            // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand.Pointer} 注销");
             bool explodes = Data.Explodes || notBeHuman;
             if (pStand.Pointer.TryGetStatus(out TechnoStatusScript standStatus))
             {
+                // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand.Pointer} 要死了 explodes = {explodes}");
                 standStatus.DestroySelfState.DestroyNow(!explodes);
             }
             else
@@ -437,8 +438,11 @@ namespace Extension.Script
             pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
 
             // synch status
-            pStand.Ref.FirepowerMultiplier = pMaster.Ref.FirepowerMultiplier;
-            pStand.Ref.ArmorMultiplier = pMaster.Ref.ArmorMultiplier;
+            if (Data.IsVirtualTurret)
+            {
+                pStand.Ref.FirepowerMultiplier = pMaster.Ref.FirepowerMultiplier;
+                pStand.Ref.ArmorMultiplier = pMaster.Ref.ArmorMultiplier;
+            }
 
             // synch ammo
             if (Data.SameAmmo)
