@@ -20,7 +20,11 @@ namespace Extension.Script
         private void InitGiftBox()
         {
             this.GiftBox = AEData.GiftBoxData.CreateEffect<GiftBox>();
-            RegisterEffect(GiftBox);
+            if (null != GiftBox)
+            {
+                NonInheritable = true;
+                RegisterEffect(GiftBox);
+            }
         }
     }
 

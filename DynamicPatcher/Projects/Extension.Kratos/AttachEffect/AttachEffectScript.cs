@@ -56,13 +56,22 @@ namespace Extension.Script
         // 将AE转移给其他对象
         public void InheritedTo(AttachEffectScript heir)
         {
-            // 更改AE记录的附着对象
-            foreach (AttachEffect ae in this.AttachEffects)
+            // 更改AE记录的附着对象，并移除不被继承的状态类型的AE
+            for (int i = Count() - 1; i >= 0; i--)
             {
+                AttachEffect ae = AttachEffects[i];
+                // 移除不可继承的状态类型的AE，如礼盒，因为礼盒的状态机不会被继承
+                if (ae.NonInheritable)
+                {
+                    AttachEffects.Remove(ae);
+                    continue;
+                }
+                // 修改AE的附着对象
                 ae.AEManager = heir;
             }
             // 转移给继任者
             heir.AttachEffects = this.AttachEffects;
+
             heir.DisableDelayTimers = this.DisableDelayTimers;
 
             heir.locationMarks = this.locationMarks;

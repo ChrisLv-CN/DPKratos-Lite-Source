@@ -29,7 +29,9 @@ namespace Extension.Script
 
         public CoordStruct Location;
 
-        public bool Active;
+        public bool NonInheritable;
+
+        private bool active;
         private int duration; // 寿命
         private bool immortal; // 永生
         private TimerStruct lifeTimer;
@@ -94,7 +96,7 @@ namespace Extension.Script
 
         public void Enable(AttachEffectScript AEManager, Pointer<HouseClass> pSourceHouse, SwizzleablePointer<TechnoClass> pSource)
         {
-            this.Active = true;
+            this.active = true;
             this.AEManager = AEManager;
             this.pSourceHouse.Pointer = pSourceHouse;
             this.pSource.Pointer = pSource;
@@ -119,7 +121,7 @@ namespace Extension.Script
 
         public void Disable(CoordStruct location)
         {
-            this.Active = false;
+            this.active = false;
             if (delayToEnable)
             {
                 return;
@@ -132,12 +134,12 @@ namespace Extension.Script
 
         public bool IsActive()
         {
-            if (Active)
+            if (active)
             {
                 // Logger.Log("AE Type {0} {1} and {2}", Type.Name, IsDeath() ? "is death" : "not dead", IsAlive() ? "is alive" : "not alive");
-                Active = delayToEnable || (!IsDeath() && IsAlive());
+                active = delayToEnable || (!IsDeath() && IsAlive());
             }
-            return Active;
+            return active;
         }
 
         public bool IsAnyAlive()
@@ -220,7 +222,7 @@ namespace Extension.Script
                 if (this.duration <= 0 || timeLeft <= 0)
                 {
                     // 削减的时间超过总长度，直接减没了
-                    this.Active = false;
+                    this.active = false;
                 }
                 else
                 {
@@ -229,7 +231,7 @@ namespace Extension.Script
                     if (timeLeft <= 0)
                     {
                         // 削减完后彻底没了
-                        this.Active = false;
+                        this.active = false;
                     }
                     else
                     {
