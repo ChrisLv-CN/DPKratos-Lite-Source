@@ -89,6 +89,7 @@ namespace Extension.Ext
                         if (pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
                             && pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate
                             && (Data.AffectBlackHole || !bulletStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
+                            && IsOnMark(pTarget.Convert<ObjectClass>()) // 检查标记
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
@@ -146,6 +147,7 @@ namespace Extension.Ext
                             && targetStatus.MyMaster.IsNull && !targetStatus.MyMasterIsAnim // 过滤掉替身
                             && !targetStatus.VirtualUnit // 过滤虚单位
                             && (Data.AffectBlackHole || !targetStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
+                            && IsOnMark(pTarget.Convert<ObjectClass>()) // 检查标记
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
@@ -160,6 +162,15 @@ namespace Extension.Ext
         {
             BlackHole data = GetData();
             return null == data || data.Range <= 0 || distance > data.Range * 256;
+        }
+
+        public bool IsOnMark(Pointer<ObjectClass> pTarget)
+        {
+            return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
+                || (pTarget.TryGetAEManager(out AttachEffectScript aem)
+                    && aem.TryGetMarks(out HashSet<string> marks)
+                    && (Data.OnlyAffectMarks.Intersect(marks).Count() > 0)
+                );
         }
 
     }

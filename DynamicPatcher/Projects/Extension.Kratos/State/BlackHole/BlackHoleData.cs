@@ -97,6 +97,8 @@ namespace Extension.Ext
         public bool AffectCannon;
         public bool AffectBomb;
 
+        public string[] OnlyAffectMarks;
+
         public bool AffectsOwner;
         public bool AffectsAllies;
         public bool AffectsEnemies;
@@ -141,6 +143,8 @@ namespace Extension.Ext
             this.AffectTorpedo = true;
             this.AffectCannon = true;
             this.AffectBomb = true;
+
+            this.OnlyAffectMarks = null;
 
             this.AffectsOwner = false;
             this.AffectsAllies = false;
@@ -215,6 +219,8 @@ namespace Extension.Ext
             {
                 this.AffectBullet = false;
             }
+
+            this.OnlyAffectMarks = reader.GetList(TITLE + "OnlyAffectMarks", this.OnlyAffectMarks);
 
             this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
             this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);

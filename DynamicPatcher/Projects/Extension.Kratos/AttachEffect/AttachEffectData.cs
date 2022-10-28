@@ -164,6 +164,7 @@ namespace Extension.Ext
             ReadExtraFireData(reader);
             ReadFireSuperData(reader);
             ReadGiftBoxData(reader);
+            ReadMarkData(reader);
             ReadPaintballData(reader);
             ReadStandData(reader);
             ReadTransformData(reader);

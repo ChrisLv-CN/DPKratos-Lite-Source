@@ -72,6 +72,7 @@ namespace Extension.Script
             InitExtraFire(); // state AffectWho
             InitFireSuper(); // state AffectWho
             InitGiftBox(); // state AffectWho
+            InitMark();
             InitPaintball(); // always same JoJo and Stand
             InitTransform();
             InitOverrideWeapon(); // state AffectWho

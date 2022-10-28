@@ -44,9 +44,11 @@ namespace Extension.Script
             if (CaptureByBlackHole)
             {
                 if (pBlackHole.IsNull
-                   || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
-                   || !blackHoleState.IsActive()
-                   || OutOfBlackHole(blackHoleState))
+                    || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
+                    || !blackHoleState.IsActive()
+                    || OutOfBlackHole(blackHoleState)
+                    || !blackHoleState.IsOnMark(pBullet.Convert<ObjectClass>())
+                )
                 {
                     CancelBlackHole();
                 }

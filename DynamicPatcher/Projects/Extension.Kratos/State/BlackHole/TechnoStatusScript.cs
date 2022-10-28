@@ -49,7 +49,9 @@ namespace Extension.Script
                     if (pBlackHole.IsNull
                         || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
                         || !blackHoleState.IsActive()
-                        || OutOfBlackHole(blackHoleState))
+                        || OutOfBlackHole(blackHoleState)
+                        || !blackHoleState.IsOnMark(pTechno.Convert<ObjectClass>())
+                    )
                     {
                         CancelBlackHole();
                     }

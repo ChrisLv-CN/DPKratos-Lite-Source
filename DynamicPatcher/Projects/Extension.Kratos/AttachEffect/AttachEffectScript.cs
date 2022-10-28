@@ -593,6 +593,20 @@ namespace Extension.Script
             return multiplier;
         }
 
+        public bool TryGetMarks(out HashSet<string> marks)
+        {
+            marks = new HashSet<string>();
+            // 获取所有标记
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                if (null != ae.Mark && ae.Mark.IsAlive())
+                {
+                    marks.Add(ae.Mark.Data.Name);
+                }
+            }
+            return marks.Any();
+        }
+
         public override void OnRender()
         {
             isDead = pObject.IsDead();
