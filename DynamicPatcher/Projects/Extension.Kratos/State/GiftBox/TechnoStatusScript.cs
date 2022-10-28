@@ -266,15 +266,15 @@ namespace Extension.Script
                         if (inheritAE)
                         {
                             inheritAE = false;
+                            // 继承除了GiftBox之外的状态机
+                            InheritedStatsTo(giftStatus);
                             // 继承AE
                             AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
                             AttachEffectScript boxAEM = pTechno.GetComponent<AttachEffectScript>();
-
                             boxAEM.InheritedTo(giftAEM);
                             // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
-
-                            // 继承除了GiftBox之外的状态机
-                            InheritedStatsTo(giftStatus);
+                            // 移除指定的AE
+                            giftAEM.Remove(data.RemoveEffects);
                         }
 
                         // 附加AE

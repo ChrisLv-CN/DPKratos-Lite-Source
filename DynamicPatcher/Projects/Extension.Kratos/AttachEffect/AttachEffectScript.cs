@@ -39,6 +39,8 @@ namespace Extension.Script
         public List<AttachEffect> AttachEffects; // 所有有效的AE
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
 
+        private CoordStruct location;
+
         private List<LocationMark> locationMarks;
         private CoordStruct lastLocation; // 使者的上一次位置
         private int locationMarkDistance; // 多少格记录一个位置
@@ -56,6 +58,9 @@ namespace Extension.Script
         // 将AE转移给其他对象
         public void InheritedTo(AttachEffectScript heir)
         {
+            // 转移给继任者
+            heir.AttachEffects = this.AttachEffects;
+            heir.DisableDelayTimers = this.DisableDelayTimers;
             // 更改AE记录的附着对象，并移除不被继承的状态类型的AE
             for (int i = Count() - 1; i >= 0; i--)
             {
@@ -63,16 +68,23 @@ namespace Extension.Script
                 // 移除不可继承的状态类型的AE，如礼盒，因为礼盒的状态机不会被继承
                 if (ae.NonInheritable)
                 {
+                    // 强制移除礼盒AE
                     AttachEffects.Remove(ae);
-                    continue;
+                    DisableDelayTimers.Remove(ae.AEData.Name);
                 }
-                // 修改AE的附着对象
-                ae.AEManager = heir;
+                else
+                {
+                    // 修改AE的附着对象
+                    ae.AEManager = heir;
+                    // 移除不可继承的AE
+                    if (!ae.AEData.Inheritable)
+                    {
+                        ae.Disable(location); // 关闭继承者的状态机
+                        AttachEffects.Remove(ae);
+                        DisableDelayTimers.Remove(ae.AEData.Name);
+                    }
+                }
             }
-            // 转移给继任者
-            heir.AttachEffects = this.AttachEffects;
-
-            heir.DisableDelayTimers = this.DisableDelayTimers;
 
             heir.locationMarks = this.locationMarks;
             heir.locationMarkDistance = this.locationMarkDistance;
@@ -82,7 +94,6 @@ namespace Extension.Script
 
             heir.locationSpace = this.locationSpace;
 
-
             // 转移完成后，重置
             Awake();
         }
@@ -91,6 +102,8 @@ namespace Extension.Script
         {
             this.AttachEffects = new List<AttachEffect>();
             this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
+
+            this.location = pOwner.Ref.Base.GetCoords();
 
             this.locationMarks = new List<LocationMark>();
             this.locationMarkDistance = 16;
@@ -305,7 +318,6 @@ namespace Extension.Script
                                 // 替换
                                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，发现同组{data.Group}已存在有AE类型[{temp.AEData.Name}]，执行替换");
                                 // 关闭发现的同组
-                                CoordStruct location = pOwner.Ref.Base.GetCoords();
                                 temp.Disable(location);
                                 add = true;
                                 continue; // 全部替换
@@ -333,6 +345,24 @@ namespace Extension.Script
                 AttachEffects.Insert(index, ae);
                 // 激活
                 ae.Enable(this, pHouse, pAttacker);
+            }
+        }
+
+        // 关闭并移除指定名称的AE
+        public void Remove(string[] aeTypes)
+        {
+            if (null != aeTypes && aeTypes.Any())
+            {
+                for (int i = Count() - 1; i >= 0; i--)
+                {
+                    AttachEffect ae = AttachEffects[i];
+                    if (aeTypes.Contains(ae.AEData.Name))
+                    {
+                        ae.Disable(location);
+                        AttachEffects.Remove(ae);
+                        DisableDelayTimers.Remove(ae.AEData.Name);
+                    }
+                }
             }
         }
 
@@ -566,7 +596,7 @@ namespace Extension.Script
         public override void OnRender()
         {
             isDead = pObject.IsDead();
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            location = pOwner.Ref.Base.GetCoords();
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
@@ -583,7 +613,7 @@ namespace Extension.Script
             if (renderFlag)
             {
                 // 记录下位置
-                CoordStruct location = MarkLocation();
+                location = MarkLocation();
                 // 更新替身的位置
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
@@ -613,8 +643,11 @@ namespace Extension.Script
             }
 
             // 记录下位置
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
-            if (!renderFlag)
+            if (renderFlag)
+            {
+                location = pOwner.Ref.Base.GetCoords();
+            }
+            else
             {
                 location = MarkLocation();
             }
@@ -659,7 +692,7 @@ namespace Extension.Script
         public override void OnLateUpdate()
         {
             isDead = pObject.IsDead();
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            location = pOwner.Ref.Base.GetCoords();
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
@@ -684,6 +717,7 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
+            this.location = pCoord.Data;
             if (!initEffectFlag)
             {
                 initEffectFlag = true;
@@ -700,7 +734,7 @@ namespace Extension.Script
 
         public override void OnRemove()
         {
-            CoordStruct location = pOwner.Ref.Base.GetCoords();
+            location = pOwner.Ref.Base.GetCoords();
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.AEData.DiscardOnEntry)

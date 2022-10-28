@@ -109,6 +109,7 @@ namespace Extension.Ext
         public bool InheritAE;
         public Mission ForceMission = Mission.None;
 
+        public string[] RemoveEffects;
         public string[] AttachEffects;
 
         static GiftBoxData()
@@ -138,6 +139,7 @@ namespace Extension.Ext
             this.InheritAE = false;
             this.ForceMission = Mission.None;
 
+            this.RemoveEffects = null;
             this.AttachEffects = null;
         }
 
@@ -210,6 +212,7 @@ namespace Extension.Ext
             this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
             this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
 
+            this.RemoveEffects = reader.GetList<string>(title + "RemoveEffects", null);
             this.AttachEffects = reader.GetList<string>(title + "AttachEffects", null);
         }
 
