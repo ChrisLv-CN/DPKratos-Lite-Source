@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
@@ -30,12 +31,12 @@ namespace Extension.Ext
 
         public const string TITLE = "Mark.";
 
-        public string Name;
+        public string[] Names;
 
 
         public MarkData()
         {
-            this.Name = null;
+            this.Names = null;
         }
 
         public MarkData(IConfigReader reader) : this()
@@ -47,8 +48,8 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            this.Name = reader.Get(TITLE + "Name", this.Name);
-            this.Enable = !Name.IsNullOrEmptyOrNone();
+            this.Names = reader.GetList(TITLE + "Names", this.Names);
+            this.Enable = null != this.Names && this.Names.Any();
         }
 
     }

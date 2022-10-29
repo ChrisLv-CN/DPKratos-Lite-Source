@@ -204,7 +204,7 @@ namespace Extension.Script
                         } while (enumerator.MoveNext());
 
                         // 获取所有在天上的玩意儿，飞起来的步兵坦克，包含路过的飞机
-                        ExHelper.FindFoot((pTarget) => {
+                        FinderHelper.FindFoot((pTarget) => {
                             Pointer<TechnoClass> pTechno = pTarget.Convert<TechnoClass>();
                             if (!IsDeadOrStand(pTechno) && pTechno.Ref.Base.GetHeight() > 0)
                             {

@@ -14,7 +14,7 @@ namespace Extension.Utilities
     public delegate bool Found<T>(Pointer<T> pTarget);
     public delegate bool FoundIndex<T>(Pointer<T> pTarget, int index);
 
-    public static partial class ExHelper
+    public static class FinderHelper
     {
 
         public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, Found<BulletClass> func)
@@ -177,7 +177,7 @@ namespace Extension.Utilities
             if (includeInAir)
             {
                 // 获取所有在天上的玩意儿，JJ，飞起来的坦克，包含路过的飞机
-                ExHelper.FindFoot((pTarget) =>
+                FindFoot((pTarget) =>
                 {
                     Pointer<TechnoClass> pTechno = pTarget.Convert<TechnoClass>();
                     if (pTechno.Ref.Base.GetHeight() > 0 && pTechno.Ref.Base.Location.DistanceFrom(location) <= spread * 256)

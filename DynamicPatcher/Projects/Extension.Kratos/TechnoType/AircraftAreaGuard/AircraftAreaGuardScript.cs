@@ -312,7 +312,7 @@ namespace Extension.Script
                     Pointer<AbstractClass> pTarget = IntPtr.Zero;
                     // 使用Cell搜索目标
                     // 检索范围内的单位类型
-                    List<Pointer<TechnoClass>> pTechnoList = ExHelper.GetCellSpreadTechnos(sourcePos, cellSpread, true, false);
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(sourcePos, cellSpread, true, false);
                     // TODO 对检索到的单位按威胁值排序
                     foreach (Pointer<TechnoClass> pTargetTechno in pTechnoList)
                     {

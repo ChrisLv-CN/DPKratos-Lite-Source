@@ -601,7 +601,13 @@ namespace Extension.Script
             {
                 if (null != ae.Mark && ae.Mark.IsAlive())
                 {
-                    marks.Add(ae.Mark.Data.Name);
+                    foreach (string name in ae.Mark.Data.Names)
+                    {
+                        if (!name.IsNullOrEmptyOrNone())
+                        {
+                            marks.Add(name);
+                        }
+                    }
                 }
             }
             return marks.Any();
@@ -865,7 +871,7 @@ namespace Extension.Script
                 if (findTechno)
                 {
                     // 检索爆炸范围内的单位类型
-                    List<Pointer<TechnoClass>> pTechnoList = ExHelper.GetCellSpreadTechnos(location, pWH.Ref.CellSpread, warheadTypeData.AffectsAir, false);
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, pWH.Ref.CellSpread, warheadTypeData.AffectsAir, false);
 
                     // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                     foreach (Pointer<TechnoClass> pTarget in pTechnoList)
