@@ -44,7 +44,7 @@ namespace Extension.Ext
                 }
                 if (IsDone() || forceDone)
                 {
-                    AE.Disable(AE.Location);
+                    Disable();
                 }
             }
             this.isElite = isElite;
