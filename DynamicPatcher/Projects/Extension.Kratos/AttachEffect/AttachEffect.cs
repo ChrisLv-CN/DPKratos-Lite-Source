@@ -64,6 +64,7 @@ namespace Extension.Script
             InitAttackBeacon(); // state AffectWho
             InitAutoWeapon();
             InitBlackHole(); // state AffectWho
+            InitBroadcast();
             InitCrateBuff(); // state AffectWho
             InitDamageReaction();
             InitDamageSelf(); // state AffectWho
