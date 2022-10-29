@@ -90,7 +90,11 @@ namespace Extension.Ext
                 this.active = false;
                 this.infinite = false;
                 this.timer.Start(0);
-
+                // 关闭AE
+                if (null != AE && AE.IsActive())
+                {
+                    AE.Disable(AE.Location);
+                }
                 // Logger.Log($"{Game.CurrentFrame} Disable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
                 OnDisable();
             }
