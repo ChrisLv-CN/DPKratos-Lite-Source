@@ -73,7 +73,7 @@ namespace Extension.Script
                         {
                             int speed = pBullet.Ref.Speed - 5;
                             pBullet.Ref.Speed = speed < 10 ? 10 : speed;
-                            if (speed > 10 && decoy.LaunchPort.DistanceFrom(pBullet.Ref.Base.Location) <= distance)
+                            if (speed > 10 && decoy.LaunchPort.DistanceFrom(pBullet.Ref.Base.Base.GetCoords()) <= distance)
                             {
                                 pBullet.Ref.Base.Location += new CoordStruct(0, 0, 64);
                             }
@@ -151,7 +151,7 @@ namespace Extension.Script
                         CoordStruct pos = pBullet.Ref.Base.Base.GetCoords();
                         Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
                         if (!pDecoy.IsDeadOrInvisible()
-                            && pDecoy.Ref.Base.Location.DistanceFrom(pBullet.Ref.Base.Location) <= distance * 2)
+                            && pDecoy.Ref.Base.Base.GetCoords().DistanceFrom(pBullet.Ref.Base.Base.GetCoords()) <= distance * 2)
                         {
                             pBullet.Ref.SetTarget(pDecoy.Convert<AbstractClass>());
                             return true;
@@ -164,10 +164,10 @@ namespace Extension.Script
                     // 检查到有一发朝向自己发射的导弹时，启动热诱弹发射
                     pTechno.FindBulletTargetMe((pBullet) =>
                     {
-                        if (location.DistanceFrom(pBullet.Ref.Base.Location) <= distance)
+                        if (location.DistanceFrom(pBullet.Ref.Base.Base.GetCoords()) <= distance)
                         {
                             decoyMissile.Fire = true; // 开始抛洒诱饵
-                            CoordStruct pos = pBullet.Ref.Base.Location;
+                            CoordStruct pos = pBullet.Ref.Base.Base.GetCoords();
                             Pointer<BulletClass> pDecoy = decoyMissile.CloseEnoughDecoy(pos, location.DistanceFrom(pos));
                             if (!pDecoy.IsDeadOrInvisible())
                             {

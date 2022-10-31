@@ -250,7 +250,7 @@ namespace Extension.Ext
                                     Pointer<AnimTypeClass> pSparkles = RulesClass.Global().EMPulseSparkles;
                                     if (!pSparkles.IsNull)
                                     {
-                                        Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pSparkles, pTarget.Ref.Base.Location);
+                                        Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pSparkles, pTarget.Ref.Base.Base.GetCoords());
                                         pAnim.Ref.Loops = 0xFF;
                                         pAnim.Ref.SetOwnerObject(pTarget.Convert<ObjectClass>());
                                         if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Building)

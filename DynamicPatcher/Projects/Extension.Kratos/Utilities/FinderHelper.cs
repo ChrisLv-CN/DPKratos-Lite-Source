@@ -140,7 +140,9 @@ namespace Extension.Utilities
             while (!pObject.IsNull && !(pObject = pObject.Ref.NextObject).IsNull);
         }
 
-        public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter)
+        public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter,
+            Pointer<HouseClass> pHouse = default,
+            bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
             HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
 
@@ -160,6 +162,12 @@ namespace Extension.Utilities
                 {
                     pCell.FindTechnoInCell((pTarget) =>
                     {
+                        Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
+                        if (!pHouse.IsNull && !pTargetHouse.IsNull
+                            && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        {
+                            return false;
+                        }
                         pTechnoSet.Add(pTarget);
                         return false;
                     });
@@ -167,8 +175,15 @@ namespace Extension.Utilities
                 // 获取JJ
                 if (includeInAir && !pCell.IsNull && !pCell.Ref.Jumpjet.IsNull)
                 {
+                    Pointer<TechnoClass> pJJ = pCell.Ref.Jumpjet.Convert<TechnoClass>();
+                    Pointer<HouseClass> pTargetHouse = pJJ.Ref.Owner;
+                    if (!pHouse.IsNull && !pTargetHouse.IsNull
+                        && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    {
+                        continue;
+                    }
                     // Logger.Log($"{Game.CurrentFrame} 检索到当前格子的JJ [{pJJ.Ref.Type.Ref.Base.Base.ID}]，加入列表");
-                    pTechnoSet.Add(pCell.Ref.Jumpjet.Convert<TechnoClass>());
+                    pTechnoSet.Add(pJJ);
                 }
             } while (enumerator.MoveNext());
 
@@ -180,12 +195,12 @@ namespace Extension.Utilities
                 FindFoot((pTarget) =>
                 {
                     Pointer<TechnoClass> pTechno = pTarget.Convert<TechnoClass>();
-                    if (pTechno.Ref.Base.GetHeight() > 0 && pTechno.Ref.Base.Location.DistanceFrom(location) <= spread * 256)
+                    if (pTechno.Ref.Base.GetHeight() > 0 && pTechno.Ref.Base.Base.GetCoords().DistanceFrom(location) <= spread * 256)
                     {
                         pTechnoSet.Add(pTechno.Convert<TechnoClass>());
                     }
                     return false;
-                }, location, spread);
+                }, location, spread, pHouse, owner, allied, enemies, civilian);
             }
             // Logger.Log("includeAir = {0}, pTechnoSet.Count = {1}", includeInAir, pTechnoSet.Count);
             // 筛选并去掉不可用项目

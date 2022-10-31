@@ -79,7 +79,7 @@ namespace Extension.Script
                         }
                         if (canFire)
                         {
-                            CoordStruct sourcePos = pTechno.Ref.Base.Location;
+                            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                             CoordStruct targetPos = pTechno.Ref.Target.Ref.GetCoords();
                             DirStruct toDir = ExHelper.Point2Dir(sourcePos, targetPos);
                             DirStruct selfDir = pTechno.Ref.Facing.current();

@@ -60,14 +60,6 @@ namespace Extension.Ext
             this.DeactiveWhenCivilian = false;
         }
 
-        public EffectData CopyTo(EffectData data)
-        {
-            data.Enable = this.Enable;
-            data.AffectWho = this.AffectWho;
-            data.DeactiveWhenCivilian = this.DeactiveWhenCivilian;
-            return data;
-        }
-
         public override void Read(IConfigReader reader) { }
 
         public virtual void Read(IConfigReader reader, string title)

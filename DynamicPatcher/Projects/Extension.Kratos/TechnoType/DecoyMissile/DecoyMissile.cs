@@ -35,7 +35,7 @@ namespace Extension.Ext
                 // Is death
                 if (!Bullet.IsNull)
                 {
-                    CoordStruct location = Bullet.Ref.Base.Location;
+                    CoordStruct location = Bullet.Ref.Base.Base.GetCoords();
                     Bullet.Ref.Detonate(location);
                     Bullet.Ref.Base.Remove();
                     Bullet.Ref.Base.UnInit();
@@ -179,7 +179,7 @@ namespace Extension.Ext
                 CoordStruct location = pos;
                 double x = 0;
                 if (!decoy.Bullet.IsNull
-                    && (x = pos.DistanceFrom(decoy.Bullet.Ref.Base.Location)) < distance)
+                    && (x = pos.DistanceFrom(decoy.Bullet.Ref.Base.Base.GetCoords())) < distance)
                 {
                     distance = x;
                     index = i;

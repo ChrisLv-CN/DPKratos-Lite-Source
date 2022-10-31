@@ -95,7 +95,7 @@ namespace Extension.Script
                         if (!pTarget.IsNull && activeDive)
                         {
                             // 检查距离目标的距离是否足够近以触发俯冲姿态
-                            CoordStruct location = pTechno.Ref.Base.Location;
+                            CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                             CoordStruct targetPos = pTarget.Ref.GetCoords();
                             int distance = (int)(aircraftDiveData.Distance * 256);
                             if (distance == 0)

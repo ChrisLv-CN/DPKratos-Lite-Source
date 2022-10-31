@@ -61,7 +61,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BroadcastData : EffectData
+    public class BroadcastData : FilterEffectData
     {
 
         public const string TITLE = "Broadcast.";
@@ -72,10 +72,6 @@ namespace Extension.Ext
         public int Count;
 
         public bool AffectsAir;
-        public bool AffectsOwner;
-        public bool AffectsAllies;
-        public bool AffectsEnemies;
-        public bool AffectsCivilian;
 
         public BroadcastData()
         {
@@ -85,6 +81,9 @@ namespace Extension.Ext
             this.Count = -1;
 
             this.AffectsAir = true;
+
+            this.AffectBullet = false;
+
             this.AffectsOwner = true;
             this.AffectsAllies = false;
             this.AffectsEnemies = false;
@@ -119,10 +118,6 @@ namespace Extension.Ext
             this.Count = reader.Get(TITLE + "Count", this.Count);
 
             this.AffectsAir = reader.Get(TITLE + "AffectsAir", this.AffectsAir);
-            this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
-            this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
-            this.AffectsEnemies = reader.Get(TITLE + "AffectsEnemies", this.AffectsEnemies);
-            this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
         }
 
     }

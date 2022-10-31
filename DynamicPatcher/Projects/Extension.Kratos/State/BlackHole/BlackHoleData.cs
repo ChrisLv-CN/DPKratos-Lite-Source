@@ -10,7 +10,7 @@ using Extension.Utilities;
 
 namespace Extension.Ext
 {
-    
+
     public partial class AttachEffectData
     {
         public BlackHoleData BlackHoleData;
@@ -55,7 +55,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BlackHoleData : EffectData, IStateData
+    public class BlackHoleData : FilterEffectData, IStateData
     {
         public const string TITLE = "BlackHole.";
 
@@ -85,27 +85,6 @@ namespace Extension.Ext
         public bool OutOfControl;
 
         public bool AffectBlackHole;
-        public string[] AffectTypes;
-        public string[] NotAffectTypes;
-
-        public bool AffectTechno;
-        public bool AffectBuilding;
-        public bool AffectInfantry;
-        public bool AffectUnit;
-        public bool AffectAircraft;
-
-        public bool AffectBullet;
-        public bool AffectMissile;
-        public bool AffectTorpedo;
-        public bool AffectCannon;
-        public bool AffectBomb;
-
-        public string[] OnlyAffectMarks;
-
-        public bool AffectsOwner;
-        public bool AffectsAllies;
-        public bool AffectsEnemies;
-        public bool AffectsCivilian;
 
         public BlackHoleData()
         {
@@ -135,22 +114,8 @@ namespace Extension.Ext
             this.OutOfControl = false;
 
             this.AffectBlackHole = true;
-            this.AffectTypes = null;
-            this.NotAffectTypes = null;
 
             this.AffectTechno = false;
-            this.AffectBuilding = true;
-            this.AffectInfantry = true;
-            this.AffectUnit = true;
-            this.AffectAircraft = true;
-
-            this.AffectBullet = true;
-            this.AffectMissile = true;
-            this.AffectTorpedo = true;
-            this.AffectCannon = true;
-            this.AffectBomb = true;
-
-            this.OnlyAffectMarks = null;
 
             this.AffectsOwner = false;
             this.AffectsAllies = false;
@@ -179,7 +144,7 @@ namespace Extension.Ext
             this.Enable = null != this.Data || null != this.EliteData;
 
             this.Offset = reader.Get(TITLE + "Offset", this.Offset);
-            this.IsOnTurret= reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
+            this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
             this.Count = reader.Get(TITLE + "Count", this.Count);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);
@@ -205,84 +170,7 @@ namespace Extension.Ext
             this.OutOfControl = reader.Get(TITLE + "OutOfControl", this.OutOfControl);
 
             this.AffectBlackHole = reader.Get(TITLE + "AffectBlackHole", this.AffectBlackHole);
-            this.AffectTypes = reader.GetList<string>(TITLE + "AffectTypes", this.AffectTypes);
-            this.NotAffectTypes = reader.GetList<string>(TITLE + "NotAffectTypes", this.NotAffectTypes);
 
-
-            this.AffectTechno = reader.Get(TITLE + "AffectTechno", this.AffectTechno);
-            this.AffectBuilding = reader.Get(TITLE + "AffectBuilding", this.AffectBuilding);
-            this.AffectInfantry = reader.Get(TITLE + "AffectInfantry", this.AffectInfantry);
-            this.AffectUnit = reader.Get(TITLE + "AffectUnit", this.AffectUnit);
-            this.AffectAircraft = reader.Get(TITLE + "AffectAircraft", this.AffectAircraft);
-            if (!AffectBuilding && !AffectInfantry && !AffectUnit && !AffectAircraft)
-            {
-                this.AffectTechno = false;
-            }
-
-            this.AffectBullet = reader.Get(TITLE + "AffectBullet", this.AffectBullet);
-            this.AffectMissile = reader.Get(TITLE + "AffectMissile", this.AffectMissile);
-            this.AffectTorpedo = reader.Get(TITLE + "AffectTorpedo", this.AffectTorpedo);
-            this.AffectCannon = reader.Get(TITLE + "AffectCannon", this.AffectCannon);
-            this.AffectBomb = reader.Get(TITLE + "AffectBomb", this.AffectBomb);
-            if (!AffectMissile && !AffectCannon && !AffectBomb)
-            {
-                this.AffectBullet = false;
-            }
-
-            this.OnlyAffectMarks = reader.GetList(TITLE + "OnlyAffectMarks", this.OnlyAffectMarks);
-
-            this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
-            this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
-            this.AffectsEnemies = reader.Get(TITLE + "AffectsEnemies", this.AffectsEnemies);
-            this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
-        }
-
-        private bool CanAffectType(string ID)
-        {
-            if (null != NotAffectTypes && NotAffectTypes.Length > 0 && NotAffectTypes.Contains(ID))
-            {
-                return false;
-            }
-            return null == AffectTypes || AffectTypes.Length <= 0 || AffectTypes.Contains(ID);
-        }
-
-        public bool CanAffectType(Pointer<BulletClass> pBullet)
-        {
-            if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
-            {
-                if (pBullet.AmIArcing())
-                {
-                    return AffectCannon;
-                }
-                else
-                {
-                    if (pBullet.Ref.Type.Ref.Level)
-                    {
-                        return AffectTorpedo;
-                    }
-                    return AffectMissile;
-                }
-            }
-            return false;
-        }
-
-        public bool CanAffectType(Pointer<TechnoClass> pTechno)
-        {
-            if (CanAffectType(pTechno.Ref.Type.Ref.Base.Base.ID))
-            {
-                switch (pTechno.Ref.Base.Base.WhatAmI())
-                {
-                    case AbstractType.Building:
-                        return AffectBuilding;
-                    case AbstractType.Infantry:
-                        return AffectInfantry;
-                    case AbstractType.Unit:
-                        return AffectUnit;
-                    case AbstractType.Aircraft:
-                        return AffectAircraft;
-                }
-            }
-            return false;
         }
 
         public int GetCaptureSpeed(double weight)
@@ -290,7 +178,7 @@ namespace Extension.Ext
             // F = mtv, v = F/mv
             if (!CaptureIgnoreWeight && weight != 0)
             {
-                return  (int)(this.CaptureSpeed / weight);
+                return (int)(this.CaptureSpeed / weight);
             }
             return this.CaptureSpeed;
         }

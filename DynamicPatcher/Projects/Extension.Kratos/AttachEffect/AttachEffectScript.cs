@@ -886,7 +886,7 @@ namespace Extension.Script
                         {
                             continue;
                         }
-                        int distanceFromEpicenter = (int)location.DistanceFrom(pTarget.Ref.Base.Location);
+                        int distanceFromEpicenter = (int)location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
                         Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
                         // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 可以影响 [{pTarget.Ref.Type.Ref.Base.Base.ID}] {pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)}, 可以伤害 {pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int r)}, 实际伤害 {r}");
                         // 可影响可伤害

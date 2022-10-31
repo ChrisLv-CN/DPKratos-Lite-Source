@@ -79,88 +79,73 @@ namespace Extension.Script
         {
             if (null != data.Types && data.Types.Length > 0)
             {
-                bool findTechno = false;
-                bool findBullet = false;
-                // 快速检索是否需要查找单位或者抛射体清单
-                foreach (string ae in data.Types)
-                {
-                    AttachEffectData aeData = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, ae).Data;
-                    findTechno |= aeData.AffectTechno;
-                    findBullet |= aeData.AffectBullet;
-                }
-
                 CoordStruct location = pOwner.Ref.Base.GetCoords();
                 double cellSpread = data.RangeMax;
 
-                if (findTechno)
+                // 搜索单位
+                if (Data.AffectTechno)
                 {
+                    List<Pointer<TechnoClass>> pTechnoList = null;
                     if (cellSpread <= 0)
                     {
+                        // 搜索全部单位
                         HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
-                        // 搜索所有的单位类型
-                        BuildingClass.Array.FindObject((pTarget) =>
+                        if (Data.AffectBuilding)
                         {
-                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
-                            return false;
-                        }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                        FinderHelper.FindFoot((pFoot) =>
-                        {
-                            pTechnoSet.Add(pFoot.Convert<TechnoClass>());
-                            return false;
-                        }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                        // 过滤掉不可以用的类型
-                        List<Pointer<TechnoClass>> pTechnoList = new List<Pointer<TechnoClass>>();
-                        foreach (Pointer<TechnoClass> pTechno in pTechnoSet)
-                        {
-                            if (!Data.AffectsAir && pTechno.InAir())
+                            BuildingClass.Array.FindObject((pTarget) =>
                             {
-                                continue;
-                            }
-                            CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
-                            double dist = targetPos.DistanceFrom(location);
-                            AbstractType absType = pTechno.Ref.Base.Base.WhatAmI();
-                            switch (absType)
-                            {
-                                case AbstractType.Building:
-                                    if (pTechno.Convert<BuildingClass>().Ref.Type.Ref.InvisibleInGame)
-                                    {
-                                        continue;
-                                    }
-                                    break;
-                                case AbstractType.Aircraft:
-                                    if (pTechno.InAir())
-                                    {
-                                        if (!Data.AffectsAir)
-                                        {
-                                            continue;
-                                        }
-                                        dist *= 0.5;
-                                    }
-                                    break;
-                            }
-                            // 检查最小距离
-                            if (data.RangeMin > 0)
-                            {
-                                if (dist < data.RangeMin * 256)
+                                if (!pTarget.Ref.Type.Ref.InvisibleInGame)
                                 {
-                                    continue;
+                                    pTechnoSet.Add(pTarget.Convert<TechnoClass>());
                                 }
-                            }
-                            pTechnoList.Add(pTechno);
+                                return false;
+                            }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
                         }
-                        foreach (Pointer<TechnoClass> pTarget in pTechnoList)
+                        if (Data.AffectInfantry)
                         {
-                            // 赋予AE
-                            if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
+                            InfantryClass.Array.FindObject((pTarget) =>
                             {
-                                aeManager.Attach(data.Types, pOwner);
-                            }
+                                Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                                if (!Data.AffectsAir || !pTargetTechno.InAir())
+                                {
+                                    pTechnoSet.Add(pTargetTechno);
+                                }
+                                return false;
+                            }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
                         }
+                        if (Data.AffectUnit)
+                        {
+                            UnitClass.Array.FindObject((pTarget) =>
+                            {
+                                Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                                if (!Data.AffectsAir || !pTargetTechno.InAir())
+                                {
+                                    pTechnoSet.Add(pTargetTechno);
+                                }
+                                return false;
+                            }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
+                        }
+                        if (Data.AffectAircraft)
+                        {
+                            AircraftClass.Array.FindObject((pTarget) =>
+                            {
+                                Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                                if (!Data.AffectsAir || !pTargetTechno.InAir())
+                                {
+                                    pTechnoSet.Add(pTargetTechno);
+                                }
+                                return false;
+                            }, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
+                        }
+                        pTechnoList = new List<Pointer<TechnoClass>>(pTechnoSet);
                     }
                     else
                     {
-                        // 检索范围内的单位类型
-                        List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, cellSpread, Data.AffectsAir, false);
+                        // 小范围搜索
+                        pTechnoList = FinderHelper.GetCellSpreadTechnos(location, cellSpread, Data.AffectsAir, false, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
+                    }
+                    if (null != pTechnoList)
+                    {
                         foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                         {
                             // 检查死亡
@@ -173,34 +158,30 @@ namespace Extension.Script
                             {
                                 continue;
                             }
+                            // 检查最小距离
                             if (data.RangeMin > 0)
                             {
-                                double distance = location.DistanceFrom(pTarget.Ref.Base.Location);
+                                double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
+                                if (pTarget.InAir() && pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
+                                {
+                                    distance *= 0.5;
+                                }
                                 if (distance < data.RangeMin * 256)
                                 {
                                     continue;
                                 }
                             }
-                            Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
                             // 可影响
-                            if (!pHouse.IsNull && !pTargetHouse.IsNull
-                                && ((pTargetHouse.IsCivilian() && Data.AffectsCivilian)
-                                    || (pTargetHouse == pHouse ? Data.AffectsOwner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? Data.AffectsAllies : Data.AffectsEnemies))
-                                )
-                            )
+                            if (Data.CanAffectType(pTarget) && pTarget.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager))
                             {
                                 // 赋予AE
-                                if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
-                                {
-                                    aeManager.Attach(data.Types, pOwner);
-                                }
+                                aeManager.Attach(data.Types, pOwner);
                             }
                         }
                     }
                 }
-
-                // 检索爆炸范围内的抛射体类型
-                if (findBullet)
+                // 搜索抛射体
+                if (Data.AffectBullet)
                 {
                     HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
                     BulletClass.Array.FindObject((pTarget) =>
@@ -209,27 +190,38 @@ namespace Extension.Script
                         {
                             if (data.RangeMin > 0)
                             {
-                                double distance = location.DistanceFrom(pTarget.Ref.Base.Location);
+                                double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
                                 if (distance < data.RangeMin * 256)
                                 {
                                     return false;
                                 }
                             }
                             // 可影响
-                            pBulletSet.Add(pTarget);
+                            if (Data.CanAffectType(pTarget))
+                            {
+                                pBulletSet.Add(pTarget);
+                            }
                         }
                         return false;
                     }, location, cellSpread, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
                     // 赋予AE
                     foreach (Pointer<BulletClass> pBullet in pBulletSet)
                     {
-                        if (pBullet.TryGetAEManager(out AttachEffectScript aeManager))
+                        if (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager))
                         {
                             aeManager.Attach(data.Types, pOwner);
                         }
                     }
                 }
             }
+        }
+
+        private bool IsOnMark(AttachEffectScript aeManager)
+        {
+            return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
+                || (aeManager.TryGetMarks(out HashSet<string> marks)
+                    && (Data.OnlyAffectMarks.Intersect(marks).Count() > 0)
+                );
         }
 
     }
