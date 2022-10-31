@@ -66,34 +66,61 @@ namespace Extension.Script
                             pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                             // 停止移动
                             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                            // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
                             ILocomotion loco = pFoot.Ref.Locomotor;
                             loco.Stop_Moving();
                             loco.Mark_All_Occupation_Bits(0);
+                            loco.Lock();
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");
                             // 计算下一个坐标点
-                            CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
-                            // 获取偏移量
-                            targetPos += blackHoleData.Offset;
+                            // 以偏移量为FLH获取目标点
+                            CoordStruct targetPos = pBlackHole.Pointer.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
+                            CoordStruct nextPos = targetPos;
+                            double dist = targetPos.DistanceFrom(sourcePos);
                             // 获取捕获速度
                             int speed = blackHoleData.GetCaptureSpeed(pTechno.Ref.Type.Ref.Weight);
+                            if (dist > speed)
+                            {
+                                // 计算下一个坐标
+                                double d = speed / dist;
+                                double absX = Math.Abs(sourcePos.X - targetPos.X) * d;
+                                double x = sourcePos.X;
+                                if (sourcePos.X < targetPos.X)
+                                {
+                                    // Xa < Xb => Xa < Xc
+                                    // Xc - Xa = absX
+                                    x = absX + sourcePos.X;
+                                }
+                                else if (sourcePos.X > targetPos.X)
+                                {
+                                    // Xa > Xb => Xa > Xc
+                                    // Xa - Xc = absX
+                                    x = sourcePos.X - absX;
+                                }
+                                double absY = Math.Abs(sourcePos.Y - targetPos.Y) * d;
+                                double y = sourcePos.Y;
+                                if (sourcePos.Y < targetPos.Y)
+                                {
+                                    y = absY + sourcePos.Y;
+                                }
+                                else if (sourcePos.Y > targetPos.Y)
+                                {
+                                    y = sourcePos.Y - absY;
+                                }
+                                double absZ = Math.Abs(sourcePos.Z - targetPos.Z) * d;
+                                double z = sourcePos.Z;
+                                if (sourcePos.Z < targetPos.Z)
+                                {
+                                    z = absZ + sourcePos.Z;
+                                }
+                                else if (sourcePos.Z > targetPos.Z)
+                                {
+                                    z = sourcePos.Z - absZ;
+                                }
+                                nextPos = new CoordStruct(x, y, z);
+                            }
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
-                            CoordStruct nextPosFLH = new CoordStruct(speed, 0, 0);
-                            DirStruct nextPosDir = ExHelper.Point2Dir(sourcePos, targetPos);
-                            CoordStruct nextPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
-                            // 计算Z值
                             int deltaZ = sourcePos.Z - targetPos.Z;
-                            if (deltaZ < 0)
-                            {
-                                // 目标点在上方
-                                int offset = -deltaZ > 20 ? 20 : -deltaZ;
-                                nextPos.Z += offset;
-                            }
-                            else if (deltaZ > 0)
-                            {
-                                // 目标点在下方
-                                int offset = deltaZ > 20 ? 20 : deltaZ;
-                                nextPos.Z -= offset;
-                            }
                             bool canMove = true;
                             // 检查地面
                             if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
@@ -110,19 +137,19 @@ namespace Extension.Script
                                         case TileType.DestroyableCliff:
                                             // 悬崖上可以往悬崖下移动
                                             canMove = deltaZ > 0;
-                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")}");
+                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
                                             break;
                                     }
                                 }
                                 // 检查建筑
                                 // 会飞的单位不检查建筑
-                                if (!pTechno.Ref.Type.Ref.ConsideredAircraft)
+                                if (!pTechno.Ref.Type.Ref.ConsideredAircraft && !blackHoleData.AllowPassBuilding)
                                 {
                                     Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
                                     if (!pBuilding.IsNull)
                                     {
                                         canMove = !pBuilding.CanHit(nextPos.Z);
-                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")}");
+                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")} nextPos {nextPos}");
                                     }
                                 }
 
@@ -143,7 +170,7 @@ namespace Extension.Script
                             }
 
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得新位置坐标 {nextPos} 原始位置 {sourcePos} {(!canMove ? "受到阻挡不能前进，返回" : "")}");
-                            // 被黑洞吸走                            
+                            // 被黑洞吸走
                             pTechno.Ref.Base.Mark(MarkType.UP);
                             pTechno.Ref.Base.SetLocation(nextPos);
                             pTechno.Ref.Base.Mark(MarkType.DOWN);
@@ -256,6 +283,8 @@ namespace Extension.Script
             {
                 Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
                 Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                // LocomotionClass.ChangeLocomotorTo(pFoot, pTechno.Ref.Type.Ref.Locomotor);
+                pFoot.Ref.Locomotor.Unlock();
                 // 恢复可控制
                 if (lostControl)
                 {

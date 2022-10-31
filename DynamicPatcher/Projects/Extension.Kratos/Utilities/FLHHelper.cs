@@ -60,6 +60,19 @@ namespace Extension.Utilities
             return offset;
         }
 
+        public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<ObjectClass> pObject, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
+        {
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                return pTechno.GetFLHAbsoluteCoords(flh, isOnTurret, flipY);
+            }
+            else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                return pBullet.GetFLHAbsoluteCoords(flh, flipY);
+            }
+            return default;
+        }
+
         public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<TechnoClass> pTechno, CoordStruct flh, bool isOnTurret = true, int flipY = 1)
         {
             CoordStruct turretOffset = default;

@@ -63,11 +63,14 @@ namespace Extension.Ext
         public BlackHole EliteData;
 
         public CoordStruct Offset;
+        public bool IsOnTurret;
         public int Count;
 
         public double Weight;
         public int CaptureSpeed;
+        public bool CaptureIgnoreWeight;
         public bool AllowEscape;
+        public bool AllowPassBuilding;
 
         public int Damage;
         public int DamageDelay;
@@ -110,11 +113,14 @@ namespace Extension.Ext
             this.EliteData = null;
 
             this.Offset = default;
+            this.IsOnTurret = true;
             this.Count = -1;
 
             this.Weight = -1;
             this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
+            this.CaptureIgnoreWeight = false;
             this.AllowEscape = false;
+            this.AllowPassBuilding = false;
 
             this.Damage = 0;
             this.DamageDelay = 0;
@@ -173,6 +179,7 @@ namespace Extension.Ext
             this.Enable = null != this.Data || null != this.EliteData;
 
             this.Offset = reader.Get(TITLE + "Offset", this.Offset);
+            this.IsOnTurret= reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
             this.Count = reader.Get(TITLE + "Count", this.Count);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);
@@ -181,7 +188,9 @@ namespace Extension.Ext
             {
                 this.CaptureSpeed = (int)(speed * 2.55);
             }
+            this.CaptureIgnoreWeight = reader.Get(TITLE + "CaptureIgnoreWeight", this.CaptureIgnoreWeight);
             this.AllowEscape = reader.Get(TITLE + "AllowEscape", this.AllowEscape);
+            this.AllowPassBuilding = reader.Get(TITLE + "AllowPassBuilding", this.AllowPassBuilding);
 
             this.Damage = reader.Get(TITLE + "Damage", this.Damage);
             this.DamageDelay = reader.Get(TITLE + "Damage.Delay", this.DamageDelay);
@@ -279,7 +288,7 @@ namespace Extension.Ext
         public int GetCaptureSpeed(double weight)
         {
             // F = mtv, v = F/mv
-            if (weight != 0)
+            if (!CaptureIgnoreWeight && weight != 0)
             {
                 return  (int)(this.CaptureSpeed / weight);
             }
