@@ -215,6 +215,11 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}] 不在AE [{data.Name}] 的名单内，不能赋予");
                 return;
             }
+            // 是否需要标记
+            if (!IsOnMark(data))
+            {
+                return;
+            }
             Pointer<HouseClass> pHouse = IntPtr.Zero;
             Pointer<TechnoClass> pAttacker = IntPtr.Zero;
             // 调整所属
@@ -611,6 +616,14 @@ namespace Extension.Script
                 }
             }
             return marks.Any();
+        }
+
+        private bool IsOnMark(AttachEffectData data)
+        {
+            return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()
+                || (TryGetMarks(out HashSet<string> marks)
+                    && (data.OnlyAffectMarks.Intersect(marks).Count() > 0)
+                );
         }
 
         public override void OnRender()

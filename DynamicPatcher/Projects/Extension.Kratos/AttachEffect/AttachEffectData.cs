@@ -45,7 +45,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public partial class AttachEffectData : INIConfig
+    public partial class AttachEffectData : FilterEffectData
     {
         static AttachEffectData()
         {
@@ -53,8 +53,6 @@ namespace Extension.Ext
         }
 
         public string Name;
-
-        public bool Enable;
 
         public int Duration; // 持续时间
         public bool HoldDuration; // 无限时间
@@ -78,22 +76,6 @@ namespace Extension.Ext
 
         public bool AttachOnceInTechnoType; // 写在TechnoType上只在创建时赋予一次
         public bool Inheritable; // 是否可以被礼盒礼物继承
-
-        // 赋予对象过滤
-        public string[] AffectTypes; // 可影响的单位
-        public string[] NotAffectTypes; // 不可影响的单位
-
-        public bool AffectTechno; // 可赋予单位
-        public bool AffectBuilding; // 可赋予建筑类型
-        public bool AffectInfantry; // 可赋予步兵类型
-        public bool AffectUnit; // 可赋予载具类型
-        public bool AffectAircraft; // 可赋予飞机类型
-
-        public bool AffectBullet; // 可赋予抛射体
-        public bool AffectMissile; // 可赋予 ROT > 1
-        public bool AffectTorpedo; // 可赋予 Level = yes
-        public bool AffectCannon; // 可赋予 Arcing = yes
-        public bool AffectBomb; // 可赋予 Vertical = yes
 
         public AttachEffectData()
         {
@@ -124,20 +106,7 @@ namespace Extension.Ext
             this.Inheritable = true;
 
             // 赋予对象过滤
-            this.AffectTypes = null;
-            this.NotAffectTypes = null;
-
-            this.AffectTechno = true;
-            this.AffectBuilding = true;
-            this.AffectInfantry = true;
-            this.AffectUnit = true;
-            this.AffectAircraft = true;
-
             this.AffectBullet = false;
-            this.AffectMissile = true;
-            this.AffectTorpedo = true;
-            this.AffectCannon = true;
-            this.AffectBomb = true;
         }
 
         public int GetDuration()
@@ -199,93 +168,9 @@ namespace Extension.Ext
                 this.AttachOnceInTechnoType = reader.Get("AttachOnceInTechnoType", this.AttachOnceInTechnoType);
                 this.Inheritable = reader.Get("Inheritable", this.Inheritable);
 
-                // 赋予对象过滤
-                this.AffectTypes = reader.GetList<string>("AffectTypes", this.AffectTypes);
-                this.NotAffectTypes = reader.GetList<string>("NotAffectTypes", this.NotAffectTypes);
-
-                this.AffectTechno = reader.Get("AffectTechno", this.AffectTechno);
-                this.AffectBuilding = reader.Get("AffectBuilding", this.AffectBuilding);
-                this.AffectInfantry = reader.Get("AffectInfantry", this.AffectInfantry);
-                this.AffectUnit = reader.Get("AffectUnit", this.AffectUnit);
-                this.AffectAircraft = reader.Get("AffectAircraft", this.AffectAircraft);
-                if (!AffectBuilding && !AffectInfantry && !AffectUnit && !AffectAircraft)
-                {
-                    this.AffectTechno = false;
-                }
-
-                this.AffectBullet = reader.Get("AffectBullet", this.AffectBullet);
-                this.AffectMissile = reader.Get("AffectMissile", this.AffectMissile);
-                this.AffectTorpedo = reader.Get("AffectTorpedo", this.AffectTorpedo);
-                this.AffectCannon = reader.Get("AffectCannon", this.AffectCannon);
-                this.AffectBomb = reader.Get("AffectBomb", this.AffectBomb);
-                if (!AffectMissile && !AffectCannon && !AffectBomb)
-                {
-                    this.AffectBullet = false;
-                }
+                base.Read(reader, null);
             }
 
-        }
-
-        public bool CanAffectType(Pointer<ObjectClass> pOwner)
-        {
-            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
-            {
-                return CanAffectType(pTechno);
-            }
-            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
-            {
-                return CanAffectType(pBullet);
-            }
-            return false;
-        }
-
-
-        private bool CanAffectType(string ID)
-        {
-            if (null != NotAffectTypes && NotAffectTypes.Length > 0 && NotAffectTypes.Contains(ID))
-            {
-                return false;
-            }
-            return null == AffectTypes || AffectTypes.Length <= 0 || AffectTypes.Contains(ID);
-        }
-
-        public bool CanAffectType(Pointer<BulletClass> pBullet)
-        {
-            if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
-            {
-                if (pBullet.AmIArcing())
-                {
-                    return AffectCannon;
-                }
-                else
-                {
-                    if (pBullet.Ref.Type.Ref.Level)
-                    {
-                        return AffectTorpedo;
-                    }
-                    return AffectMissile;
-                }
-            }
-            return false;
-        }
-
-        public bool CanAffectType(Pointer<TechnoClass> pTechno)
-        {
-            if (CanAffectType(pTechno.Ref.Type.Ref.Base.Base.ID))
-            {
-                switch (pTechno.Ref.Base.Base.WhatAmI())
-                {
-                    case AbstractType.Building:
-                        return AffectBuilding;
-                    case AbstractType.Infantry:
-                        return AffectInfantry;
-                    case AbstractType.Unit:
-                        return AffectUnit;
-                    case AbstractType.Aircraft:
-                        return AffectAircraft;
-                }
-            }
-            return false;
         }
 
     }

@@ -106,6 +106,19 @@ namespace Extension.Ext
             return null == AffectTypes || AffectTypes.Length <= 0 || AffectTypes.Contains(ID);
         }
 
+        public bool CanAffectType(Pointer<ObjectClass> pOwner)
+        {
+            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                return CanAffectType(pTechno);
+            }
+            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                return CanAffectType(pBullet);
+            }
+            return false;
+        }
+
         public bool CanAffectType(Pointer<BulletClass> pBullet)
         {
             if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
