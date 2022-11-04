@@ -88,7 +88,8 @@ namespace Extension.Script
                         Pointer<WeaponTypeClass> pWeaponType = burst.pWeaponType;
                         // 检查目标幸存和射程
                         if (!pWeaponType.IsNull // 武器存在
-                            && !pTarget.IsNull && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible()) // 目标存在
+                            && !pTarget.IsNull // 目标存在
+                            && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible()) // 如果是单位检查是否存活
                             && (!burst.WeaponTypeData.CheckRange || InRange(pTarget, burst)) // 射程之内
                         )
                         {
@@ -112,14 +113,17 @@ namespace Extension.Script
             CoordStruct location = pObject.Ref.Base.GetCoords();
             switch (pObject.Ref.Base.WhatAmI())
             {
-                case AbstractType.Bullet:
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                    return pObject.Convert<TechnoClass>().Ref.InRange(location, pTarget, pWeaponType);
+                default:
                     CoordStruct targetPos = pTarget.Ref.GetCoords();
                     double distance = targetPos.DistanceFrom(location);
                     double minRange = pWeaponType.Ref.MinimumRange;
                     double maxRange = pWeaponType.Ref.Range;
                     return distance <= pWeaponType.Ref.Range && distance >= minRange;
-                default:
-                    return pObject.Convert<TechnoClass>().Ref.InRange(location, pTarget, pWeaponType);
             }
         }
 
@@ -269,6 +273,18 @@ namespace Extension.Script
             if (null != burst.Callback)
             {
                 burst.Callback(burst.Index, burst.Burst, pBullet, burst.pTarget);
+            }
+            // 树被击杀之后，指针仍然存在，IsNull判断失效，但指针已经过期，调用任何函数会导致崩溃，预判这一炮下去能打死树，手动移除保存的指针
+            if (burst.pTarget.Pointer.CastIf<TerrainClass>(AbstractType.Terrain ,out Pointer<TerrainClass> pTerrain))
+            {
+                // Logger.Log($"{Game.CurrentFrame} pTerrain.Ref.Base.Health = {pTerrain.Ref.Base.Health}");
+                int damage = burst.pWeaponType.Ref.Damage;
+                Pointer<WarheadTypeClass> pWH = burst.pWeaponType.Ref.Warhead;
+                if (pTerrain.Convert<ObjectClass>().GetRealDamage(damage, pWH, false) >= pTerrain.Ref.Base.Health)
+                {
+                    // 这一炮下去树会死
+                    burst.pTarget.Pointer = IntPtr.Zero;
+                }
             }
             burst.CountOne();
         }

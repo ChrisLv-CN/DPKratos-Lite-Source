@@ -47,8 +47,12 @@ namespace Extension.Utilities
             return (!firepower ? 1.0 : RulesClass.Global().VeteranCombat) * pTechno.Ref.FirepowerMultiplier * ((pTechno.Ref.Owner.IsNull || pTechno.Ref.Owner.Ref.Type.IsNull) ? 1.0 : pTechno.Ref.Owner.Ref.Type.Ref.FirepowerMult);
         }
 
-
         public static int GetRealDamage(this Pointer<TechnoClass> pTechno, int damage, Pointer<WarheadTypeClass> pWH, bool ignoreArmor = true, int distance = 0)
+        {
+            return pTechno.Convert<ObjectClass>().GetRealDamage(damage, pWH, ignoreArmor, distance);
+        }
+
+        public static int GetRealDamage(this Pointer<ObjectClass> pObject, int damage, Pointer<WarheadTypeClass> pWH, bool ignoreArmor = true, int distance = 0)
         {
             int realDamage = damage;
             if (!ignoreArmor)
@@ -56,11 +60,11 @@ namespace Extension.Utilities
                 // 计算实际伤害
                 if (realDamage > 0)
                 {
-                    realDamage = MapClass.GetTotalDamage(damage, pWH, pTechno.Ref.Base.Type.Ref.Armor, distance);
+                    realDamage = MapClass.GetTotalDamage(damage, pWH, pObject.Ref.Type.Ref.Armor, distance);
                 }
                 else
                 {
-                    realDamage = -MapClass.GetTotalDamage(-damage, pWH, pTechno.Ref.Base.Type.Ref.Armor, distance);
+                    realDamage = -MapClass.GetTotalDamage(-damage, pWH, pObject.Ref.Type.Ref.Armor, distance);
                 }
             }
             return realDamage;
