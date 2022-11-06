@@ -12,7 +12,7 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
-    public static partial class ExHelper
+    public static class WeaponHelper
     {
 
         public static unsafe Pointer<TechnoClass> WhoIsShooter(this Pointer<TechnoClass> pAttacker)
@@ -29,8 +29,8 @@ namespace Extension.Utilities
         public static unsafe BulletVelocity GetBulletVelocity(CoordStruct sourcePos, CoordStruct targetPos)
         {
             CoordStruct bulletFLH = new CoordStruct(1, 0, 0);
-            DirStruct bulletDir = ExHelper.Point2Dir(sourcePos, targetPos);
-            SingleVector3D bulletV = ExHelper.GetFLHAbsoluteOffset(bulletFLH, bulletDir, default);
+            DirStruct bulletDir = FLHHelper.Point2Dir(sourcePos, targetPos);
+            SingleVector3D bulletV = FLHHelper.GetFLHAbsoluteOffset(bulletFLH, bulletDir, default);
             return bulletV.ToBulletVelocity();
         }
 
@@ -63,7 +63,7 @@ namespace Extension.Utilities
                 if (default == bulletSourcePos)
                 {
                     // get flh
-                    sourcePos = GetFLHAbsoluteCoords(pShooter, flh, true, flipY, default);
+                    sourcePos = FLHHelper.GetFLHAbsoluteCoords(pShooter, flh, true, flipY, default);
                 }
                 if (default == bulletVelocity)
                 {
@@ -250,7 +250,7 @@ namespace Extension.Utilities
                 int index = 0;
                 if (facing % 8 == 0)
                 {
-                    index = Dir2FacingIndex(Point2Dir(sourcePos, targetPos), facing);
+                    index = FLHHelper.Dir2FacingIndex(FLHHelper.Point2Dir(sourcePos, targetPos), facing);
                     index = (int)(facing / 8) + index;
                     if (index >= facing)
                     {

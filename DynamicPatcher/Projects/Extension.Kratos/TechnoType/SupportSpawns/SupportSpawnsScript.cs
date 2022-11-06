@@ -93,14 +93,14 @@ namespace Extension.Script
                         return;
                     }
                     // get source location
-                    CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(pSpawnOwner, flh, true);
+                    CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pSpawnOwner, flh, true);
                     // Logger.Log("Support Weapon FLH = {0}, hitFLH = {1}", flh, hitFLH);
                     // get target location
-                    CoordStruct targetPos = ExHelper.GetFLHAbsoluteCoords(pTechno, hitFLH, true);
+                    CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(pTechno, hitFLH, true);
                     // get bullet velocity
-                    BulletVelocity bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
+                    BulletVelocity bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
                     // fire weapon
-                    ExHelper.FireBulletTo(pSpawnOwner.Convert<ObjectClass>(), pSpawnOwner, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, pWeapon, sourcePos, targetPos, bulletVelocity);
+                    WeaponHelper.FireBulletTo(pSpawnOwner.Convert<ObjectClass>(), pSpawnOwner, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, pWeapon, sourcePos, targetPos, bulletVelocity);
                     if (useROF)
                     {
                         supportFireROF.Start(pWeapon.Ref.ROF);

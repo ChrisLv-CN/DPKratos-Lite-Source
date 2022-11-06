@@ -71,7 +71,7 @@ namespace Extension.Script
                                     break;
                             }
                         }
-                        CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
+                        CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
                         trail.DrawTrail(pTechno.Ref.Owner, sourcePos);
                     }
                 }
@@ -80,7 +80,7 @@ namespace Extension.Script
                     // 更新坐标
                     foreach (Trail trail in trails)
                     {
-                        CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
+                        CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
                         trail.UpdateLastLocation(sourcePos);
                     }
 

@@ -71,6 +71,8 @@ namespace Extension.Ext
         public int CaptureSpeed;
         public bool CaptureIgnoreWeight;
         public bool AllowEscape;
+        public bool AllowCrawl;
+        public bool AllowRotateUnit;
         public bool AllowPassBuilding;
 
         public int Damage;
@@ -101,6 +103,8 @@ namespace Extension.Ext
             this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
             this.CaptureIgnoreWeight = false;
             this.AllowEscape = false;
+            this.AllowCrawl = true;
+            this.AllowRotateUnit = true;
             this.AllowPassBuilding = false;
 
             this.Damage = 0;
@@ -158,6 +162,8 @@ namespace Extension.Ext
             }
             this.CaptureIgnoreWeight = reader.Get(TITLE + "CaptureIgnoreWeight", this.CaptureIgnoreWeight);
             this.AllowEscape = reader.Get(TITLE + "AllowEscape", this.AllowEscape);
+            this.AllowCrawl = reader.Get(TITLE + "AllowCrawl", this.AllowCrawl);
+            this.AllowRotateUnit = reader.Get(TITLE + "AllowRotateUnit", this.AllowRotateUnit);
             this.AllowPassBuilding = reader.Get(TITLE + "AllowPassBuilding", this.AllowPassBuilding);
 
             this.Damage = reader.Get(TITLE + "Damage", this.Damage);

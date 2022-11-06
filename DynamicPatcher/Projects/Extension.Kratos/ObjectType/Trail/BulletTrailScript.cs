@@ -39,7 +39,7 @@ namespace Extension.Script
                 DirStruct bulletFacing = pBullet.Facing(location);
                 foreach (Trail trail in trails)
                 {
-                    CoordStruct sourcePos = ExHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);
+                    CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);
                     trail.DrawTrail(pHouse, sourcePos);
                 }
             }

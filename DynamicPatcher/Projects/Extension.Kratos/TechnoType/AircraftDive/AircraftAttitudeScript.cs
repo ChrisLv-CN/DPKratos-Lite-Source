@@ -56,7 +56,7 @@ namespace Extension.Script
             {
                 initFlag = true;
                 int dir = GetPoseDir();
-                DirStruct dirStruct = ExHelper.DirNormalized(dir, 8);
+                DirStruct dirStruct = FLHHelper.DirNormalized(dir, 8);
                 pTechno.Ref.Facing.set(dirStruct);
                 pTechno.Ref.TurretFacing.set(dirStruct);
             }

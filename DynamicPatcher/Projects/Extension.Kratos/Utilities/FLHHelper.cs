@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Script;
@@ -11,8 +12,11 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
-    public static partial class ExHelper
+    public static class FLHHelper
     {
+
+        // public static Random Random = new Random(114514);
+        public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
 
         public static CoordStruct GetFLH(CoordStruct source, CoordStruct flh, DirStruct dir, bool flip = false)
         {
@@ -187,7 +191,7 @@ namespace Extension.Utilities
         public static unsafe DirStruct Facing(this Pointer<BulletClass> pBullet, CoordStruct location)
         {
             CoordStruct forwardLocation = location + pBullet.Ref.Velocity.ToCoordStruct();
-            return ExHelper.Point2Dir(location, forwardLocation);
+            return Point2Dir(location, forwardLocation);
         }
 
         public static unsafe CoordStruct GetFLHAbsoluteCoords(this Pointer<BulletClass> pBullet, CoordStruct flh, int flipY = 1)
@@ -212,7 +216,7 @@ namespace Extension.Utilities
             {
                 // 绑定世界坐标，朝向固定北向
                 targetDir = new DirStruct();
-                targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
+                targetPos = GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
             }
             else
             {
@@ -227,8 +231,8 @@ namespace Extension.Utilities
                     // 增加抛射体偏移值取下一帧所在实际位置
                     sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
                     // 获取面向
-                    targetDir = ExHelper.Point2Dir(sourcePos, pBullet.Ref.TargetCoords);
-                    targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
+                    targetDir = Point2Dir(sourcePos, pBullet.Ref.TargetCoords);
+                    targetPos = GetFLHAbsoluteCoords(sourcePos, offset, targetDir);
                 }
             }
             return new LocationMark(targetPos, targetDir);
@@ -237,7 +241,7 @@ namespace Extension.Utilities
         public static DirStruct GetDirectionRelative(this Pointer<TechnoClass> pMaster, int dir, bool isOnTurret)
         {
             // turn offset
-            DirStruct targetDir = ExHelper.DirNormalized(dir, 16);
+            DirStruct targetDir = DirNormalized(dir, 16);
 
             if (pMaster.CastToFoot(out Pointer<FootClass> pFoot))
             {
@@ -254,13 +258,94 @@ namespace Extension.Utilities
                 }
                 double sourceRad = sourceDir.radians();
                 float angle = (float)(sourceRad - targetRad);
-                targetDir = ExHelper.Radians2Dir(angle);
+                targetDir = Radians2Dir(angle);
             }
 
             return targetDir;
         }
         #endregion
 
-    }
+        #region 获取向量上指定距离的坐标
+        public static CoordStruct GetForwardCoords(CoordStruct sourcePos, CoordStruct targetPos, double speed)
+        {
+            return GetForwardCoords(sourcePos.ToBulletVelocity(), targetPos.ToBulletVelocity(), speed);
+        }
 
+        public static CoordStruct GetForwardCoords(BulletVelocity sourceV, BulletVelocity targetV, double speed)
+        {
+            double dist = targetV.DistanceFrom(sourceV);
+            // 计算下一个坐标
+            double d = speed / dist;
+            double absX = Math.Abs(sourceV.X - targetV.X) * d;
+            double x = sourceV.X;
+            if (sourceV.X < targetV.X)
+            {
+                // Xa < Xb => Xa < Xc
+                // Xc - Xa = absX
+                x = absX + sourceV.X;
+            }
+            else if (sourceV.X > targetV.X)
+            {
+                // Xa > Xb => Xa > Xc
+                // Xa - Xc = absX
+                x = sourceV.X - absX;
+            }
+            double absY = Math.Abs(sourceV.Y - targetV.Y) * d;
+            double y = sourceV.Y;
+            if (sourceV.Y < targetV.Y)
+            {
+                y = absY + sourceV.Y;
+            }
+            else if (sourceV.Y > targetV.Y)
+            {
+                y = sourceV.Y - absY;
+            }
+            double absZ = Math.Abs(sourceV.Z - targetV.Z) * d;
+            double z = sourceV.Z;
+            if (sourceV.Z < targetV.Z)
+            {
+                z = absZ + sourceV.Z;
+            }
+            else if (sourceV.Z > targetV.Z)
+            {
+                z = sourceV.Z - absZ;
+            }
+            return new CoordStruct(x, y, z);
+        }
+        #endregion
+
+        #region 计算朝向
+        public static DirStruct DirNormalized(int index, int facing)
+        {
+            double radians = MathEx.Deg2Rad((-360 / facing * index));
+            DirStruct dir = new DirStruct();
+            dir.SetValue((short)(radians / BINARY_ANGLE_MAGIC));
+            return dir;
+        }
+
+        public static int Dir2FacingIndex(DirStruct dir, int facing)
+        {
+            uint bits = (uint)Math.Round(Math.Sqrt(facing), MidpointRounding.AwayFromZero);
+            double face = dir.GetValue(bits);
+            double x = (face / (1 << (int)bits)) * facing;
+            int index = (int)Math.Round(x, MidpointRounding.AwayFromZero);
+            return index;
+        }
+
+        public static DirStruct Point2Dir(CoordStruct sourcePos, CoordStruct targetPos)
+        {
+            // get angle
+            double radians = Math.Atan2(sourcePos.Y - targetPos.Y, targetPos.X - sourcePos.X);
+            // Magic form tomsons26
+            radians -= MathEx.Deg2Rad(90);
+            return Radians2Dir(radians);
+        }
+
+        public static DirStruct Radians2Dir(double radians)
+        {
+            short d = (short)(radians / BINARY_ANGLE_MAGIC);
+            return new DirStruct(d);
+        }
+        #endregion
+    }
 }

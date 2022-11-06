@@ -216,7 +216,7 @@ namespace Extension.Script
                     CoordStruct targetPos = pTarget.Ref.GetCoords();
                     // 扇形攻击
                     RadialFireHelper radialFireHelper = new RadialFireHelper(facingDir, burst, weaponTypeData.RadialAngle);
-                    BulletVelocity bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
+                    BulletVelocity bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
                     for (int i = 0; i < burst; i++)
                     {
                         if (weaponTypeData.RadialFire)
@@ -225,7 +225,7 @@ namespace Extension.Script
                         }
                         // 发射武器，全射出去
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 发射自定义武器 [{pWeapon.Ref.Base.ID}], 攻击者 [{(pAttacker.IsNull ? "Null" : pAttacker.Ref.Type.Ref.Base.Base.ID)}]{pAttacker}, 目标 [{(pTarget.CastToObject(out Pointer<ObjectClass> pTargetObject) ? pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{pTarget}");
-                        Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pObject, pAttacker, pTarget, pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
+                        Pointer<BulletClass> pBullet = WeaponHelper.FireBulletTo(pObject, pAttacker, pTarget, pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
                         if (null != callback)
                         {
                             callback(i, burst, pBullet, pTarget);
@@ -265,11 +265,11 @@ namespace Extension.Script
             }
             else
             {
-                bulletVelocity = ExHelper.GetBulletVelocity(sourcePos, targetPos);
+                bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
             }
             // 发射武器
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 发射自定义武器 [{burst.pWeaponType.Ref.Base.ID}], 攻击者 [{(burst.pAttacker.IsNull ? "Null" : burst.pAttacker.Ref.Type.Ref.Base.Base.ID)}]{burst.pAttacker}, 目标 [{(burst.pTarget.Pointer.CastToObject(out Pointer<ObjectClass> pTargetObject) ? burst.pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{burst.pTarget.Pointer}");
-            Pointer<BulletClass> pBullet = ExHelper.FireBulletTo(pObject, burst.pAttacker, burst.pTarget, burst.pAttackingHouse, burst.pWeaponType, sourcePos, targetPos, bulletVelocity);
+            Pointer<BulletClass> pBullet = WeaponHelper.FireBulletTo(pObject, burst.pAttacker, burst.pTarget, burst.pAttackingHouse, burst.pWeaponType, sourcePos, targetPos, bulletVelocity);
             if (null != burst.Callback)
             {
                 burst.Callback(burst.Index, burst.Burst, pBullet, burst.pTarget);
@@ -308,7 +308,7 @@ namespace Extension.Script
                 facingDir = pBullet.Facing(sourcePos);
                 CoordStruct tempFLH = flh;
                 tempFLH.Y *= flipY;
-                sourcePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, tempFLH, facingDir);
+                sourcePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, tempFLH, facingDir);
             }
             return sourcePos;
         }

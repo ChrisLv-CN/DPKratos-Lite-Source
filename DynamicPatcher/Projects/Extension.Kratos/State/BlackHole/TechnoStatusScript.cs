@@ -175,35 +175,39 @@ namespace Extension.Script
                             pTechno.Ref.Base.SetLocation(nextPos);
                             pTechno.Ref.Base.Mark(MarkType.DOWN);
                             // 设置动作
-                            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
+                            if (blackHoleData.AllowCrawl && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
                             {
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置步兵匍匐动作");
                                 pFoot.Ref.Inf_PlayAnim(SequenceAnimType.CRAWL);
                             }
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置步兵匍匐动作");
-                            if (pTechno.Ref.IsVoxel() && canMove)
+                            // 设置翻滚
+                            if (blackHoleData.AllowRotateUnit)
                             {
-                                // pTechno.Ref.RockingForwardsPerFrame = 0.2f;
-                                // pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
-                            }
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置VXL翻滚动作");
-                            // 设置朝向
-                            if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.Ref.Type.Ref.ConsideredAircraft || !pTechno.InAir())
-                            {
-                                DirStruct facingDir = ExHelper.Point2Dir(targetPos, sourcePos);
-                                pTechno.Ref.Facing.turn(facingDir);
-                                Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
-                                if (locoId == LocomotionClass.Jumpjet)
+                                if (pTechno.Ref.IsVoxel() && canMove)
                                 {
-                                    // JJ朝向是单独的Facing
-                                    Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
-                                    pLoco.Ref.LocomotionFacing.turn(facingDir);
+                                    // pTechno.Ref.RockingForwardsPerFrame = 0.2f;
+                                    // pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
                                 }
-                                else if (locoId == LocomotionClass.Fly)
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置VXL翻滚动作");
+                                // 设置朝向
+                                if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.Ref.Type.Ref.ConsideredAircraft || !pTechno.InAir())
                                 {
-                                    // 飞机使用的炮塔的Facing
-                                    pTechno.Ref.TurretFacing.turn(facingDir);
+                                    DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
+                                    pTechno.Ref.Facing.turn(facingDir);
+                                    Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                                    if (locoId == LocomotionClass.Jumpjet)
+                                    {
+                                        // JJ朝向是单独的Facing
+                                        Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                                        pLoco.Ref.LocomotionFacing.turn(facingDir);
+                                    }
+                                    else if (locoId == LocomotionClass.Fly)
+                                    {
+                                        // 飞机使用的炮塔的Facing
+                                        pTechno.Ref.TurretFacing.turn(facingDir);
+                                    }
+                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                                 }
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                             }
                         }
                         if (null != blackHoleData)

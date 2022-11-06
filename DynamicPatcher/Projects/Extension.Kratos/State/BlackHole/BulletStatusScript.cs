@@ -67,12 +67,12 @@ namespace Extension.Script
                     {
                         // 从当前位置朝向黑洞
                         CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                        pBullet.Ref.Velocity = ExHelper.GetBulletVelocity(sourcePos, blackHolePos);
+                        pBullet.Ref.Velocity = WeaponHelper.GetBulletVelocity(sourcePos, blackHolePos);
                     }
                     else
                     {
                         // 从黑洞朝向预设目标位置
-                        pBullet.Ref.Velocity = ExHelper.GetBulletVelocity(blackHolePos, pBullet.Ref.TargetCoords);
+                        pBullet.Ref.Velocity = WeaponHelper.GetBulletVelocity(blackHolePos, pBullet.Ref.TargetCoords);
                     }
                     // 黑洞伤害
                     if (null != blackHoleData && blackHoleData.AllowDamageBullet && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
@@ -101,8 +101,8 @@ namespace Extension.Script
                 int speed = blackHoleData.GetCaptureSpeed(1);
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
                 CoordStruct nextPosFLH = new CoordStruct(speed, 0, 0);
-                DirStruct nextPosDir = ExHelper.Point2Dir(sourcePos, targetPos);
-                CoordStruct nextPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
+                DirStruct nextPosDir = FLHHelper.Point2Dir(sourcePos, targetPos);
+                CoordStruct nextPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
                 // 计算Z值
                 int deltaZ = sourcePos.Z - targetPos.Z;
                 if (deltaZ < 0)

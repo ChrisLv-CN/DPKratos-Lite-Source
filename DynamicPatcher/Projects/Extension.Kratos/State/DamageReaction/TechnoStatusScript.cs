@@ -93,7 +93,7 @@ namespace Extension.Script
                                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                                 if (reactionData.AnimFLH != default)
                                 {
-                                    location = ExHelper.GetFLHAbsoluteCoords(pTechno, reactionData.AnimFLH);
+                                    location = FLHHelper.GetFLHAbsoluteCoords(pTechno, reactionData.AnimFLH);
                                 }
                                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                                 pAnim.Ref.SetOwnerObject(pTechno.Convert<ObjectClass>());

@@ -105,13 +105,13 @@ namespace Extension.Script
                             flhR.Y = -flhR.Y;
                         }
 
-                        CoordStruct portL = ExHelper.GetFLH(location, flhL, facing.target());
-                        CoordStruct portR = ExHelper.GetFLH(location, flhR, facing.target());
+                        CoordStruct portL = FLHHelper.GetFLH(location, flhL, facing.target());
+                        CoordStruct portR = FLHHelper.GetFLH(location, flhR, facing.target());
 
                         CoordStruct targetFLHL = flhL + new CoordStruct(0, -distance * 2, 0);
                         CoordStruct targetFLHR = flhR + new CoordStruct(0, distance * 2, 0);
-                        CoordStruct targetL = ExHelper.GetFLH(location, targetFLHL, facing.target());
-                        CoordStruct targetR = ExHelper.GetFLH(location, targetFLHR, facing.target());
+                        CoordStruct targetL = FLHHelper.GetFLH(location, targetFLHL, facing.target());
+                        CoordStruct targetR = FLHHelper.GetFLH(location, targetFLHR, facing.target());
 
                         CoordStruct vL = decoyMissile.Data.Velocity;
                         if (vL.Y > 0)
@@ -125,8 +125,8 @@ namespace Extension.Script
                             vR.Y = -vR.Y;
                         }
                         vR.Z *= 2;
-                        CoordStruct velocityL = ExHelper.GetFLH(new CoordStruct(), vL, facing.target());
-                        CoordStruct velocityR = ExHelper.GetFLH(new CoordStruct(), vR, facing.target());
+                        CoordStruct velocityL = FLHHelper.GetFLH(new CoordStruct(), vL, facing.target());
+                        CoordStruct velocityR = FLHHelper.GetFLH(new CoordStruct(), vR, facing.target());
                         for (int i = 0; i < 2; i++)
                         {
                             CoordStruct initTarget = targetL;

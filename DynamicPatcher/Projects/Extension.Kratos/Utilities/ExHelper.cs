@@ -37,10 +37,6 @@ namespace Extension.Utilities
 
     public static partial class ExHelper
     {
-        // public static Random Random = new Random(114514);
-        public const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * (Math.PI / 180);
-
-
         public static Dictionary<Point2D, int> MakeTargetPad(this int[] weights, int count, out int maxValue)
         {
             int weightCount = null != weights ? weights.Length : 0;
@@ -184,36 +180,5 @@ namespace Extension.Utilities
             return offset;
         }
 
-        public static DirStruct DirNormalized(int index, int facing)
-        {
-            double radians = MathEx.Deg2Rad((-360 / facing * index));
-            DirStruct dir = new DirStruct();
-            dir.SetValue((short)(radians / BINARY_ANGLE_MAGIC));
-            return dir;
-        }
-
-        public static int Dir2FacingIndex(DirStruct dir, int facing)
-        {
-            uint bits = (uint)Math.Round(Math.Sqrt(facing), MidpointRounding.AwayFromZero);
-            double face = dir.GetValue(bits);
-            double x = (face / (1 << (int)bits)) * facing;
-            int index = (int)Math.Round(x, MidpointRounding.AwayFromZero);
-            return index;
-        }
-
-        public static DirStruct Point2Dir(CoordStruct sourcePos, CoordStruct targetPos)
-        {
-            // get angle
-            double radians = Math.Atan2(sourcePos.Y - targetPos.Y, targetPos.X - sourcePos.X);
-            // Magic form tomsons26
-            radians -= MathEx.Deg2Rad(90);
-            return Radians2Dir(radians);
-        }
-
-        public static DirStruct Radians2Dir(double radians)
-        {
-            short d = (short)(radians / BINARY_ANGLE_MAGIC);
-            return new DirStruct(d);
-        }
     }
 }

@@ -227,7 +227,7 @@ namespace Extension.Script
                         // 新建巡航点，以飞机所在的位置和目标的位置的朝向为参考方向，画16个点
                         CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                         // BulletEffectHelper.GreenLine(dest, location, 1, 450);
-                        DirStruct sourceDir = ExHelper.Point2Dir(location, dest);
+                        DirStruct sourceDir = FLHHelper.Point2Dir(location, dest);
                         double sourceRad = sourceDir.radians();
                         CoordStruct flh = new CoordStruct(data.GuardRadius * 256, 0, 0);
                         this.destList.Clear();
@@ -239,11 +239,11 @@ namespace Extension.Script
                         this.Clockwise = clockwise; // 顺时针还是逆时针巡航
                         for (int i = 0; i < 16; i++)
                         {
-                            DirStruct targetDir = ExHelper.DirNormalized(i, 16);
+                            DirStruct targetDir = FLHHelper.DirNormalized(i, 16);
                             double targetRad = targetDir.radians();
                             float angle = (float)(sourceRad - targetRad);
-                            targetDir = ExHelper.Radians2Dir(angle);
-                            CoordStruct newDest = ExHelper.GetFLHAbsoluteCoords(dest, flh, targetDir);
+                            targetDir = FLHHelper.Radians2Dir(angle);
+                            CoordStruct newDest = FLHHelper.GetFLHAbsoluteCoords(dest, flh, targetDir);
                             if (i == 0)
                             {
                                 // 第一个肯定是队列头，位于飞机前进方向正前方

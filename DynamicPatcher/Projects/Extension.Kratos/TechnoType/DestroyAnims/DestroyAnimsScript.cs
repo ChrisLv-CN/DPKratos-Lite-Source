@@ -101,7 +101,7 @@ namespace Extension.Script
                         // double x = (face / (1 << (int)bits)) * facing;
                         // index = (int)Math.Round(x, MidpointRounding.AwayFromZero);
                         // Logger.Log("Index={0}/{1}, x={2}, bits={3}, face={4}, ", index, facing, x, bits, face);
-                        index = ExHelper.Dir2FacingIndex(pTechno.Ref.Facing.current(), facing);
+                        index = FLHHelper.Dir2FacingIndex(pTechno.Ref.Facing.current(), facing);
                         index = (int)(facing / 8) + index;
                         if (index >= facing)
                         {

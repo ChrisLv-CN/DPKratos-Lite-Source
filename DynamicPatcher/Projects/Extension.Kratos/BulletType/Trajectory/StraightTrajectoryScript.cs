@@ -84,13 +84,33 @@ namespace Extension.Script
                     // Logger.Log("{0} 绝对直线弹道", pBullet.Ref.Type.Ref.Base.Base.ID);
                     double distance = targetPos.DistanceFrom(sourcePos);
                     DirStruct facing = pBullet.Ref.Owner.Ref.GetRealFacing().current();
-                    targetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct((int)distance, 0, 0), facing);
+                    targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct((int)distance, 0, 0), facing);
                     pBullet.Ref.TargetCoords = targetPos;
 
                     // BulletEffectHelper.BlueLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
                 }
                 // 重设速度
-                BulletVelocity velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
+                BulletVelocity velocity = pBullet.Ref.Velocity;
+                // Logger.Log($"{Game.CurrentFrame} 抛射体原始速度 {velocity}");
+                bool reset = true;
+                if (!pBullet.Ref.WeaponType.IsNull)
+                {
+                    WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pBullet.Ref.WeaponType.Ref.Base.ID).Data;
+                    if (weaponTypeData.RadialFire)
+                    {
+                        BulletVelocity sourceV = sourcePos.ToBulletVelocity();
+                        BulletVelocity targetV = sourceV + velocity;
+                        CoordStruct forward = FLHHelper.GetForwardCoords(sourceV, targetV, pBullet.Ref.Speed);
+                        BulletEffectHelper.RedLine(sourcePos, forward * 10, 1, 1024);
+                        velocity = (forward - sourcePos).ToBulletVelocity();
+                        // Logger.Log($"{Game.CurrentFrame} - 抛射体原始速度 {velocity}");
+                        reset = false;
+                    }
+                }
+                if (reset)
+                {
+                    velocity = pBullet.RecalculateBulletVelocity(sourcePos, targetPos);
+                }
                 straightBullet = new StraightBullet(sourcePos, targetPos, velocity);
 
                 // Logger.Log($"{Game.CurrentFrame} 计算直线导弹[{section}]{pBullet}的向量，记录向量 {velocity}");

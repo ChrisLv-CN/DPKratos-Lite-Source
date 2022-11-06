@@ -372,12 +372,12 @@ namespace Extension.Script
                 DirStruct bulletDir = new DirStruct();
                 if (!Data.IsOnWorld)
                 {
-                    bulletDir = ExHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
+                    bulletDir = FLHHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
                 }
                 // 增加抛射体偏移值取下一帧所在实际位置
                 sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
-                forceFirePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
-                fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
+                forceFirePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
+                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
             }
         }
 
@@ -391,13 +391,13 @@ namespace Extension.Script
                 CoordStruct sourcePos = pShooter.Ref.Base.Base.GetCoords();
                 // 绑定世界坐标
                 DirStruct dir = new DirStruct();
-                forceFirePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, dir);
-                fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, dir);
+                forceFirePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, dir);
+                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, dir);
             }
             else
             {
                 // 绑定单位身上或炮塔
-                fakeTargetPos = ExHelper.GetFLHAbsoluteCoords(pShooter, targetFLH, Data.IsOnTurret);
+                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(pShooter, targetFLH, Data.IsOnTurret);
             }
         }
 

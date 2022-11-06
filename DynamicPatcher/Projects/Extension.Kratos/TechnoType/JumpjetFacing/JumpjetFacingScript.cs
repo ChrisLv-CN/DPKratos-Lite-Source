@@ -81,11 +81,11 @@ namespace Extension.Script
                         {
                             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                             CoordStruct targetPos = pTechno.Ref.Target.Ref.GetCoords();
-                            DirStruct toDir = ExHelper.Point2Dir(sourcePos, targetPos);
+                            DirStruct toDir = FLHHelper.Point2Dir(sourcePos, targetPos);
                             DirStruct selfDir = pTechno.Ref.Facing.current();
                             int facing = data.Facing;
-                            int toIndex = ExHelper.Dir2FacingIndex(toDir, facing);
-                            int selfIndex = ExHelper.Dir2FacingIndex(selfDir, facing);
+                            int toIndex = FLHHelper.Dir2FacingIndex(toDir, facing);
+                            int selfIndex = FLHHelper.Dir2FacingIndex(selfDir, facing);
                             if (selfIndex != toIndex)
                             {
                                 // DirStruct targetDir = ExHelper.DirNormalized(toIndex, facing);
