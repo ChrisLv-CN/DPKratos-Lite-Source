@@ -67,6 +67,7 @@ namespace Extension.Ext
         public int Count;
 
         public double Weight;
+        public bool CaptureFromSameWeight;
         public int CaptureSpeed;
         public bool CaptureIgnoreWeight;
         public bool AllowEscape;
@@ -96,6 +97,7 @@ namespace Extension.Ext
             this.Count = -1;
 
             this.Weight = -1;
+            this.CaptureFromSameWeight = true;
             this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
             this.CaptureIgnoreWeight = false;
             this.AllowEscape = false;
@@ -148,6 +150,7 @@ namespace Extension.Ext
             this.Count = reader.Get(TITLE + "Count", this.Count);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);
+            this.CaptureFromSameWeight = reader.Get(TITLE + "CaptureFromSameWeight", this.CaptureFromSameWeight);
             int speed = reader.Get(TITLE + "CaptureSpeed", 0);
             if (speed != 0)
             {
