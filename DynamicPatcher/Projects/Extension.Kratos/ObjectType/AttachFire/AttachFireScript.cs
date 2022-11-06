@@ -275,7 +275,7 @@ namespace Extension.Script
                 burst.Callback(burst.Index, burst.Burst, pBullet, burst.pTarget);
             }
             // 树被击杀之后，指针仍然存在，IsNull判断失效，但指针已经过期，调用任何函数会导致崩溃，预判这一炮下去能打死树，手动移除保存的指针
-            if (burst.pTarget.Pointer.CastIf<TerrainClass>(AbstractType.Terrain ,out Pointer<TerrainClass> pTerrain))
+            if (burst.pTarget.Pointer.CastIf<TerrainClass>(AbstractType.Terrain, out Pointer<TerrainClass> pTerrain))
             {
                 // Logger.Log($"{Game.CurrentFrame} pTerrain.Ref.Base.Health = {pTerrain.Ref.Base.Health}");
                 int damage = burst.pWeaponType.Ref.Damage;
@@ -298,18 +298,17 @@ namespace Extension.Script
         {
             CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
             facingDir = default;
-            switch (pObject.Ref.Base.WhatAmI())
+            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                case AbstractType.Bullet:
-                    Pointer<BulletClass> pBullet = pObject.Convert<BulletClass>();
-                    sourcePos = pBullet.GetFLHAbsoluteCoords(flh, flipY);
-                    facingDir = pBullet.Facing();
-                    break;
-                default:
-                    Pointer<TechnoClass> pTechno = pObject.Convert<TechnoClass>();
-                    sourcePos = pTechno.GetFLHAbsoluteCoords(flh, true, flipY);
-                    facingDir = pTechno.Ref.GetRealFacing().current();
-                    break;
+                sourcePos = pTechno.GetFLHAbsoluteCoords(flh, true, flipY);
+                facingDir = pTechno.Ref.GetRealFacing().current();
+            }
+            else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                facingDir = pBullet.Facing(sourcePos);
+                CoordStruct tempFLH = flh;
+                tempFLH.Y *= flipY;
+                sourcePos = ExHelper.GetFLHAbsoluteCoords(sourcePos, tempFLH, facingDir);
             }
             return sourcePos;
         }
