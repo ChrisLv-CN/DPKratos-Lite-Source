@@ -266,14 +266,17 @@ namespace Extension.Utilities
         #endregion
 
         #region 获取向量上指定距离的坐标
-        public static CoordStruct GetForwardCoords(CoordStruct sourcePos, CoordStruct targetPos, double speed)
+        public static CoordStruct GetForwardCoords(CoordStruct sourcePos, CoordStruct targetPos, double speed, double dist = 0)
         {
-            return GetForwardCoords(sourcePos.ToBulletVelocity(), targetPos.ToBulletVelocity(), speed);
+            return GetForwardCoords(sourcePos.ToSingleVector3D(), targetPos.ToSingleVector3D(), speed, dist);
         }
 
-        public static CoordStruct GetForwardCoords(BulletVelocity sourceV, BulletVelocity targetV, double speed)
+        public static CoordStruct GetForwardCoords(SingleVector3D sourceV, SingleVector3D targetV, double speed, double dist = 0)
         {
-            double dist = targetV.DistanceFrom(sourceV);
+            if (dist <= 0)
+            {
+                dist = targetV.DistanceFrom(sourceV);
+            }
             // 计算下一个坐标
             double d = speed / dist;
             double absX = Math.Abs(sourceV.X - targetV.X) * d;

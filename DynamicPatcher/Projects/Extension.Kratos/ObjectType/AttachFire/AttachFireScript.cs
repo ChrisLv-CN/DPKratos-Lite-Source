@@ -221,7 +221,7 @@ namespace Extension.Script
                     {
                         if (weaponTypeData.RadialFire)
                         {
-                            bulletVelocity = radialFireHelper.GetBulletVelocity(i);
+                            bulletVelocity = radialFireHelper.GetBulletVelocity(i, weaponTypeData.RadialZ);
                         }
                         // 发射武器，全射出去
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 发射自定义武器 [{pWeapon.Ref.Base.ID}], 攻击者 [{(pAttacker.IsNull ? "Null" : pAttacker.Ref.Type.Ref.Base.Base.ID)}]{pAttacker}, 目标 [{(pTarget.CastToObject(out Pointer<ObjectClass> pTargetObject) ? pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{pTarget}");
@@ -261,7 +261,7 @@ namespace Extension.Script
             if (burst.WeaponTypeData.RadialFire)
             {
                 RadialFireHelper radialFireHelper = new RadialFireHelper(facingDir, burst.Burst, burst.WeaponTypeData.RadialAngle);
-                bulletVelocity = radialFireHelper.GetBulletVelocity(burst.Index);
+                bulletVelocity = radialFireHelper.GetBulletVelocity(burst.Index, burst.WeaponTypeData.RadialZ);
             }
             else
             {

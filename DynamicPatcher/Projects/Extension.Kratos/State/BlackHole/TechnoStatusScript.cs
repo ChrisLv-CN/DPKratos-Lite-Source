@@ -82,42 +82,7 @@ namespace Extension.Script
                             if (dist > speed)
                             {
                                 // 计算下一个坐标
-                                double d = speed / dist;
-                                double absX = Math.Abs(sourcePos.X - targetPos.X) * d;
-                                double x = sourcePos.X;
-                                if (sourcePos.X < targetPos.X)
-                                {
-                                    // Xa < Xb => Xa < Xc
-                                    // Xc - Xa = absX
-                                    x = absX + sourcePos.X;
-                                }
-                                else if (sourcePos.X > targetPos.X)
-                                {
-                                    // Xa > Xb => Xa > Xc
-                                    // Xa - Xc = absX
-                                    x = sourcePos.X - absX;
-                                }
-                                double absY = Math.Abs(sourcePos.Y - targetPos.Y) * d;
-                                double y = sourcePos.Y;
-                                if (sourcePos.Y < targetPos.Y)
-                                {
-                                    y = absY + sourcePos.Y;
-                                }
-                                else if (sourcePos.Y > targetPos.Y)
-                                {
-                                    y = sourcePos.Y - absY;
-                                }
-                                double absZ = Math.Abs(sourcePos.Z - targetPos.Z) * d;
-                                double z = sourcePos.Z;
-                                if (sourcePos.Z < targetPos.Z)
-                                {
-                                    z = absZ + sourcePos.Z;
-                                }
-                                else if (sourcePos.Z > targetPos.Z)
-                                {
-                                    z = sourcePos.Z - absZ;
-                                }
-                                nextPos = new CoordStruct(x, y, z);
+                                nextPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, speed);
                             }
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
                             int deltaZ = sourcePos.Z - targetPos.Z;
@@ -294,6 +259,29 @@ namespace Extension.Script
                 {
                     pMission.Ref.ForceMission(Mission.Guard);
                     // pTechno.Convert<FootClass>().Ref.IsAttackedByLocomotor = false;
+                }
+                // 停止转身
+                if (blackHoleData.AllowRotateUnit)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置VXL翻滚动作");
+                    FacingStruct facing = pTechno.Ref.Facing;
+                    ILocomotion loco = pFoot.Ref.Locomotor;
+                    Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                    if (locoId == LocomotionClass.Jumpjet)
+                    {
+                        // JJ朝向是单独的Facing
+                        Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                        facing = pLoco.Ref.LocomotionFacing;
+                    }
+                    else if (locoId == LocomotionClass.Fly)
+                    {
+                        // 飞机使用的炮塔的Facing
+                        facing = pTechno.Ref.TurretFacing;
+                    }
+                    if (facing.in_motion())
+                    {
+                        facing.set(facing.current());
+                    }
                 }
                 // 检查是否在悬崖上摔死
                 bool canPass = true;

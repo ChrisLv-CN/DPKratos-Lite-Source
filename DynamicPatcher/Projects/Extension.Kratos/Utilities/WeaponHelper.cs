@@ -36,7 +36,7 @@ namespace Extension.Utilities
 
         public static unsafe void FireWeaponTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon, CoordStruct flh,
-            FireBulletToTarget callback = null, CoordStruct bulletSourcePos = default, bool radialFire = false, int splitAngle = 180)
+            FireBulletToTarget callback = null, CoordStruct bulletSourcePos = default, bool radialFire = false, int splitAngle = 180, bool radialZ = true)
         {
             if (pTarget.IsNull)
             {
@@ -53,7 +53,7 @@ namespace Extension.Utilities
                 if (radialFire)
                 {
                     flipY = (i < burst / 2f) ? -1 : 1;
-                    bulletVelocity = radialFireHelper.GetBulletVelocity(i);
+                    bulletVelocity = radialFireHelper.GetBulletVelocity(i, radialZ);
                 }
                 else
                 {

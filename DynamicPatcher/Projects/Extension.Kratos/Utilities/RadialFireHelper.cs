@@ -16,7 +16,8 @@ namespace Extension.Utilities
 
         private int burst;
 
-        private double degrees = 0;
+        private double dirRad = 0;
+        private double spliteRad = 0;
         private int delta = 0;
         private float deltaZ = 0;
 
@@ -42,31 +43,38 @@ namespace Extension.Utilities
 
         private void InitData(DirStruct dir, int splitAngle)
         {
-            degrees = MathEx.Rad2Deg(dir.radians()) - 90 + splitAngle;
-            Logger.Log($"{Game.CurrentFrame} 扇形分布 degrees = {degrees}, splitAngle = {splitAngle}");
+            // degrees = MathEx.Rad2Deg(dir.radians()) - 180 + (splitAngle * 0.5);
+            dirRad = dir.radians();
+            spliteRad = MathEx.Deg2Rad(splitAngle * 0.5); // Deg2Rad是逆时针
+            // Logger.Log($"{Game.CurrentFrame} 扇形分布 degrees = {degrees}  dir = {MathEx.Rad2Deg(dir.radians())}, splitAngle = {splitAngle}");
             delta = splitAngle / (burst + 1);
             deltaZ = 1f / (burst / 2f + 1);
         }
 
-        public BulletVelocity GetBulletVelocity(int index)
+        public BulletVelocity GetBulletVelocity(int index, bool radialZ)
         {
             int z = 0;
             float temp = burst / 2f;
-            if (index - temp < 0)
+            if (radialZ)
             {
-                z = index;
+                if (index - temp < 0)
+                {
+                    z = index;
+                }
+                else
+                {
+                    z = Math.Abs(index - burst + 1);
+                }
             }
-            else
-            {
-                z = Math.Abs(index - burst + 1);
-            }
-            double angle = degrees + delta * (index + 1);
-            // Logger.Log("{0} - Burst = {1}, Degrees = {2}, Delta = {3}, DeltaZ = {4}, Angle = {5}, Z = {6}", index, burst, degrees, delta, deltaZ, angle, z);
-            double radians = MathEx.Deg2Rad(angle);
-            DirStruct targetDir = FLHHelper.Radians2Dir(radians);
+            int angle = delta * (index + 1);
+            // Logger.Log($"{Game.CurrentFrame} {index} - Burst = {burst}, DirRad = {dirRad}, Delta = {delta}, DeltaZ = {deltaZ}, Angle = {angle}, Z = {z}");
+            // double radians = FLHHelper.DirNormalized(angle + 90, 360).radians(); // 0的方位在右下角，Matrix3D的0方位在右上角，所以需要+90度
+            double radians = MathEx.Deg2Rad(angle); // 逆时针
             Matrix3DStruct matrix3D = new Matrix3DStruct(true);
-            matrix3D.RotateZ((float)targetDir.radians());
-            matrix3D.Translate(1, 0, 0);
+            matrix3D.RotateZ((float)dirRad); // 转到单位朝向
+            matrix3D.RotateZ((float)spliteRad); // 逆时针转到发射角
+            matrix3D.RotateZ(-(float)radians); // 顺时针发射
+            matrix3D.Translate(256, 0, 0);
             SingleVector3D offset = Game.MatrixMultiply(matrix3D);
             return new BulletVelocity(offset.X, -offset.Y, deltaZ * z);
         }

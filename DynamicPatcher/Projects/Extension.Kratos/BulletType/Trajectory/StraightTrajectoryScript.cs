@@ -98,12 +98,15 @@ namespace Extension.Script
                     WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pBullet.Ref.WeaponType.Ref.Base.ID).Data;
                     if (weaponTypeData.RadialFire)
                     {
-                        BulletVelocity sourceV = sourcePos.ToBulletVelocity();
-                        BulletVelocity targetV = sourceV + velocity;
+                        SingleVector3D sourceV = sourcePos.ToSingleVector3D();
+                        SingleVector3D targetV = sourceV + velocity.ToSingleVector3D();
                         CoordStruct forward = FLHHelper.GetForwardCoords(sourceV, targetV, pBullet.Ref.Speed);
-                        BulletEffectHelper.RedLine(sourcePos, forward * 10, 1, 1024);
                         velocity = (forward - sourcePos).ToBulletVelocity();
-                        // Logger.Log($"{Game.CurrentFrame} - 抛射体原始速度 {velocity}");
+                        velocity.Z = 0;
+                        if (pBullet.Ref.Type.Ref.Level)
+                        {
+                            velocity.Z = 0;
+                        }
                         reset = false;
                     }
                 }
