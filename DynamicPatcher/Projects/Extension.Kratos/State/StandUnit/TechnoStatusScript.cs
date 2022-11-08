@@ -188,7 +188,7 @@ namespace Extension.Script
 
         public bool AmIStand()
         {
-            return !MyMaster.IsNull;
+            return !MyMaster.IsNull || MyMasterIsAnim;
         }
 
     }

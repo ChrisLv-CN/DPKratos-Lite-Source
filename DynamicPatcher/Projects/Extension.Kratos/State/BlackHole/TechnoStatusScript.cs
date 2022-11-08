@@ -67,6 +67,7 @@ namespace Extension.Script
                             // 停止移动
                             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
+                            pFoot.Ref.Destination = IntPtr.Zero;
                             ILocomotion loco = pFoot.Ref.Locomotor;
                             loco.Stop_Moving();
                             loco.Mark_All_Occupation_Bits(0);
@@ -157,21 +158,28 @@ namespace Extension.Script
                                 // 设置朝向
                                 if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.Ref.Type.Ref.ConsideredAircraft || !pTechno.InAir())
                                 {
-                                    DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
-                                    pTechno.Ref.Facing.turn(facingDir);
-                                    Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
-                                    if (locoId == LocomotionClass.Jumpjet)
+                                    CoordStruct p1 = targetPos;
+                                    CoordStruct p2 = sourcePos;
+                                    p1.Z = 0;
+                                    p2.Z = 0;
+                                    if (p1.DistanceFrom(p2) > 128)
                                     {
-                                        // JJ朝向是单独的Facing
-                                        Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
-                                        pLoco.Ref.LocomotionFacing.turn(facingDir);
+                                        DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
+                                        pTechno.Ref.Facing.turn(facingDir);
+                                        Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                                        if (locoId == LocomotionClass.Jumpjet)
+                                        {
+                                            // JJ朝向是单独的Facing
+                                            Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                                            pLoco.Ref.LocomotionFacing.turn(facingDir);
+                                        }
+                                        else if (locoId == LocomotionClass.Fly)
+                                        {
+                                            // 飞机使用的炮塔的Facing
+                                            pTechno.Ref.TurretFacing.turn(facingDir);
+                                        }
+                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                                     }
-                                    else if (locoId == LocomotionClass.Fly)
-                                    {
-                                        // 飞机使用的炮塔的Facing
-                                        pTechno.Ref.TurretFacing.turn(facingDir);
-                                    }
-                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 扭头，屁股朝前");
                                 }
                             }
                         }

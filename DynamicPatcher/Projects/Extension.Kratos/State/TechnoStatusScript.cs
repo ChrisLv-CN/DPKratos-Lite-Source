@@ -240,5 +240,10 @@ namespace Extension.Script
                 pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
         }
+
+        public bool CantMove()
+        {
+            return AmIStand() || captureByBlackHole;
+        }
     }
 }
