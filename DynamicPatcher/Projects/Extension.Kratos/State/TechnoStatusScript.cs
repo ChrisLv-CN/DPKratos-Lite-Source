@@ -25,6 +25,8 @@ namespace Extension.Script
 
         public bool IsBuilding;
 
+        public bool CantMove;
+
         public DrivingState DrivingState;
         private Mission lastMission;
 
@@ -239,11 +241,6 @@ namespace Extension.Script
                 pTechno.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
                 pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
-        }
-
-        public bool CantMove()
-        {
-            return AmIStand() || captureByBlackHole;
         }
     }
 }

@@ -927,7 +927,7 @@ namespace ExtensionHooks
         public static unsafe UInt32 FootClass_SetDestination_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove())
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.CantMove))
             {
                 // 跳过目的地设置
                 // Logger.Log("跳过替身的目的地设置");
@@ -936,13 +936,12 @@ namespace ExtensionHooks
             return 0;
         }
 
-        // Stand can't move
-        // BlackHole's victim can't move
+        // Can't do anything, like EMP impact
         [Hook(HookType.AresHook, Address = 0x70EFD0, Size = 6)]
         public static unsafe UInt32 TechnoClass_CantMove_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove())
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove)
             {
                 // 不允许移动
                 R->AL = Convert.ToByte(true);
@@ -950,8 +949,6 @@ namespace ExtensionHooks
             }
             return 0;
         }
-
-
 
         // Stand support radar
         [Hook(HookType.AresHook, Address = 0x508EC6, Size = 5)]

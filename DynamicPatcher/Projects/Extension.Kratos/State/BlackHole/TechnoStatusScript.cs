@@ -18,7 +18,7 @@ namespace Extension.Script
         public BlackHoleState BlackHoleState = new BlackHoleState();
 
         // 黑洞受害者
-        private bool captureByBlackHole;
+        public bool CaptureByBlackHole;
         private SwizzleablePointer<ObjectClass> pBlackHole = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
         private BlackHoleData blackHoleData;
         private TimerStruct blackHoleDamageDelay;
@@ -44,7 +44,7 @@ namespace Extension.Script
                     BlackHoleState.StartCapture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
                 }
                 // 被黑洞吸取中
-                if (captureByBlackHole)
+                if (CaptureByBlackHole)
                 {
                     if (pBlackHole.IsNull
                         || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
@@ -162,7 +162,7 @@ namespace Extension.Script
                                     CoordStruct p2 = sourcePos;
                                     p1.Z = 0;
                                     p2.Z = 0;
-                                    if (p1.DistanceFrom(p2) > 128)
+                                    if (p1.DistanceFrom(p2) >= speed)
                                     {
                                         DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
                                         pTechno.Ref.Facing.turn(facingDir);
@@ -245,18 +245,18 @@ namespace Extension.Script
 
         public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)
         {
-            if (!this.captureByBlackHole || null == this.blackHoleData || this.blackHoleData.Weight < blackHoleData.Weight || ((this.blackHoleData.Weight == blackHoleData.Weight || blackHoleData.Weight <= 0) && blackHoleData.CaptureFromSameWeight))
+            if (!this.CaptureByBlackHole || null == this.blackHoleData || this.blackHoleData.Weight < blackHoleData.Weight || ((this.blackHoleData.Weight == blackHoleData.Weight || blackHoleData.Weight <= 0) && blackHoleData.CaptureFromSameWeight))
             {
                 this.pBlackHole.Pointer = pBlackHole;
                 this.blackHoleData = blackHoleData;
-                this.captureByBlackHole = true;
+                this.CaptureByBlackHole = true;
             }
         }
 
         public void CancelBlackHole()
         {
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 不再受 黑洞 {pBlackHole.Pointer} 的影响");
-            if (captureByBlackHole && !IsBuilding && !pTechno.IsDeadOrInvisible())
+            if (CaptureByBlackHole && !IsBuilding && !pTechno.IsDeadOrInvisible())
             {
                 Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
                 Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
@@ -360,7 +360,7 @@ namespace Extension.Script
                     }
                 }
             }
-            this.captureByBlackHole = false;
+            this.CaptureByBlackHole = false;
             this.blackHoleData = null;
             this.lostControl = false;
             this.pBlackHole.Pointer = IntPtr.Zero;
@@ -370,6 +370,9 @@ namespace Extension.Script
         {
             CoordStruct taregtPos = pBlackHole.Ref.Base.GetCoords();
             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+            // BulletEffectHelper.BlueCrosshair(taregtPos, 128);
+            // BulletEffectHelper.BlueCell(sourcePos, 128);
+            // BulletEffectHelper.BlueLine(sourcePos, taregtPos);
             return blackHoleState.IsOutOfRange(taregtPos.DistanceFrom(sourcePos));
         }
 
