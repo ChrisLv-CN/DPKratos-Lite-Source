@@ -29,7 +29,7 @@ namespace Extension.Ext
         {
             this.AllowCloakable = reader.Get("Cloakable.Allowed", this.AllowCloakable);
 
-            string turretOffset = reader.Get<string>("TurrtOffset", null);
+            string turretOffset = reader.Get<string>("TurretOffset", null);
             if (!turretOffset.IsNullOrEmptyOrNone())
             {
                 if (ExHelper.Number.IsMatch(turretOffset))

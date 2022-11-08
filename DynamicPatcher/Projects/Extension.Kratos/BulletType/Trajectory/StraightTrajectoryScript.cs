@@ -102,7 +102,6 @@ namespace Extension.Script
                         SingleVector3D targetV = sourceV + velocity.ToSingleVector3D();
                         CoordStruct forward = FLHHelper.GetForwardCoords(sourceV, targetV, pBullet.Ref.Speed);
                         velocity = (forward - sourcePos).ToBulletVelocity();
-                        velocity.Z = 0;
                         if (pBullet.Ref.Type.Ref.Level)
                         {
                             velocity.Z = 0;

@@ -105,7 +105,7 @@ namespace Extension.Utilities
             {
                 SingleVector3D res = pTechno.Ref.Base.Base.GetCoords().ToSingleVector3D();
 
-                if (null != flh && default != flh)
+                if (default != flh || default != turretOffset)
                 {
                     // Step 1: get body transform matrix
                     Matrix3DStruct matrix3D = GetMatrix3D(pTechno);
