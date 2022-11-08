@@ -28,6 +28,7 @@ namespace Extension.Ext
         public bool AffectCannon;
         public bool AffectBomb;
 
+        public bool AffectInAir;
         public string[] OnlyAffectMarks;
 
         public bool AffectsOwner;
@@ -53,6 +54,7 @@ namespace Extension.Ext
             this.AffectCannon = true;
             this.AffectBomb = true;
 
+            this.AffectInAir = true;
             this.OnlyAffectMarks = null;
 
             this.AffectsOwner = true;
@@ -89,6 +91,8 @@ namespace Extension.Ext
                 this.AffectBullet = false;
             }
 
+
+            this.AffectInAir = reader.Get(title + "AffectInAir", this.AffectInAir);
             this.OnlyAffectMarks = reader.GetList(title + "OnlyAffectMarks", this.OnlyAffectMarks);
 
             this.AffectsOwner = reader.Get(title + "AffectsOwner", this.AffectsOwner);

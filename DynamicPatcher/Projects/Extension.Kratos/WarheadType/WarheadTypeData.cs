@@ -23,7 +23,7 @@ namespace Extension.Ext
         public string PreImpactAnim;
 
         // Kratos
-        public bool AffectsAir;
+        public bool AffectInAir;
 
         public bool ClearTarget;
 
@@ -39,7 +39,7 @@ namespace Extension.Ext
             this.PreImpactAnim = null;
 
             // Kratos
-            this.AffectsAir = true;
+            this.AffectInAir = true;
 
             this.ClearTarget = false;
         }
@@ -57,7 +57,7 @@ namespace Extension.Ext
             this.PreImpactAnim = reader.Get("PreImpactAnim", this.PreImpactAnim);
 
             // Kratos
-            this.AffectsAir = reader.Get("AffectsAir", this.AffectsAir);
+            this.AffectInAir = reader.Get("AffectInAir", this.AffectInAir);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
         }

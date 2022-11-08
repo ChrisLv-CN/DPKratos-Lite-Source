@@ -83,77 +83,33 @@ namespace Extension.Ext
                 if (Data.AffectBullet)
                 {
                     // 查找所有的抛射体
-                    BulletClass.Array.FindObject((pTarget) =>
+                    FinderHelper.FindBulletOnMark((pTarget, aem) =>
                     {
-                        // 过滤指定类型
-                        if (pBlackHole != pTarget.Convert<ObjectClass>() && Data.CanAffectType(pTarget)
-                            && pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate
+                        if (pTarget.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate
                             && (Data.AffectBlackHole || !bulletStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
-                            && IsOnMark(pTarget.Convert<ObjectClass>()) // 检查标记
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
                             bulletStatus.SetBlackHole(pBlackHole, Data);
                         }
                         return false;
-                    }, location, data.Range, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
+                    }, location, data.Range, 0, pHouse, Data, pBlackHole);
                 }
                 if (Data.AffectTechno)
                 {
-                    HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
-                    if (Data.AffectBuilding)
+                    // 查找所有的单位
+                    FinderHelper.FindTechnoOnMark((pTarget, aem) =>
                     {
-                        // 查找所有的建筑
-                        BuildingClass.Array.FindObject((pTarget) =>
-                        {
-                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
-                            return false;
-                        }, location, data.Range, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                    }
-                    if (Data.AffectInfantry)
-                    {
-                        // 查找所有的步兵
-                        InfantryClass.Array.FindObject((pTarget) =>
-                        {
-                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
-                            return false;
-                        }, location, data.Range, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                    }
-                    if (Data.AffectUnit)
-                    {
-                        // 查找所有的载具
-                        UnitClass.Array.FindObject((pTarget) =>
-                        {
-                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
-                            return false;
-                        }, location, data.Range, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                    }
-                    if (Data.AffectAircraft)
-                    {
-                        // 查找所有的飞机
-                        AircraftClass.Array.FindObject((pTarget) =>
-                        {
-                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
-                            return false;
-                        }, location, data.Range, pHouse, Data.AffectsOwner, Data.AffectsAllies, Data.AffectsEnemies, Data.AffectsCivilian);
-                    }
-                    // 筛查所有的单位，并设置黑洞
-                    foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
-                    {
-                        if (!pTarget.IsDeadOrInvisible() && pBlackHole != pTarget.Convert<ObjectClass>()
-                            && Data.CanAffectType(pTarget)
-                            && (Data.Weight <= 0 || pTarget.Ref.Type.Ref.Weight <= Data.Weight) // 排除质量较大的对象
+                        if ((Data.Weight <= 0 || pTarget.Ref.Type.Ref.Weight <= Data.Weight) // 排除质量较大的对象
                             && pTarget.TryGetStatus(out TechnoStatusScript targetStatus)
-                            && targetStatus.MyMaster.IsNull && !targetStatus.MyMasterIsAnim // 过滤掉替身
-                            && !targetStatus.VirtualUnit // 过滤虚单位
                             && (Data.AffectBlackHole || !targetStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
-                            && IsOnMark(pTarget.Convert<ObjectClass>()) // 检查标记
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
                             targetStatus.SetBlackHole(pBlackHole, Data);
                         }
-                    }
+                        return false;
+                    }, location, data.Range, 0, pHouse, Data, pBlackHole);
                 }
             }
         }

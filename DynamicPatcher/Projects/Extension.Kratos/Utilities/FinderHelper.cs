@@ -12,6 +12,7 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
     public delegate bool Found<T>(Pointer<T> pTarget);
+    public delegate bool FoundAEM<T>(Pointer<T> pTarget, AttachEffectScript aem);
     public delegate bool FoundIndex<T>(Pointer<T> pTarget, int index);
 
     public static class FinderHelper
@@ -254,6 +255,155 @@ namespace Extension.Utilities
                 return pTarget;
             }
             return IntPtr.Zero;
+        }
+
+        // 搜索单位
+        public static void FindTechnoOnMark(FoundAEM<TechnoClass> func, CoordStruct location, double spreadMax, double spreadMin,
+            Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
+        {
+            List<Pointer<TechnoClass>> pTechnoList = null;
+            if (spreadMax <= 0)
+            {
+                // 搜索全部单位
+                HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
+                if (data.AffectBuilding)
+                {
+                    BuildingClass.Array.FindObject((pTarget) =>
+                    {
+                        if (!pTarget.Ref.Type.Ref.InvisibleInGame)
+                        {
+                            pTechnoSet.Add(pTarget.Convert<TechnoClass>());
+                        }
+                        return false;
+                    }, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                }
+                if (data.AffectInfantry)
+                {
+                    InfantryClass.Array.FindObject((pTarget) =>
+                    {
+                        Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        {
+                            pTechnoSet.Add(pTargetTechno);
+                        }
+                        return false;
+                    }, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                }
+                if (data.AffectUnit)
+                {
+                    UnitClass.Array.FindObject((pTarget) =>
+                    {
+                        Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        {
+                            pTechnoSet.Add(pTargetTechno);
+                        }
+                        return false;
+                    }, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                }
+                if (data.AffectAircraft)
+                {
+                    AircraftClass.Array.FindObject((pTarget) =>
+                    {
+                        Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        {
+                            pTechnoSet.Add(pTargetTechno);
+                        }
+                        return false;
+                    }, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                }
+                pTechnoList = new List<Pointer<TechnoClass>>(pTechnoSet);
+            }
+            else
+            {
+                // 小范围搜索
+                pTechnoList = FinderHelper.GetCellSpreadTechnos(location, spreadMax, data.AffectInAir, false, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+            }
+            if (null != pTechnoList)
+            {
+                foreach (Pointer<TechnoClass> pTarget in pTechnoList)
+                {
+                    // 检查死亡
+                    if (pTarget.IsDeadOrInvisible() || pTarget.Convert<ObjectClass>() == exclude)
+                    {
+                        continue;
+                    }
+                    // 过滤替身和虚单位
+                    if (pTarget.TryGetStatus(out var status) && (!status.MyMaster.IsNull || status.MyMasterIsAnim || status.VirtualUnit))
+                    {
+                        continue;
+                    }
+                    // 检查最小距离
+                    if (spreadMin > 0)
+                    {
+                        double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
+                        if (pTarget.InAir() && pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
+                        {
+                            distance *= 0.5;
+                        }
+                        if (distance < spreadMin * 256)
+                        {
+                            continue;
+                        }
+                    }
+                    // 可影响
+                    if (data.CanAffectType(pTarget) && pTarget.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager, data))
+                    {
+                        // 执行动作
+                        if (func(pTarget, aeManager))
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 搜索抛射体
+        public static void FindBulletOnMark(FoundAEM<BulletClass> func, CoordStruct location, double spreadMax, double spreadMin,
+            Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
+        {
+            HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
+            BulletClass.Array.FindObject((pTarget) =>
+            {
+                if (!pTarget.IsDeadOrInvisible() && pTarget.Convert<ObjectClass>() != exclude)
+                {
+                    if (spreadMin > 0)
+                    {
+                        double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
+                        if (distance < spreadMin * 256)
+                        {
+                            return false;
+                        }
+                    }
+                    // 可影响
+                    if (data.CanAffectType(pTarget))
+                    {
+                        pBulletSet.Add(pTarget);
+                    }
+                }
+                return false;
+            }, location, spreadMax, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+            foreach (Pointer<BulletClass> pBullet in pBulletSet)
+            {
+                if (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager, data))
+                {
+                    // 执行动作
+                    if (func(pBullet, aeManager))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static bool IsOnMark(AttachEffectScript aeManager, FilterEffectData data)
+        {
+            return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()
+                || (aeManager.TryGetMarks(out HashSet<string> marks)
+                    && (data.OnlyAffectMarks.Intersect(marks).Count() > 0)
+                );
         }
 
     }

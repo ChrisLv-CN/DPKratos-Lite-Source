@@ -71,16 +71,12 @@ namespace Extension.Ext
 
         public int Count;
 
-        public bool AffectsAir;
-
         public BroadcastData()
         {
             this.Data = null;
             this.EliteData = null;
 
             this.Count = -1;
-
-            this.AffectsAir = true;
 
             this.AffectBullet = false;
 
@@ -116,8 +112,6 @@ namespace Extension.Ext
             this.Enable = null != this.Data || null != this.EliteData;
 
             this.Count = reader.Get(TITLE + "Count", this.Count);
-
-            this.AffectsAir = reader.Get(TITLE + "AffectsAir", this.AffectsAir);
         }
 
     }
