@@ -930,7 +930,7 @@ namespace ExtensionHooks
             if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.CantMove))
             {
                 // 跳过目的地设置
-                // Logger.Log("跳过替身的目的地设置");
+                // Logger.Log($"{Game.CurrentFrame} 跳过替身 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 的目的地设置");
                 return 0x4D9711;
             }
             return 0;

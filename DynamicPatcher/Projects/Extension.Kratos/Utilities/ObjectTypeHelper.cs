@@ -19,13 +19,25 @@ namespace Extension.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToBullet(this Pointer<ObjectClass> pObject, out Pointer<BulletClass> pBullet)
         {
-            return pObject.CastIf(AbstractType.Bullet, out pBullet);
+            try
+            {
+                return pObject.CastIf(AbstractType.Bullet, out pBullet);
+            }
+            catch (Exception) { }
+            pBullet = IntPtr.Zero;
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToBuilding(this Pointer<ObjectClass> pObject, out Pointer<BuildingClass> pBuilding)
         {
-            return pObject.CastIf(AbstractType.Building, out pBuilding);
+            try
+            {
+                return pObject.CastIf(AbstractType.Building, out pBuilding);
+            }
+            catch (Exception) { }
+            pBuilding = IntPtr.Zero;
+            return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToBuilding(this Pointer<TechnoClass> pTechno, out Pointer<BuildingClass> pBuilding)
@@ -36,7 +48,13 @@ namespace Extension.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToInfantry(this Pointer<ObjectClass> pObject, out Pointer<InfantryClass> pInfantry)
         {
-            return pObject.CastIf(AbstractType.Infantry, out pInfantry);
+            try
+            {
+                return pObject.CastIf(AbstractType.Infantry, out pInfantry);
+            }
+            catch (Exception) { }
+            pInfantry = IntPtr.Zero;
+            return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToInfantry(this Pointer<TechnoClass> pTechno, out Pointer<InfantryClass> pInfantry)
@@ -47,7 +65,13 @@ namespace Extension.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToUnit(this Pointer<ObjectClass> pObject, out Pointer<UnitClass> pUnit)
         {
-            return pObject.CastIf(AbstractType.Unit, out pUnit);
+            try
+            {
+                return pObject.CastIf(AbstractType.Unit, out pUnit);
+            }
+            catch (Exception) { }
+            pUnit = IntPtr.Zero;
+            return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToUnit(this Pointer<TechnoClass> pTechno, out Pointer<UnitClass> pUnit)
@@ -58,7 +82,13 @@ namespace Extension.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToAircraft(this Pointer<ObjectClass> pObject, out Pointer<AircraftClass> pAircraft)
         {
-            return pObject.CastIf(AbstractType.Aircraft, out pAircraft);
+            try
+            {
+                return pObject.CastIf(AbstractType.Aircraft, out pAircraft);
+            }
+            catch (Exception) { }
+            pAircraft = IntPtr.Zero;
+            return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CastToAircraft(this Pointer<TechnoClass> pTechno, out Pointer<AircraftClass> pAircraft)

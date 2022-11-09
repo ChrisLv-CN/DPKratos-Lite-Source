@@ -23,12 +23,13 @@ namespace Extension.Script
 
         public bool DisableSelectVoice;
 
-        public bool IsBuilding;
 
         public bool CantMove;
 
         public DrivingState DrivingState;
         private Mission lastMission;
+
+        private bool isBuilding;
 
         private bool initStateFlag = false;
 
@@ -76,7 +77,7 @@ namespace Extension.Script
         public override void Awake()
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
-            this.IsBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
+            this.isBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
         }
 
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)

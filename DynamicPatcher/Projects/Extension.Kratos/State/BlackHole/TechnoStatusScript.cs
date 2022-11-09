@@ -43,6 +43,21 @@ namespace Extension.Script
                 {
                     BlackHoleState.StartCapture(pTechno.Convert<ObjectClass>(), pTechno.Ref.Owner);
                 }
+                // if (!isBuilding)
+                // {
+                //     ILocomotion locomotion = pTechno.Convert<FootClass>().Ref.Locomotor;
+                //     // if (pTechno.Ref.Base.IsSelected)
+                //     // locomotion.Move_To(pTechno.Ref.Base.Base.GetCoords());
+                //     // locomotion.Mark_All_Occupation_Bits(0); // 清除HeadTo的占领
+                //     if (locomotion.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Drive)
+                //     {
+                //         Pointer<DriveLocomotionClass> pLoco = locomotion.ToLocomotionClass<DriveLocomotionClass>();
+                //         CoordStruct headTo = pLoco.Ref.HeadToCoord;
+                //         BulletEffectHelper.RedCrosshair(headTo, 128);
+                //         BulletEffectHelper.RedLine(pTechno.Ref.Base.Base.GetCoords(), headTo);
+                //         CoordStruct destTo = pLoco.Ref.Destination;
+                //     }
+                // }
                 // 被黑洞吸取中
                 if (CaptureByBlackHole)
                 {
@@ -58,7 +73,62 @@ namespace Extension.Script
                     else
                     {
                         Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
-                        if (!IsBuilding)
+                        if (null != blackHoleData)
+                        {
+                            // 黑洞伤害
+                            if (blackHoleData.AllowDamageTechno && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
+                            {
+                                if (blackHoleDamageDelay.Expired())
+                                {
+                                    blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
+                                    // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
+                                    Pointer<WarheadTypeClass> pWH = RulesClass.Global().C4Warhead;
+                                    if (!blackHoleData.DamageWH.IsNullOrEmptyOrNone())
+                                    {
+                                        pWH = WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find(blackHoleData.DamageWH);
+                                    }
+                                    if (!pWH.IsNull)
+                                    {
+                                        Pointer<ObjectClass> pAttacker = IntPtr.Zero;
+                                        Pointer<HouseClass> pAttackingHouse = IntPtr.Zero;
+                                        if (pBlackHole.Pointer.CastToBullet(out Pointer<BulletClass> pBullet))
+                                        {
+                                            pAttacker = pBullet.Ref.Owner.Convert<ObjectClass>();
+                                            pAttackingHouse = pBullet.GetSourceHouse();
+                                        }
+                                        else
+                                        {
+                                            pAttacker = pBlackHole;
+                                            pAttackingHouse = pBlackHole.Pointer.Convert<TechnoClass>().Ref.Owner;
+                                        }
+                                        // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {pWH.Ref.Base.ID}");
+                                        pTechno.Ref.Base.TakeDamage(blackHoleData.Damage, pWH, pAttacker, pAttackingHouse, pTechno.Ref.Type.Ref.Crewed);
+                                    }
+                                }
+                            }
+                            // 目标设置
+                            if (blackHoleData.ClearTarget)
+                            {
+                                ClearTarget();
+                            }
+                            if (blackHoleData.ChangeTarget)
+                            {
+                                pTechno.Ref.SetTarget(pBlackHole.Pointer.Convert<AbstractClass>());
+                            }
+                            // 失控设置
+                            if (!isBuilding && blackHoleData.OutOfControl)
+                            {
+                                lostControl = true;
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 失去控制");
+                                ClearTarget();
+                                pTechno.Ref.Base.Deselect();
+                                pMission.Ref.ForceMission(Mission.None);
+                                pMission.Ref.QueueMission(Mission.Sleep, false);
+                                // pTechno.Convert<FootClass>().Ref.IsAttackedByLocomotor = true;
+                            }
+                        }
+                        // 移动位置
+                        if (!isBuilding)
                         {
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响，开始调整位置");
                             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
@@ -67,10 +137,8 @@ namespace Extension.Script
                             // 停止移动
                             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
-                            pFoot.Ref.Destination = IntPtr.Zero;
                             ILocomotion loco = pFoot.Ref.Locomotor;
-                            loco.Stop_Moving();
-                            loco.Mark_All_Occupation_Bits(0);
+                            loco.Mark_All_Occupation_Bits((int)MarkType.UP); // 清除HeadTo的占领
                             loco.Lock();
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");
                             // 计算下一个坐标点
@@ -139,6 +207,9 @@ namespace Extension.Script
                             // 被黑洞吸走
                             pTechno.Ref.Base.Mark(MarkType.UP);
                             pTechno.Ref.Base.SetLocation(nextPos);
+                            // CoordStruct dest = loco.Destination();
+                            // BulletEffectHelper.GreenCrosshair(nextPos, 128);
+                            // BulletEffectHelper.GreenLine(sourcePos, nextPos);
                             pTechno.Ref.Base.Mark(MarkType.DOWN);
                             // 设置动作
                             if (blackHoleData.AllowCrawl && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
@@ -183,60 +254,7 @@ namespace Extension.Script
                                 }
                             }
                         }
-                        if (null != blackHoleData)
-                        {
-                            // 黑洞伤害
-                            if (blackHoleData.AllowDamageTechno && blackHoleData.Damage != 0 && !BlackHoleState.IsActive())
-                            {
-                                if (blackHoleDamageDelay.Expired())
-                                {
-                                    blackHoleDamageDelay.Start(blackHoleData.DamageDelay);
-                                    // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 准备中 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {blackHoleData.DamageWH}");
-                                    Pointer<WarheadTypeClass> pWH = RulesClass.Global().C4Warhead;
-                                    if (!blackHoleData.DamageWH.IsNullOrEmptyOrNone())
-                                    {
-                                        pWH = WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find(blackHoleData.DamageWH);
-                                    }
-                                    if (!pWH.IsNull)
-                                    {
-                                        Pointer<ObjectClass> pAttacker = IntPtr.Zero;
-                                        Pointer<HouseClass> pAttackingHouse = IntPtr.Zero;
-                                        if (pBlackHole.Pointer.CastToBullet(out Pointer<BulletClass> pBullet))
-                                        {
-                                            pAttacker = pBullet.Ref.Owner.Convert<ObjectClass>();
-                                            pAttackingHouse = pBullet.GetSourceHouse();
-                                        }
-                                        else
-                                        {
-                                            pAttacker = pBlackHole;
-                                            pAttackingHouse = pBlackHole.Pointer.Convert<TechnoClass>().Ref.Owner;
-                                        }
-                                        // Logger.Log($"{Game.CurrentFrame} 黑洞对 [{section}]{pTechno} 造成伤害 Damage = {blackHoleData.Damage}, ROF = {blackHoleData.DamageDelay}, WH = {pWH.Ref.Base.ID}");
-                                        pTechno.Ref.Base.TakeDamage(blackHoleData.Damage, pWH, pAttacker, pAttackingHouse, pTechno.Ref.Type.Ref.Crewed);
-                                    }
-                                }
-                            }
-                            // 目标设置
-                            if (blackHoleData.ClearTarget)
-                            {
-                                ClearTarget();
-                            }
-                            if (blackHoleData.ChangeTarget)
-                            {
-                                pTechno.Ref.SetTarget(pBlackHole.Pointer.Convert<AbstractClass>());
-                            }
-                            // 失控设置
-                            if (!IsBuilding && blackHoleData.OutOfControl)
-                            {
-                                lostControl = true;
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 失去控制");
-                                ClearTarget();
-                                pTechno.Ref.Base.Deselect();
-                                pMission.Ref.ForceMission(Mission.None);
-                                pMission.Ref.QueueMission(Mission.Sleep, false);
-                                // pTechno.Convert<FootClass>().Ref.IsAttackedByLocomotor = true;
-                            }
-                        }
+                        
                     }
                 }
             }
@@ -256,7 +274,7 @@ namespace Extension.Script
         public void CancelBlackHole()
         {
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 不再受 黑洞 {pBlackHole.Pointer} 的影响");
-            if (CaptureByBlackHole && !IsBuilding && !pTechno.IsDeadOrInvisible())
+            if (CaptureByBlackHole && !isBuilding && !pTechno.IsDeadOrInvisible())
             {
                 Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
                 Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
@@ -334,7 +352,6 @@ namespace Extension.Script
                     }
                     if (canPass)
                     {
-                        pTechno.Ref.Base.MarkAllOccupationBits(targetPos);
                         if (height > 0)
                         {
                             // 离地
@@ -345,6 +362,7 @@ namespace Extension.Script
                         {
                             // 贴地
                             pTechno.Ref.Base.Scatter(targetPos, true, true);
+                            pFoot.Ref.Locomotor.Mark_All_Occupation_Bits(0); // 清除HeadTo的占用
                         }
                     }
                     else
