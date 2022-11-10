@@ -677,6 +677,32 @@ namespace ExtensionHooks
         #endregion
 
         #region ========== Stand ==========
+        // AI的替身在攻击友军时会强制取消目标
+        [Hook(HookType.AresHook, Address = 0x6FA39D, Size = 7)]
+        public static unsafe UInt32 TechnoClass_Update_NotHuman_ClearTarget_Stand(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 取消目标");
+            if (CombatDamage.Data.AllowAIAttackFriendlies || pTechno.AmIStand())
+            {
+                return 0x6FA472;
+            }
+            return 0;
+        }
+
+        // // AI是否可以攻击AI
+        // [Hook(HookType.AresHook, Address = 0x6FC230, Size = 6)]
+        // public static unsafe UInt32 TechnoClass_CanFire_NotHuman_Stand(REGISTERS* R)
+        // {
+        //     Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+        //     // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 取消目标");
+        //     if (CombatDamage.Data.AllowAIAttackFriendlies || pTechno.AmIStand())
+        //     {
+        //         return 0x6FC24D;
+        //     }
+        //     return 0;
+        // }
+
         // 替身需要显示在上层时，修改了渲染的层，导致单位在试图攻击替身时，需要武器具备AA
         [Hook(HookType.AresHook, Address = 0x6FC749, Size = 5)]
         public static unsafe UInt32 TechnoClass_CanFire_WhichLayer_Stand(REGISTERS* R)
