@@ -131,7 +131,7 @@ namespace Extension.Script
                         // 强扭朝向
                         ForceSetFacing(locationMark.Direction);
                     }
-                    // Logger.Log($"{Game.CurrentFrame} - 创建替身 {pStand.Pointer}[{Type.Type}], JOJO {pObject}[{pObject.Ref.Type.Ref.Base.ID}]");
+                    // Logger.Log($"{Game.CurrentFrame} - 创建替身 [{Data.Type}]{pStand.Pointer}, 所属 {AE.pSourceHouse}, JOJO [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}");
                 }
             }
 

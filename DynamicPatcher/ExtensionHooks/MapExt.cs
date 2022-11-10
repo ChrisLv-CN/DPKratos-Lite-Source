@@ -30,7 +30,7 @@ namespace ExtensionHooks
                     // Logger.Log($"{Game.CurrentFrame} - 轰炸地区 {pLocation.Data} damage {R->EDX}, warhead {pWH} [{pWH.Ref.Base.ID}], shooter {pAttacker}, owner {pAttackingHouse}");
                     // 抛射体爆炸OnDetonate()后会调用该事件
                     // Find all stand, check distance and blown it up.
-                    AttachEffectScript.FindAndDamageStandOrVUnit(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
+                    TechnoStatusScript.FindAndDamageStandOrVUnit(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
                     // Find and Attach Effects.
                     AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttacker, pAttackingHouse);
                 }

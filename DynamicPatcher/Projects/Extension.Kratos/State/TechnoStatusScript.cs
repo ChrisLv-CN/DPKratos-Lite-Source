@@ -243,5 +243,85 @@ namespace Extension.Script
                 pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
         }
+
+        /// <summary>
+        /// 查找爆炸位置的替身或者虚拟单位并对其造成伤害
+        /// </summary>
+        /// <param name="location"></param>
+        /// <param name="damage"></param>
+        /// <param name="pAttacker"></param>
+        /// <param name="pWH"></param>
+        /// <param name="pAttackingHouse"></param>
+        /// <param name="exclue"></param>
+        public static void FindAndDamageStandOrVUnit(CoordStruct location, int damage, Pointer<ObjectClass> pAttacker,
+           Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
+        {
+            double spread = pWH.Ref.CellSpread * 256;
+            Dictionary<TechnoExt, DamageGroup> targets = new Dictionary<TechnoExt, DamageGroup>();
+            // 搜索符合条件的替身
+            // Logger.Log($"{Game.CurrentFrame}, 替身列表里有 {TechnoStatusScript.StandArray.Count()} 个记录");
+            foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
+            {
+                if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                {
+                    Pointer<TechnoClass> pStand = stand.Key.OwnerObject;
+                    StandData standData = stand.Value;
+                    if (!standData.Immune && pStand.Convert<ObjectClass>() != exclude
+                        && CheckAndMarkTarget(pStand, spread, location, damage, pAttacker, pWH, pAttackingHouse, out DamageGroup damageGroup))
+                    {
+                        targets.Add(stand.Key, damageGroup);
+                    }
+                }
+            }
+            // 搜索符合条件的虚拟单位
+            foreach (TechnoExt vuint in TechnoStatusScript.VirtualUnitArray)
+            {
+                Pointer<TechnoClass> pTarget = vuint.OwnerObject;
+                if (!targets.ContainsKey(vuint) && pTarget.Convert<ObjectClass>() != exclude
+                    && CheckAndMarkTarget(pTarget, spread, location, damage, pAttacker, pWH, pAttackingHouse, out DamageGroup damageGroup))
+                {
+                    targets.Add(vuint, damageGroup);
+                }
+            }
+
+            // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的替身或虚拟单位有{targets.Count()}个，造成伤害 {damage}");
+            foreach (DamageGroup damageGroup in targets.Values)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 炸掉目标 [{damageGroup.Target.Ref.Type.Ref.Base.Base.ID}]{damageGroup.Target}");
+                damageGroup.Target.Ref.Base.ReceiveDamage(damage, (int)damageGroup.Distance, pWH, pAttacker, false, false, pAttackingHouse);
+            }
+        }
+
+        private static bool CheckAndMarkTarget(Pointer<TechnoClass> pTarget, double spread, CoordStruct location, int damage, Pointer<ObjectClass> pAttacker,
+           Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pAttackingHouse, out DamageGroup damageGroup)
+        {
+            damageGroup = default;
+            if (!pTarget.IsNull && !pTarget.Ref.Type.IsNull && !pTarget.IsImmune())
+            {
+                // 检查距离
+                CoordStruct targetPos = pTarget.Ref.Base.Base.GetCoords();
+                double dist = targetPos.DistanceFrom(location);
+                // Logger.Log($"{Game.CurrentFrame} 检查目标 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 与目标点的距离 {dist}");
+                if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft && pTarget.InAir())
+                {
+                    dist *= 0.5;
+                }
+                if (dist <= spread)
+                {
+                    // 找到一个在范围内的目标，检查弹头是否可以影响该目标
+                    if (pTarget.CanAffectMe(pAttackingHouse, pWH)// 检查所属权限
+                        && pTarget.CanDamageMe(damage, (int)dist, pWH, out int realDamage)// 检查护甲
+                    )
+                    {
+                        damageGroup = new DamageGroup();
+                        damageGroup.Target = pTarget;
+                        damageGroup.Distance = dist;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
     }
 }

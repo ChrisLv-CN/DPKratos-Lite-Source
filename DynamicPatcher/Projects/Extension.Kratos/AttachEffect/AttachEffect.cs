@@ -24,8 +24,8 @@ namespace Extension.Script
         public AttachEffectScript AEManager;
 
         public Pointer<ObjectClass> pOwner => AEManager.pOwner; // AE附着对象
-        public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
         public SwizzleablePointer<TechnoClass> pSource; // AE来源
+        public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
 
         public CoordStruct Location;
 
@@ -44,8 +44,8 @@ namespace Extension.Script
         {
             this.AEData = data;
 
-            this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
             this.pSource = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+            this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
             int initDelay = AEData.InitialRandomDelay.GetRandomValue(AEData.InitialDelay);
             this.delayToEnable = initDelay > 0;
             if (delayToEnable)
@@ -96,12 +96,12 @@ namespace Extension.Script
             }
         }
 
-        public void Enable(AttachEffectScript AEManager, Pointer<HouseClass> pSourceHouse, SwizzleablePointer<TechnoClass> pSource)
+        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse)
         {
             this.active = true;
             this.AEManager = AEManager;
-            this.pSourceHouse.Pointer = pSourceHouse;
             this.pSource.Pointer = pSource;
+            this.pSourceHouse.Pointer = pSourceHouse;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
 
