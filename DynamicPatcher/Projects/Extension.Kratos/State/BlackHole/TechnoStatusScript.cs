@@ -46,9 +46,6 @@ namespace Extension.Script
                 // if (!isBuilding)
                 // {
                 //     ILocomotion locomotion = pTechno.Convert<FootClass>().Ref.Locomotor;
-                //     // if (pTechno.Ref.Base.IsSelected)
-                //     // locomotion.Move_To(pTechno.Ref.Base.Base.GetCoords());
-                //     // locomotion.Mark_All_Occupation_Bits(0); // 清除HeadTo的占领
                 //     if (locomotion.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Drive)
                 //     {
                 //         Pointer<DriveLocomotionClass> pLoco = locomotion.ToLocomotionClass<DriveLocomotionClass>();
@@ -56,6 +53,10 @@ namespace Extension.Script
                 //         BulletEffectHelper.RedCrosshair(headTo, 128);
                 //         BulletEffectHelper.RedLine(pTechno.Ref.Base.Base.GetCoords(), headTo);
                 //         CoordStruct destTo = pLoco.Ref.Destination;
+                //         if (pTechno.Ref.Base.IsSelected || CaptureByBlackHole)
+                //         {
+                //             Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} speed={pLoco.Ref.Speed} mov={pLoco.Ref.MovementSpeed} IsDriving={pLoco.Ref.IsDriving}, IsRotating={pLoco.Ref.IsRotating}, IsLocked={pLoco.Ref.IsLocked}");
+                //         }
                 //     }
                 // }
                 // 被黑洞吸取中
@@ -139,8 +140,15 @@ namespace Extension.Script
                             // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
                             ILocomotion loco = pFoot.Ref.Locomotor;
                             loco.Mark_All_Occupation_Bits((int)MarkType.UP); // 清除HeadTo的占领
+                            if (loco.Apparent_Speed() > 0)
+                            {
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
+                                pFoot.Ref.Base.SetDestination(default(Pointer<CellClass>));
+                                loco.ForceStopMoving();
+                            }
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
                             loco.Lock();
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");)
                             // 计算下一个坐标点
                             // 以偏移量为FLH获取目标点
                             CoordStruct targetPos = pBlackHole.Pointer.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
@@ -254,7 +262,7 @@ namespace Extension.Script
                                 }
                             }
                         }
-                        
+
                     }
                 }
             }
@@ -362,7 +370,6 @@ namespace Extension.Script
                         {
                             // 贴地
                             pTechno.Ref.Base.Scatter(targetPos, true, true);
-                            pFoot.Ref.Locomotor.Mark_All_Occupation_Bits(0); // 清除HeadTo的占用
                         }
                     }
                     else
