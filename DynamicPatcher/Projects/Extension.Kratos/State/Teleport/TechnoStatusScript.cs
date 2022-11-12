@@ -123,12 +123,7 @@ namespace Extension.Script
                                     }
                                     loco = null;
                                     // Warp
-                                    if (data.Super)
-                                    {
-                                        // 使用超武跳
-                                        pTechno.Convert<FootClass>().Ref.ChronoWarpTo(targetPos);
-                                    }
-                                    else if (pTechno.InAir())
+                                    if (pTechno.InAir())
                                     {
                                         // 空中跳，自定义跳
                                         CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
@@ -188,6 +183,11 @@ namespace Extension.Script
                                         pTechno.Ref.WarpingOut = true;
                                         teleportTimer.Start(delay);
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自行传送完成，计算冷却，剩余时间 {teleportTimer.GetTimeLeft()}");
+                                    }
+                                    else if (data.Super)
+                                    {
+                                        // 使用超武跳
+                                        pTechno.Convert<FootClass>().Ref.ChronoWarpTo(targetPos);
                                     }
                                     else
                                     {
