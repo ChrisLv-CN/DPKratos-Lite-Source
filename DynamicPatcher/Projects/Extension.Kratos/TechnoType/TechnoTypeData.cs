@@ -17,12 +17,29 @@ namespace Extension.Ext
 
         // Phobos
         public CoordStruct TurretOffset;
+        public string WarpIn;
+        public string WarpOut;
+        public string WarpAway;
+        public int ChronoDelay;
+        public int ChronoDistanceFactor;
+        public Bool ChronoTrigger;
+        public int ChronoMinimumDelay;
+        public int ChronoRangeMinimum;
 
         public TechnoTypeData()
         {
             this.AllowCloakable = true;
 
             this.TurretOffset = default;
+            this.WarpIn = null;
+            this.WarpOut = null;
+            this.WarpAway = null;
+
+            this.ChronoDelay = 60;
+            this.ChronoDistanceFactor = 32;
+            this.ChronoTrigger = true;
+            this.ChronoMinimumDelay = 0;
+            this.ChronoRangeMinimum = 0;
         }
 
         public override void Read(IConfigReader reader)
@@ -62,7 +79,16 @@ namespace Extension.Ext
                     }
                 }
             }
-
+            this.WarpIn = reader.Get("WarpIn", WarpIn);
+            this.WarpOut = reader.Get("WarpOut", WarpOut);
+            this.WarpAway = reader.Get("WarpAway", WarpAway);
+            // 在游戏开始后再访问，读取全局没问题
+            RulesClass rules = RulesClass.Global();
+            this.ChronoDelay = reader.Get("ChronoDelay", rules.ChronoDelay);
+            this.ChronoDistanceFactor = reader.Get("ChronoDistanceFactor", rules.ChronoDistanceFactor);
+            this.ChronoTrigger = reader.Get("ChronoTrigger", rules.ChronoTrigger);
+            this.ChronoMinimumDelay = reader.Get("ChronoMinimumDelay", rules.ChronoMinimumDelay);
+            this.ChronoRangeMinimum = reader.Get("ChronoRangeMinimum", rules.ChronoRangeMinimum);
         }
 
     }

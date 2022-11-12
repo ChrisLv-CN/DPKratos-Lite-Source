@@ -121,11 +121,73 @@ namespace Extension.Script
                                         // 清除目标
                                         ClearTarget();
                                     }
+                                    loco = null;
                                     // Warp
                                     if (data.Super)
                                     {
                                         // 使用超武跳
                                         pTechno.Convert<FootClass>().Ref.ChronoWarpTo(targetPos);
+                                    }
+                                    else if (pTechno.InAir())
+                                    {
+                                        // 空中跳，自定义跳
+                                        CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                                        int height = pTechno.Ref.Base.GetHeight();
+                                        targetPos.Z += height;
+                                        // 移动位置
+                                        pTechno.Ref.Base.Mark(MarkType.UP);
+                                        pTechno.Ref.Base.SetLocation(targetPos);
+                                        pTechno.Ref.Base.Mark(MarkType.DOWN);
+                                        // 移除黑幕
+                                        MapClass.Instance.RevealArea2(targetPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
+                                        MapClass.Instance.RevealArea2(targetPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
+
+                                        TechnoTypeData typeData = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, section).Data;
+                                        // 播放自定义传送动画
+                                        Pointer<AnimTypeClass> pAnimType = IntPtr.Zero;
+                                        if (typeData.WarpOut.IsNullOrEmpty())
+                                        {
+                                            pAnimType = RulesClass.Global().WarpOut;
+                                        }
+                                        else if ("none" != typeData.WarpOut.Trim().ToLower())
+                                        {
+                                            pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(typeData.WarpOut);
+                                        }
+                                        if (!pAnimType.IsNull)
+                                        {
+                                            Pointer<AnimClass> pAnimOut = YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                                            pAnimOut.SetAnimOwner(pTechno);
+
+                                            Pointer<AnimClass> pAnimIn = YRMemory.Create<AnimClass>(pAnimType, targetPos);
+                                            pAnimIn.SetAnimOwner(pTechno);
+                                        }
+                                        // 播放声音
+                                        int outSound = pTechno.Ref.Type.Ref.ChronoOutSound;
+                                        if (outSound >= 0 || (outSound = RulesClass.Global().ChronoOutSound) >= 0)
+                                        {
+                                            VocClass.PlayAt(outSound, sourcePos);
+                                        }
+                                        int inSound = pTechno.Ref.Type.Ref.ChronoInSound;
+                                        if (inSound >= 0 || (inSound = RulesClass.Global().ChronoInSound) >= 0)
+                                        {
+                                            VocClass.PlayAt(inSound, targetPos);
+                                        }
+                                        // 传送冷冻
+                                        int delay = typeData.ChronoMinimumDelay;
+                                        if (typeData.ChronoTrigger)
+                                        {
+                                            // 根据传送距离计算时间
+                                            double distance = targetPos.DistanceFrom(sourcePos);
+                                            if (distance > typeData.ChronoRangeMinimum)
+                                            {
+                                                // Logger.Log($"{Game.CurrentFrame} 重算冰冻时间, dist={distance}, RangeMin={typeData.ChronoRangeMinimum}, {typeData.ChronoDistanceFactor}, {typeData.ChronoDelay}");
+                                                int factor = Math.Max(typeData.ChronoDistanceFactor, 1);
+                                                delay = (int)(distance / factor);
+                                            }
+                                        }
+                                        pTechno.Ref.WarpingOut = true;
+                                        teleportTimer.Start(delay);
+                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自行传送完成，计算冷却，剩余时间 {teleportTimer.GetTimeLeft()}");
                                     }
                                     else
                                     {
@@ -163,8 +225,12 @@ namespace Extension.Script
                         }
                         else
                         {
-                            // 当前帧切换loco后会切回来，而且下一帧才可以获得计时器
-                            teleportTimer = loco.ToLocomotionClass<TeleportLocomotionClass>().Ref.Timer;
+                            if (null != loco)
+                            {
+                                // 当前帧切换loco后会切回来，而且下一帧才可以获得计时器
+                                teleportTimer = loco.ToLocomotionClass<TeleportLocomotionClass>().Ref.Timer;
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 传送完成，获得冷却计时器，剩余时间 {teleportTimer.GetTimeLeft()}");
+                            }
                             if (teleportTimer.Expired())
                             {
                                 // 解冻，进入下一个阶段
@@ -227,11 +293,16 @@ namespace Extension.Script
 
         private CoordStruct GetAndMarkDestination()
         {
+            CoordStruct targetPos = default;
             ILocomotion loco = pTechno.Convert<FootClass>().Ref.Locomotor;
-            CoordStruct targetPos = loco.Destination();
-            // 记录下目的地
-            pDest = pTechno.Convert<FootClass>().Ref.Destination;
-            pFocus = pTechno.Ref.Focus;
+            // 是否正在移动
+            if (loco.Apparent_Speed() > 0)
+            {
+                targetPos = loco.Destination();
+                // 记录下目的地
+                pDest = pTechno.Convert<FootClass>().Ref.Destination;
+                pFocus = pTechno.Ref.Focus;
+            }
             return targetPos;
         }
 

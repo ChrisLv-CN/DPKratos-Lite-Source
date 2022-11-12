@@ -48,9 +48,14 @@ namespace Extension.Utilities
             return val;
         }
 
+        public static bool IsNullOrEmpty(this string val)
+        {
+            return string.IsNullOrEmpty(val);
+        }
+
         public static bool IsNullOrEmptyOrNone(this string val)
         {
-            return string.IsNullOrEmpty(val) || "none" == val.Trim().ToLower();
+            return val.IsNullOrEmpty() || "none" == val.Trim().ToLower();
         }
     }
 
