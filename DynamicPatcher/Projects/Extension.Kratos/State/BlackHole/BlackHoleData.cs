@@ -64,7 +64,7 @@ namespace Extension.Ext
 
         public CoordStruct Offset;
         public bool IsOnTurret;
-        public int Count;
+        public int TriggeredTimes;
 
         public double Weight;
         public bool CaptureFromSameWeight;
@@ -96,7 +96,7 @@ namespace Extension.Ext
 
             this.Offset = default;
             this.IsOnTurret = true;
-            this.Count = -1;
+            this.TriggeredTimes = -1;
 
             this.Weight = -1;
             this.CaptureFromSameWeight = true;
@@ -151,7 +151,8 @@ namespace Extension.Ext
 
             this.Offset = reader.Get(TITLE + "Offset", this.Offset);
             this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
-            this.Count = reader.Get(TITLE + "Count", this.Count);
+            this.TriggeredTimes = reader.Get(TITLE + "Count", this.TriggeredTimes); // 兼容
+            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);
             this.CaptureFromSameWeight = reader.Get(TITLE + "CaptureFromSameWeight", this.CaptureFromSameWeight);

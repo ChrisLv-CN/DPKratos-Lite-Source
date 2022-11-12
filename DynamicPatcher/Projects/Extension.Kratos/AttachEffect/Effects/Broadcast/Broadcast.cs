@@ -64,7 +64,7 @@ namespace Extension.Script
                     if (delayTimer.Expired())
                     {
                         // 检查次数
-                        if (Data.Count > 0 && ++count > Data.Count)
+                        if (Data.TriggeredTimes > 0 && ++count > Data.TriggeredTimes)
                         {
                             Disable(default);
                         }

@@ -55,7 +55,7 @@ namespace Extension.Ext
 
         private bool IsDone()
         {
-            return Data.Count > 0 && count >= Data.Count;
+            return Data.TriggeredTimes > 0 && count >= Data.TriggeredTimes;
         }
 
         private BlackHole GetData()

@@ -137,6 +137,7 @@ namespace Extension.Ext
             ReadMarkData(reader);
             ReadPaintballData(reader);
             ReadStandData(reader);
+            ReadTeleportData(reader);
             ReadTransformData(reader);
             ReadOverrideWeaponData(reader);
 

@@ -91,7 +91,7 @@ namespace Extension.Script
                             if (!pAnimType.IsNull)
                             {
                                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                                if (reactionData.AnimFLH != default)
+                                if (default != reactionData.AnimFLH)
                                 {
                                     location = FLHHelper.GetFLHAbsoluteCoords(pTechno, reactionData.AnimFLH);
                                 }

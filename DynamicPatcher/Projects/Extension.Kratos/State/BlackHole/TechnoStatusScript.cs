@@ -136,19 +136,7 @@ namespace Extension.Script
                             // 从占据的格子中移除自己
                             pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                             // 停止移动
-                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
-                            // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
-                            ILocomotion loco = pFoot.Ref.Locomotor;
-                            loco.Mark_All_Occupation_Bits((int)MarkType.UP); // 清除HeadTo的占领
-                            if (loco.Apparent_Speed() > 0)
-                            {
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
-                                pFoot.Ref.Base.SetDestination(default(Pointer<CellClass>));
-                                loco.ForceStopMoving();
-                            }
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
-                            loco.Lock();
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");)
+                            StopMoving();
                             // 计算下一个坐标点
                             // 以偏移量为FLH获取目标点
                             CoordStruct targetPos = pBlackHole.Pointer.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
@@ -219,6 +207,7 @@ namespace Extension.Script
                             // BulletEffectHelper.GreenCrosshair(nextPos, 128);
                             // BulletEffectHelper.GreenLine(sourcePos, nextPos);
                             pTechno.Ref.Base.Mark(MarkType.DOWN);
+                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // 设置动作
                             if (blackHoleData.AllowCrawl && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
                             {
@@ -245,6 +234,7 @@ namespace Extension.Script
                                     {
                                         DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
                                         pTechno.Ref.Facing.turn(facingDir);
+                                        ILocomotion loco = pFoot.Ref.Locomotor;
                                         Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
                                         if (locoId == LocomotionClass.Jumpjet)
                                         {
