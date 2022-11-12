@@ -27,6 +27,10 @@ namespace Extension.Ext
 
         public bool ClearTarget;
 
+        
+        // 弹头传送标记
+        public bool Teleporter;
+
         public WarheadTypeData()
         {
             // Ares
@@ -42,6 +46,8 @@ namespace Extension.Ext
             this.AffectInAir = true;
 
             this.ClearTarget = false;
+
+            this.Teleporter = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -60,6 +66,8 @@ namespace Extension.Ext
             this.AffectInAir = reader.Get("AffectInAir", this.AffectInAir);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
+
+            this.Teleporter = reader.Get("Teleporter", this.Teleporter);
         }
 
     }

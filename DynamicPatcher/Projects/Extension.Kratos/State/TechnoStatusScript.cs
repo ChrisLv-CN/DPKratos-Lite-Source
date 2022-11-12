@@ -69,6 +69,9 @@ namespace Extension.Script
             // 覆盖武器
             heir.OverrideWeaponState = this.OverrideWeaponState;
             this.OverrideWeaponState = new OverrideWeaponState();
+            // 传送
+            heir.TeleportState = this.TeleportState;
+            this.TeleportState = new TeleportState();
             // 染色弹
             heir.PaintballState = this.PaintballState;
             this.PaintballState = new PaintballState();
@@ -97,6 +100,7 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
+                InitState_Teleport();
                 InitState_VirtualUnit();
             }
         }
@@ -139,6 +143,7 @@ namespace Extension.Script
                 OnUpdate_Deselect();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
+                OnUpdate_Teleport();
             }
         }
 
@@ -242,6 +247,23 @@ namespace Extension.Script
                 pTechno.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
                 pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
+        }
+
+        public void StopMoving()
+        {
+            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+            // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
+            ILocomotion loco = pFoot.Ref.Locomotor;
+            loco.Mark_All_Occupation_Bits((int)MarkType.UP); // 清除HeadTo的占领
+            if (loco.Apparent_Speed() > 0)
+            {
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
+                pFoot.Ref.Base.SetDestination(default(Pointer<CellClass>));
+                loco.ForceStopMoving();
+            }
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
+            loco.Lock();
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停止行动");)
         }
 
         /// <summary>
