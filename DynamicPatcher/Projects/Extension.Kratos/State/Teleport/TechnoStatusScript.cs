@@ -116,12 +116,13 @@ namespace Extension.Script
                                 // 可以跳
                                 if (teleporting)
                                 {
+                                    loco = null;
+                                    teleportTimer.Stop();
                                     if (data.ClearTarget)
                                     {
                                         // 清除目标
                                         ClearTarget();
                                     }
-                                    loco = null;
                                     // Warp
                                     if (pTechno.InAir())
                                     {
@@ -188,6 +189,7 @@ namespace Extension.Script
                                     {
                                         // 使用超武跳
                                         pTechno.Convert<FootClass>().Ref.ChronoWarpTo(targetPos);
+                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 超武跳到目的地，{pTechno.Ref.ChronoLockRemaining}，冰冻时间 {teleportTimer.GetTimeLeft()}");
                                     }
                                     else
                                     {
@@ -208,7 +210,7 @@ namespace Extension.Script
                         }
                         break;
                     case TeleportStep.TELEPORTED:
-                        if (data.Super)
+                        if (data.Super && !pTechno.InAir())
                         {
                             // 超武跳，不用冷冻计时器
                             if (!pTechno.Ref.WarpingOut)
@@ -251,6 +253,7 @@ namespace Extension.Script
                         }
                         break;
                     case TeleportStep.FREEZING:
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 冷冻中 计时器剩余 {teleportTimer.GetTimeLeft()}");
                         if (teleportTimer.Expired() || !pTechno.Ref.WarpingOut)
                         {
                             // 解冻，进入下一个阶段
