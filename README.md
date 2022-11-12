@@ -9,8 +9,8 @@ The original `Kratos Build8` is now rename as `Kraots-Lite`.
 新版本将深度结合DP2.1的框架结构，对代码进行完全重构，想比之前的版本，具有更轻量、更快的速度、更便捷的更新机制。   
 The new version will deeply combine the framework structure of DP2.1, completely refactor the code, and have a lighter, faster and more convenient update mechanism than the previous version.
 
-此仓库仅用于存放源代码，如果你不是开发者，可前往[此处](https://github.com/ChrisLv-CN/DPKratos-Lite-Source)直接下载Release包。   
-This repository is only used to store source code. If you are not a developer, you can go to [here](https://github.com/ChrisLv-CN/DPKratos-Lite-Source) to download the Release package directly.
+此仓库仅用于存放源代码，如果你不是开发者，可前往[此处](https://github.com/ChrisLv-CN/DPKratos-Lite/releases)直接下载Release包。   
+This repository is only used to store source code. If you are not a developer, you can go to [here](https://github.com/ChrisLv-CN/DPKratos-Lite/releases) to download the Release package directly.
 
 关于Kratos (About Kratos)
 ============
