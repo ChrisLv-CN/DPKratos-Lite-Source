@@ -134,12 +134,13 @@ namespace Extension.Script
         /// <param name="typeData">section的AE清单</param>
         /// <param name="pSource">AE来源，即攻击者</param>
         /// <param name="pSourceHouse">来源所属</param>
-        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default)
+        /// <param name="fromWarhead">来自弹头，attachEffectOnceFlag应该传false</param>
+        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, bool fromWarhead = false)
         {
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Length > 0)
             {
-                Attach(typeData.AttachEffectTypes, pSource, pSourceHouse, attachEffectOnceFlag);
+                Attach(typeData.AttachEffectTypes, pSource, pSourceHouse, !fromWarhead && attachEffectOnceFlag);
             }
 
             if (typeData.StandTrainCabinLength > 0)
@@ -922,7 +923,7 @@ namespace Extension.Script
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
                                 // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}] Attacker {pAttacker} AttackingHouse {pAttackingHouse} ");
-                                aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse);
+                                aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true);
                             }
                         }
                     }
@@ -942,7 +943,7 @@ namespace Extension.Script
                                 // 赋予AE
                                 if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                                 {
-                                    aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse);
+                                    aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true);
                                 }
                             }
                         }
