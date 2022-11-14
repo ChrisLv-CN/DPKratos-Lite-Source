@@ -94,29 +94,16 @@ namespace Extension.Script
             {
                 // 强行移动导弹的位置
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                CoordStruct targetPos = pBlackHole.Ref.Base.GetCoords();
-                // 获取偏移量
-                targetPos += blackHoleData.Offset;
+                CoordStruct targetPos = pBlackHole.Pointer.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
+                CoordStruct nextPos = targetPos;
+                double dist = targetPos.DistanceFrom(sourcePos);
                 // 获取捕获速度
                 int speed = blackHoleData.GetCaptureSpeed(1);
-                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
-                CoordStruct nextPosFLH = new CoordStruct(speed, 0, 0);
-                DirStruct nextPosDir = FLHHelper.Point2Dir(sourcePos, targetPos);
-                CoordStruct nextPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, nextPosFLH, nextPosDir);
-                // 计算Z值
+                if (dist > speed)
+                {
+                    nextPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, speed);
+                }
                 int deltaZ = sourcePos.Z - targetPos.Z;
-                if (deltaZ < 0)
-                {
-                    // 目标点在上方
-                    int offset = -deltaZ > 20 ? 20 : -deltaZ;
-                    nextPos.Z += offset;
-                }
-                else if (deltaZ > 0)
-                {
-                    // 目标点在下方
-                    int offset = deltaZ > 20 ? 20 : deltaZ;
-                    nextPos.Z -= offset;
-                }
                 // 抛射体撞到地面
                 bool canMove = pBullet.Ref.Base.GetHeight() > 0;
                 // 检查悬崖
@@ -134,16 +121,19 @@ namespace Extension.Script
                             case TileType.DestroyableCliff:
                                 // 悬崖上可以往悬崖下移动
                                 canMove = deltaZ > 0;
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")}");
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")}");
                                 break;
                         }
                     }
                     // 检查建筑
-                    Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
-                    if (!pBuilding.IsNull)
+                    if (!blackHoleData.AllowPassBuilding)
                     {
-                        canMove = !pBuilding.CanHit(nextPos.Z);
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")}");
+                        Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
+                        if (!pBuilding.IsNull)
+                        {
+                            canMove = !pBuilding.CanHit(nextPos.Z);
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")}");
+                        }
                     }
                 }
                 if (!canMove)
