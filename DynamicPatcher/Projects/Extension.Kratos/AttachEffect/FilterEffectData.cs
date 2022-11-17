@@ -101,7 +101,7 @@ namespace Extension.Ext
             this.AffectsCivilian = reader.Get(title + "AffectsCivilian", this.AffectsCivilian);
         }
 
-        private bool CanAffectType(string ID)
+        public bool CanAffectType(string ID)
         {
             if (null != NotAffectTypes && NotAffectTypes.Length > 0 && NotAffectTypes.Contains(ID))
             {

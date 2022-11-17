@@ -326,6 +326,12 @@ namespace Extension.Utilities
             return dir;
         }
 
+        /// <summary>
+        /// 8的倍数分割面向，顺时针，0为↗，dir的0方向
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="facing"></param>
+        /// <returns></returns>
         public static int Dir2FacingIndex(DirStruct dir, int facing)
         {
             uint bits = (uint)Math.Round(Math.Sqrt(facing), MidpointRounding.AwayFromZero);

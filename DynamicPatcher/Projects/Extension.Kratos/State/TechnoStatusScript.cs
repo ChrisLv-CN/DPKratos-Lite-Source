@@ -94,6 +94,7 @@ namespace Extension.Script
                 InitState_BlackHole();
                 InitState_DamageReaction();
                 InitState_Deselect();
+                InitState_DestroyAnim();
                 InitState_DestroySelf();
                 InitState_ExtraFire();
                 InitState_FireSuper();
@@ -185,6 +186,7 @@ namespace Extension.Script
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             OnReceiveDamage2_BlackHole(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+            OnReceiveDamage2_DestroyAnim(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_GiftBox(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
         }
 

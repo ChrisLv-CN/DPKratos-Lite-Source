@@ -11,6 +11,22 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    public partial class AttachEffectData
+    {
+        public DestroyAnimData DestroyAnimData;
+
+        private void ReadDestroyAnimData(IConfigReader reader)
+        {
+            DestroyAnimData data = new DestroyAnimData();
+            data.Read(reader);
+            if (data.Enable)
+            {
+                this.DestroyAnimData = data;
+                this.Enable = true;
+            }
+        }
+    }
+
     [Serializable]
     public enum WreckOwner
     {
@@ -37,34 +53,34 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class DestroyAnimsData : INIConfig
+    public class DestroyAnimData : FilterEffectData, IStateData
     {
-        public const string TITLE = "DestroyAnims.";
+        public const string TITLE = "DestroyAnim.";
 
         public string[] Anims;
         public bool Random;
         public bool PlayInAir;
+        public WreckOwner Owner;
 
         public string WreckType;
-        public WreckOwner WreckOwner;
         public Mission WreckMission;
 
         public bool Wreck = false;
 
-        static DestroyAnimsData()
+        static DestroyAnimData()
         {
             new WreckOwnerParser().Register();
             new MissionParser().Register();
         }
 
-        public DestroyAnimsData()
+        public DestroyAnimData()
         {
             this.Anims = null;
-            this.Random = true;
+            this.Random = false;
             this.PlayInAir = false;
+            this.Owner = WreckOwner.INVOKER;
 
             this.WreckType = null;
-            this.WreckOwner = WreckOwner.INVOKER;
             this.WreckMission = Mission.Sleep;
 
             this.Wreck = false;
@@ -72,13 +88,17 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            this.Anims = reader.GetList("DestroyAnims", this.Anims);
+            base.Read(reader, TITLE);
+
+            this.Anims = reader.GetList(TITLE + "Types", this.Anims);
             this.Random = reader.Get(TITLE + "Random", this.Random);
             this.PlayInAir = reader.Get(TITLE + "PlayInAir", this.PlayInAir);
+            this.Owner = reader.Get(TITLE + "Owner", this.Owner);
 
             this.WreckType = reader.Get(TITLE + "WreckType", this.WreckType);
-            this.WreckOwner = reader.Get(TITLE + "WreckOwner", this.WreckOwner);
             this.WreckMission = reader.Get(TITLE + "WreckMission", this.WreckMission);
+
+            this.Enable = null != Anims || !WreckType.IsNullOrEmptyOrNone();
 
             this.Wreck = reader.Get(TITLE + "Wreck", this.Wreck);
         }

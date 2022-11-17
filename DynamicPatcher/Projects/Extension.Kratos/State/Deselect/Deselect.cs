@@ -32,7 +32,7 @@ namespace Extension.Script
         {
             return statusScript.DeselectState;
         }
-        
+
         public override State<DeselectData> GetState(BulletStatusScript statusScript)
         {
             return null;

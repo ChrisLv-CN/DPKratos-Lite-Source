@@ -408,6 +408,28 @@ namespace ExtensionHooks
         }
         #endregion
 
+        #region Infantry death anims
+        [Hook(HookType.AresHook, Address = 0x5185C8, Size = 6)] // IsHutman and not set DeathAnims
+        public static unsafe UInt32 Infantry_ReceiveDamage_DeathAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pInf = (IntPtr)R->ESI;
+                if (pInf.TryGetStatus(out TechnoStatusScript status) && status.PlayDestroyAnims())
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
+                    return 0x5185F1;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        #endregion
+
         #region Unit explosion anims
 
         [Hook(HookType.AresHook, Address = 0x738749, Size = 6)]
@@ -437,7 +459,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pUnit = (IntPtr)R->ESI;
-                if (pUnit.TryGetComponent<DestroyAnimsScript>(out DestroyAnimsScript destroyAnim) && destroyAnim.PlayDestroyAnims())
+                if (pUnit.TryGetStatus(out TechnoStatusScript status) && status.PlayDestroyAnims())
                 {
                     return 0x73887E;
                 }
