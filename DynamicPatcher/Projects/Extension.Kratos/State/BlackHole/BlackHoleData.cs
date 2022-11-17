@@ -28,20 +28,20 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BlackHole
+    public class BlackHoleEntity
     {
         public float Range;
         public int Rate;
 
-        public BlackHole()
+        public BlackHoleEntity()
         {
             this.Range = 0;
             this.Rate = 0;
         }
 
-        public BlackHole Clone()
+        public BlackHoleEntity Clone()
         {
-            BlackHole data = new BlackHole();
+            BlackHoleEntity data = new BlackHoleEntity();
             data.Range = this.Range;
             data.Rate = this.Rate;
             return data;
@@ -59,15 +59,17 @@ namespace Extension.Ext
     {
         public const string TITLE = "BlackHole.";
 
-        public BlackHole Data;
-        public BlackHole EliteData;
+        public BlackHoleEntity Data;
+        public BlackHoleEntity EliteData;
 
         public CoordStruct Offset;
         public bool IsOnTurret;
         public int TriggeredTimes;
+        public bool DontScan;
 
         public double Weight;
         public bool CaptureFromSameWeight;
+        public bool CaptureFromWarhead;
         public int CaptureSpeed;
         public bool CaptureIgnoreWeight;
         public bool AllowEscape;
@@ -97,9 +99,11 @@ namespace Extension.Ext
             this.Offset = default;
             this.IsOnTurret = true;
             this.TriggeredTimes = -1;
+            this.DontScan = false;
 
             this.Weight = -1;
             this.CaptureFromSameWeight = true;
+            this.CaptureFromWarhead = false;
             this.CaptureSpeed = (int)(12 * 2.55); // 不四舍五入
             this.CaptureIgnoreWeight = false;
             this.AllowEscape = false;
@@ -133,14 +137,14 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            BlackHole data = new BlackHole();
+            BlackHoleEntity data = new BlackHoleEntity();
             data.Read(reader, TITLE);
             if (data.Range > 0)
             {
                 this.Data = data;
             }
 
-            BlackHole elite = null != this.Data ? Data.Clone() : new BlackHole();
+            BlackHoleEntity elite = null != this.Data ? Data.Clone() : new BlackHoleEntity();
             elite.Read(reader, TITLE + "Elite");
             if (elite.Range > 0)
             {
@@ -153,8 +157,14 @@ namespace Extension.Ext
             this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
             this.TriggeredTimes = reader.Get(TITLE + "Count", this.TriggeredTimes); // 兼容
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
+            this.DontScan = reader.Get(TITLE + "DontScan", this.DontScan);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);
+            this.CaptureFromWarhead = reader.Get(TITLE + "CaptureFromWarhead", this.CaptureFromWarhead);
+            if (Enable)
+            {
+                Enable = !DontScan || CaptureFromWarhead; // 既不扫描也不从弹头捕获，黑洞无效
+            }
             this.CaptureFromSameWeight = reader.Get(TITLE + "CaptureFromSameWeight", this.CaptureFromSameWeight);
             int speed = reader.Get(TITLE + "CaptureSpeed", 0);
             if (speed != 0)

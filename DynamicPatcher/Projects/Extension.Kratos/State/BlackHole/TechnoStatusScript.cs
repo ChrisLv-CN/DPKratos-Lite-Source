@@ -66,7 +66,7 @@ namespace Extension.Script
                         || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
                         || !blackHoleState.IsActive()
                         || OutOfBlackHole(blackHoleState)
-                        || !blackHoleState.IsOnMark(pTechno.Convert<ObjectClass>())
+                        || !blackHoleState.IsOnMark(pTechno)
                     )
                     {
                         CancelBlackHole();
@@ -257,6 +257,27 @@ namespace Extension.Script
                 }
             }
 
+        }
+
+        public unsafe void OnReceiveDamage2_BlackHole(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        {
+            if (!pTechno.IsDeadOrInvisible() && damageState != DamageState.NowDead
+                && pWH.IsCapturer()
+                && pAttacker.TryGetBlackHoleState(out BlackHoleState state) && state.IsActive()
+                && state.Data.CaptureFromWarhead && state.Data.CanAffectType(pTechno) && state.IsOnMark(pTechno))
+            {
+                BlackHoleEntity data = state.GetData();
+                if (null != data && data.Range > 0)
+                {
+                    CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                    CoordStruct targetPos = pAttacker.Ref.Base.GetCoords();
+                    double distance = sourcePos.DistanceFrom(targetPos);
+                    if (!state.IsOutOfRange(distance))
+                    {
+                        SetBlackHole(pAttacker, state.Data);
+                    }
+                }
+            }
         }
 
         public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)

@@ -72,5 +72,17 @@ namespace Extension.Utilities
             return true;
         }
 
+        public static bool IsTeleporter(this Pointer<WarheadTypeClass> pWH)
+        {
+            WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            return whData.Teleporter;
+        }
+
+        public static bool IsCapturer(this Pointer<WarheadTypeClass> pWH)
+        {
+            WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            return whData.Capturer;
+        }
+
     }
 }

@@ -30,6 +30,8 @@ namespace Extension.Ext
         
         // 弹头传送标记
         public bool Teleporter;
+        // 弹头捕获标记
+        public bool Capturer;
 
         public WarheadTypeData()
         {
@@ -48,6 +50,7 @@ namespace Extension.Ext
             this.ClearTarget = false;
 
             this.Teleporter = false;
+            this.Capturer = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -68,6 +71,7 @@ namespace Extension.Ext
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
 
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
+            this.Capturer = reader.Get("Capturer", this.Capturer);
         }
 
     }

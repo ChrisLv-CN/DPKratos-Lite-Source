@@ -316,8 +316,7 @@ namespace Extension.Script
                 CoordStruct location = pLocation.Ref;
                 if (default != location)
                 {
-                    WarheadTypeData data = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-                    if (data.Teleporter)
+                    if (pWH.IsTeleporter())
                     {
                         this.warpTo = location;
                     }

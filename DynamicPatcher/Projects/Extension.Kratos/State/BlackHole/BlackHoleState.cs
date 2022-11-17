@@ -58,7 +58,7 @@ namespace Extension.Ext
             return Data.TriggeredTimes > 0 && count >= Data.TriggeredTimes;
         }
 
-        private BlackHole GetData()
+        public BlackHoleEntity GetData()
         {
             if (isElite)
             {
@@ -70,8 +70,8 @@ namespace Extension.Ext
         public void StartCapture(Pointer<ObjectClass> pBlackHole, Pointer<HouseClass> pHouse)
         {
             this.isElite = pBlackHole.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Veterancy.IsElite();
-            BlackHole data = GetData();
-            if (null != data && data.Range > 0)
+            BlackHoleEntity data = GetData();
+            if (!Data.DontScan && null != data && data.Range > 0)
             {
                 Reload(data.Rate);
                 // 检查平民
@@ -116,11 +116,20 @@ namespace Extension.Ext
 
         public bool IsOutOfRange(double distance)
         {
-            BlackHole data = GetData();
+            BlackHoleEntity data = GetData();
             return null == data || data.Range <= 0 || distance > data.Range * 256;
         }
 
-        public bool IsOnMark(Pointer<ObjectClass> pTarget)
+        public bool IsOnMark(Pointer<BulletClass> pTarget)
+        {
+            return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
+                || (pTarget.TryGetAEManager(out AttachEffectScript aem)
+                    && aem.TryGetMarks(out HashSet<string> marks)
+                    && (Data.OnlyAffectMarks.Intersect(marks).Count() > 0)
+                );
+        }
+
+        public bool IsOnMark(Pointer<TechnoClass> pTarget)
         {
             return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
                 || (pTarget.TryGetAEManager(out AttachEffectScript aem)
