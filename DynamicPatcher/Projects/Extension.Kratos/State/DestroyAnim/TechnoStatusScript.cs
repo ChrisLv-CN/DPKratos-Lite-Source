@@ -118,7 +118,7 @@ namespace Extension.Script
                             {
                                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                                 // Logger.Log("AnimType AltPalette={0}, MakeInf={1}, Next={2}", pAnimType.Ref.AltPalette, pAnimType.Ref.MakeInfantry, !pAnimType.Ref.Next.IsNull);
-                                pAnimType.Ref.AltPalette = true;
+                                // pAnimType.Ref.AltPalette = true;
                                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                                 // Logger.Log("Anim Owner={0}, IsPlaying={1}, PaletteName={2}, TintColor={3}, HouseColorIndex={4}", !pAnim.Ref.Owner.IsNull, pAnim.Ref.IsPlaying, pAnim.Ref.PaletteName, pAnim.Ref.TintColor, pHouse.Ref.ColorSchemeIndex);
                                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
