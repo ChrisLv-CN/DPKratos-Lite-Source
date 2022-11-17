@@ -33,28 +33,19 @@ namespace Extension.Script
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID}，攻击者{pAttacker}，攻击者所属{pAttackingHouse}");
                 this.pKillerHouse.Pointer = pAttackingHouse;
-                // 检查弹头上的AE，被弹头击杀时，弹头事件不会赋予AE，因此要单独获得死亡动画设置
+                // 检查弹头上的AE，被弹头击杀时，弹头事件不会赋予AE，因此要单独附加
                 AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-                if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
+                if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0 && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
                 {
-                    foreach (string aeType in aeTypeData.AttachEffectTypes)
-                    {
-                        AttachEffectData aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, aeType).Data;
-                        SetDestroyAnimData(aeDate.DestroyAnimData);
-                    }
+                    aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true);
                 }
                 // 检查弹头上的状态，优先级最高
                 DestroyAnimData data = Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID} data.Enable = {data.Enable} {data.CanAffectType(pTechno)}");
-                SetDestroyAnimData(data);
-            }
-        }
-
-        private void SetDestroyAnimData(DestroyAnimData data)
-        {
-            if (null != data && data.Enable && data.CanAffectType(pTechno))
-            {
-                DestroyAnimState.Enable(data);
+                if (null != data && data.Enable && data.CanAffectType(pTechno))
+                {
+                    DestroyAnimState.Enable(data);
+                }
             }
         }
 
