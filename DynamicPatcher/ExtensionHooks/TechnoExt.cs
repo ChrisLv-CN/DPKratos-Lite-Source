@@ -415,9 +415,9 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pInf = (IntPtr)R->ESI;
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
                 if (pInf.TryGetStatus(out TechnoStatusScript status) && status.PlayDestroyAnims())
                 {
-                    // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
                     return 0x5185F1;
                 }
             }

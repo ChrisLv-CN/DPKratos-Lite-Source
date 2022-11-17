@@ -64,7 +64,7 @@ namespace Extension.Ext
             if (duration < 0)
             {
                 infinite = true;
-                timer.Start(0);
+                timer.Stop();
             }
             else
             {
@@ -89,7 +89,7 @@ namespace Extension.Ext
             {
                 this.active = false;
                 this.infinite = false;
-                this.timer.Start(0);
+                this.timer.Stop();
                 // 关闭AE
                 if (null != AE && AE.IsActive())
                 {
