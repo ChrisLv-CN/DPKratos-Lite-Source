@@ -409,15 +409,34 @@ namespace ExtensionHooks
         #endregion
 
         #region Infantry death anims
+        [Hook(HookType.AresHook, Address = 0x518505, Size = 6)] // NotHutman and not set DeathAnims
+        public static unsafe UInt32 Infantry_ReceiveDamage_NotHuman_DeathAnim_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pInf = (IntPtr)R->ESI;
+                if (pInf.TryGetStatus(out TechnoStatusScript status) && status.PlayDestroyAnims())
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
+                    pInf.Ref.Base.UnInit();
+                    return 0x5185E5;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
         [Hook(HookType.AresHook, Address = 0x5185C8, Size = 6)] // IsHutman and not set DeathAnims
         public static unsafe UInt32 Infantry_ReceiveDamage_DeathAnim_Remap(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pInf = (IntPtr)R->ESI;
-                // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
                 if (pInf.TryGetStatus(out TechnoStatusScript status) && status.PlayDestroyAnims())
                 {
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{pInf.Ref.Type.Ref.Base.Base.ID}]{pInf} 受伤去死播放死亡动画");
                     return 0x5185F1;
                 }
             }
