@@ -36,6 +36,10 @@ namespace Extension.Script
         private bool onStopCommand = false;
         private bool notBeHuman = false;
 
+        private LocationMark lastLocationMark;
+        private LocationMark forwardLocationMark;
+        private bool isMoving = false;
+
         public Stand()
         {
             this.pStand = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
@@ -299,54 +303,7 @@ namespace Extension.Script
                 }
 
 
-                // synch Moving anim
-                if (Data.IsTrain)
-                {
-                    // switch (pStand.Ref.Base.Base.WhatAmI())
-                    // {
-                    //     case AbstractType.Infantry:
-                    //         Pointer<InfantryClass> pInf = pStand.Pointer.Convert<InfantryClass>();
-                    //         // pInf.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.FIRE_WEAPON);
 
-                    //         pInf.Ref.SequenceAnim = SequenceAnimType.FIRE_WEAPON;
-                    //         break;
-                    //     case AbstractType.Unit:
-
-                    //         break;
-                    // }
-                    // CoordStruct sourcePos = pStand.Ref.Base.Base.GetCoords();
-                    // ILocomotion loco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
-                    // Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
-                    // if (LocomotionClass.Walk == locoId)
-                    // {
-                    //     Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
-                    //     if (masterIsMoving)
-                    //     {
-                    //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
-                    //         pLoco.Ref.IsMoving = false;
-                    //     }
-                    //     else
-                    //     {
-                    //         pLoco.Ref.Destination = default;
-                    //         pLoco.Ref.IsMoving = false;
-                    //     }
-                    // }
-                    // else if (LocomotionClass.Mech == locoId)
-                    // {
-                    //     Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
-                    //     if (masterIsMoving)
-                    //     {
-                    //         pLoco.Ref.Destination = ExHelper.GetFLHAbsoluteCoords(pStand.Pointer, new CoordStruct(1024, 0, 0));
-                    //         pLoco.Ref.IsMoving = true;
-                    //     }
-                    //     else
-                    //     {
-                    //         pLoco.Ref.Destination = default;
-                    //         pLoco.Ref.IsMoving = false;
-                    //     }
-
-                    // }
-                }
 
             }
         }
@@ -557,6 +514,54 @@ namespace Extension.Script
                     onStopCommand = false;
                 }
             }
+
+            // synch Moving anim
+            if (Data.IsTrain || Data.SameMoving)
+            {
+                Pointer<FootClass> pFoot = pStand.Pointer.Convert<FootClass>();
+                ILocomotion loco = pFoot.Ref.Locomotor;
+                Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
+                if (locoId == LocomotionClass.Drive || locoId == LocomotionClass.Walk || locoId == LocomotionClass.Mech)
+                {
+                    if (masterIsMoving)
+                    {
+                        if (isMoving && null != forwardLocationMark)
+                        {
+                            // 往前移动，播放移动动画
+                            pFoot.Ref.WalkedFramesSoFar_idle++; // shp步行动画移动
+                            if (locoId == LocomotionClass.Drive)
+                            {
+                                Pointer<DriveLocomotionClass> pLoco = loco.ToLocomotionClass<DriveLocomotionClass>();
+                                pLoco.Ref.IsDriving = true;
+                            }
+                            else if (locoId == LocomotionClass.Ship)
+                            {
+                                Pointer<ShipLocomotionClass> pLoco = loco.ToLocomotionClass<ShipLocomotionClass>();
+                                pLoco.Ref.IsDriving = true;
+                            }
+                            else if (locoId == LocomotionClass.Walk)
+                            {
+                                Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
+                                pLoco.Ref.IsReallyMoving = true;
+                            }
+                            else if (locoId == LocomotionClass.Mech)
+                            {
+                                Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
+                                pLoco.Ref.IsMoving = true;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (isMoving)
+                        {
+                            // 停止移动
+                            loco.ForceStopMoving();
+                        }
+                        isMoving = false;
+                    }
+                }
+            }
         }
 
         private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget)
@@ -597,8 +602,14 @@ namespace Extension.Script
             }
         }
 
-        public void UpdateLocation(LocationMark mark)
+        public void UpdateLocation(LocationMark mark, LocationMark forward)
         {
+            if (null != lastLocationMark && !isMoving)
+            {
+                isMoving = lastLocationMark.Location != mark.Location;
+            }
+            lastLocationMark = mark;
+            forwardLocationMark = forward;
             SetLocation(mark.Location);
             SetDirection(mark.Direction, false);
         }

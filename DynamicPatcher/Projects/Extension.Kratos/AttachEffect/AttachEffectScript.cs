@@ -505,13 +505,19 @@ namespace Extension.Script
 
                 if (null != preMark)
                 {
-                    stand.UpdateLocation(preMark);
+                    LocationMark forward = preMark;
+                    int forwardIndex = markIndex - 1;
+                    if (forwardIndex > -1 && forwardIndex < locationMarks.Count)
+                    {
+                        forward = locationMarks[forwardIndex];
+                    }
+                    stand.UpdateLocation(preMark, forward);
                     return;
                 }
             }
             // 获取挂载对象的位置和方向
             LocationMark locationMark = pObject.GetRelativeLocation(stand.Data.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
-            stand.UpdateLocation(locationMark);
+            stand.UpdateLocation(locationMark, locationMark);
         }
 
         public bool HasSpace()
