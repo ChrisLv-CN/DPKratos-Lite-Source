@@ -38,6 +38,7 @@ namespace Extension.Script
 
         public List<AttachEffect> AttachEffects; // 所有有效的AE
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
+        public Dictionary<string, int> AEStacks; // 同名AE的叠加层数
 
         private CoordStruct location;
 
@@ -61,6 +62,7 @@ namespace Extension.Script
             // 转移给继任者
             heir.AttachEffects = this.AttachEffects;
             heir.DisableDelayTimers = this.DisableDelayTimers;
+            heir.AEStacks = this.AEStacks;
             // 更改AE记录的附着对象，并移除不被继承的状态类型的AE
             for (int i = Count() - 1; i >= 0; i--)
             {
@@ -71,6 +73,7 @@ namespace Extension.Script
                     // 强制移除礼盒AE
                     AttachEffects.Remove(ae);
                     DisableDelayTimers.Remove(ae.AEData.Name);
+                    AEStacks.Remove(ae.AEData.Name);
                 }
                 else
                 {
@@ -82,6 +85,7 @@ namespace Extension.Script
                         ae.Disable(location); // 关闭继承者的状态机
                         AttachEffects.Remove(ae);
                         DisableDelayTimers.Remove(ae.AEData.Name);
+                        AEStacks.Remove(ae.AEData.Name);
                     }
                 }
             }
@@ -102,6 +106,7 @@ namespace Extension.Script
         {
             this.AttachEffects = new List<AttachEffect>();
             this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
+            this.AEStacks = new Dictionary<string, int>();
 
             this.location = pOwner.Ref.Base.GetCoords();
 
@@ -352,13 +357,14 @@ namespace Extension.Script
                 add = add || !find;
             }
             // 可以添加AE
-            if (add && data.GetDuration() != 0)
+            if (add && data.GetDuration() != 0 && StackNotFull(data))
             {
                 AttachEffect ae = data.CreateAE();
                 // 入队
                 int index = FindInsertIndex(ae);
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，加入队列，插入位置{index}, 持续时间 {data.GetDuration()}, 来源 {(pAttacker.IsNull ? "" : pAttacker.Ref.Type.Ref.Base.Base.ID)} {pAttacker}, 所属 {pAttackingHouse}");
                 AttachEffects.Insert(index, ae);
+                AddStackCount(ae); // 叠层计数
                 // 激活
                 ae.Enable(this, pAttacker, pAttackingHouse);
             }
@@ -377,8 +383,44 @@ namespace Extension.Script
                         ae.Disable(location);
                         AttachEffects.Remove(ae);
                         DisableDelayTimers.Remove(ae.AEData.Name);
+                        AEStacks.Remove(ae.AEData.Name);
                     }
                 }
+            }
+        }
+
+        private bool StackNotFull(AttachEffectData data)
+        {
+            if (data.MaxStack > 0)
+            {
+                string name = data.Name;
+                if (AEStacks.ContainsKey(name))
+                {
+                    return AEStacks[name] < data.MaxStack;
+                }
+            }
+            return true;
+        }
+
+        private void AddStackCount(AttachEffect ae)
+        {
+            string name = ae.AEData.Name;
+            if (AEStacks.ContainsKey(name))
+            {
+                AEStacks[name]++;
+            }
+            else
+            {
+                AEStacks.Add(name, 1);
+            }
+        }
+
+        private void ReduceStackCount(AttachEffect ae)
+        {
+            string name = ae.AEData.Name;
+            if (AEStacks.ContainsKey(name))
+            {
+                AEStacks[name]--;
             }
         }
 
@@ -732,6 +774,7 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
                     ae.Disable(location);
                     AttachEffects.Remove(ae);
+                    ReduceStackCount(ae);
                     // 如果有Next，则赋予新的AE
                     string nextAE = data.Next;
                     if (!string.IsNullOrEmpty(nextAE))
@@ -853,6 +896,7 @@ namespace Extension.Script
                 }
                 // Logger.Log($"{Game.CurrentFrame} - {ae.Type.Name} 注销，移出列表");
                 AttachEffects.Remove(ae);
+                ReduceStackCount(ae);
             }
             AttachEffects.Clear();
         }

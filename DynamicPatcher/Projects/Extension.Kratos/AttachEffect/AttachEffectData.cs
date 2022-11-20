@@ -69,6 +69,7 @@ namespace Extension.Ext
         public bool OwnerTarget; // 弹头附加，属于被赋予对象
 
         public CumulativeMode Cumulative; // 可叠加
+        public int MaxStack; // 叠加上限
         public bool ResetDurationOnReapply; // 不可叠加时，重复获得时是否重置计时器
         public int Group; // 分组，同一个分组的效果互相影响，削减或增加持续时间
         public bool OverrideSameGroup; // 是否覆盖同一个分组
@@ -97,6 +98,7 @@ namespace Extension.Ext
             this.OwnerTarget = false;
 
             this.Cumulative = CumulativeMode.NO;
+            this.MaxStack = -1;
             this.ResetDurationOnReapply = false;
             this.Group = -1;
             this.OverrideSameGroup = false;
@@ -163,6 +165,7 @@ namespace Extension.Ext
                 this.OwnerTarget = reader.Get("OwnerTarget", this.OwnerTarget);
 
                 this.Cumulative = reader.Get("Cumulative", this.Cumulative);
+                this.MaxStack = reader.Get("MaxStack", this.MaxStack);
                 this.ResetDurationOnReapply = reader.Get("ResetDurationOnReapply", this.ResetDurationOnReapply);
                 this.Group = reader.Get("Group", this.Group);
                 this.OverrideSameGroup = reader.Get("OverrideSameGroup", this.OverrideSameGroup);
