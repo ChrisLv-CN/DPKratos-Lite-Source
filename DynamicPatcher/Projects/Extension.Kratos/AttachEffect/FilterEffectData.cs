@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
@@ -101,6 +102,11 @@ namespace Extension.Ext
             this.AffectsCivilian = reader.Get(title + "AffectsCivilian", this.AffectsCivilian);
         }
 
+        public bool CanAffectHouse(Pointer<HouseClass> pHouse, Pointer<HouseClass> pTargetHouse)
+        {
+            return pHouse.IsNull || pTargetHouse.IsNull || (pTargetHouse == pHouse ? AffectsOwner : ((pTargetHouse.IsCivilian() && AffectsCivilian) || pTargetHouse.Ref.IsAlliedWith(pHouse) ? AffectsAllies : AffectsEnemies));
+        }
+
         public bool CanAffectType(string ID)
         {
             if (null != NotAffectTypes && NotAffectTypes.Length > 0 && NotAffectTypes.Contains(ID))
@@ -160,6 +166,29 @@ namespace Extension.Ext
                 }
             }
             return false;
+        }
+
+        public bool IsOnMark(Pointer<ObjectClass> pObject)
+        {
+            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+                || (pObject.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
+        }
+
+        public bool IsOnMark(Pointer<BulletClass> pBullet)
+        {
+            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+                || (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
+        }
+
+        public bool IsOnMark(Pointer<TechnoClass> pTechno)
+        {
+            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+                || (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
+        }
+
+        private bool IsOnMark(AttachEffectScript aeManager)
+        {
+            return aeManager.TryGetMarks(out HashSet<string> marks) && OnlyAffectMarks.Intersect(marks).Count() > 0;
         }
 
     }

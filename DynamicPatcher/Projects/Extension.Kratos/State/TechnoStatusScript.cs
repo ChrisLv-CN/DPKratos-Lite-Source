@@ -69,6 +69,9 @@ namespace Extension.Script
             // 覆盖武器
             heir.OverrideWeaponState = this.OverrideWeaponState;
             this.OverrideWeaponState = new OverrideWeaponState();
+            // 复仇
+            heir.RevengeState = this.RevengeState;
+            this.RevengeState = new State<RevengeData>();
             // 传送
             heir.TeleportState = this.TeleportState;
             this.TeleportState = new TeleportState();
@@ -101,6 +104,7 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
+                InitState_Revenge();
                 InitState_Teleport();
                 InitState_VirtualUnit();
             }
@@ -187,6 +191,8 @@ namespace Extension.Script
         {
             OnReceiveDamage2_BlackHole(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_DestroyAnim(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+            OnReceiveDamage2_Revenge(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+
             OnReceiveDamage2_GiftBox(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
         }
 

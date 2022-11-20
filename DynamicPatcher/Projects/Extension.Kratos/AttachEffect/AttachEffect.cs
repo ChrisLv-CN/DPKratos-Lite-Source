@@ -76,6 +76,7 @@ namespace Extension.Script
             InitGiftBox(); // state AffectWho
             InitMark();
             InitPaintball(); // always same JoJo and Stand
+            InitRevenge(); // state AffectWho
             InitTeleport();
             InitTransform();
             InitOverrideWeapon(); // state AffectWho

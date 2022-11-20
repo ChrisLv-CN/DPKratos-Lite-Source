@@ -578,6 +578,11 @@ namespace Extension.Script
                             // 同步禁止选择
                             status.DeselectState.Enable(duration, token, data);
                         }
+                        else if (data is RevengeData)
+                        {
+                            // 同步复仇
+                            status.RevengeState.Enable(duration, token, data);
+                        }
                     }
                 }
             }
