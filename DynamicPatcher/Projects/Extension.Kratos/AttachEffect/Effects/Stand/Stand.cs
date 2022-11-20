@@ -39,6 +39,7 @@ namespace Extension.Script
         private LocationMark lastLocationMark;
         private LocationMark forwardLocationMark;
         private bool isMoving = false;
+        private TimerStruct waklRateTimer;
 
         public Stand()
         {
@@ -292,13 +293,6 @@ namespace Extension.Script
                             pStandLoco.Ref.Ramp1 = pMasterLoco.Ref.Ramp1;
                             pStandLoco.Ref.Ramp2 = pMasterLoco.Ref.Ramp2;
                         }
-
-                        // 播放行动动画的测试
-                        // if (standLocoId == LocomotionClass.Drive)
-                        // {
-                        //     Pointer<DriveLocomotionClass> pStandLoco = masterLoco.ToLocomotionClass<DriveLocomotionClass>();
-                        //     pStandLoco.Ref.IsDriving = true;
-                        // }
                     }
                 }
 
@@ -528,7 +522,11 @@ namespace Extension.Script
                         if (isMoving && null != forwardLocationMark)
                         {
                             // 往前移动，播放移动动画
-                            pFoot.Ref.WalkedFramesSoFar_idle++; // shp步行动画移动
+                            if (waklRateTimer.Expired())
+                            {
+                                pFoot.Ref.WalkedFramesSoFar_idle++; // shp步行动画移动
+                                waklRateTimer.Start(pFoot.Ref.Base.Type.Ref.WalkRate);
+                            }
                             if (locoId == LocomotionClass.Drive)
                             {
                                 Pointer<DriveLocomotionClass> pLoco = loco.ToLocomotionClass<DriveLocomotionClass>();
