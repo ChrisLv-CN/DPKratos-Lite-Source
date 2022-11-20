@@ -116,7 +116,7 @@ namespace Extension.Script
                         foreach (AttachEffect ae in AEM.AttachEffects)
                         {
                             Stand stand = ae.Stand;
-                            if (null != stand && stand.IsAlive() && !stand.Data.IsTrain && !stand.Data.Immune
+                            if (null != stand && stand.IsAlive() && !stand.Data.Immune
                                 && (damage >= 0 || stand.Data.AllowShareRepair) && stand.Data.DamageFromMaster > 0)
                             {
                                 // 找到一个可以分摊伤害的替身
