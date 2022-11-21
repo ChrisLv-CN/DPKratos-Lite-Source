@@ -26,7 +26,13 @@ namespace Extension.Ext
 
         public override void OnEnable()
         {
+            this.forceDone = false;
             this.data = GetDamageReactionEntity(isElite);
+            this.count = 0;
+            this.delay = 0;
+            this.delayTimer.Stop();
+            this.animDelay = 0;
+            this.animDelayTimer.Stop();
         }
 
         public void Update(bool isElite)
