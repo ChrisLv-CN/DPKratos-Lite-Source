@@ -180,7 +180,7 @@ namespace Extension.Script
         // 销毁
         public override void OnDisable(CoordStruct location)
         {
-            // Logger.Log($"{Game.CurrentFrame} - {AEType.Name} 替身 {Type.Type} 销毁");
+            // Logger.Log($"{Game.CurrentFrame} - {AE.AEData.Name} 替身 {Data.Type} 销毁");
             if (pStand.IsNull)
             {
                 return;

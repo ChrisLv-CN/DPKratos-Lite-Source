@@ -801,6 +801,40 @@ namespace Extension.Script
             }
         }
 
+        public override void OnWarpUpdate()
+        {
+            isDead = pObject.IsDead();
+            location = pOwner.Ref.Base.GetCoords();
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.OnWarpUpdate(location, isDead);
+                }
+                else
+                {
+                    AttachEffectData data = ae.AEData;
+                    int delay = data.RandomDelay.GetRandomValue(ae.AEData.Delay);
+                    if (delay > 0)
+                    {
+                        DisableDelayTimers[data.Name] = new TimerStruct(delay);
+                    }
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 持有AE类型[{data.Name}] 失效，从列表中移除，不可再赋予延迟 {delay}");
+                    ae.Disable(location);
+                    AttachEffects.Remove(ae);
+                    ReduceStackCount(ae);
+                    // 如果有Next，则赋予新的AE
+                    string nextAE = data.Next;
+                    if (!string.IsNullOrEmpty(nextAE))
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
+                        Attach(nextAE, ae.pOwner, ae.pSourceHouse, false);
+                    }
+                }
+            }
+        }
+
         public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
             for (int i = Count() - 1; i >= 0; i--)

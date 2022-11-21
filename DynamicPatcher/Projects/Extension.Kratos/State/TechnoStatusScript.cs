@@ -160,6 +160,11 @@ namespace Extension.Script
             }
         }
 
+        public override void OnWarpUpdate()
+        {
+            OnWarpUpdate_DestroySelf_Stand();
+        }
+
         public override void OnRemove()
         {
             OnRemove_StandUnit();

@@ -37,7 +37,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CE6F6, Size = 5)]
-        static public unsafe UInt32 SuperWeaponTypeClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<SuperWeaponTypeClass>)R->EAX;
 
@@ -46,7 +46,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CEFE0, Size = 8)]
-        static public unsafe UInt32 SuperWeaponTypeClass_DTOR(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<SuperWeaponTypeClass>)R->ECX;
 
@@ -56,7 +56,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x6CEE50, Size = 0xA)]
         //[Hook(HookType.AresHook, Address = 0x6CEE43, Size = 0xA)]
-        static public unsafe UInt32 SuperWeaponTypeClass_LoadFromINI(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_LoadFromINI(REGISTERS* R)
         {
             var pItem = (Pointer<SuperWeaponTypeClass>)R->EBP;
             var pINI = R->Stack<Pointer<CCINIClass>>(0x3FC);
@@ -67,7 +67,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x6CE8D0, Size = 8)]
         //[Hook(HookType.AresHook, Address = 0x6CE800, Size = 0xA)]
-        static public unsafe UInt32 SuperWeaponTypeClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<SuperWeaponTypeClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -78,14 +78,14 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CE8BE, Size = 7)]
-        static public unsafe UInt32 SuperWeaponTypeClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_Load_Suffix(REGISTERS* R)
         {
             SuperWeaponTypeExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x6CE8EA, Size = 5)]
-        static public unsafe UInt32 SuperWeaponTypeClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 SuperWeaponTypeClass_Save_Suffix(REGISTERS* R)
         {
             SuperWeaponTypeExt.ExtMap.SaveStatic();
             return 0;

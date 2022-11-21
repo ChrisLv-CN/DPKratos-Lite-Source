@@ -73,6 +73,8 @@ namespace Extension.Ext
         public virtual void OnUpdate(CoordStruct location, bool isDead) { }
         public virtual void OnLateUpdate(CoordStruct location, bool isDead) { }
         // 被超时空冻结更新
+        public virtual void OnWarpUpdate(CoordStruct location, bool isDead) { }
+        // 被超时空兵攻击更新
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
         // 挂载AE的单位出现在地图上
         public virtual void OnPut(Pointer<CoordStruct> pCoord, DirType dirType) { }

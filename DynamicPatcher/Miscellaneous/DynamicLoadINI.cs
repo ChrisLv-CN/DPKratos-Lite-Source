@@ -400,7 +400,7 @@ namespace Miscellaneous
             Logger.LogWarning("you may get crash in next game.");
         }
 
-        static public void RefreshINIComponent()
+        public static void RefreshINIComponent()
         {
             Ini.ClearBuffer();
 
@@ -424,7 +424,7 @@ namespace Miscellaneous
         private static bool enableRealtimeINI = false;
 
         [Hook(HookType.WriteBytesHook, Address = 0x7E03E8, Size = 1)]
-        static public unsafe byte[] Watch()
+        public static unsafe byte[] Watch()
         {
             // 读取配置文件决定是否开启动态INI
             string firePath = System.IO.Directory.GetCurrentDirectory() + "\\DynamicPatcher\\compiler.config.json";

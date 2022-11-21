@@ -321,10 +321,22 @@ namespace Extension.Script
             {
                 return;
             }
-
             foreach (IEffect effect in effects)
             {
                 effect?.OnLateUpdate(location, isDead);
+            }
+        }
+
+        public void OnWarpUpdate(CoordStruct location, bool isDead)
+        {
+            CheckSourceAlive();
+            if (delayToEnable)
+            {
+                return;
+            }
+            foreach (IEffect effect in effects)
+            {
+                effect?.OnWarpUpdate(location, isDead);
             }
         }
 

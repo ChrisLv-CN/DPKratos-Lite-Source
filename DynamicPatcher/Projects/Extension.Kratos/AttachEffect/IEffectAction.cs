@@ -31,6 +31,8 @@ namespace Extension.Ext
         void OnUpdate(CoordStruct location, bool isDead);
         void OnLateUpdate(CoordStruct location, bool isDead);
         // 被超时空冻结更新
+        void OnWarpUpdate(CoordStruct location, bool isDead);
+        // 被超时空兵攻击更新
         void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
         // 挂载AE的单位出现在地图上
         void OnPut(Pointer<CoordStruct> pCoord, DirType dirType);

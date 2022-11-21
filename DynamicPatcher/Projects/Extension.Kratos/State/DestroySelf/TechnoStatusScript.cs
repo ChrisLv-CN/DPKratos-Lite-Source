@@ -34,6 +34,7 @@ namespace Extension.Script
                 // 啊我死了
                 if (DestroySelfState.Data.Peaceful)
                 {
+                    // Logger.Log($"{Game.CurrentFrame} - [{section}]{pTechno} 阿伟死了，直接移除");
                     pTechno.Ref.Base.Remove();
                     pTechno.Ref.Base.Health = 0;
                     pTechno.Ref.Base.UnInit();
@@ -44,9 +45,19 @@ namespace Extension.Script
                     {
                         damageText.SkipDamageText = true;
                     }
+                    // Logger.Log($"{Game.CurrentFrame} - [{section}]{pTechno} 阿伟死了，炸了他");
                     pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
                     // pTechno.Ref.Base.Destroy();
                 }
+            }
+        }
+
+        public void OnWarpUpdate_DestroySelf_Stand()
+        {
+            if (AmIStand())
+            {
+                // Logger.Log($"{Game.CurrentFrame} - [{section}]{pTechno} 可以去死了吗？{DestroySelfState.AmIDead()}");
+                OnUpdate_DestroySelf();
             }
         }
 

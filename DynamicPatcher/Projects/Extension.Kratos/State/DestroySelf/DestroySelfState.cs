@@ -41,7 +41,7 @@ namespace Extension.Ext
 
         public bool AmIDead()
         {
-            return IsActive() && !GoDie && Timeup();
+            return IsActive() && (GoDie || Timeup());
         }
 
         private bool Timeup()

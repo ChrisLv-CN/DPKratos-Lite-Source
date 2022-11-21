@@ -50,7 +50,7 @@ namespace Extension.Ext
 
 
         //[Hook(HookType.AresHook, Address = 0x6F3260, Size = 5)]
-        static public unsafe UInt32 TechnoClass_CTOR(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_CTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoClass>)R->ESI;
 
@@ -59,7 +59,7 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x6F4500, Size = 5)]
-        static public unsafe UInt32 TechnoClass_DTOR(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_DTOR(REGISTERS* R)
         {
             var pItem = (Pointer<TechnoClass>)R->ECX;
 
@@ -69,7 +69,7 @@ namespace Extension.Ext
 
         //[Hook(HookType.AresHook, Address = 0x70C250, Size = 8)]
         //[Hook(HookType.AresHook, Address = 0x70BF50, Size = 5)]
-        static public unsafe UInt32 TechnoClass_SaveLoad_Prefix(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_SaveLoad_Prefix(REGISTERS* R)
         {
             var pItem = R->Stack<Pointer<TechnoClass>>(0x4);
             var pStm = R->Stack<Pointer<IStream>>(0x8);
@@ -80,14 +80,14 @@ namespace Extension.Ext
         }
 
         //[Hook(HookType.AresHook, Address = 0x70C249, Size = 5)]
-        static public unsafe UInt32 TechnoClass_Load_Suffix(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_Load_Suffix(REGISTERS* R)
         {
             TechnoExt.ExtMap.LoadStatic();
             return 0;
         }
 
         //[Hook(HookType.AresHook, Address = 0x70C264, Size = 5)]
-        static public unsafe UInt32 TechnoClass_Save_Suffix(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_Save_Suffix(REGISTERS* R)
         {
             TechnoExt.ExtMap.SaveStatic();
             return 0;

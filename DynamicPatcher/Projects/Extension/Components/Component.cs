@@ -160,6 +160,7 @@ namespace Extension.Components
         public virtual void Start() { }
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
+        public virtual void OnWarpUpdate() { }
         public virtual void OnRender() { }
         public virtual void OnRenderEnd() { }
         public virtual void OnDestroy() { }
