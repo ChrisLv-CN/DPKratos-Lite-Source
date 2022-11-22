@@ -260,7 +260,7 @@ namespace Extension.Script
                 return;
             }
             // 调整所属
-            if (pOwner != pSource && data.OwnerTarget)
+            if (pOwner != pSource && data.ReceiverOwn)
             {
                 // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，来源为外部，更改所属为接受者");
                 // 所属设为接受者

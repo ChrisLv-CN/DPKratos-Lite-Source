@@ -66,7 +66,7 @@ namespace Extension.Ext
         public bool DiscardOnEntry; // 离开地图则失效
         public bool PenetratesIronCurtain; // 弹头附加，影响铁幕
         public bool FromTransporter; // 弹头附加，乘客附加时，视为载具
-        public bool OwnerTarget; // 弹头附加，属于被赋予对象
+        public bool ReceiverOwn; // 弹头附加，属于被赋予对象
 
         public CumulativeMode Cumulative; // 可叠加
         public int MaxStack; // 叠加上限
@@ -95,7 +95,7 @@ namespace Extension.Ext
             this.DiscardOnEntry = false;
             this.PenetratesIronCurtain = false;
             this.FromTransporter = true;
-            this.OwnerTarget = false;
+            this.ReceiverOwn = false;
 
             this.Cumulative = CumulativeMode.NO;
             this.MaxStack = -1;
@@ -162,7 +162,7 @@ namespace Extension.Ext
                 this.DiscardOnEntry = reader.Get("DiscardOnEntry", this.DiscardOnEntry);
                 this.PenetratesIronCurtain = reader.Get("PenetratesIronCurtain", this.PenetratesIronCurtain);
                 this.FromTransporter = reader.Get("FromTransporter", this.FromTransporter);
-                this.OwnerTarget = reader.Get("OwnerTarget", this.OwnerTarget);
+                this.ReceiverOwn = reader.Get("ReceiverOwn", this.ReceiverOwn);
 
                 this.Cumulative = reader.Get("Cumulative", this.Cumulative);
                 this.MaxStack = reader.Get("MaxStack", this.MaxStack);
