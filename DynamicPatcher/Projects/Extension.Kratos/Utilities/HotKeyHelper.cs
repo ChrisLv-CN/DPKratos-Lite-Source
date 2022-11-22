@@ -27,7 +27,7 @@ namespace Extension.Utilities
                     {
                         foreach (HotKeyAttachEffectData data in typeData.Datas.Values)
                         {
-                            if (data.Enable && data.IsOnKey(group))
+                            if (data.Enable && data.IsOnKey(group) && (data.AffectInAir || !pTechno.InAir()) && (data.AffectStand || !pTechno.AmIStand()))
                             {
                                 // 获取所属
                                 Pointer<HouseClass> pPlayer = HouseClass.Player;

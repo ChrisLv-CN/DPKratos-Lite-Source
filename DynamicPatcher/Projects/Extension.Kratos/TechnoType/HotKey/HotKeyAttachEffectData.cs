@@ -23,6 +23,8 @@ namespace Extension.Ext
             this.AttachEffectTypes = null;
             this.Keys = null;
 
+            this.AffectStand = false;
+
             this.AffectsOwner = true;
             this.AffectsAllies = false;
             this.AffectsEnemies = false;

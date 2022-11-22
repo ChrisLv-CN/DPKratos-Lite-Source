@@ -282,7 +282,7 @@ namespace Extension.Utilities
                     InfantryClass.Array.FindObject((pTarget) =>
                     {
                         Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
-                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        if (data.AffectInAir || !pTargetTechno.InAir())
                         {
                             pTechnoSet.Add(pTargetTechno);
                         }
@@ -294,7 +294,7 @@ namespace Extension.Utilities
                     UnitClass.Array.FindObject((pTarget) =>
                     {
                         Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
-                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        if (data.AffectInAir || !pTargetTechno.InAir())
                         {
                             pTechnoSet.Add(pTargetTechno);
                         }
@@ -306,7 +306,7 @@ namespace Extension.Utilities
                     AircraftClass.Array.FindObject((pTarget) =>
                     {
                         Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
-                        if (!data.AffectInAir || !pTargetTechno.InAir())
+                        if (data.AffectInAir || !pTargetTechno.InAir())
                         {
                             pTechnoSet.Add(pTargetTechno);
                         }
