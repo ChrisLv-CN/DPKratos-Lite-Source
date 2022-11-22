@@ -62,7 +62,7 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader) { }
 
-        public virtual void Read(IConfigReader reader, string title)
+        public virtual void Read(ISectionReader reader, string title)
         {
             this.Enable = reader.Get(title + "Enable", this.Enable);
             this.AffectWho = reader.Get(title + "AffectWho", this.AffectWho);

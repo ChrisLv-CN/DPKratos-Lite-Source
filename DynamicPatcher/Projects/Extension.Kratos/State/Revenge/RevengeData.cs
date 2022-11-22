@@ -54,6 +54,10 @@ namespace Extension.Ext
             this.Types = reader.GetList(TITLE + "Types", this.Types);
             this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", null);
             this.Enable = null != Types && Types.Any() || null != AttachEffects && AttachEffects.Any();
+            if (Enable)
+            {
+                this.Enable = AffectTechno;
+            }
         }
 
     }

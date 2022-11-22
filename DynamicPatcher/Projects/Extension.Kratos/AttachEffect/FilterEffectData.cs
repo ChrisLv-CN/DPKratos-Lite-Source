@@ -64,7 +64,7 @@ namespace Extension.Ext
             this.AffectsCivilian = true;
         }
 
-        public override void Read(IConfigReader reader, string title)
+        public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
 
@@ -104,7 +104,7 @@ namespace Extension.Ext
 
         public bool CanAffectHouse(Pointer<HouseClass> pHouse, Pointer<HouseClass> pTargetHouse)
         {
-            return pHouse.IsNull || pTargetHouse.IsNull || (pTargetHouse == pHouse ? AffectsOwner : ((pTargetHouse.IsCivilian() && AffectsCivilian) || pTargetHouse.Ref.IsAlliedWith(pHouse) ? AffectsAllies : AffectsEnemies));
+            return pHouse.IsNull || pTargetHouse.IsNull || (pTargetHouse == pHouse ? AffectsOwner : (pTargetHouse.IsCivilian() ? AffectsCivilian : pTargetHouse.Ref.IsAlliedWith(pHouse) ? AffectsAllies : AffectsEnemies));
         }
 
         public bool CanAffectType(string ID)
@@ -186,9 +186,10 @@ namespace Extension.Ext
                 || (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
         }
 
-        private bool IsOnMark(AttachEffectScript aeManager)
+        public bool IsOnMark(AttachEffectScript aeManager)
         {
-            return aeManager.TryGetMarks(out HashSet<string> marks) && OnlyAffectMarks.Intersect(marks).Count() > 0;
+            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+                || aeManager.TryGetMarks(out HashSet<string> marks) && OnlyAffectMarks.Intersect(marks).Count() > 0;
         }
 
     }

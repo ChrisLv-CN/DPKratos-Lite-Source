@@ -154,7 +154,7 @@ namespace Extension.Ext
             Read(reader, TITLE);
         }
 
-        public override void Read(IConfigReader reader, string title)
+        public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
 
