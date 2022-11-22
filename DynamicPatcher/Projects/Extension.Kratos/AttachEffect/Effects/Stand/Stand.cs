@@ -537,20 +537,22 @@ namespace Extension.Script
                             // 往前移动，播放移动动画
                             if (waklRateTimer.Expired())
                             {
-                                pFoot.Ref.WalkedFramesSoFar_idle++; // shp步行动画移动
+                                // VXL只需要帧动起来，就会播放动画
+                                // 但SHP动画，还需要检查Loco.Is_Moving()为true时，才可以播放动画 0x73C69D
+                                pFoot.Ref.WalkedFramesSoFar_idle++;
                                 waklRateTimer.Start(pFoot.Ref.Base.Type.Ref.WalkRate);
                             }
-                            if (locoId == LocomotionClass.Drive)
+                            // 为SHP素材设置一个总的运动标记
+                            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript status))
                             {
-                                Pointer<DriveLocomotionClass> pLoco = loco.ToLocomotionClass<DriveLocomotionClass>();
-                                pLoco.Ref.IsDriving = true;
+                                status.StandIsMoving = true;
                             }
-                            else if (locoId == LocomotionClass.Ship)
-                            {
-                                Pointer<ShipLocomotionClass> pLoco = loco.ToLocomotionClass<ShipLocomotionClass>();
-                                pLoco.Ref.IsDriving = true;
-                            }
-                            else if (locoId == LocomotionClass.Walk)
+                            // DriveLoco.Is_Moving()并不会判断IsDriving
+                            // ShipLoco.Is_Moving()并不会判断IsDriving
+                            // HoverLoco.Is_Moving()与前面两个一样，只用位置判断是否在运动
+                            // 以上几个是通过判断位置来确定是否在运动
+                            // WalkLoco和MechLoco则只返回IsMoving来判断是否在运动
+                            if (locoId == LocomotionClass.Walk)
                             {
                                 Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
                                 pLoco.Ref.IsReallyMoving = true;
@@ -567,7 +569,22 @@ namespace Extension.Script
                         if (isMoving)
                         {
                             // 停止移动
-                            loco.ForceStopMoving();
+                            // 为SHP素材设置一个总的运动标记
+                            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript status))
+                            {
+                                status.StandIsMoving = false;
+                            }
+                            // loco.ForceStopMoving();
+                            if (locoId == LocomotionClass.Walk)
+                            {
+                                Pointer<WalkLocomotionClass> pLoco = loco.ToLocomotionClass<WalkLocomotionClass>();
+                                pLoco.Ref.IsReallyMoving = false;
+                            }
+                            else if (locoId == LocomotionClass.Mech)
+                            {
+                                Pointer<MechLocomotionClass> pLoco = loco.ToLocomotionClass<MechLocomotionClass>();
+                                pLoco.Ref.IsMoving = false;
+                            }
                         }
                         isMoving = false;
                     }

@@ -1044,6 +1044,19 @@ namespace ExtensionHooks
         }
 
         #region Stand Drawing
+        // Loco.IsMoving() == false, won't draw moving Anim
+        [Hook(HookType.AresHook, Address = 0x73C69D, Size = 6)]
+        public static unsafe UInt32 UnitClass_DrawSHP_Moving_Stand(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pUnit = (IntPtr)R->ESI;
+            if (pUnit.TryGetStatus(out TechnoStatusScript status) && status.StandIsMoving)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{pUnit.Ref.Type.Ref.Base.Base.ID}]{pUnit} 替身在移动 {R->EDX}");
+                return 0x73C702;
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x704363, Size = 5)]
         public static unsafe UInt32 TechnoClass_GetZAdjust_Stand(REGISTERS* R)
         {

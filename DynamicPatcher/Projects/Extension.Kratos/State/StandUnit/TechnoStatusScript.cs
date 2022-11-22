@@ -20,6 +20,8 @@ namespace Extension.Script
         public StandData StandData;
         public bool MyMasterIsAnim;
 
+        public bool StandIsMoving;
+
         public bool VirtualUnit;
 
         public void InitState_VirtualUnit()
