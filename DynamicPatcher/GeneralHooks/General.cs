@@ -66,11 +66,18 @@ namespace GeneralHooks
             return 0;
         }
 
-
         [Hook(HookType.AresHook, Address = 0x7CD8EF, Size = 9)]
         public static unsafe UInt32 ExeTerminate(REGISTERS* R)
         {
 
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x533066, Size = 6)]
+        public static unsafe UInt32 CommandClassCallback_Register(REGISTERS* R)
+        {
+            Commands.MakeCommand<DummyCommand>();
+            Commands.MakeCommand<AddAECommand>();
             return 0;
         }
     }
