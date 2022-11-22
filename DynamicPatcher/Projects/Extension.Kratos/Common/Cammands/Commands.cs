@@ -33,10 +33,15 @@ namespace Extension.Ext
 
         public static UniString CATEGORY_KRATOS = new UniString("KRATOS");
 
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate void DTORFunc(IntPtr pThis);
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate AnsiStringPointer GetNameFunc(IntPtr pThis);
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate UniStringPointer GetUINameFunc(IntPtr pThis);
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate Bool CheckInputFunc(IntPtr pThis, WWKey input);
+        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate void ExecuteFunc(IntPtr pThis, WWKey input);
 
         public static void MakeCommand<T>()
