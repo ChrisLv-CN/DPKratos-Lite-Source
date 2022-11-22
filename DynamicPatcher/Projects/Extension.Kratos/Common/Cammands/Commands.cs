@@ -31,7 +31,7 @@ namespace Extension.Ext
         //     }
         // }
 
-        public static UniString CATEGORY_KRATOS = new UniString("KRATOS");
+        public static UniString CATEGORY_KRATOS = new UniString("Kratos");
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         public delegate void DTORFunc(IntPtr pThis);
