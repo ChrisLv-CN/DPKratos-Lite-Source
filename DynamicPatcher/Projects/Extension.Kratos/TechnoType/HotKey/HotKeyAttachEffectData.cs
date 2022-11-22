@@ -14,13 +14,14 @@ namespace Extension.Ext
     [Serializable]
     public class HotKeyAttachEffectData : FilterEffectData
     {
-        public const string TITLE = "HotKey.";
 
         public string[] AttachEffectTypes;
+        public int[] Keys;
 
         public HotKeyAttachEffectData()
         {
             this.AttachEffectTypes = null;
+            this.Keys = null;
 
             this.AffectsOwner = true;
             this.AffectsAllies = false;
@@ -28,22 +29,22 @@ namespace Extension.Ext
             this.AffectsCivilian = false;
         }
 
-        public override void Read(IConfigReader reader)
+        public override void Read(ISectionReader reader, string title)
         {
-            // 读全局设置
-            ISectionReader generalReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionCombatDamage);
-            base.Read(generalReader, TITLE);
-            this.AttachEffectTypes = generalReader.GetList<string>(TITLE + "AttachEffectTypes", null);
-
-            // 读私有设置
-            base.Read(reader, TITLE);
-            this.AttachEffectTypes = reader.GetList<string>(TITLE + "AttachEffectTypes", AttachEffectTypes);
+            base.Read(reader, title);
+            this.AttachEffectTypes = reader.GetList<string>(title + "AttachEffectTypes", AttachEffectTypes);
+            this.Keys = reader.GetList<int>(title + "Keys", this.Keys);
 
             this.Enable = null != AttachEffectTypes && AttachEffectTypes.Any();
             if (Enable)
             {
                 this.Enable = AffectTechno;
             }
+        }
+
+        public bool IsOnKey(int group)
+        {
+            return null == Keys || group < 1 || !Keys.Any() || Keys.Contains(group);
         }
 
     }

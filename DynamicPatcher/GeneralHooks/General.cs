@@ -76,7 +76,10 @@ namespace GeneralHooks
         [Hook(HookType.AresHook, Address = 0x533066, Size = 6)]
         public static unsafe UInt32 CommandClassCallback_Register(REGISTERS* R)
         {
-            Commands.MakeCommand<AttachEffectCommand>();
+            Commands.MakeCommand<AttachEffect1Command>();
+            Commands.MakeCommand<AttachEffect2Command>();
+            Commands.MakeCommand<AttachEffect3Command>();
+            Commands.MakeCommand<AttachEffect4Command>();
             return 0;
         }
     }
