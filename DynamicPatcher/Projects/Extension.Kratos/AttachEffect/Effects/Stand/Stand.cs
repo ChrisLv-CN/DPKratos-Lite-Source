@@ -315,6 +315,19 @@ namespace Extension.Script
             }
         }
 
+        public override void OnWarpUpdate(CoordStruct location, bool isDead)
+        {
+            // 只同步状态，位置和朝向由StandManager控制
+            if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
+            {
+                UpdateState(pTechno);
+            }
+            else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
+            {
+                UpdateState(pBullet);
+            }
+        }
+
         public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
             if (pMaster.CastToTechno(out Pointer<TechnoClass> pMasterTechno))
