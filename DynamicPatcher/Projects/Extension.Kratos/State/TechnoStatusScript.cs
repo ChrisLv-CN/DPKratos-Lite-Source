@@ -97,7 +97,6 @@ namespace Extension.Script
                 InitState_BlackHole();
                 InitState_DamageReaction();
                 InitState_Deselect();
-                InitState_DestroyAnim();
                 InitState_DestroySelf();
                 InitState_ExtraFire();
                 InitState_FireSuper();
