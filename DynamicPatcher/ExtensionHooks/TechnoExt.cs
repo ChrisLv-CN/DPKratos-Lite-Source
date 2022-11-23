@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.FileFormats;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
@@ -171,9 +172,46 @@ namespace ExtensionHooks
             return 0;
         }
 
+        #region UnitClass SHP IFV
+        [Hook(HookType.AresHook, Address = 0x73CD01, Size = 5)]
+        public static unsafe UInt32 UnitClass_Drawcode_ChangeTurret(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (!pTechno.Ref.IsVoxel() && pTechno.Ref.Type.Ref.Gunner && pTechno.Ref.Passengers.NumPassengers > 0)
+            {
+                Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
+                Pointer<ObjectClass> pGunner = pPassenger;
+                do
+                {
+                    if (!pPassenger.IsNull)
+                    {
+                        pGunner = pPassenger;
+                    }
+                } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
+                int ifvMode = pGunner.Convert<TechnoClass>().Ref.Type.Ref.IFVMode;
+                // Logger.Log($"第一个乘客是 {pGunner.Ref.Type.Ref.Base.ID}, ifvMode = {ifvMode}");
+                SHPFVTurretTypeData typeData = Ini.GetConfig<SHPFVTurretTypeData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                if (typeData.TryGetData(ifvMode + 1, out SHPFVTurretData data))
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 单位 [{pTechno.Ref.Base.Type.Ref.Base.ID}]{pTechno} 画自定义炮塔，帧号{data.WeaponTurretFrameIndex}");
+                    R->EAX += (uint)data.WeaponTurretFrameIndex;
+                    if (!data.WeaponTurretCustomSHP.IsNullOrEmptyOrNone())
+                    {
+                        if (FileSystem.TyrLoadSHPFile(data.WeaponTurretCustomSHP, out Pointer<SHPStruct> pCustomSHP))
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} 单位 [{pTechno.Ref.Base.Type.Ref.Base.ID}]{pTechno} 画自定义炮塔，文件{data.WeaponTurretCustomSHP}，帧号{R->EAX}");
+                            R->EDI = (uint)pCustomSHP;
+                        }
+                    }
+                    R->ECX = R->EBP;
+                    return 0x73CD06;
+                }
+            }
+            return 0;
+        }
+        #endregion
 
-
-        #region UnitClass Deplayed
+        #region UnitClass Deployed
         [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
         public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
         {
