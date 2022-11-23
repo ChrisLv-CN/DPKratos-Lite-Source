@@ -106,6 +106,26 @@ namespace ComponentHooks
             return 0x71AB08;
         }
 
+        [Hook(HookType.AresHook, Address = 0x71A917, Size = 5)]
+        public static unsafe UInt32 TemporalClass_UpdateA_Eliminate(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TemporalClass> pTemporal = (IntPtr)R->ESI;
+
+                Pointer<TechnoClass> pTechno = pTemporal.Ref.Target;
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnTemporalEliminate(pTemporal));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+
+
         [Hook(HookType.AresHook, Address = 0x6F6CA0, Size = 7)]
         public static unsafe UInt32 TechnoClass_Put_Components(REGISTERS* R)
         {

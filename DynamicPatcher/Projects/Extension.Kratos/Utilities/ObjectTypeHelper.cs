@@ -107,7 +107,7 @@ namespace Extension.Utilities
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDead(this Pointer<ObjectClass> pObject)
         {
-            return pObject.IsNull || pObject.Ref.Health <= 0 || !pObject.Ref.IsAlive;
+            return pObject.IsNull || pObject.Ref.Type.IsNull || pObject.Ref.Health <= 0 || !pObject.Ref.IsAlive;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

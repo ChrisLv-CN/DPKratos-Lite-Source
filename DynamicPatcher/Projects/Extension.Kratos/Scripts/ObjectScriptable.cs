@@ -31,6 +31,7 @@ namespace Extension.Script
         public virtual void OnUnInit() { }
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
+        public virtual void OnTemporalEliminate(Pointer<TemporalClass> pTemporal) { }
 
         public virtual void OnPut(Pointer<CoordStruct> coord, ref DirType dirType) { }
 

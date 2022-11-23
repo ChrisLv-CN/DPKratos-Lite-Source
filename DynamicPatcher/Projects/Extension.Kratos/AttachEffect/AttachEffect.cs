@@ -353,6 +353,19 @@ namespace Extension.Script
             }
         }
 
+        public void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
+        {
+            CheckSourceAlive();
+            if (delayToEnable)
+            {
+                return;
+            }
+            foreach (IEffect effect in effects)
+            {
+                effect?.OnTemporalEliminate(pTemporal);
+            }
+        }
+
         public void OnPut(Pointer<CoordStruct> location, DirType dirType)
         {
             CheckSourceAlive();

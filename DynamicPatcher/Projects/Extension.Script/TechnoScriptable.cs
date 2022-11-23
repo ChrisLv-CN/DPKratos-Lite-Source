@@ -12,6 +12,7 @@ namespace Extension.Script
     {
 
         void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
+        void OnTemporalEliminate(Pointer<TemporalClass> pTemporal);
 
         void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip);
 
@@ -39,6 +40,7 @@ namespace Extension.Script
         public virtual void OnUnInit() { }
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
+        public virtual void OnTemporalEliminate(Pointer<TemporalClass> pTemporal) { }
 
         public virtual void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType) { }
         public virtual void OnRemove() { }

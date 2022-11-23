@@ -79,6 +79,7 @@ namespace Extension.Ext
         public bool SameLoseTarget; // 使者失去目标时替身也失去
         public bool SameAmmo; // 与使者弹药数相同
         public bool UseMasterAmmo; // 消耗使者的弹药
+        public bool SamePassengers; // 相同的乘客管理器
 
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
@@ -126,6 +127,7 @@ namespace Extension.Ext
             this.SameLoseTarget = false;
             this.SameAmmo = false;
             this.UseMasterAmmo = false;
+            this.SamePassengers = false;
 
             this.ForceAttackMaster = false;
             this.MobileFire = true;
@@ -187,6 +189,7 @@ namespace Extension.Ext
                 this.SameLoseTarget = reader.Get(TITLE + "SameLoseTarget", this.SameLoseTarget);
                 this.SameAmmo = reader.Get(TITLE + "SameAmmo", this.SameAmmo);
                 this.UseMasterAmmo = reader.Get(TITLE + "UseMasterAmmo", this.UseMasterAmmo);
+                this.SamePassengers = reader.Get(TITLE + "SamePassengers", this.SamePassengers);
 
                 this.ForceAttackMaster = reader.Get(TITLE + "ForceAttackMaster", this.ForceAttackMaster);
                 this.MobileFire = reader.Get(TITLE + "MobileFire", this.MobileFire);

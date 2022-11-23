@@ -89,8 +89,12 @@ namespace Extension.Script
                                 // 同步AE状态机
                                 // 染色
                                 standStatus.PaintballState = masterStatus.PaintballState;
-                                // 箱子
-
+                                // 乘客
+                                // if (Data.SamePassengers)
+                                // {
+                                //     Logger.Log($"{Game.CurrentFrame} 同步替身乘客空间");
+                                //     pStand.Pointer.Ref.Passengers = pTechno.Ref.Passengers;
+                                // }
                             }
                         }
                         else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
@@ -295,10 +299,6 @@ namespace Extension.Script
                         }
                     }
                 }
-
-
-
-
             }
         }
 
@@ -334,10 +334,14 @@ namespace Extension.Script
             {
                 if (pStand.Ref.Owner == pMasterTechno.Ref.Owner)
                 {
-                    pStand.Ref.BeingWarpedOut = pMasterTechno.Ref.BeingWarpedOut; // 超时空冻结
+                    pStand.Ref.BeingWarpedOut = pMasterTechno.Ref.BeingWarpedOut; // 被超时空兵冻结
                 }
-                // Logger.Log($"{Game.CurrentFrame} - 超时空冻结 {pMaster.Ref.BeingWarpedOut}");
             }
+        }
+
+        public override void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
+        {
+            Disable(pMaster.Ref.Base.GetCoords());
         }
 
         public void UpdateState(Pointer<BulletClass> pBullet)
@@ -387,41 +391,59 @@ namespace Extension.Script
             pStand.Ref.Shipsink_3CA = pMaster.Ref.Shipsink_3CA;
             pStand.Ref.Base.InLimbo = pMaster.Ref.Base.InLimbo;
             pStand.Ref.Base.OnBridge = pMaster.Ref.Base.OnBridge;
-            pStand.Ref.Cloakable = pMaster.Ref.Cloakable;
-            pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
-            pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 超时空冻结
-            pStand.Ref.Deactivated = pMaster.Ref.Deactivated; // 遥控坦克
-
-            pStand.Ref.IronCurtainTimer = pMaster.Ref.IronCurtainTimer;
-            pStand.Ref.IdleActionTimer = pMaster.Ref.IdleActionTimer;
-            pStand.Ref.IronTintTimer = pMaster.Ref.IronTintTimer;
-            // pStand.Ref.CloakDelayTimer = pMaster.Ref.CloakDelayTimer; // 反复进入隐形
-
-            pStand.Ref.Berzerk = pMaster.Ref.Berzerk;
-            pStand.Ref.EMPLockRemaining = pMaster.Ref.EMPLockRemaining;
-            pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
-
-            // synch status
-            if (Data.IsVirtualTurret)
+            if (pMaster.Ref.Owner == pStand.Ref.Owner)
             {
-                pStand.Ref.FirepowerMultiplier = pMaster.Ref.FirepowerMultiplier;
-                pStand.Ref.ArmorMultiplier = pMaster.Ref.ArmorMultiplier;
-            }
+                // 同阵营限定
+                pStand.Ref.Cloakable = pMaster.Ref.Cloakable;
+                pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
+                pStand.Ref.WarpingOut = pMaster.Ref.WarpingOut; // 超时空传送冻结
+                // pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 被超时空兵冻结
+                pStand.Ref.Deactivated = pMaster.Ref.Deactivated; // 遥控坦克
 
-            // synch ammo
-            if (Data.SameAmmo)
-            {
-                pStand.Ref.Ammo = pMaster.Ref.Ammo;
-            }
+                pStand.Ref.IronCurtainTimer = pMaster.Ref.IronCurtainTimer;
+                pStand.Ref.IronTintTimer = pMaster.Ref.IronTintTimer;
+                // pStand.Ref.CloakDelayTimer = pMaster.Ref.CloakDelayTimer; // 反复进入隐形
+                pStand.Ref.IdleActionTimer = pMaster.Ref.IdleActionTimer;
+                pStand.Ref.Berzerk = pMaster.Ref.Berzerk;
+                pStand.Ref.EMPLockRemaining = pMaster.Ref.EMPLockRemaining;
+                pStand.Ref.ShouldLoseTargetNow = pMaster.Ref.ShouldLoseTargetNow;
 
-            // synch Promote
-            if (Data.PromoteFromMaster && pStand.Ref.Type.Ref.Trainable)
-            {
-                pStand.Ref.Veterancy = pMaster.Ref.Veterancy;
-            }
+                // synch status
+                if (Data.IsVirtualTurret)
+                {
+                    pStand.Ref.FirepowerMultiplier = pMaster.Ref.FirepowerMultiplier;
+                    pStand.Ref.ArmorMultiplier = pMaster.Ref.ArmorMultiplier;
+                }
 
-            // synch PrimaryFactory
-            pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
+                // synch ammo
+                if (Data.SameAmmo)
+                {
+                    pStand.Ref.Ammo = pMaster.Ref.Ammo;
+                }
+
+                // synch Passengers
+                if (Data.SamePassengers)
+                {
+                    // Pointer<FootClass> pPassenger = pMaster.Ref.Passengers.FirstPassenger;
+                    // if (!pPassenger.IsNull)
+                    // {
+                    //     Pointer<TechnoTypeClass> pType = pPassenger.Ref.Base.Type;
+                    //     Pointer<TechnoClass> pNew = pType.Ref.Base.CreateObject(AE.pSourceHouse).Convert<TechnoClass>();
+                    //     pNew.Ref.Base.Put(default, DirType.N);
+                    //     Logger.Log($"{Game.CurrentFrame} 把jojo的乘客塞进替身里");
+                    //     pStand.Ref.Passengers.AddPassenger(pNew.Convert<FootClass>());
+                    // }
+                }
+
+                // synch Promote
+                if (Data.PromoteFromMaster && pStand.Ref.Type.Ref.Trainable)
+                {
+                    pStand.Ref.Veterancy = pMaster.Ref.Veterancy;
+                }
+
+                // synch PrimaryFactory
+                pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
+            }
 
             if (pStand.Pointer.IsInvisible())
             {
@@ -488,10 +510,41 @@ namespace Extension.Script
             // synch target
             if (Data.ForceAttackMaster)
             {
-                Pointer<AbstractClass> pTarget = pMaster.Convert<AbstractClass>();
-                if (!powerOff && StandCanAttackTarget(pTarget))
+                if (!powerOff)
                 {
-                    pStand.Ref.SetTarget(pTarget);
+                    Pointer<AbstractClass> pTarget = pMaster.Convert<AbstractClass>();
+                    // 替身是超时空兵，被冻住时不能开火，需要特殊处理
+                    if (pStand.Ref.BeingWarpedOut && !pStand.Ref.TemporalImUsing.IsNull)
+                    {
+                        pStand.Ref.BeingWarpedOut = false;
+                        if (StandCanAttackTarget(pTarget))
+                        {
+                            // 检查ROF
+                            if (pStand.Ref.ROFTimer.Expired())
+                            {
+                                int weaponIdx = pStand.Ref.SelectWeapon(pTarget);
+                                pStand.Ref.Fire(pTarget, weaponIdx);
+                                int rof = 0;
+                                Pointer<WeaponStruct> pWeapon = pStand.Ref.GetWeapon(weaponIdx);
+                                if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
+                                {
+                                    rof = pWeapon.Ref.WeaponType.Ref.ROF;
+                                }
+                                if (rof > 0)
+                                {
+                                    pStand.Ref.ROFTimer.Start(rof);
+                                }
+                            }
+                        }
+                        pStand.Ref.BeingWarpedOut = true;
+                    }
+                    else
+                    {
+                        if (StandCanAttackTarget(pTarget))
+                        {
+                            pStand.Ref.SetTarget(pTarget);
+                        }
+                    }
                 }
             }
             else
@@ -596,6 +649,7 @@ namespace Extension.Script
         {
             int i = pStand.Ref.SelectWeapon(pTarget);
             FireError fireError = pStand.Ref.GetFireError(pTarget, i, true);
+            // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand.Pointer} {fireError}, WarpingOut = {pStand.Ref.WarpingOut}, BeingWarpedOut = {pStand.Ref.BeingWarpedOut}");
             switch (fireError)
             {
                 case FireError.ILLEGAL:
