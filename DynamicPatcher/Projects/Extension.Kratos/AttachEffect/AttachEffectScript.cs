@@ -738,62 +738,63 @@ namespace Extension.Script
             {
                 // 添加无分组的
                 Attach(AETypeData, pOwner);
+                // 检查乘客并附加乘客带来的AE
+                List<int> passengerIds = null;
+                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Passengers.NumPassengers > 0)
+                {
+                    if (null == passengerIds)
+                    {
+                        passengerIds = new List<int>();
+                        // 遍历所有乘客，获得乘客的AEMode序号集
+                        Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
+                        do
+                        {
+                            if (!pPassenger.IsNull)
+                            {
+                                // 查找该乘客身上的AEMode设置
+                                if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
+                                {
+                                    int aeMode = pAEM.AETypeData.AEMode;
+                                    if (aeMode >= 0)
+                                    {
+                                        passengerIds.Add(aeMode);
+                                    }
+                                }
+                                // 由于乘客不会在非OpenTopped的载具内执行update事件，因此由乘客向载具赋予AE的任务由载具执行
+                                UploadAttachTypeData uploadTypeData = Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, pPassenger.Ref.Type.Ref.Base.ID).Data;
+                                if (uploadTypeData.Enable)
+                                {
+                                    foreach (UploadAttachData loadData in uploadTypeData.Datas.Values)
+                                    {
+                                        if (loadData.Enable
+                                            && loadData.CanAffectType(pTechno)
+                                            && (loadData.AffectInAir || !pTechno.InAir())
+                                            && (loadData.AffectStand || !pTechno.AmIStand())
+                                            && loadData.IsOnMark(this)
+                                        )
+                                        {
+                                            Attach(loadData.AttachEffects, pOwner);
+                                        }
+                                    }
+                                }
+                            }
+                        } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
+                    }
+                }
                 // 添加分组的
                 if (aeTypeTypeData.Enable)
                 {
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组");
-                    List<int> passengerIds = null;
                     foreach (AttachEffectTypeData typeData in aeTypeTypeData.Datas.Values)
                     {
                         if (typeData.AttachByPassenger)
                         {
                             // 需要乘客激活
-                            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Passengers.NumPassengers > 0)
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
+                            if (null != passengerIds && passengerIds.Any() && passengerIds.Contains(typeData.AEModeIndex))
                             {
-                                if (null == passengerIds)
-                                {
-                                    passengerIds = new List<int>();
-                                    // 遍历所有乘客，获得乘客的AEMode序号集
-                                    Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
-                                    do
-                                    {
-                                        if (!pPassenger.IsNull)
-                                        {
-                                            // 查找该乘客身上的AEMode设置
-                                            if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
-                                            {
-                                                int aeMode = pAEM.AETypeData.AEMode;
-                                                if (aeMode >= 0)
-                                                {
-                                                    passengerIds.Add(aeMode);
-                                                }
-                                            }
-                                            // 由于乘客不会在非OpenTopped的载具内执行update事件，因此由乘客向载具赋予AE的任务由载具执行
-                                            UploadAttachTypeData uploadTypeData = Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, pPassenger.Ref.Type.Ref.Base.ID).Data;
-                                            if (uploadTypeData.Enable)
-                                            {
-                                                foreach (UploadAttachData loadData in uploadTypeData.Datas.Values)
-                                                {
-                                                    if (loadData.Enable
-                                                        && loadData.CanAffectType(pTechno)
-                                                        && (loadData.AffectInAir || !pTechno.InAir())
-                                                        && (loadData.AffectStand || !pTechno.AmIStand())
-                                                        && loadData.IsOnMark(this)
-                                                    )
-                                                    {
-                                                        Attach(loadData.AttachEffects, pOwner);
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
-                                }
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
-                                if (passengerIds.Any() && passengerIds.Contains(typeData.AEModeIndex))
-                                {
-                                    // 乘客中有该组的序号
-                                    Attach(typeData, pOwner);
-                                }
+                                // 乘客中有该组的序号
+                                Attach(typeData, pOwner);
                             }
                         }
                         else
