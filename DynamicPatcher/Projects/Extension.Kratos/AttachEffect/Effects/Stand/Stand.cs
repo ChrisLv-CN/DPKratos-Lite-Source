@@ -395,7 +395,11 @@ namespace Extension.Script
                 pStand.Ref.Cloakable = pMaster.Ref.Cloakable;
                 pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
                 pStand.Ref.WarpingOut = pMaster.Ref.WarpingOut; // 超时空传送冻结
-                // pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 被超时空兵冻结
+                // 母体被冻结中，替身也冻结，母体没有被冻结，且替身自己没有在被传送
+                if (pMaster.Ref.BeingWarpedOut || pStand.Ref.TemporalTargetingMe.IsNull)
+                {
+                    pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 被超时空兵冻结
+                }
                 pStand.Ref.Deactivated = pMaster.Ref.Deactivated; // 遥控坦克
 
                 pStand.Ref.IronCurtainTimer = pMaster.Ref.IronCurtainTimer;
@@ -521,7 +525,7 @@ namespace Extension.Script
                             if (pStand.Ref.ROFTimer.Expired())
                             {
                                 int weaponIdx = pStand.Ref.SelectWeapon(pTarget);
-                                pStand.Ref.Fire(pTarget, weaponIdx);
+                                pStand.Ref.Fire_IgnoreType(pTarget, weaponIdx);
                                 int rof = 0;
                                 Pointer<WeaponStruct> pWeapon = pStand.Ref.GetWeapon(weaponIdx);
                                 if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
