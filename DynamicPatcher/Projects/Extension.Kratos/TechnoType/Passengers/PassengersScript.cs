@@ -21,11 +21,13 @@ namespace Extension.Script
         public PassengersScript(TechnoExt owner) : base(owner) { }
 
         private PassengersData data => Ini.GetConfig<PassengersData>(Ini.RulesDependency, section).Data;
-        private UploadAttachTypeData loadTypeData => Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, section).Data;
 
+        /// <summary>
+        /// 乘客只有塞进OpenTopped的载具内，才会执行Update
+        /// </summary>
         public override void OnUpdate()
         {
-            if (!pTechno.IsDeadOrInvisible())
+            if (!pTechno.IsDead())
             {
                 // check the transporter settings
                 Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
@@ -50,22 +52,6 @@ namespace Extension.Script
                             if (data.ForceFire)
                             {
                                 pTechno.Ref.SetTarget(pTransporter.Ref.Target);
-                            }
-                        }
-                    }
-                    // 为运输载具附加AE
-                    if (loadTypeData.Enable && pTransporter.TryGetAEManager(out AttachEffectScript aeManager))
-                    {
-                        foreach (UploadAttachData loadData in loadTypeData.Datas.Values)
-                        {
-                            if (loadData.Enable
-                                && loadData.CanAffectType(pTransporter)
-                                && (loadData.AffectInAir || !pTransporter.InAir())
-                                && (loadData.AffectStand || !pTransporter.AmIStand())
-                                && loadData.IsOnMark(aeManager)
-                            )
-                            {
-                                aeManager.Attach(loadData.AttachEffects);
                             }
                         }
                     }

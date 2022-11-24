@@ -732,23 +732,23 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            isDead = pObject.IsDead();
+            isDead = pOwner.IsDead();
             // 添加Section上记录的AE
-            if (!isDead && !pObject.IsInvisible())
+            if (!isDead && !pOwner.IsInvisible())
             {
                 // 添加无分组的
                 Attach(AETypeData, pOwner);
                 // 添加分组的
                 if (aeTypeTypeData.Enable)
                 {
-                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组");
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组");
                     List<int> passengerIds = null;
                     foreach (AttachEffectTypeData typeData in aeTypeTypeData.Datas.Values)
                     {
                         if (typeData.AttachByPassenger)
                         {
                             // 需要乘客激活
-                            if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Passengers.NumPassengers > 0)
+                            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Passengers.NumPassengers > 0)
                             {
                                 if (null == passengerIds)
                                 {
@@ -759,6 +759,7 @@ namespace Extension.Script
                                     {
                                         if (!pPassenger.IsNull)
                                         {
+                                            // 查找该乘客身上的AEMode设置
                                             if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
                                             {
                                                 int aeMode = pAEM.AETypeData.AEMode;
@@ -767,10 +768,27 @@ namespace Extension.Script
                                                     passengerIds.Add(aeMode);
                                                 }
                                             }
+                                            // 由于乘客不会在非OpenTopped的载具内执行update事件，因此由乘客向载具赋予AE的任务由载具执行
+                                            UploadAttachTypeData uploadTypeData = Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, pPassenger.Ref.Type.Ref.Base.ID).Data;
+                                            if (uploadTypeData.Enable)
+                                            {
+                                                foreach (UploadAttachData loadData in uploadTypeData.Datas.Values)
+                                                {
+                                                    if (loadData.Enable
+                                                        && loadData.CanAffectType(pTechno)
+                                                        && (loadData.AffectInAir || !pTechno.InAir())
+                                                        && (loadData.AffectStand || !pTechno.AmIStand())
+                                                        && loadData.IsOnMark(this)
+                                                    )
+                                                    {
+                                                        Attach(loadData.AttachEffects, pOwner);
+                                                    }
+                                                }
+                                            }
                                         }
                                     } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
                                 }
-                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
                                 if (passengerIds.Any() && passengerIds.Contains(typeData.AEModeIndex))
                                 {
                                     // 乘客中有该组的序号
