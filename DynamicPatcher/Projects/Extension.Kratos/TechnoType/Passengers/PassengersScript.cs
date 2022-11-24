@@ -21,6 +21,7 @@ namespace Extension.Script
         public PassengersScript(TechnoExt owner) : base(owner) { }
 
         private PassengersData data => Ini.GetConfig<PassengersData>(Ini.RulesDependency, section).Data;
+        private UploadAttachTypeData loadTypeData => Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, section).Data;
 
         public override void OnUpdate()
         {
@@ -30,6 +31,7 @@ namespace Extension.Script
                 Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
                 if (!pTransporter.IsNull)
                 {
+                    // 获取运输载具上设置的乘客行为
                     if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
                     {
                         PassengersData data = transporter.data;
@@ -51,9 +53,24 @@ namespace Extension.Script
                             }
                         }
                     }
+                    // 为运输载具附加AE
+                    if (loadTypeData.Enable && pTransporter.TryGetAEManager(out AttachEffectScript aeManager))
+                    {
+                        foreach (UploadAttachData loadData in loadTypeData.Datas.Values)
+                        {
+                            if (loadData.Enable
+                                && loadData.CanAffectType(pTransporter)
+                                && (loadData.AffectInAir || !pTransporter.InAir())
+                                && (loadData.AffectStand || !pTransporter.AmIStand())
+                                && loadData.IsOnMark(aeManager)
+                            )
+                            {
+                                aeManager.Attach(loadData.AttachEffects);
+                            }
+                        }
+                    }
                 }
             }
-
         }
 
         public override void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)

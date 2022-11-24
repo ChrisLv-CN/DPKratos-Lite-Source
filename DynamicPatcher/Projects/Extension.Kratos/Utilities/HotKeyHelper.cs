@@ -23,7 +23,7 @@ namespace Extension.Utilities
                 {
                     string section = pTechno.Ref.Type.Ref.Base.Base.ID;
                     HotKeyAttachEffectTypeData typeData = Ini.GetConfig<HotKeyAttachEffectTypeData>(Ini.RulesDependency, section).Data;
-                    if (typeData.Enable)
+                    if (typeData.Enable && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
                     {
                         foreach (HotKeyAttachEffectData data in typeData.Datas.Values)
                         {
@@ -37,12 +37,11 @@ namespace Extension.Utilities
                                     // 可影响
                                     if (data.CanAffectHouse(pPlayer, pHouse)
                                         && data.CanAffectType(pTechno)
-                                        && pTechno.TryGetAEManager(out AttachEffectScript aeManager)
                                         && data.IsOnMark(aeManager))
                                     {
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} attach AE [{string.Join(",", data.AttachEffectTypes)}]");
                                         // 执行动作
-                                        aeManager.Attach(data.AttachEffectTypes, IntPtr.Zero, pPlayer);
+                                        aeManager.Attach(data.AttachEffects, IntPtr.Zero, pPlayer);
                                     }
                                 }
                             }

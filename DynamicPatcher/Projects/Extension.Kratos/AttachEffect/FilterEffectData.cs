@@ -56,7 +56,7 @@ namespace Extension.Ext
             this.AffectCannon = true;
             this.AffectBomb = true;
 
-            this.AffectStand = true;
+            this.AffectStand = false;
             this.AffectInAir = true;
             this.OnlyAffectMarks = null;
 

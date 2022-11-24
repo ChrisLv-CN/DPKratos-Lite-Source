@@ -12,28 +12,19 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class HotKeyAttachEffectData : FilterEffectData
+    public class UploadAttachData : FilterEffectData
     {
-
         public string[] AttachEffects;
-        public int[] Keys;
 
-        public HotKeyAttachEffectData()
+        public UploadAttachData()
         {
             this.AttachEffects = null;
-            this.Keys = null;
-
-            this.AffectsOwner = true;
-            this.AffectsAllies = false;
-            this.AffectsEnemies = false;
-            this.AffectsCivilian = false;
         }
 
         public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
-            this.AttachEffects = reader.GetList<string>(title + "AttachEffects", AttachEffects);
-            this.Keys = reader.GetList<int>(title + "Keys", this.Keys);
+            this.AttachEffects = reader.GetList(title + "AttachEffects", this.AttachEffects);
 
             this.Enable = null != AttachEffects && AttachEffects.Any();
             if (Enable)
@@ -42,11 +33,7 @@ namespace Extension.Ext
             }
         }
 
-        public bool IsOnKey(int group)
-        {
-            return null == Keys || group < 1 || !Keys.Any() || Keys.Contains(group);
-        }
-
     }
+
 
 }
