@@ -15,7 +15,8 @@ namespace Extension.Script
     {
         public AnimDamageData AnimDamageData => Ini.GetConfig<AnimDamageData>(Ini.ArtDependency, section).Data;
 
-        private SwizzleablePointer<TechnoClass> creater = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+        private TechnoExt createrExt;
+        private Pointer<TechnoClass> creater => null != createrExt ? createrExt.OwnerObject : default;
         private bool createrIsDeadth = false;
 
         private TimerStruct weaponDelay;
@@ -23,9 +24,9 @@ namespace Extension.Script
 
         public void SetCreater(Pointer<TechnoClass> pTechno)
         {
-            if (AnimDamageData.KillByCreater)
+            if (AnimDamageData.KillByCreater && !pTechno.IsNull)
             {
-                creater.Pointer = pTechno;
+                createrExt = TechnoExt.ExtMap.Find(pTechno);
             }
         }
 
@@ -46,16 +47,16 @@ namespace Extension.Script
                 {
                     if (AnimDamageData.KillByCreater && !pAnim.Ref.OwnerObject.IsNull && pAnim.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
                     {
-                        creater.Pointer = pTechno;
+                        createrExt = TechnoExt.ExtMap.Find(pTechno);
                     }
                     else
                     {
                         createrIsDeadth = true;
                     }
                 }
-                else if (creater.Pointer.IsDead())
+                else if (creater.IsDead())
                 {
-                    creater.Pointer = IntPtr.Zero;
+                    createrExt = null;
                     createrIsDeadth = true;
                 }
             }

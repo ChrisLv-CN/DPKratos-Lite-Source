@@ -110,7 +110,7 @@ namespace Extension.Script
                             // 目标设置
                             if (blackHoleData.ClearTarget)
                             {
-                                ClearTarget();
+                                pTechno.ClearAllTarget();
                             }
                             if (blackHoleData.ChangeTarget)
                             {
@@ -121,7 +121,7 @@ namespace Extension.Script
                             {
                                 lostControl = true;
                                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 失去控制");
-                                ClearTarget();
+                                pTechno.ClearAllTarget();
                                 pTechno.Ref.Base.Deselect();
                                 pMission.Ref.ForceMission(Mission.None);
                                 pMission.Ref.QueueMission(Mission.Sleep, false);

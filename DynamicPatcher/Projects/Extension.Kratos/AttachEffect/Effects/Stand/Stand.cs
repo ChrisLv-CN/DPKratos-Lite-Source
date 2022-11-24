@@ -28,10 +28,10 @@ namespace Extension.Script
     [Serializable]
     public class Stand : Effect<StandData>
     {
-
-        public SwizzleablePointer<TechnoClass> pStand;
-
+        public TechnoExt StandExt;
+        public Pointer<TechnoClass> pStand => null != StandExt ? StandExt.OwnerObject : default;
         private Pointer<ObjectClass> pMaster => AE.pOwner;
+
         private bool standIsBuilding = false;
         private bool onStopCommand = false;
         private bool notBeHuman = false;
@@ -41,16 +41,10 @@ namespace Extension.Script
         private bool isMoving = false;
         private TimerStruct waklRateTimer;
 
-        public Stand()
-        {
-            this.pStand = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
-        }
-
         public override bool IsAlive()
         {
-            if (pStand.IsNull || pStand.Pointer.IsDead())
+            if (pStand.IsNull || pStand.IsDead())
             {
-                pStand.Pointer = IntPtr.Zero;
                 return false;
             }
             return true;
@@ -70,11 +64,12 @@ namespace Extension.Script
             if (!pType.IsNull)
             {
                 // 创建替身
-                pStand.Pointer = pType.Ref.Base.CreateObject(AE.pSourceHouse).Convert<TechnoClass>();
+                Pointer<TechnoClass> pNewTechno = pType.Ref.Base.CreateObject(AE.pSourceHouse).Convert<TechnoClass>();
+                this.StandExt = TechnoExt.ExtMap.Find(pNewTechno);
                 if (!pStand.IsNull)
                 {
                     // 同步部分扩展设置
-                    if (pStand.Pointer.TryGetStatus(out TechnoStatusScript standStatus))
+                    if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
                     {
                         standStatus.VirtualUnit = this.Data.VirtualUnit;
                         standStatus.StandData = this.Data;
@@ -82,7 +77,7 @@ namespace Extension.Script
                         // 设置替身的所有者
                         if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
                         {
-                            standStatus.MyMaster.Pointer = pTechno;
+                            standStatus.MyMasterExt = TechnoExt.ExtMap.Find(pTechno);
                             // 必须是同一阵营
                             if (!pTechno.Ref.Owner.IsNull && pTechno.Ref.Owner == AE.pSourceHouse && pTechno.TryGetStatus(out TechnoStatusScript masterStatus))
                             {
@@ -93,14 +88,17 @@ namespace Extension.Script
                                 // if (Data.SamePassengers)
                                 // {
                                 //     Logger.Log($"{Game.CurrentFrame} 同步替身乘客空间");
-                                //     pStand.Pointer.Ref.Passengers = pTechno.Ref.Passengers;
+                                //     pStand.Ref.Passengers = pTechno.Ref.Passengers;
                                 // }
                             }
                         }
                         else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
                         {
                             // 附加在抛射体上的，取抛射体的所有者
-                            standStatus.MyMaster.Pointer = pBullet.Ref.Owner;
+                            if (!pBullet.Ref.Owner.IsNull)
+                            {
+                                standStatus.MyMasterExt = TechnoExt.ExtMap.Find(pBullet.Ref.Owner);
+                            }
                         }
                     }
                     // 初始化替身
@@ -114,15 +112,15 @@ namespace Extension.Script
                     else
                     {
                         // lock locomotor
-                        pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
+                        pStand.Convert<FootClass>().Ref.Locomotor.Lock();
                     }
                     // only computer units can hunt
                     Mission mission = canGuard ? Mission.Guard : Mission.Hunt;
-                    pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, false);
+                    pStand.Convert<MissionClass>().Ref.QueueMission(mission, false);
 
                     if (!pMaster.IsInvisible())
                     {
-                        // Logger.Log($"{Game.CurrentFrame} - put stand [{Data.Type}]{pStand.Pointer} on {location}");
+                        // Logger.Log($"{Game.CurrentFrame} - put stand [{Data.Type}]{pStand} on {location}");
                         // 在格子位置刷出替身单位
                         if (!TryPutStand(location))
                         {
@@ -140,7 +138,7 @@ namespace Extension.Script
                         // 强扭朝向
                         ForceSetFacing(locationMark.Direction);
                     }
-                    // Logger.Log($"{Game.CurrentFrame} - 创建替身 [{Data.Type}]{pStand.Pointer}, 所属 {AE.pSourceHouse}, JOJO [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}");
+                    // Logger.Log($"{Game.CurrentFrame} - 创建替身 [{Data.Type}]{pStand}, 所属 {AE.pSourceHouse}, JOJO [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}");
                 }
             }
 
@@ -194,18 +192,18 @@ namespace Extension.Script
 
         private void ExplodesOrDisappear(bool remove)
         {
-            // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand.Pointer} 注销");
+            // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
             bool explodes = Data.Explodes || notBeHuman;
-            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript standStatus))
+            if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
             {
-                // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand.Pointer} 要死了 explodes = {explodes}");
+                // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand} 要死了 explodes = {explodes}");
                 standStatus.DestroySelfState.DestroyNow(!explodes);
             }
             else
             {
                 if (explodes)
                 {
-                    // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {pStand.Pointer}[{Type.Type}] 自爆, 没有发现EXT");
+                    // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {pStand}[{Type.Type}] 自爆, 没有发现EXT");
                     pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
                     if (remove)
                     {
@@ -220,7 +218,7 @@ namespace Extension.Script
                     pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, false);
                 }
             }
-            pStand.Pointer = IntPtr.Zero;
+            StandExt = null;
         }
 
         public override void OnRenderEnd(CoordStruct location)
@@ -274,7 +272,7 @@ namespace Extension.Script
                         // Logger.Log($"{Game.CurrentFrame} 同步 替身 与 JOJO 的翻车角度");
 
                         ILocomotion masterLoco = pMasterFoot.Ref.Locomotor;
-                        ILocomotion standLoco = pStand.Pointer.Convert<FootClass>().Ref.Locomotor;
+                        ILocomotion standLoco = pStand.Convert<FootClass>().Ref.Locomotor;
 
                         Guid masterLocoId = masterLoco.ToLocomotionClass().Ref.GetClassID();
                         Guid standLocoId = standLoco.ToLocomotionClass().Ref.GetClassID();
@@ -445,9 +443,9 @@ namespace Extension.Script
                 pStand.Ref.IsPrimaryFactory = pMaster.Ref.IsPrimaryFactory;
             }
 
-            if (pStand.Pointer.IsInvisible())
+            if (pStand.IsInvisible())
             {
-                RemoveStandTarget();
+                pStand.ClearAllTarget();
                 return;
             }
 
@@ -492,19 +490,19 @@ namespace Extension.Script
                 {
                     case Mission.Guard:
                     case Mission.Area_Guard:
-                        Mission standMission = pStand.Pointer.Convert<MissionClass>().Ref.CurrentMission;
+                        Mission standMission = pStand.Convert<MissionClass>().Ref.CurrentMission;
                         if (standMission != Mission.Attack)
                         {
-                            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(masterMission, true);
+                            pStand.Convert<MissionClass>().Ref.QueueMission(masterMission, true);
                         }
                         break;
                 }
             }
             else
             {
-                RemoveStandTarget();
+                pStand.ClearAllTarget();
                 onStopCommand = false;
-                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+                pStand.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
             }
 
             // synch target
@@ -517,7 +515,7 @@ namespace Extension.Script
                     if (pStand.Ref.BeingWarpedOut && !pStand.Ref.TemporalImUsing.IsNull)
                     {
                         pStand.Ref.BeingWarpedOut = false;
-                        if (StandCanAttackTarget(pTarget))
+                        if (StandCanAttackTarget(pTarget, false))
                         {
                             // 检查ROF
                             if (pStand.Ref.ROFTimer.Expired())
@@ -540,7 +538,7 @@ namespace Extension.Script
                     }
                     else
                     {
-                        if (StandCanAttackTarget(pTarget))
+                        if (StandCanAttackTarget(pTarget, false))
                         {
                             pStand.Ref.SetTarget(pTarget);
                         }
@@ -556,7 +554,7 @@ namespace Extension.Script
                     Pointer<AbstractClass> target = pMaster.Ref.Target;
                     if (!target.IsNull)
                     {
-                        if (Data.SameTarget && canFire && StandCanAttackTarget(target))
+                        if (Data.SameTarget && canFire && StandCanAttackTarget(target, true))
                         {
                             pStand.Ref.SetTarget(target);
                         }
@@ -565,7 +563,7 @@ namespace Extension.Script
                     {
                         if (Data.SameLoseTarget || !canFire)
                         {
-                            RemoveStandTarget();
+                            pStand.ClearAllTarget();
                         }
                     }
                 }
@@ -578,7 +576,7 @@ namespace Extension.Script
             // synch Moving anim
             if (Data.IsTrain || Data.SameMoving)
             {
-                Pointer<FootClass> pFoot = pStand.Pointer.Convert<FootClass>();
+                Pointer<FootClass> pFoot = pStand.Convert<FootClass>();
                 ILocomotion loco = pFoot.Ref.Locomotor;
                 Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
                 if (locoId == LocomotionClass.Drive || locoId == LocomotionClass.Walk || locoId == LocomotionClass.Mech)
@@ -596,7 +594,7 @@ namespace Extension.Script
                                 waklRateTimer.Start(pFoot.Ref.Base.Type.Ref.WalkRate);
                             }
                             // 为SHP素材设置一个总的运动标记
-                            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript status))
+                            if (pStand.TryGetStatus(out TechnoStatusScript status))
                             {
                                 status.StandIsMoving = true;
                             }
@@ -623,7 +621,7 @@ namespace Extension.Script
                         {
                             // 停止移动
                             // 为SHP素材设置一个总的运动标记
-                            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript status))
+                            if (pStand.TryGetStatus(out TechnoStatusScript status))
                             {
                                 status.StandIsMoving = false;
                             }
@@ -645,11 +643,11 @@ namespace Extension.Script
             }
         }
 
-        private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget)
+        private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget, bool checkRange)
         {
             int i = pStand.Ref.SelectWeapon(pTarget);
-            FireError fireError = pStand.Ref.GetFireError(pTarget, i, true);
-            // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand.Pointer} {fireError}, WarpingOut = {pStand.Ref.WarpingOut}, BeingWarpedOut = {pStand.Ref.BeingWarpedOut}");
+            FireError fireError = pStand.Ref.GetFireError(pTarget, i, checkRange);
+            // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand} checkRange = {checkRange}, {fireError}, WarpingOut = {pStand.Ref.WarpingOut}, BeingWarpedOut = {pStand.Ref.BeingWarpedOut}");
             switch (fireError)
             {
                 case FireError.ILLEGAL:
@@ -664,23 +662,9 @@ namespace Extension.Script
         private void RemoveStandIllegalTarget()
         {
             Pointer<AbstractClass> pStandTarget;
-            if (!(pStandTarget = pStand.Ref.Target).IsNull && !StandCanAttackTarget(pStandTarget))
+            if (!(pStandTarget = pStand.Ref.Target).IsNull && !StandCanAttackTarget(pStandTarget, true))
             {
-                pStand.Ref.SetTarget(Pointer<AbstractClass>.Zero);
-            }
-        }
-
-        private void RemoveStandTarget()
-        {
-            // Logger.Log("清空替身{0}的目标对象", Type.Type);
-            pStand.Ref.Target = IntPtr.Zero;
-            pStand.Ref.SetTarget(IntPtr.Zero);
-            pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
-            if (!pStand.Ref.SpawnManager.IsNull)
-            {
-                pStand.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
-                pStand.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
-                pStand.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
+                pStand.ClearAllTarget();
             }
         }
 
@@ -698,7 +682,7 @@ namespace Extension.Script
 
         public void SetLocation(CoordStruct location)
         {
-            // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand.Pointer, location);
+            // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand, location);
             pStand.Ref.Base.SetLocation(location);
             pStand.Ref.SetFocus(IntPtr.Zero);
         }
@@ -773,11 +757,11 @@ namespace Extension.Script
         {
             // 我不做人了JOJO
             notBeHuman = Data.ExplodesWithMaster;
-            // Logger.Log($"{Game.CurrentFrame} - 替身 {pStand.Pointer}[{pStand.Ref.Type.Ref.Base.Base.ID}]的宿主 {pObject}[{pObject.Ref.Type.Ref.Base.ID}]死亡");
+            // Logger.Log($"{Game.CurrentFrame} - 替身 {pStand}[{pStand.Ref.Type.Ref.Base.Base.ID}]的宿主 {pObject}[{pObject.Ref.Type.Ref.Base.ID}]死亡");
             if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 // 沉没，坠机，不销毁替身
-                pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
+                pStand.Convert<MissionClass>().Ref.QueueMission(Mission.Sleep, true);
             }
             else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
             {
@@ -789,7 +773,7 @@ namespace Extension.Script
         public override void OnStopCommand()
         {
             // Logger.Log("清空替身{0}的目标对象", Type.Type);
-            RemoveStandTarget();
+            pStand.ClearAllTarget();
             onStopCommand = true;
             if (!pStand.Ref.Base.IsSelected)
             {

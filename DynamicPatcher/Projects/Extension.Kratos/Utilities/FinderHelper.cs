@@ -330,7 +330,7 @@ namespace Extension.Utilities
                         continue;
                     }
                     // 过滤替身和虚单位
-                    if (pTarget.TryGetStatus(out var status) && (!status.MyMaster.IsNull || status.MyMasterIsAnim || status.VirtualUnit))
+                    if (pTarget.TryGetStatus(out var status) && (status.AmIStand() || status.VirtualUnit))
                     {
                         continue;
                     }

@@ -82,7 +82,7 @@ namespace Extension.Script
             CoordStruct fireFLH = data.FireFLH;
             CoordStruct targetFLH = data.TargetFLH;
 
-            bool attackerInvisible = AE.pSource.Pointer.IsDead() || AE.pSource.Ref.IsImmobilized || AE.pSource.Pointer.WhoIsShooter().IsDeadOrInvisible();
+            bool attackerInvisible = AE.pSource.IsDead() || AE.pSource.Ref.IsImmobilized || AE.pSource.WhoIsShooter().IsDeadOrInvisible();
             bool bulletOwnerInvisible = isOnBullet && (pReceiverOwner.IsDeadOrInvisible() || pReceiverOwner.Ref.IsImmobilized || pReceiverOwner.WhoIsShooter().IsDeadOrInvisible());
             // Logger.Log($"{Game.CurrentFrame} - [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner} ({(isDead ? "Dead" : "Alive")}) 上的 AutoFire, AE.pSource = {AE.pSource.Pointer} pSource.IsDead() = {AE.pSource.Pointer.IsDead()}, attackerInvisible = {attackerInvisible}, bulletOwnerInvisible = {bulletOwnerInvisible}");
             // 攻击者标记下，攻击者死亡或不存在，如果在抛射体上，而抛射体的发射者死亡或不存在，AE结束，没有启用标记，却设置了反向，同样结束AE
@@ -293,7 +293,7 @@ namespace Extension.Script
                 // IsAttackerMark=yes时ReceiverAttack和ReceiverOwnBullet默认值为no
                 // 若无显式修改，此时应为攻击者朝AE附属对象进行攻击
                 // 由攻击者开火，朝向AE附属对象进行攻击
-                pShooter = AE.pSource.Pointer.Convert<ObjectClass>();
+                pShooter = AE.pSource.Convert<ObjectClass>();
                 pAttacker = AE.pSource;
                 pAttackingHouse = AE.pSourceHouse;
                 pTarget = pOwner.Convert<AbstractClass>();
@@ -322,7 +322,7 @@ namespace Extension.Script
                 // 修改目标为攻击者
                 if (Data.ReceiverAttack)
                 {
-                    pTarget = AE.pSource.Pointer.Convert<AbstractClass>();
+                    pTarget = AE.pSource.Convert<AbstractClass>();
                     // Logger.Log($"{Game.CurrentFrame} 武器的目标变更为AE来源 [{AE.pSource.Ref.Type.Ref.Base.Base.ID}]");
                 }
             }

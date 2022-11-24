@@ -121,7 +121,7 @@ namespace Extension.Script
                                     if (data.ClearTarget)
                                     {
                                         // 清除目标
-                                        ClearTarget();
+                                        pTechno.ClearAllTarget();
                                     }
                                     // Warp
                                     if (pTechno.InAir())

@@ -20,7 +20,8 @@ namespace Extension.Script
         private StandData data => Ini.GetConfig<StandData>(Ini.ArtDependency, section).Data;
         private bool initFlag = false;
 
-        private SwizzleablePointer<TechnoClass> pStand = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
+        private TechnoExt standExt;
+        private Pointer<TechnoClass> pStand => null != standExt ? standExt.OwnerObject : default;
 
         public override void Awake()
         {
@@ -41,7 +42,7 @@ namespace Extension.Script
                 CreateAndPutStand();
             }
             // 移动替身的位置
-            if (!pStand.Pointer.IsDeadOrInvisible())
+            if (!pStand.IsDeadOrInvisible())
             {
                 // reset state
                 pStand.Ref.Base.Mark(MarkType.UP); // 拔起，不在地图上
@@ -58,7 +59,7 @@ namespace Extension.Script
         {
             // 移除替身
             bool explodes = data.Explodes || data.ExplodesWithMaster;
-            if (pStand.Pointer.TryGetStatus(out TechnoStatusScript standStatus))
+            if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
             {
                 standStatus.DestroySelfState.DestroyNow(!explodes);
             }
@@ -74,7 +75,7 @@ namespace Extension.Script
                     pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, false);
                 }
             }
-            pStand.Pointer = IntPtr.Zero;
+            standExt = null;
         }
 
         private void CreateAndPutStand()
@@ -90,11 +91,12 @@ namespace Extension.Script
                     pHouse = HouseClass.FindCivilianSide();
                 }
                 // 创建替身
-                pStand.Pointer = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
+                Pointer<TechnoClass> pNew = pType.Ref.Base.CreateObject(pHouse).Convert<TechnoClass>();
+                standExt = TechnoExt.ExtMap.Find(pNew);
                 if (!pStand.IsNull)
                 {
                     // 同步部分扩展设置
-                    if (pStand.Pointer.TryGetStatus(out TechnoStatusScript standStatus))
+                    if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
                     {
                         standStatus.VirtualUnit = this.data.VirtualUnit;
 
@@ -111,11 +113,11 @@ namespace Extension.Script
                     else
                     {
                         // lock locomotor
-                        pStand.Pointer.Convert<FootClass>().Ref.Locomotor.Lock();
+                        pStand.Convert<FootClass>().Ref.Locomotor.Lock();
                     }
                     // only computer units can hunt
                     Mission mission = canGuard ? Mission.Guard : Mission.Hunt;
-                    pStand.Pointer.Convert<MissionClass>().Ref.QueueMission(mission, false);
+                    pStand.Convert<MissionClass>().Ref.QueueMission(mission, false);
 
                     // 放置到指定位置
                     if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))

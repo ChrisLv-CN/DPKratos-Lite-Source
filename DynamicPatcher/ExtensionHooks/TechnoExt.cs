@@ -99,6 +99,35 @@ namespace ExtensionHooks
             // return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
+        public static unsafe UInt32 TechnoClass_CanFire_Temporal_CheckRange(REGISTERS* R)
+        {
+            bool checkRange = R->Stack<bool>(0x2C);
+            if (checkRange)
+            {
+                // cmp ebx, [eax+28h]      pTarget == Temporal.Target
+                Pointer<AbstractClass> pTarget = (IntPtr)R->EBX;
+                Pointer<TemporalClass> temporal = (IntPtr)R->EAX;
+                if (pTarget == temporal.Ref.Target.Convert<AbstractClass>())
+                {
+                    // check range
+                    Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                    int weaponIdx = R->Stack<int>(0x28);
+                    // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
+                    if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
+                    {
+                        return 0x6FCD0E; // RANGE
+                    }
+                    return 0x6FC168; // REARM
+                }
+                else
+                {
+                    return 0x6FC177; // goto next check
+                }
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {

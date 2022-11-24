@@ -190,6 +190,29 @@ namespace Extension.Utilities
             return isBullet;
         }
 
+        public static void ClearAllTarget(this Pointer<TechnoClass> pTechno)
+        {
+            if (!pTechno.IsNull)
+            {
+                // 自身
+                pTechno.Ref.Target = IntPtr.Zero;
+                pTechno.Ref.SetTarget(IntPtr.Zero);
+                pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
+                // 子机管理器
+                if (!pTechno.Ref.SpawnManager.IsNull)
+                {
+                    pTechno.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
+                    pTechno.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
+                    pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
+                }
+                // 超时空传送
+                if (!pTechno.Ref.TemporalImUsing.IsNull)
+                {
+                    pTechno.Ref.TemporalImUsing.Ref.LetGo();
+                }
+            }
+        }
+
         public static bool CanHit(this Pointer<BuildingClass> pBuilding, int targetZ, bool blade = false, int zOffset = 0)
         {
             if (!blade)

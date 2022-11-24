@@ -306,7 +306,7 @@ namespace Extension.Script
                             find = true;
                             if (isAttackMark)
                             {
-                                if (temp.pSource.Pointer == pAttacker)
+                                if (temp.pSource == pAttacker)
                                 {
                                     // 是攻击者标记，且相同的攻击者，重置持续时间
                                     if (temp.AEData.ResetDurationOnReapply)
@@ -588,7 +588,7 @@ namespace Extension.Script
                 if (null != stand && ae.IsActive())
                 {
                     Pointer<TechnoClass> pStand = stand.pStand;
-                    if (pStand.TryGetStatus(out TechnoStatusScript status))
+                    if (!pStand.IsDead() && pStand.TryGetStatus(out TechnoStatusScript status))
                     {
                         // Logger.Log($"{Game.CurrentFrame} - 同步开启AE {ae.Name} 的替身状态 {data.GetType().Name} token {token}");
                         if (data is DestroySelfData)
@@ -639,7 +639,7 @@ namespace Extension.Script
                 && standData.IsVirtualTurret
                 && !status.MyMasterIsAnim
                 && !status.MyMaster.IsNull
-                && status.MyMaster.Pointer.TryGetAEManager(out AttachEffectScript aem)
+                && status.MyMaster.TryGetAEManager(out AttachEffectScript aem)
             )
             {
                 // 替身是虚拟炮塔，buff加成取JOJO身上的
@@ -749,7 +749,7 @@ namespace Extension.Script
                         Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
                         do
                         {
-                            if (!pPassenger.IsNull)
+                            if (!pPassenger.IsNull && !pPassenger.IsDead())
                             {
                                 // 查找该乘客身上的AEMode设置
                                 if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
@@ -1075,7 +1075,7 @@ namespace Extension.Script
                             continue;
                         }
                         // 过滤替身和虚单位
-                        if (pTarget.TryGetStatus(out var status) && (!status.MyMaster.IsNull || status.MyMasterIsAnim || status.VirtualUnit))
+                        if (pTarget.TryGetStatus(out var status) && (status.AmIStand() || status.VirtualUnit))
                         {
                             continue;
                         }

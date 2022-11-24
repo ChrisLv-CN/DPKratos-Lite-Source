@@ -105,7 +105,7 @@ namespace Extension.Script
                         Pointer<ObjectClass> pDamageMaker = IntPtr.Zero;
                         if (!AE.pSource.IsNull && AE.pSource != pTechno)
                         {
-                            pDamageMaker = AE.pSource.Pointer.Convert<ObjectClass>();
+                            pDamageMaker = AE.pSource.Convert<ObjectClass>();
                         }
 
                         if (realDamage < 0 || pTechno.Ref.CloakStates == CloakStates.UnCloaked || Data.Decloak)

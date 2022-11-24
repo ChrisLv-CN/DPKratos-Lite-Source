@@ -16,7 +16,8 @@ namespace Extension.Ext
     public class SimulateBurst
     {
         public SwizzleablePointer<WeaponTypeClass> pWeaponType; // 武器指针
-        public SwizzleablePointer<TechnoClass> pAttacker; // 武器的所属对象指针
+        public TechnoExt AttackerExt;
+        public Pointer<TechnoClass> pAttacker => null != AttackerExt ? AttackerExt.OwnerObject : default; // 武器的所属对象指针
         public SwizzleablePointer<AbstractClass> pTarget; // 目标指针
         public SwizzleablePointer<HouseClass> pAttackingHouse; // 武器所属阵营
         public CoordStruct FLH; // 发射的位置
@@ -35,11 +36,11 @@ namespace Extension.Ext
         private TimerStruct timer;
         private int flag;
 
-        public SimulateBurst(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
+        public SimulateBurst(TechnoExt attackerExt, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeaponType, CoordStruct flh,
             int burst, int minRange, int range, WeaponTypeData weaponTypeData, int flipY, FireBulletToTarget callback)
         {
-            this.pAttacker = new SwizzleablePointer<TechnoClass>(pAttacker);
+            this.AttackerExt = attackerExt;
             this.pTarget = new SwizzleablePointer<AbstractClass>(pTarget);
             this.pAttackingHouse = new SwizzleablePointer<HouseClass>(pAttackingHouse);
 
@@ -64,7 +65,7 @@ namespace Extension.Ext
 
         public SimulateBurst Clone()
         {
-            SimulateBurst newObj = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeaponType, FLH, Burst, MinRange, Range, WeaponTypeData, FlipY, Callback);
+            SimulateBurst newObj = new SimulateBurst(AttackerExt, pTarget, pAttackingHouse, pWeaponType, FLH, Burst, MinRange, Range, WeaponTypeData, FlipY, Callback);
             newObj.Index = Index;
             return newObj;
         }

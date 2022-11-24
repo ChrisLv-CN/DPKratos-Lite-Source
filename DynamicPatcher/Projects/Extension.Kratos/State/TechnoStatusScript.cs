@@ -183,7 +183,7 @@ namespace Extension.Script
                     WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
                     if (warheadTypeData.ClearTarget)
                     {
-                        ClearTarget();
+                        pTechno.ClearAllTarget();
                     }
                 }
                 OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
@@ -246,19 +246,6 @@ namespace Extension.Script
             if (!(selectable = OnSelect_Deselect()))
             {
                 return;
-            }
-        }
-
-        public void ClearTarget()
-        {
-            pTechno.Ref.Target = IntPtr.Zero;
-            pTechno.Ref.SetTarget(IntPtr.Zero);
-            // OwnerObject.Convert<MissionClass>().Ref.QueueMission(Mission.Stop, true);
-            if (!pTechno.Ref.SpawnManager.IsNull)
-            {
-                pTechno.Ref.SpawnManager.Ref.Destination = IntPtr.Zero;
-                pTechno.Ref.SpawnManager.Ref.Target = IntPtr.Zero;
-                pTechno.Ref.SpawnManager.Ref.SetTarget(IntPtr.Zero);
             }
         }
 

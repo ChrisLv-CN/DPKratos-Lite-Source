@@ -24,7 +24,9 @@ namespace Extension.Script
         public AttachEffectScript AEManager;
 
         public Pointer<ObjectClass> pOwner => AEManager.pOwner; // AE附着对象
-        public SwizzleablePointer<TechnoClass> pSource; // AE来源
+
+        public TechnoExt SourceExt; // AE来源
+        public Pointer<TechnoClass> pSource => null != SourceExt ? SourceExt.OwnerObject : default;
         public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
 
         public CoordStruct Location;
@@ -44,7 +46,6 @@ namespace Extension.Script
         {
             this.AEData = data;
 
-            this.pSource = new SwizzleablePointer<TechnoClass>(IntPtr.Zero);
             this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
             int initDelay = AEData.InitialRandomDelay.GetRandomValue(AEData.InitialDelay);
             this.delayToEnable = initDelay > 0;
@@ -103,7 +104,7 @@ namespace Extension.Script
         {
             this.active = true;
             this.AEManager = AEManager;
-            this.pSource.Pointer = pSource;
+            this.SourceExt = TechnoExt.ExtMap.Find(pSource);
             this.pSourceHouse.Pointer = pSourceHouse;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
@@ -162,7 +163,6 @@ namespace Extension.Script
 
         public bool IsAlive()
         {
-            CheckSourceAlive();
             foreach (IEffect effect in effects)
             {
                 if (!effect.IsAlive())
@@ -181,15 +181,6 @@ namespace Extension.Script
             //     && (null == Stand || Stand.IsAlive())
             //     && (null == Transform || Transform.IsAlive())
             //     && (null == Weapon || Weapon.IsAlive());
-        }
-
-        private void CheckSourceAlive()
-        {
-            if (!pSource.IsNull && pSource.Pointer.IsDead())
-            {
-                // Logger.Log($"{Game.CurrentFrame} AE [{AEData.Name}] 来源 {pSource.Pointer} 未指定 或者已死亡，AE失效.");
-                pSource.Pointer = IntPtr.Zero;
-            }
         }
 
         private bool IsDeath()
@@ -298,7 +289,6 @@ namespace Extension.Script
         public void OnUpdate(CoordStruct location, bool isDead)
         {
             this.Location = location;
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 if (initialDelayTimer.InProgress())
@@ -316,7 +306,6 @@ namespace Extension.Script
 
         public void OnLateUpdate(CoordStruct location, bool isDead)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -329,7 +318,6 @@ namespace Extension.Script
 
         public void OnWarpUpdate(CoordStruct location, bool isDead)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -342,7 +330,6 @@ namespace Extension.Script
 
         public void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -355,7 +342,6 @@ namespace Extension.Script
 
         public void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -368,7 +354,6 @@ namespace Extension.Script
 
         public void OnPut(Pointer<CoordStruct> location, DirType dirType)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -381,7 +366,6 @@ namespace Extension.Script
 
         public void OnRemove()
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -395,7 +379,6 @@ namespace Extension.Script
         public void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;
@@ -408,7 +391,6 @@ namespace Extension.Script
 
         public void OnReceiveDamageDestroy()
         {
-            CheckSourceAlive();
             if (delayToEnable)
             {
                 return;

@@ -201,7 +201,8 @@ namespace Extension.Script
                         }
                     }
                     // 模拟burst发射武器
-                    SimulateBurst newBurst = new SimulateBurst(pAttacker, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
+                    TechnoExt attackerExt = !pAttacker.IsNull ? TechnoExt.ExtMap.Find(pAttacker) : null;
+                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
                     // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     // 发射武器
                     SimulateBurstFire(newBurst);
