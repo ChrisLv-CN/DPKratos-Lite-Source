@@ -98,6 +98,8 @@ namespace Extension.Utilities
             PlayReportSound(pWeapon, sourcePos);
             // Draw weapon anim
             DrawWeaponAnim(pShooter, pWeapon, sourcePos, targetPos);
+            // FeedbackAttachEffects
+            AttachEffectScript.FeedbackAttach(pShooter, pWeapon);
             return pBullet;
         }
 

@@ -963,6 +963,16 @@ namespace Extension.Script
             }
         }
 
+        public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
+        {
+            Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
+            Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
+            if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
+            {
+                FeedbackAttach(pOwner, pWeapon.Ref.WeaponType);
+            }
+        }
+
         public override void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
@@ -1033,6 +1043,79 @@ namespace Extension.Script
                 if (ae.IsActive())
                 {
                     ae.OnStopCommand();
+                }
+            }
+        }
+
+        public static void FeedbackAttach(Pointer<ObjectClass> pShooter, Pointer<WeaponTypeClass> pWeapon)
+        {
+            if (!pShooter.IsNull && !pWeapon.IsNull && pShooter.TryGetAEManager(out AttachEffectScript shooterAEM))
+            {
+                FeedbackAttachTypeData typeData = Ini.GetConfig<FeedbackAttachTypeData>(Ini.RulesDependency, pWeapon.Ref.Base.ID).Data;
+                if (typeData.Enable)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} {pShooter} 通过武器 {pWeapon} 附加 AE，一共 {typeData.Datas.Count} 组");
+                    bool isTechno = pShooter.CastToTechno(out Pointer<TechnoClass> pTechno);
+                    Pointer<BulletClass> pBullet = IntPtr.Zero;
+                    if (!isTechno && pShooter.CastToBullet(out pBullet))
+                    {
+                        return;
+                    }
+                    Pointer<TechnoClass> pTransporter = isTechno ? pTechno.Ref.Transporter : default;
+                    pTransporter.TryGetAEManager(out AttachEffectScript transporterAEM);
+                    // Logger.Log($"{Game.CurrentFrame} {pShooter} 通过武器 {pWeapon} 附加 AE, 附加对象 {(isTechno ? "Techno" : "Bullet")}, 拿到AEM {Pointer<AttachEffectScript>.AsPointer(ref shooterAEM)}");
+                    foreach (FeedbackAttachData data in typeData.Datas.Values)
+                    {
+                        if (data.Enable)
+                        {
+                            // 检查所属是否平民
+                            if (isTechno && data.DeactiveWhenCivilian && pTechno.Ref.Owner.IsCivilian())
+                            {
+                                // Logger.Log($"{Game.CurrentFrame} {pShooter} 通过武器 {pWeapon} 不能附加，因为是平民");
+                                continue;
+                            }
+                            if (isTechno)
+                            {
+                                if (data.AffectTechno)
+                                {
+                                    // 是否在载具内
+                                    bool inTransporter = !pTransporter.IsNull;
+                                    if (!inTransporter || data.AttachToTransporter)
+                                    {
+                                        Pointer<TechnoClass> pTempTechno = pTechno;
+                                        AttachEffectScript tempAEM = shooterAEM;
+                                        if (inTransporter)
+                                        {
+                                            if (null == transporterAEM)
+                                            {
+                                                continue;
+                                            }
+                                            pTempTechno = pTransporter;
+                                            tempAEM = transporterAEM;
+                                        }
+                                        // Logger.Log($"{Game.CurrentFrame} {pShooter} 通过武器 {pWeapon} 准备为 {pTempTechno} 附加AE，载具内 {inTransporter}");
+                                        // 检查是否可以影响
+                                        if (data.CanAffectType(pTempTechno)
+                                            && (data.AffectInAir || !pTempTechno.InAir())
+                                            && (data.AffectStand || !pTempTechno.AmIStand())
+                                            && data.IsOnMark(tempAEM)
+                                        )
+                                        {
+                                            // Logger.Log($"{Game.CurrentFrame} 为武器发射者 {pTempTechno} 附加AE [{string.Join(", ", data.AttachEffects)}], 管理器{Pointer<AttachEffectScript>.AsPointer(ref tempAEM)}");
+                                            tempAEM.Attach(data.AttachEffects);
+                                        }
+                                    }
+                                }
+                            }
+                            else if (data.AffectBullet && !pBullet.IsNull)
+                            {
+                                if (data.CanAffectType(pBullet) && data.IsOnMark(shooterAEM))
+                                {
+                                    shooterAEM.Attach(data.AttachEffects);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

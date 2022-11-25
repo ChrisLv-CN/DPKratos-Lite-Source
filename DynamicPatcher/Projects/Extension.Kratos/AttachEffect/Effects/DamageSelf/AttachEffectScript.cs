@@ -20,6 +20,7 @@ namespace Extension.Script
                 // 新建一个AE
                 AttachEffectData aeData = new AttachEffectData();
                 aeData.Enable = true;
+                aeData.Name = section;
                 aeData.DamageSelfData = damageSelfData;
                 Attach(aeData);
             }
