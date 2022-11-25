@@ -305,7 +305,7 @@ namespace Extension.Script
             // 只同步状态，位置和朝向由StandManager控制
             if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                UpdateState(pTechno);
+                UpdateState(pTechno, isDead);
             }
             else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
             {
@@ -318,7 +318,7 @@ namespace Extension.Script
             // 只同步状态，位置和朝向由StandManager控制
             if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                UpdateState(pTechno);
+                UpdateState(pTechno, isDead);
             }
             else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
             {
@@ -363,7 +363,7 @@ namespace Extension.Script
             }
         }
 
-        public void UpdateState(Pointer<TechnoClass> pMaster)
+        public void UpdateState(Pointer<TechnoClass> pMaster, bool masterIsDead)
         {
             // Logger.Log($"{Game.CurrentFrame} 单位上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
@@ -512,7 +512,7 @@ namespace Extension.Script
             // synch target
             if (Data.ForceAttackMaster)
             {
-                if (!powerOff)
+                if (!powerOff && !masterIsDead)
                 {
                     Pointer<AbstractClass> pTarget = pMaster.Convert<AbstractClass>();
                     // 替身是超时空兵，被冻住时不能开火，需要特殊处理
@@ -525,6 +525,7 @@ namespace Extension.Script
                             if (pStand.Ref.ROFTimer.Expired())
                             {
                                 int weaponIdx = pStand.Ref.SelectWeapon(pTarget);
+                                // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand} 向 JOJO {pTarget} 发射武器");
                                 pStand.Ref.Fire_IgnoreType(pTarget, weaponIdx);
                                 int rof = 0;
                                 Pointer<WeaponStruct> pWeapon = pStand.Ref.GetWeapon(weaponIdx);

@@ -99,7 +99,9 @@ namespace ExtensionHooks
             // return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
+        [Obsolete]
+        // Will crash the game. change to use temporalUpdate check range and let go.
+        // [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
         public static unsafe UInt32 TechnoClass_CanFire_Temporal_CheckRange(REGISTERS* R)
         {
             bool checkRange = R->Stack<bool>(0x2C);
@@ -111,12 +113,15 @@ namespace ExtensionHooks
                 if (pTarget == temporal.Ref.Target.Convert<AbstractClass>())
                 {
                     // check range
-                    Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                    int weaponIdx = R->Stack<int>(0x28);
-                    // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
-                    if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
+                    Pointer<TechnoClass> pTechno = temporal.Ref.Owner;
+                    if (!pTechno.IsDeadOrInvisible())
                     {
-                        return 0x6FCD0E; // RANGE
+                        int weaponIdx = R->Stack<int>(0x28);
+                        // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
+                        if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
+                        {
+                            return 0x6FCD0E; // RANGE
+                        }
                     }
                     return 0x6FC168; // REARM
                 }
@@ -134,7 +139,6 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                var pTarget = R->Stack<Pointer<AbstractClass>>(0x4);
                 if (pTechno.TryGetStatus(out TechnoStatusScript status)
                     && status.OverrideWeaponState.TryGetOverrideWeapon(pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pOverrideWeapon)
                     && !pOverrideWeapon.IsNull)
@@ -169,30 +173,6 @@ namespace ExtensionHooks
                     // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
                     R->EAX = (uint)(rof * rofMult);
                 }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-
-
-        [Hook(HookType.AresHook, Address = 0x6FF29E, Size = 6)]
-        public static unsafe UInt32 TechnoClass_Fire_SkipROF(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                // Pointer<WeaponTypeClass> pWeapon = (IntPtr)R->EBX;
-                // if (pTechno.Ref.CurrentBurstIndex >= pWeapon.Ref.Burst && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
-                // {
-                //     int rof = (int)R->EAX;
-                //     double rofMult = aeManager.CountAttachStatusMultiplier().ROFMultiplier;
-                //     // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
-                //     R->EAX = (uint)(rof * rofMult);
-                // }
-                // return 0x6FF2BE; // skip ROF
             }
             catch (Exception e)
             {

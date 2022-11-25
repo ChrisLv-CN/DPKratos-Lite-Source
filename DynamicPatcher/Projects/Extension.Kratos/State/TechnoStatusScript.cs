@@ -164,6 +164,21 @@ namespace Extension.Script
             OnWarpUpdate_DestroySelf_Stand();
         }
 
+        public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
+        {
+            if (!pTemporal.IsNull && !pTemporal.Ref.Owner.IsNull)
+            {
+                // check range
+                Pointer<TechnoClass> pAttacker = pTemporal.Ref.Owner;
+                Pointer<AbstractClass> pTarget = pTechno.Convert<AbstractClass>();
+                int weaponIdx = pAttacker.Ref.SelectWeapon(pTarget);
+                if (weaponIdx < 0 || !pAttacker.Ref.IsCloseEnough(pTechno.Convert<AbstractClass>(), weaponIdx))
+                {
+                    pTemporal.Ref.LetGo();
+                }
+            }
+        }
+
         public override void OnRemove()
         {
             OnRemove_StandUnit();
