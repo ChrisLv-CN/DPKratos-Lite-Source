@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
+using Extension.EventSystems;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
@@ -25,6 +26,41 @@ namespace Extension.Script
 
         // Burst发射模式下剩余待发射的队列
         private Queue<SimulateBurst> simulateBurstQueue = new Queue<SimulateBurst>();
+
+        public override void Awake()
+        {
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 附加开火，注册指针失效事件");
+            EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearInvalidMissionHandler);
+        }
+
+        public override void OnUnInit()
+        {
+            EventSystem.PointerExpire.RemoveTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearInvalidMissionHandler);
+        }
+
+        private void ClearInvalidMissionHandler(object sender, EventArgs e)
+        {
+            AnnounceExpiredPointerEventArgs args = (AnnounceExpiredPointerEventArgs)e;
+            Pointer<AbstractClass> pAbstract = args.ExpiredPointer;
+
+            foreach(DelayFireWeapon delayFireWeapon in delayFires)
+            {
+                if (delayFireWeapon.pTarget == pAbstract)
+                {
+                    delayFireWeapon.pTarget.Pointer = IntPtr.Zero;
+                    delayFireWeapon.Invalid = true;
+                }
+            }
+
+            foreach(SimulateBurst simulateBurst in simulateBurstQueue)
+            {
+                if (simulateBurst.pTarget == pAbstract)
+                {
+                    simulateBurst.pTarget.Pointer = IntPtr.Zero;
+                    simulateBurst.Invalid = true;
+                }
+            }
+        }
 
         public void FireMissionDone()
         {
@@ -49,22 +85,25 @@ namespace Extension.Script
                 for (int i = 0; i < delayFires.Count; i++)
                 {
                     DelayFireWeapon delayFire = delayFires.Dequeue();
-                    if (delayFire.TimesUp())
+                    if (!delayFire.Invalid)
                     {
-                        // 发射武器
-                        if (delayFire.FireOwnWeapon)
+                        if (delayFire.TimesUp())
                         {
-                            pTechno.Ref.Fire_IgnoreType(delayFire.pTarget, delayFire.WeaponIndex);
+                            // 发射武器
+                            if (delayFire.FireOwnWeapon)
+                            {
+                                pTechno.Ref.Fire_IgnoreType(delayFire.pTarget, delayFire.WeaponIndex);
+                            }
+                            else
+                            {
+                                FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH);
+                            }
+                            delayFire.ReduceOnce();
                         }
-                        else
+                        if (delayFire.NotDone())
                         {
-                            FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH);
+                            delayFires.Enqueue(delayFire);
                         }
-                        delayFire.ReduceOnce();
-                    }
-                    if (delayFire.NotDone())
-                    {
-                        delayFires.Enqueue(delayFire);
                     }
                 }
             }
@@ -76,34 +115,37 @@ namespace Extension.Script
             for (int i = 0; i < simulateBurstQueue.Count; i++)
             {
                 SimulateBurst burst = simulateBurstQueue.Dequeue();
-                // 检查是否还需要发射
-                if (burst.Index < burst.Burst)
+                if (!burst.Invalid)
                 {
-                    // 检查延迟
-                    if (burst.CanFire())
+                    // 检查是否还需要发射
+                    if (burst.Index < burst.Burst)
                     {
-                        Pointer<TechnoClass> pAttacker = burst.pAttacker; // 武器所属对象，可以为null
-                        Pointer<AbstractClass> pTarget = burst.pTarget; // 武器的目标
-                        Pointer<HouseClass> pAttackingHouse = burst.pAttackingHouse; // 武器所属阵营
-                        Pointer<WeaponTypeClass> pWeaponType = burst.pWeaponType;
-                        // 检查目标幸存和射程
-                        if (!pWeaponType.IsNull // 武器存在
-                            && !pTarget.IsNull // 目标存在
-                            && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible()) // 如果是单位检查是否存活
-                            && (!burst.WeaponTypeData.CheckRange || InRange(pTarget, burst)) // 射程之内
-                        )
+                        // 检查延迟
+                        if (burst.CanFire())
                         {
-                            // 发射
-                            SimulateBurstFire(burst);
+                            Pointer<TechnoClass> pAttacker = burst.pAttacker; // 武器所属对象，可以为null
+                            Pointer<AbstractClass> pTarget = burst.pTarget; // 武器的目标
+                            Pointer<HouseClass> pAttackingHouse = burst.pAttackingHouse; // 武器所属阵营
+                            Pointer<WeaponTypeClass> pWeaponType = burst.pWeaponType;
+                            // 检查目标幸存和射程
+                            if (!pWeaponType.IsNull // 武器存在
+                                && !pTarget.IsNull // 目标存在
+                                && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible()) // 如果是单位检查是否存活
+                                && (!burst.WeaponTypeData.CheckRange || InRange(pTarget, burst)) // 射程之内
+                            )
+                            {
+                                // 发射
+                                SimulateBurstFire(burst);
+                            }
+                            else
+                            {
+                                // 武器失效
+                                continue;
+                            }
                         }
-                        else
-                        {
-                            // 武器失效
-                            continue;
-                        }
+                        // 归队
+                        simulateBurstQueue.Enqueue(burst);
                     }
-                    // 归队
-                    simulateBurstQueue.Enqueue(burst);
                 }
             }
         }
@@ -202,7 +244,8 @@ namespace Extension.Script
                     }
                     // 模拟burst发射武器
                     TechnoExt attackerExt = !pAttacker.IsNull ? TechnoExt.ExtMap.Find(pAttacker) : null;
-                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, pAttackingHouse, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
+                    HouseExt attackingExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
+                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, attackingExt, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
                     // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     // 发射武器
                     SimulateBurstFire(newBurst);

@@ -32,7 +32,7 @@ namespace Extension.Script
 
         public override State<PaintballData> GetState(TechnoStatusScript statusScript)
         {
-            ColorStruct color = Data.IsHouseColor ? AE.pSourceHouse.Pointer.Ref.LaserColor : Data.Color;
+            ColorStruct color = Data.IsHouseColor ? AE.pSourceHouse.Ref.LaserColor : Data.Color;
             paintballData = new PaintballData();
             paintballData.Color = color;
             paintballData.BrightMultiplier = Data.BrightMultiplier;

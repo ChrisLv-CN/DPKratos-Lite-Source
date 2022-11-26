@@ -15,7 +15,8 @@ namespace Extension.Ext
     [Serializable]
     public class FireSuperWeapon
     {
-        public SwizzleablePointer<HouseClass> House;
+        public HouseExt HouseExt;
+        public Pointer<HouseClass> House => null != HouseExt ? HouseExt.OwnerObject : default;
         public CellStruct Location;
         public FireSuperEntity Data;
 
@@ -25,9 +26,9 @@ namespace Extension.Ext
         private int delay;
         private TimerStruct delayTimer;
 
-        public FireSuperWeapon(Pointer<HouseClass> pHouse, CellStruct location, FireSuperEntity data)
+        public FireSuperWeapon(HouseExt houseExt, CellStruct location, FireSuperEntity data)
         {
-            this.House = new SwizzleablePointer<HouseClass>(pHouse);
+            this.HouseExt = houseExt;
             this.Location = location;
             this.Data = data;
 

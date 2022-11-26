@@ -259,7 +259,7 @@ namespace Extension.Ext
                                         }
                                         if (pTarget.TryGetStatus(out var paint))
                                         {
-                                            paint.pExtraSparkleAnim.Pointer = pAnim;
+                                            paint.ExtraSparkleAnimExt = AnimExt.ExtMap.Find(pAnim);
                                         }
                                     }
                                     break;

@@ -27,7 +27,8 @@ namespace Extension.Script
 
         public TechnoExt SourceExt; // AE来源
         public Pointer<TechnoClass> pSource => null != SourceExt ? SourceExt.OwnerObject : default;
-        public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
+        public HouseExt HouseExt; // AE来源所属
+        public Pointer<HouseClass> pSourceHouse => null != HouseExt ? HouseExt.OwnerObject : default;
         public int AEMode;
         public bool FromPassenger;
 
@@ -48,7 +49,6 @@ namespace Extension.Script
         {
             this.AEData = data;
 
-            this.pSourceHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
             int initDelay = AEData.InitialRandomDelay.GetRandomValue(AEData.InitialDelay);
             this.delayToEnable = initDelay > 0;
             if (delayToEnable)
@@ -107,7 +107,7 @@ namespace Extension.Script
             this.active = true;
             this.AEManager = AEManager;
             this.SourceExt = TechnoExt.ExtMap.Find(pSource);
-            this.pSourceHouse.Pointer = pSourceHouse;
+            this.HouseExt = HouseExt.ExtMap.Find(pSourceHouse);
             this.AEMode = aeMode;
             this.FromPassenger = fromPassenger;
             if (!delayToEnable || initialDelayTimer.Expired())

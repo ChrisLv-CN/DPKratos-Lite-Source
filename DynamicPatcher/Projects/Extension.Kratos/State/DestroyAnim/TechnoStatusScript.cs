@@ -15,7 +15,9 @@ namespace Extension.Script
     public partial class TechnoStatusScript
     {
         public State<DestroyAnimData> DestroyAnimState = new State<DestroyAnimData>();
-        private SwizzleablePointer<HouseClass> pKillerHouse = new SwizzleablePointer<HouseClass>(IntPtr.Zero);
+
+        private HouseExt killerHouseExt;
+        private Pointer<HouseClass> pKillerHouse => null != killerHouseExt ? killerHouseExt.OwnerObject : default;
 
         private DestroyAnimData destroyAnimData => Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, section).Data;
 
@@ -24,7 +26,7 @@ namespace Extension.Script
             if (damageState == DamageState.NowDead)
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID}，攻击者{pAttacker}，攻击者所属{pAttackingHouse}");
-                this.pKillerHouse.Pointer = pAttackingHouse;
+                this.killerHouseExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
                 // 检查弹头上的AE，被弹头击杀时，弹头事件不会赋予AE，因此要单独附加
                 AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
                 if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0 && pTechno.TryGetAEManager(out AttachEffectScript aeManager))

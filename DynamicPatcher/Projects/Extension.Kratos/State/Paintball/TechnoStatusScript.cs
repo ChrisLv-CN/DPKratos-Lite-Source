@@ -17,7 +17,8 @@ namespace Extension.Script
 
         public PaintballState PaintballState = new PaintballState();
 
-        public SwizzleablePointer<AnimClass> pExtraSparkleAnim = new SwizzleablePointer<AnimClass>(IntPtr.Zero);
+        public AnimExt ExtraSparkleAnimExt;
+        private Pointer<AnimClass> pExtraSparkleAnim => null != ExtraSparkleAnimExt ? ExtraSparkleAnimExt.OwnerObject : default;
 
         private float deactivateDimEMP = 0.8f;
         private float deactivateDimPowered = 0.5f;
@@ -87,7 +88,7 @@ namespace Extension.Script
             if (!pExtraSparkleAnim.IsNull && !pTechno.Ref.IsUnderEMP())
             {
                 pExtraSparkleAnim.Ref.Loops = 0;
-                pExtraSparkleAnim.Pointer = IntPtr.Zero;
+                ExtraSparkleAnimExt = null;
             }
         }
 

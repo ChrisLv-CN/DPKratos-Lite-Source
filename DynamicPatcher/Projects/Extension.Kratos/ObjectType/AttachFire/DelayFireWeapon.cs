@@ -15,15 +15,18 @@ namespace Extension.Ext
     [Serializable]
     public class DelayFireWeapon
     {
+        public bool Invalid;
+
         public bool FireOwnWeapon;
         public int WeaponIndex;
         public SwizzleablePointer<WeaponTypeClass> pWeapon;
         public SwizzleablePointer<AbstractClass> pTarget;
         public CoordStruct FLH;
         public WeaponTypeData weaponTypeData;
-        public int delay;
-        public TimerStruct timer;
-        public int count;
+
+        private int delay;
+        private TimerStruct timer;
+        private int count;
 
         public DelayFireWeapon(Pointer<AbstractClass> pTarget, int delay, int count)
         {

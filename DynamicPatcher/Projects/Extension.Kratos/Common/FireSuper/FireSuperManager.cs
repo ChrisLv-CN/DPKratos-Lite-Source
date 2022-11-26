@@ -25,7 +25,8 @@ namespace Extension.Ext
         public static void Order(Pointer<HouseClass> pHouse, CoordStruct location, FireSuperEntity data)
         {
             CellStruct cellStruct = MapClass.Coord2Cell(location);
-            FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(pHouse, cellStruct, data);
+            HouseExt houseExt = !pHouse.IsNull ? HouseExt.ExtMap.Find(pHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
+            FireSuperWeapon fireSuperWeapon = new FireSuperWeapon(houseExt, cellStruct, data);
             fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
         }
 
@@ -47,7 +48,7 @@ namespace Extension.Ext
                 FireSuperWeapon fireSuperWeapon = fireSuperWeaponQueue.Dequeue();
                 if (fireSuperWeapon.CanLaunch())
                 {
-                    LaunchSuperWeapons(fireSuperWeapon.House.Pointer, fireSuperWeapon.Location, fireSuperWeapon.Data);
+                    LaunchSuperWeapons(fireSuperWeapon.House, fireSuperWeapon.Location, fireSuperWeapon.Data);
                     fireSuperWeapon.Cooldown();
                 }
                 if (!fireSuperWeapon.IsDone())

@@ -68,7 +68,7 @@ namespace Extension.Script
                     if (decoy.IsNotDeath())
                     {
                         // Check distance to Change speed and target point
-                        Pointer<BulletClass> pBullet = decoy.Bullet;
+                        Pointer<BulletClass> pBullet = decoy.pBullet;
                         if (null != pBullet && !pBullet.IsNull)
                         {
                             int speed = pBullet.Ref.Speed - 5;

@@ -15,15 +15,16 @@ namespace Extension.Ext
     [Serializable]
     public class DecoyBullet
     {
-        public SwizzleablePointer<BulletClass> Bullet;
+        public BulletExt BulletExt;
+        public Pointer<BulletClass> pBullet => null != BulletExt ? BulletExt.OwnerObject : default;
 
         public CoordStruct LaunchPort;
 
         public int Life;
 
-        public DecoyBullet(Pointer<BulletClass> pBullet, CoordStruct launchPort, int life = 150)
+        public DecoyBullet(BulletExt bulletExt, CoordStruct launchPort, int life = 150)
         {
-            this.Bullet = new SwizzleablePointer<BulletClass>(pBullet);
+            this.BulletExt = bulletExt;
             this.LaunchPort = launchPort;
             this.Life = life;
         }
@@ -33,14 +34,14 @@ namespace Extension.Ext
             if (--Life <= 0)
             {
                 // Is death
-                if (!Bullet.IsNull)
+                if (!pBullet.IsNull)
                 {
-                    CoordStruct location = Bullet.Ref.Base.Base.GetCoords();
-                    Bullet.Ref.Detonate(location);
-                    Bullet.Ref.Base.Remove();
-                    Bullet.Ref.Base.UnInit();
+                    CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+                    pBullet.Ref.Detonate(location);
+                    pBullet.Ref.Base.Remove();
+                    pBullet.Ref.Base.UnInit();
                 }
-                Bullet = default;
+                BulletExt = null;
                 return false;
             }
             return true;
@@ -48,7 +49,7 @@ namespace Extension.Ext
 
         public override string ToString()
         {
-            return string.Format("{{\"Bullet\": {0}, \"LaunchPort\": {1}, \"Life\": {2}}}", Bullet.Pointer, LaunchPort, Life);
+            return string.Format("{{\"Bullet\": {0}, \"LaunchPort\": {1}, \"Life\": {2}}}", pBullet, LaunchPort, Life);
         }
 
     }
@@ -143,8 +144,10 @@ namespace Extension.Ext
         public void AddDecoy(Pointer<BulletClass> pDecoy, CoordStruct launchPort, int life)
         {
             if (null == Decoys)
+            {
                 Decoys = new List<DecoyBullet>();
-            DecoyBullet decoy = new DecoyBullet(pDecoy, launchPort, life);
+            }
+            DecoyBullet decoy = new DecoyBullet(BulletExt.ExtMap.Find(pDecoy), launchPort, life);
             Decoys.Add(decoy);
         }
 
@@ -152,7 +155,7 @@ namespace Extension.Ext
         {
             Decoys.RemoveAll((deocy) =>
             {
-                return deocy.Life <= 0 || deocy.Bullet.IsNull || !deocy.Bullet.Ref.Base.IsAlive;
+                return deocy.Life <= 0 || deocy.pBullet.IsNull || !deocy.pBullet.Ref.Base.IsAlive;
             });
         }
 
@@ -164,7 +167,7 @@ namespace Extension.Ext
                 int ans = MathEx.Random.Next(count);
                 DecoyBullet decoy = Decoys[ans == count ? ans - 1 : ans];
                 Decoys.Remove(decoy);
-                return decoy.Bullet;
+                return decoy.pBullet;
             }
             return Pointer<BulletClass>.Zero;
         }
@@ -178,14 +181,14 @@ namespace Extension.Ext
                 DecoyBullet decoy = Decoys[i];
                 CoordStruct location = pos;
                 double x = 0;
-                if (!decoy.Bullet.IsNull
-                    && (x = pos.DistanceFrom(decoy.Bullet.Ref.Base.Base.GetCoords())) < distance)
+                if (!decoy.pBullet.IsNull
+                    && (x = pos.DistanceFrom(decoy.pBullet.Ref.Base.Base.GetCoords())) < distance)
                 {
                     distance = x;
                     index = i;
                 }
             }
-            return index >= 0 ? Decoys[index].Bullet.Pointer : default;
+            return index >= 0 ? Decoys[index].pBullet : default;
         }
     }
 

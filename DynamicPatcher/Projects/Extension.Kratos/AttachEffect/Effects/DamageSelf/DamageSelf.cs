@@ -37,7 +37,7 @@ namespace Extension.Script
             // 排除附着平民抛射体
             if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
             {
-                if (Data.DeactiveWhenCivilian && AE.pSourceHouse.Pointer.IsCivilian())
+                if (Data.DeactiveWhenCivilian && AE.pSourceHouse.IsCivilian())
                 {
                     this.active = false;
                     return;

@@ -15,11 +15,14 @@ namespace Extension.Ext
     [Serializable]
     public class SimulateBurst
     {
+        public bool Invalid; // 失效
+
         public SwizzleablePointer<WeaponTypeClass> pWeaponType; // 武器指针
         public TechnoExt AttackerExt;
         public Pointer<TechnoClass> pAttacker => null != AttackerExt ? AttackerExt.OwnerObject : default; // 武器的所属对象指针
         public SwizzleablePointer<AbstractClass> pTarget; // 目标指针
-        public SwizzleablePointer<HouseClass> pAttackingHouse; // 武器所属阵营
+        public HouseExt AttackingHouseExt;
+        public Pointer<HouseClass> pAttackingHouse => null != AttackingHouseExt ? AttackingHouseExt.OwnerObject : default; // 武器所属阵营
         public CoordStruct FLH; // 发射的位置
         public FireBulletToTarget Callback; // 武器发射后回调函数
 
@@ -36,13 +39,13 @@ namespace Extension.Ext
         private TimerStruct timer;
         private int flag;
 
-        public SimulateBurst(TechnoExt attackerExt, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
+        public SimulateBurst(TechnoExt attackerExt, Pointer<AbstractClass> pTarget, HouseExt attackingHouse,
             Pointer<WeaponTypeClass> pWeaponType, CoordStruct flh,
             int burst, int minRange, int range, WeaponTypeData weaponTypeData, int flipY, FireBulletToTarget callback)
         {
             this.AttackerExt = attackerExt;
+            this.AttackingHouseExt = attackingHouse;
             this.pTarget = new SwizzleablePointer<AbstractClass>(pTarget);
-            this.pAttackingHouse = new SwizzleablePointer<HouseClass>(pAttackingHouse);
 
             this.pWeaponType = new SwizzleablePointer<WeaponTypeClass>(pWeaponType);
             this.FLH = flh;
@@ -65,7 +68,7 @@ namespace Extension.Ext
 
         public SimulateBurst Clone()
         {
-            SimulateBurst newObj = new SimulateBurst(AttackerExt, pTarget, pAttackingHouse, pWeaponType, FLH, Burst, MinRange, Range, WeaponTypeData, FlipY, Callback);
+            SimulateBurst newObj = new SimulateBurst(AttackerExt, pTarget, AttackingHouseExt, pWeaponType, FLH, Burst, MinRange, Range, WeaponTypeData, FlipY, Callback);
             newObj.Index = Index;
             return newObj;
         }
