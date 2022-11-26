@@ -41,6 +41,8 @@ namespace Extension.Script
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
         public Dictionary<string, int> AEStacks; // 同名AE的叠加层数
 
+        public List<int> PassengerIds; // 乘客持有的ID
+
         private CoordStruct location;
 
         private List<LocationMark> locationMarks;
@@ -162,14 +164,16 @@ namespace Extension.Script
         /// <param name="pSource"></param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, bool fromPassenger = false)
+        /// <param name="aeMode">分组编号</param>
+        /// <param name="fromPassenger">绑定乘客</param>
+        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, int aeMode = -1, bool fromPassenger = false)
         {
             if (null != aeTypes && aeTypes.Any())
             {
                 // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
                 foreach (string type in aeTypes)
                 {
-                    Attach(type, pSource, pSourceHouse, attachOnceFlag, fromPassenger);
+                    Attach(type, pSource, pSourceHouse, attachOnceFlag, aeMode, fromPassenger);
                 }
             }
         }
@@ -181,8 +185,9 @@ namespace Extension.Script
         /// <param name="pSource">AE来源</param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
+        /// <param name="aeMode">分组编号</param>
         /// <param name="fromPassenger">绑定乘客</param>
-        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, bool fromPassenger = false)
+        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, int aeMode = -1, bool fromPassenger = false)
         {
             // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE [{type}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
@@ -190,7 +195,7 @@ namespace Extension.Script
             {
                 return;
             }
-            Attach(aeDate.Data, pSource, pSourceHouse, fromPassenger);
+            Attach(aeDate.Data, pSource, pSourceHouse, aeMode, fromPassenger);
         }
 
         /// <summary>
@@ -209,8 +214,9 @@ namespace Extension.Script
         /// <param name="aeData">要附加的AE类型</param>
         /// <param name="pSource">来源</param>
         /// <param name="pSourceHouse">来源所属</param>
+        /// <param name="aeMode">分组编号</param>
         /// <param name="fromPassenger">绑定乘客</param>
-        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, bool fromPassenger = false)
+        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, int aeMode = -1, bool fromPassenger = false)
         {
             if (!data.Enable)
             {
@@ -377,7 +383,7 @@ namespace Extension.Script
                 AttachEffects.Insert(index, ae);
                 AddStackCount(ae); // 叠层计数
                 // 激活
-                ae.Enable(this, pAttacker, pAttackingHouse, fromPassenger);
+                ae.Enable(this, pAttacker, pAttackingHouse, aeMode, fromPassenger);
             }
         }
 
@@ -701,6 +707,37 @@ namespace Extension.Script
                 );
         }
 
+        private bool CheckPassanger(Pointer<TechnoClass> pTechno, out List<int> passengerIds, Found<ObjectClass> foundPassanger = null)
+        {
+            passengerIds = null;
+            if (pTechno.Ref.Passengers.NumPassengers > 0)
+            {
+                passengerIds = new List<int>();
+                // 遍历所有乘客，获得乘客的AEMode序号集
+                Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
+                do
+                {
+                    if (!pPassenger.IsNull && !pPassenger.IsDead())
+                    {
+                        // 查找该乘客身上的AEMode设置
+                        if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
+                        {
+                            int aeMode = pAEM.AETypeData.AEMode;
+                            if (aeMode >= 0)
+                            {
+                                passengerIds.Add(aeMode);
+                            }
+                        }
+                        if (null != foundPassanger)
+                        {
+                            foundPassanger(pPassenger);
+                        }
+                    }
+                } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
+            }
+            return null != passengerIds && passengerIds.Any();
+        }
+
         public override void OnRender()
         {
             isDead = pObject.IsDead();
@@ -749,48 +786,30 @@ namespace Extension.Script
                 // 添加无分组的
                 Attach(AETypeData, pOwner);
                 // 检查乘客并附加乘客带来的AE
-                List<int> passengerIds = null;
-                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Passengers.NumPassengers > 0)
+                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
-                    if (null == passengerIds)
+                    CheckPassanger(pTechno, out PassengerIds, (pPassenger) =>
                     {
-                        passengerIds = new List<int>();
-                        // 遍历所有乘客，获得乘客的AEMode序号集
-                        Pointer<ObjectClass> pPassenger = pTechno.Ref.Passengers.FirstPassenger.Convert<ObjectClass>();
-                        do
+                        // 由于乘客不会在非OpenTopped的载具内执行update事件，因此由乘客向载具赋予AE的任务由载具执行
+                        UploadAttachTypeData uploadTypeData = Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, pPassenger.Ref.Type.Ref.Base.ID).Data;
+                        if (uploadTypeData.Enable)
                         {
-                            if (!pPassenger.IsNull && !pPassenger.IsDead())
+                            foreach (UploadAttachData loadData in uploadTypeData.Datas.Values)
                             {
-                                // 查找该乘客身上的AEMode设置
-                                if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
+                                if (loadData.Enable
+                                    && loadData.CanAffectType(pTechno)
+                                    && (loadData.AffectInAir || !pTechno.InAir())
+                                    && (loadData.AffectStand || !pTechno.AmIStand())
+                                    && loadData.IsOnMark(this)
+                                )
                                 {
-                                    int aeMode = pAEM.AETypeData.AEMode;
-                                    if (aeMode >= 0)
-                                    {
-                                        passengerIds.Add(aeMode);
-                                    }
-                                }
-                                // 由于乘客不会在非OpenTopped的载具内执行update事件，因此由乘客向载具赋予AE的任务由载具执行
-                                UploadAttachTypeData uploadTypeData = Ini.GetConfig<UploadAttachTypeData>(Ini.RulesDependency, pPassenger.Ref.Type.Ref.Base.ID).Data;
-                                if (uploadTypeData.Enable)
-                                {
-                                    foreach (UploadAttachData loadData in uploadTypeData.Datas.Values)
-                                    {
-                                        if (loadData.Enable
-                                            && loadData.CanAffectType(pTechno)
-                                            && (loadData.AffectInAir || !pTechno.InAir())
-                                            && (loadData.AffectStand || !pTechno.AmIStand())
-                                            && loadData.IsOnMark(this)
-                                        )
-                                        {
-                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 获得来自乘客 [{pPassenger.Ref.Type.Ref.Base.ID}]{pPassenger} 的赋予[{string.Join(",", loadData.AttachEffects)}]");
-                                            Attach(loadData.AttachEffects, pPassenger, default, false, loadData.SourceIsPassenger);
-                                        }
-                                    }
+                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 获得来自乘客 [{pPassenger.Ref.Type.Ref.Base.ID}]{pPassenger} 的赋予[{string.Join(",", loadData.AttachEffects)}]");
+                                    Attach(loadData.AttachEffects, pPassenger, default, false, -1, loadData.SourceIsPassenger);
                                 }
                             }
-                        } while (!pPassenger.IsNull && !(pPassenger = pPassenger.Ref.NextObject).IsNull);
-                    }
+                        }
+                        return false;
+                    });
                 }
                 // 添加分组的
                 if (aeTypeTypeData.Enable)
@@ -802,16 +821,17 @@ namespace Extension.Script
                         {
                             // 需要乘客激活
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
-                            if (null != passengerIds && passengerIds.Any() && passengerIds.Contains(typeData.AEModeIndex))
+                            int aeMode = typeData.AEModeIndex;
+                            if (null != PassengerIds && PassengerIds.Any() && PassengerIds.Contains(aeMode))
                             {
                                 // 乘客中有该组的序号
-                                Attach(typeData, pOwner);
+                                Attach(typeData.AttachEffectTypes, pOwner, default, false, aeMode);
                             }
                         }
                         else
                         {
                             // 不需要乘客激活
-                            Attach(typeData, pOwner);
+                            Attach(typeData.AttachEffectTypes, pOwner);
                         }
                     }
                 }

@@ -28,6 +28,7 @@ namespace Extension.Script
         public TechnoExt SourceExt; // AE来源
         public Pointer<TechnoClass> pSource => null != SourceExt ? SourceExt.OwnerObject : default;
         public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
+        public int AEMode;
         public bool FromPassenger;
 
         public CoordStruct Location;
@@ -101,12 +102,13 @@ namespace Extension.Script
             }
         }
 
-        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, bool fromPassenger)
+        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, int aeMode,bool fromPassenger)
         {
             this.active = true;
             this.AEManager = AEManager;
             this.SourceExt = TechnoExt.ExtMap.Find(pSource);
             this.pSourceHouse.Pointer = pSourceHouse;
+            this.AEMode = aeMode;
             this.FromPassenger = fromPassenger;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
@@ -170,6 +172,15 @@ namespace Extension.Script
                 if (pSource.IsDead() || pSource.Ref.Transporter.IsNull)
                 {
                     // Logger.Log($"{Game.CurrentFrame} [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner} 上的 AE 来自乘客{pSource}，乘客下车了，结束所有AE");
+                    return false;
+                }
+            }
+            if (AEMode >= 0)
+            {
+                List<int> passengerIds = AEManager.PassengerIds;
+                if (null == passengerIds || !passengerIds.Any() || !passengerIds.Contains(AEMode))
+                {
+                    // Logger.Log($"{Game.CurrentFrame} [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner} 上的 AEMode = {AEMode}，乘客[{(null != passengerIds ? string.Join(",", passengerIds) : "null")}]下车了，结束所有AE");
                     return false;
                 }
             }
