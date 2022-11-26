@@ -238,7 +238,7 @@ namespace Extension.Script
             // 调整所属
             if (pSource.IsNull)
             {
-                Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，未标记来源，来源设置为自身");
+                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，未标记来源，来源设置为自身");
                 pSource = pOwner;
             }
             if (pSource.CastToTechno(out Pointer<TechnoClass> pSourceTechno))
