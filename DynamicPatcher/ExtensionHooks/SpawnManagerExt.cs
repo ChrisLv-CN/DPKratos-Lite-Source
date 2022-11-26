@@ -159,7 +159,7 @@ namespace ExtensionHooks
                 {
                     pKamikaze.Ref.Cell = pCell.Convert<AbstractClass>();
                     // Logger.Log($"{Game.CurrentFrame} - KamikazeTrackerClass_Cannot_Detach2 换掉导弹 {pKamikaze.Ref.Aircraft} 的目标, ESI = {R->ESI}");
-                    BulletEffectHelper.RedCell(pCell.Ref.Base.GetCoords(), 128, 1, 450);
+                    // BulletEffectHelper.RedCell(pCell.Ref.Base.GetCoords(), 128, 1, 450);
                 }
                 // pRocket.Ref.Base.Base.SetTarget(pKamikaze.Ref.Cell);
                 // return 0x54E5C8;
