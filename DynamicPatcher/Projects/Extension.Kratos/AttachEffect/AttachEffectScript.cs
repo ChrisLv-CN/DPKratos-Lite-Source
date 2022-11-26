@@ -948,15 +948,15 @@ namespace Extension.Script
 
         public override void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
         {
-            OnUnInit();
-            // for (int i = Count() - 1; i >= 0; i--)
-            // {
-            //     AttachEffect ae = AttachEffects[i];
-            //     if (ae.IsActive())
-            //     {
-            //         ae.OnTemporalEliminate(pTemporal);
-            //     }
-            // }
+            // OnUnInit();
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.OnTemporalEliminate(pTemporal);
+                }
+            }
         }
 
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)

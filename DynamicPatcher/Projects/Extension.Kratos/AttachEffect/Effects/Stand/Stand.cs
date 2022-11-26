@@ -193,7 +193,7 @@ namespace Extension.Script
         private void ExplodesOrDisappear(bool remove)
         {
             // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
-            bool explodes = Data.Explodes || notBeHuman;
+            bool explodes = (Data.Explodes || notBeHuman) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
             if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
             {
                 // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand} 要死了 explodes = {explodes}");
@@ -326,19 +326,21 @@ namespace Extension.Script
             }
         }
 
-        public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
-        {
-            if (pMaster.CastToTechno(out Pointer<TechnoClass> pMasterTechno))
-            {
-                if (pStand.Ref.Owner == pMasterTechno.Ref.Owner)
-                {
-                    pStand.Ref.BeingWarpedOut = pMasterTechno.Ref.BeingWarpedOut; // 被超时空兵冻结
-                }
-            }
-        }
+        // public override void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
+        // {
+        //     if (pMaster.CastToTechno(out Pointer<TechnoClass> pMasterTechno))
+        //     {
+        //         // 除去攻击jojo的超时空军团
+        //         if (pStand.Ref.Owner == pMasterTechno.Ref.Owner && !(Data.ForceAttackMaster && !pStand.Ref.TemporalImUsing.IsNull))
+        //         {
+        //             pStand.Ref.BeingWarpedOut = pMasterTechno.Ref.BeingWarpedOut; // 被超时空兵冻结
+        //         }
+        //     }
+        // }
 
         public override void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
         {
+            // Logger.Log($"{Game.CurrentFrame} 替身 [{Data.Type}]{pStand} 的使者 [{pMaster.Ref.Type.Ref.Base.ID}]{pMaster} 被超时空抹除");
             Disable(pMaster.Ref.Base.GetCoords());
         }
 
@@ -395,8 +397,8 @@ namespace Extension.Script
                 pStand.Ref.Cloakable = pMaster.Ref.Cloakable;
                 pStand.Ref.CloakStates = pMaster.Ref.CloakStates;
                 pStand.Ref.WarpingOut = pMaster.Ref.WarpingOut; // 超时空传送冻结
-                // 母体被冻结中，替身也冻结，母体没有被冻结，且替身自己没有在被传送
-                if (pMaster.Ref.BeingWarpedOut || pStand.Ref.TemporalTargetingMe.IsNull)
+                // 替身不是强制攻击jojo的超时空兵替身
+                if (!Data.ForceAttackMaster || pStand.Ref.TemporalImUsing.IsNull)
                 {
                     pStand.Ref.BeingWarpedOut = pMaster.Ref.BeingWarpedOut; // 被超时空兵冻结
                 }
@@ -539,7 +541,6 @@ namespace Extension.Script
                                 }
                             }
                         }
-                        pStand.Ref.BeingWarpedOut = true;
                     }
                     else
                     {
