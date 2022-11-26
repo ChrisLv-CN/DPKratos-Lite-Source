@@ -288,6 +288,10 @@ namespace Extension.Script
                 // 不同攻击者是否叠加
                 bool isAttackMark = fromPassenger || data.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
                 // 攻击者标记AE名称相同，但可以来自不同的攻击者，可以叠加，不检查Delay
+                // if (isAttackMark)
+                // {
+                //     Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}] 来源 {pAttacker} fromPassenger = {fromPassenger}");
+                // }
                 // 检查冷却计时器
                 if (!isAttackMark && DisableDelayTimers.TryGetValue(data.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
                 {
@@ -304,8 +308,8 @@ namespace Extension.Script
                         // 找同名
                         if (temp.AEData.Name == data.Name)
                         {
-                            // 找到了
                             find = true;
+                            // 找到了
                             if (isAttackMark)
                             {
                                 if (temp.pSource == pAttacker)
@@ -317,6 +321,10 @@ namespace Extension.Script
                                         AttachEffects[i] = temp;
                                     }
                                     break;
+                                }
+                                else
+                                {
+                                    find = false;
                                 }
                             }
                             else
