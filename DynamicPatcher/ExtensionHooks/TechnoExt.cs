@@ -850,6 +850,23 @@ namespace ExtensionHooks
         }
 
         #region Pick Stand as Target
+        [Hook(HookType.AresHook, Address = 0x6FCDBE, Size = 6)]
+        public static unsafe UInt32 TechnoClass_SetTarget_Stand(REGISTERS* R)
+        {
+            Pointer<AbstractClass> pTarget = (IntPtr)R->EDI;
+            if (!pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pTechno)
+                && pTechno.AmIStand(out TechnoStatusScript status, out StandData data)
+                && (data.Immune || pTechno.Ref.Type.IsNull || pTechno.Ref.Type.Ref.Base.Insignificant || pTechno.IsImmune())
+                && !status.MyMaster.IsNull
+            )
+            {
+                // 替身处于无敌状态，目标设置为替身使者
+                // Logger.Log($"{Game.CurrentFrame} 选了个无敌的替身做目标，强制换成JOJO {status.MyMaster}");
+                R->EDI = (uint)status.MyMaster;
+            }
+            return 0;
+        }
+
         //6F9256 6 AircraftType IsOnMap ? 6F925C : 6F9377
         [Hook(HookType.AresHook, Address = 0x4D9947, Size = 6)]
         public static unsafe UInt32 FootClass_Greatest_Threat_GetTarget(REGISTERS* R)

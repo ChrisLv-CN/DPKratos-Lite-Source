@@ -15,16 +15,19 @@ namespace Extension.Ext
     public class UploadAttachData : FilterEffectData
     {
         public string[] AttachEffects;
+        public bool SourceIsPassenger;
 
         public UploadAttachData()
         {
             this.AttachEffects = null;
+            this.SourceIsPassenger = true;
         }
 
         public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
             this.AttachEffects = reader.GetList(title + "AttachEffects", this.AttachEffects);
+            this.SourceIsPassenger = reader.Get(title + "SourceIsPassenger", this.SourceIsPassenger);
 
             this.Enable = null != AttachEffects && AttachEffects.Any();
             if (Enable)

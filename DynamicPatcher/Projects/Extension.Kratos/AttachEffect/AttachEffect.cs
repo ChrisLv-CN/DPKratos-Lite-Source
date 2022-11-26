@@ -28,6 +28,7 @@ namespace Extension.Script
         public TechnoExt SourceExt; // AE来源
         public Pointer<TechnoClass> pSource => null != SourceExt ? SourceExt.OwnerObject : default;
         public SwizzleablePointer<HouseClass> pSourceHouse; // AE来源所属
+        public bool FromPassenger;
 
         public CoordStruct Location;
 
@@ -100,12 +101,13 @@ namespace Extension.Script
             }
         }
 
-        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse)
+        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, bool fromPassenger)
         {
             this.active = true;
             this.AEManager = AEManager;
             this.SourceExt = TechnoExt.ExtMap.Find(pSource);
             this.pSourceHouse.Pointer = pSourceHouse;
+            this.FromPassenger = fromPassenger;
             if (!delayToEnable || initialDelayTimer.Expired())
             {
 
@@ -163,6 +165,14 @@ namespace Extension.Script
 
         public bool IsAlive()
         {
+            if (FromPassenger)
+            {
+                if (pSource.IsDead() || pSource.Ref.Transporter.IsNull)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner} 上的 AE 来自乘客{pSource}，乘客下车了，结束所有AE");
+                    return false;
+                }
+            }
             foreach (IEffect effect in effects)
             {
                 if (!effect.IsAlive())
@@ -172,15 +182,6 @@ namespace Extension.Script
                 }
             }
             return true;
-            // return (null == Animation || Animation.IsAlive())
-            //     && (null == AttachStatus || AttachStatus.IsAlive())
-            //     && (null == AutoWeapon || AutoWeapon.IsAlive())
-            //     && (null == BlackHole || BlackHole.IsAlive())
-            //     && (null == DestroySelf || DestroySelf.IsAlive())
-            //     && (null == Paintball || Paintball.IsAlive())
-            //     && (null == Stand || Stand.IsAlive())
-            //     && (null == Transform || Transform.IsAlive())
-            //     && (null == Weapon || Weapon.IsAlive());
         }
 
         private bool IsDeath()

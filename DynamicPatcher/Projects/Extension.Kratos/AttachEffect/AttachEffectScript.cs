@@ -162,14 +162,14 @@ namespace Extension.Script
         /// <param name="pSource"></param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false)
+        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, bool fromPassenger = false)
         {
             if (null != aeTypes && aeTypes.Any())
             {
-                // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}");
+                // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
                 foreach (string type in aeTypes)
                 {
-                    Attach(type, pSource, pSourceHouse, attachOnceFlag);
+                    Attach(type, pSource, pSourceHouse, attachOnceFlag, fromPassenger);
                 }
             }
         }
@@ -181,15 +181,16 @@ namespace Extension.Script
         /// <param name="pSource">AE来源</param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
-        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false)
+        /// <param name="fromPassenger">绑定乘客</param>
+        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, bool fromPassenger = false)
         {
+            // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE [{type}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
             if (attachOnceFlag && aeDate.Data.AttachOnceInTechnoType)
             {
                 return;
             }
-            // Logger.Log("AE {0} AttachOnceInTechnoType = {1}, AttachOnceFlag = {2}", aeType.Name, aeType.AttachOnceInTechnoType, attachOnceFlag);
-            Attach(aeDate.Data, pSource, pSourceHouse);
+            Attach(aeDate.Data, pSource, pSourceHouse, fromPassenger);
         }
 
         /// <summary>
@@ -208,7 +209,8 @@ namespace Extension.Script
         /// <param name="aeData">要附加的AE类型</param>
         /// <param name="pSource">来源</param>
         /// <param name="pSourceHouse">来源所属</param>
-        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default)
+        /// <param name="fromPassenger">绑定乘客</param>
+        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, bool fromPassenger = false)
         {
             if (!data.Enable)
             {
@@ -236,7 +238,7 @@ namespace Extension.Script
             // 调整所属
             if (pSource.IsNull)
             {
-                // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，未标记来源，来源设置为自身");
+                Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，未标记来源，来源设置为自身");
                 pSource = pOwner;
             }
             if (pSource.CastToTechno(out Pointer<TechnoClass> pSourceTechno))
@@ -275,7 +277,7 @@ namespace Extension.Script
                 }
             }
             // 调整攻击者
-            if (!pAttacker.IsDead() && data.FromTransporter)
+            if (!pAttacker.IsDead() && !fromPassenger && data.FromTransporter)
             {
                 pAttacker = pAttacker.WhoIsShooter();
             }
@@ -284,7 +286,7 @@ namespace Extension.Script
             if (!add)
             {
                 // 不同攻击者是否叠加
-                bool isAttackMark = data.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
+                bool isAttackMark = fromPassenger || data.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
                 // 攻击者标记AE名称相同，但可以来自不同的攻击者，可以叠加，不检查Delay
                 // 检查冷却计时器
                 if (!isAttackMark && DisableDelayTimers.TryGetValue(data.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
@@ -367,7 +369,7 @@ namespace Extension.Script
                 AttachEffects.Insert(index, ae);
                 AddStackCount(ae); // 叠层计数
                 // 激活
-                ae.Enable(this, pAttacker, pAttackingHouse);
+                ae.Enable(this, pAttacker, pAttackingHouse, fromPassenger);
             }
         }
 
@@ -773,7 +775,8 @@ namespace Extension.Script
                                             && loadData.IsOnMark(this)
                                         )
                                         {
-                                            Attach(loadData.AttachEffects, pOwner);
+                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 获得来自乘客 [{pPassenger.Ref.Type.Ref.Base.ID}]{pPassenger} 的赋予[{string.Join(",", loadData.AttachEffects)}]");
+                                            Attach(loadData.AttachEffects, pPassenger, default, false, loadData.SourceIsPassenger);
                                         }
                                     }
                                 }
