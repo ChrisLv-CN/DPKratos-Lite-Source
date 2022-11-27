@@ -139,6 +139,7 @@ namespace Extension.Ext
             ReadGiftBoxData(reader);
             ReadMarkData(reader);
             ReadPaintballData(reader);
+            ReadPumpData(reader);
             ReadRevengeData(reader);
             ReadStandData(reader);
             ReadTeleportData(reader);

@@ -130,7 +130,7 @@ namespace Extension.Script
                             // 检查目标幸存和射程
                             if (!pWeaponType.IsNull // 武器存在
                                 && !pTarget.IsNull // 目标存在
-                                && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || !pTemp.IsDeadOrInvisible()) // 如果是单位检查是否存活
+                                && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || (!pTemp.IsDeadOrInvisible() && !pTemp.Ref.Base.IsFallingDown)) // 如果是单位检查是否存活
                                 && (!burst.WeaponTypeData.CheckRange || InRange(pTarget, burst)) // 射程之内
                             )
                             {

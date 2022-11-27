@@ -1054,11 +1054,12 @@ namespace ExtensionHooks
 
         // Stand can't set destination
         // BlackHole's victim can't set destination
+        // Jumping unit can't set destination
         [Hook(HookType.AresHook, Address = 0x4D94B0, Size = 5)]
         public static unsafe UInt32 FootClass_SetDestination_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.CantMove))
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.Jumping || status.CantMove))
             {
                 // 跳过目的地设置
                 // Logger.Log($"{Game.CurrentFrame} 跳过替身 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 的目的地设置");

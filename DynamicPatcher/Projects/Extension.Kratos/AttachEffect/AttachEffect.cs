@@ -29,6 +29,10 @@ namespace Extension.Script
         public Pointer<TechnoClass> pSource => null != SourceExt ? SourceExt.OwnerObject : default;
         public HouseExt HouseExt; // AE来源所属
         public Pointer<HouseClass> pSourceHouse => null != HouseExt ? HouseExt.OwnerObject : default;
+
+        public CoordStruct WarheadLocation;
+        public bool FromWarhead;
+
         public int AEMode;
         public bool FromPassenger;
 
@@ -79,6 +83,7 @@ namespace Extension.Script
             InitGiftBox(); // state AffectWho
             InitMark();
             InitPaintball(); // always same JoJo and Stand
+            InitPump();
             InitRevenge(); // state AffectWho
             InitTeleport();
             InitTransform();
@@ -102,12 +107,14 @@ namespace Extension.Script
             }
         }
 
-        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, int aeMode,bool fromPassenger)
+        public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, CoordStruct warheadLocation, int aeMode, bool fromPassenger)
         {
             this.active = true;
             this.AEManager = AEManager;
             this.SourceExt = TechnoExt.ExtMap.Find(pSource);
             this.HouseExt = HouseExt.ExtMap.Find(pSourceHouse);
+            this.WarheadLocation = warheadLocation;
+            this.FromWarhead = default != WarheadLocation;
             this.AEMode = aeMode;
             this.FromPassenger = fromPassenger;
             if (!delayToEnable || initialDelayTimer.Expired())

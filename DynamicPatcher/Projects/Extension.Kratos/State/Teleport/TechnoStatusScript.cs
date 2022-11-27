@@ -25,7 +25,7 @@ namespace Extension.Script
         private TeleportStep teleportStep;
 
         private CoordStruct warpTo; // 弹头传进来的坐标
-        private TeleportData data;
+        private TeleportData teleportData;
         private ILocomotion loco = null; // 传送的loco
         private TimerStruct teleportTimer; // 传送冰冻时间
 
@@ -57,9 +57,9 @@ namespace Extension.Script
                         // 可以准备跳了
                         if (TeleportState.IsReady())
                         {
-                            data = TeleportState.Data;
+                            teleportData = TeleportState.Data;
                             CoordStruct targetPos = default;
-                            switch (data.Mode)
+                            switch (teleportData.Mode)
                             {
                                 case TeleportMode.MOVE:
                                     targetPos = GetAndMarkDestination();
@@ -87,13 +87,13 @@ namespace Extension.Script
                                 // 传送距离检查
                                 CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                                 double distance = targetPos.DistanceFrom(sourcePos);
-                                if (distance > data.RangeMin * 256 && (data.RangeMax < 0 ? true : distance < data.RangeMax * 256))
+                                if (distance > teleportData.RangeMin * 256 && (teleportData.RangeMax < 0 ? true : distance < teleportData.RangeMax * 256))
                                 {
                                     // 在可以传送的范围内
-                                    if (data.Distance > 0 && distance > data.Distance)
+                                    if (teleportData.Distance > 0 && distance > teleportData.Distance)
                                     {
                                         // 有限距离的传送，重新计算目标位置
-                                        targetPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, data.Distance, distance);
+                                        targetPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, teleportData.Distance, distance);
                                     }
                                 }
                                 else
@@ -105,7 +105,7 @@ namespace Extension.Script
                             bool teleporting = default != targetPos;
                             if (teleporting)
                             {
-                                if (!data.Super)
+                                if (!teleportData.Super)
                                 {
                                     if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && !pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true))
                                     {
@@ -118,7 +118,7 @@ namespace Extension.Script
                                 {
                                     loco = null;
                                     teleportTimer.Stop();
-                                    if (data.ClearTarget)
+                                    if (teleportData.ClearTarget)
                                     {
                                         // 清除目标
                                         pTechno.ClearAllTarget();
@@ -185,7 +185,7 @@ namespace Extension.Script
                                         teleportTimer.Start(delay);
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自行传送完成，计算冷却，剩余时间 {teleportTimer.GetTimeLeft()}");
                                     }
-                                    else if (data.Super)
+                                    else if (teleportData.Super)
                                     {
                                         // 使用超武跳
                                         pTechno.Convert<FootClass>().Ref.ChronoWarpTo(targetPos);
@@ -210,12 +210,12 @@ namespace Extension.Script
                         }
                         break;
                     case TeleportStep.TELEPORTED:
-                        if (data.Super && !pTechno.InAir())
+                        if (teleportData.Super && !pTechno.InAir())
                         {
                             // 超武跳，不用冷冻计时器
                             if (!pTechno.Ref.WarpingOut)
                             {
-                                if (data.MoveForward)
+                                if (teleportData.MoveForward)
                                 {
                                     teleportStep = TeleportStep.MOVEFORWARD;
                                 }
@@ -237,7 +237,7 @@ namespace Extension.Script
                             {
                                 // 解冻，进入下一个阶段
                                 pTechno.Ref.WarpingOut = false;
-                                if (data.MoveForward)
+                                if (teleportData.MoveForward)
                                 {
                                     teleportStep = TeleportStep.MOVEFORWARD;
                                 }
@@ -258,7 +258,7 @@ namespace Extension.Script
                         {
                             // 解冻，进入下一个阶段
                             pTechno.Ref.WarpingOut = false;
-                            if (data.MoveForward)
+                            if (teleportData.MoveForward)
                             {
                                 teleportStep = TeleportStep.MOVEFORWARD;
                             }

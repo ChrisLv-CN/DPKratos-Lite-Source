@@ -103,6 +103,7 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
+                InitState_Pump();
                 InitState_Revenge();
                 InitState_Teleport();
                 InitState_VirtualUnit();
@@ -147,6 +148,7 @@ namespace Extension.Script
                 OnUpdate_Deselect();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
+                OnUpdate_Pump();
                 OnUpdate_Teleport();
             }
         }

@@ -143,12 +143,13 @@ namespace Extension.Script
         /// <param name="pSource">AE来源，即攻击者</param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="fromWarhead">来自弹头，attachEffectOnceFlag应该传false</param>
-        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, bool fromWarhead = false)
+        /// <param name="warheadLocation">弹头的位置</param>
+        public void Attach(AttachEffectTypeData typeData, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, bool fromWarhead = false, CoordStruct warheadLocation = default)
         {
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Any())
             {
-                Attach(typeData.AttachEffectTypes, pSource, pSourceHouse, !fromWarhead && attachEffectOnceFlag);
+                Attach(typeData.AttachEffectTypes, pSource, pSourceHouse, !fromWarhead && attachEffectOnceFlag, warheadLocation);
             }
 
             if (typeData.StandTrainCabinLength > 0)
@@ -164,16 +165,17 @@ namespace Extension.Script
         /// <param name="pSource"></param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
+        /// <param name="warheadLocation">弹头的位置</param>
         /// <param name="aeMode">分组编号</param>
         /// <param name="fromPassenger">绑定乘客</param>
-        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, int aeMode = -1, bool fromPassenger = false)
+        public void Attach(string[] aeTypes, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, CoordStruct warheadLocation = default, int aeMode = -1, bool fromPassenger = false)
         {
             if (null != aeTypes && aeTypes.Any())
             {
                 // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE 清单 [{string.Join(",", aeTypes)}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
                 foreach (string type in aeTypes)
                 {
-                    Attach(type, pSource, pSourceHouse, attachOnceFlag, aeMode, fromPassenger);
+                    Attach(type, pSource, pSourceHouse, attachOnceFlag, warheadLocation, aeMode, fromPassenger);
                 }
             }
         }
@@ -185,9 +187,10 @@ namespace Extension.Script
         /// <param name="pSource">AE来源</param>
         /// <param name="pSourceHouse">来源所属</param>
         /// <param name="attachOnceFlag"></param>
+        /// <param name="warheadLocation">弹头的位置</param>
         /// <param name="aeMode">分组编号</param>
         /// <param name="fromPassenger">绑定乘客</param>
-        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, int aeMode = -1, bool fromPassenger = false)
+        public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, CoordStruct warheadLocation = default, int aeMode = -1, bool fromPassenger = false)
         {
             // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE [{type}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
@@ -195,7 +198,7 @@ namespace Extension.Script
             {
                 return;
             }
-            Attach(aeDate.Data, pSource, pSourceHouse, aeMode, fromPassenger);
+            Attach(aeDate.Data, pSource, pSourceHouse, warheadLocation, aeMode, fromPassenger);
         }
 
         /// <summary>
@@ -214,9 +217,10 @@ namespace Extension.Script
         /// <param name="aeData">要附加的AE类型</param>
         /// <param name="pSource">来源</param>
         /// <param name="pSourceHouse">来源所属</param>
+        /// <param name="warheadLocation">弹头的位置</param>
         /// <param name="aeMode">分组编号</param>
         /// <param name="fromPassenger">绑定乘客</param>
-        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, int aeMode = -1, bool fromPassenger = false)
+        public void Attach(AttachEffectData data, Pointer<ObjectClass> pSource, Pointer<HouseClass> pSourceHouse = default, CoordStruct warheadLocation = default, int aeMode = -1, bool fromPassenger = false)
         {
             if (!data.Enable)
             {
@@ -383,7 +387,7 @@ namespace Extension.Script
                 AttachEffects.Insert(index, ae);
                 AddStackCount(ae); // 叠层计数
                 // 激活
-                ae.Enable(this, pAttacker, pAttackingHouse, aeMode, fromPassenger);
+                ae.Enable(this, pAttacker, pAttackingHouse, warheadLocation, aeMode, fromPassenger);
             }
         }
 
@@ -804,7 +808,7 @@ namespace Extension.Script
                                 )
                                 {
                                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 获得来自乘客 [{pPassenger.Ref.Type.Ref.Base.ID}]{pPassenger} 的赋予[{string.Join(",", loadData.AttachEffects)}]");
-                                    Attach(loadData.AttachEffects, pPassenger, default, false, -1, loadData.SourceIsPassenger);
+                                    Attach(loadData.AttachEffects, pPassenger, default, false, default, -1, loadData.SourceIsPassenger);
                                 }
                             }
                         }
@@ -825,7 +829,7 @@ namespace Extension.Script
                             if (null != PassengerIds && PassengerIds.Any() && PassengerIds.Contains(aeMode))
                             {
                                 // 乘客中有该组的序号
-                                Attach(typeData.AttachEffectTypes, pOwner, default, false, aeMode);
+                                Attach(typeData.AttachEffectTypes, pOwner, default, false, default, aeMode);
                             }
                         }
                         else
@@ -1207,7 +1211,7 @@ namespace Extension.Script
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
                                 // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}] Attacker {pAttacker} AttackingHouse {pAttackingHouse} ");
-                                aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true);
+                                aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true, location);
                             }
                         }
                     }

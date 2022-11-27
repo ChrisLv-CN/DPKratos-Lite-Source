@@ -207,6 +207,9 @@ namespace Extension.Script
                             // BulletEffectHelper.GreenCrosshair(nextPos, 128);
                             // BulletEffectHelper.GreenLine(sourcePos, nextPos);
                             pTechno.Ref.Base.Mark(MarkType.DOWN);
+                            // 移除黑幕
+                            MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
+                            MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
                             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // 设置动作
                             if (blackHoleData.AllowCrawl && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
