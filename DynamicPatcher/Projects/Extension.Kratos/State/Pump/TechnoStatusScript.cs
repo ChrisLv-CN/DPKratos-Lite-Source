@@ -11,6 +11,11 @@ using Extension.Utilities;
 
 namespace Extension.Script
 {
+    [Serializable]
+    public enum PassError
+    {
+        PASS = 0, HITWALL = 1, UNDERGROUND = 2
+    }
 
     public partial class TechnoStatusScript
     {
@@ -69,52 +74,14 @@ namespace Extension.Script
                         return;
                     }
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得下一个坐标点 {nextPos}, 当前坐标点 {sourcePos}");
-                    int deltaZ = sourcePos.Z - jumpTo.Z;
-                    bool canMove = true;
-                    bool hitWall = false;
-                    // 检查地面
-                    if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
+                    PassError canMove = CanMoveTo(sourcePos, nextPos, false);
+                    if (canMove == PassError.HITWALL)
                     {
-                        CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
-                        if (cellPos.Z >= nextPos.Z)
-                        {
-                            // 沉入地面
-                            nextPos.Z = cellPos.Z;
-                            canMove = false;
-                            // 检查悬崖
-                            switch (pTargetCell.Ref.GetTileType())
-                            {
-                                case TileType.Cliff:
-                                case TileType.DestroyableCliff:
-                                    // 悬崖上可以往悬崖下移动
-                                    canMove = deltaZ > 0;
-                                    hitWall = !canMove;
-                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
-                                    break;
-                            }
-                        }
-                        // 检查建筑
-                        Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
-                        if (!pBuilding.IsNull)
-                        {
-                            canMove = !pBuilding.CanHit(nextPos.Z);
-                            hitWall = !canMove;
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")} nextPos {nextPos}");
-                        }
-                    }
-                    if (!canMove)
-                    {
-                        // 反弹回移动前的格子
-                        if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pSourceCell))
-                        {
-                            CoordStruct cellPos = pSourceCell.Ref.GetCoordsWithBridge();
-                            nextPos.X = cellPos.X;
-                            nextPos.Y = cellPos.Y;
-                            if (nextPos.Z < cellPos.Z)
-                            {
-                                nextPos.Z = cellPos.Z;
-                            }
-                        }
+                        // 反弹
+                        velocity.X *= -1;
+                        velocity.Y *= -1;
+                        nextPos = sourcePos + velocity.ToCoordStruct();
+                        canMove = CanMoveTo(sourcePos, nextPos, false);
                     }
                     // 被黑洞吸走
                     pTechno.Ref.Base.Mark(MarkType.UP);
@@ -124,18 +91,64 @@ namespace Extension.Script
                     // BulletEffectHelper.GreenLine(sourcePos, nextPos);
                     pTechno.Ref.Base.Mark(MarkType.DOWN);
                     // 移除黑幕
-                    // MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
-                    // MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
-                    if (!canMove)
+                    MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
+                    MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
+                    switch (canMove)
                     {
-                        // 触底或者撞悬崖
-                        // 反弹？
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 下一个坐标点 {nextPos} 无法抵达，终止，当前坐标点 {sourcePos}");
-                        // 掉落地面
-                        CancelPump();
+                        case PassError.UNDERGROUND:
+                        case PassError.HITWALL:
+                            // 反弹后仍然触底或者撞悬崖
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 下一个坐标点 {nextPos} 无法抵达，终止，当前坐标点 {sourcePos}");
+                            // 掉落地面
+                            CancelPump();
+                            break;
                     }
                 }
             }
+        }
+
+        private PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding)
+        {
+            PassError canPass = PassError.PASS;
+            int deltaZ = sourcePos.Z - nextPos.Z;
+            // 检查地面
+            if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
+            {
+                CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
+                if (cellPos.Z >= nextPos.Z)
+                {
+                    // 沉入地面
+                    nextPos.Z = cellPos.Z;
+                    canPass = PassError.UNDERGROUND;
+                    // 检查悬崖
+                    switch (pTargetCell.Ref.GetTileType())
+                    {
+                        case TileType.Cliff:
+                        case TileType.DestroyableCliff:
+                            // 悬崖上可以往悬崖下移动
+                            if (deltaZ <= 0)
+                            {
+                                canPass = PassError.HITWALL;
+                            }
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
+                            break;
+                    }
+                }
+                // 检查建筑
+                if (!passBuilding)
+                {
+                    Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
+                    if (!pBuilding.IsNull)
+                    {
+                        if (pBuilding.CanHit(nextPos.Z))
+                        {
+                            canPass = PassError.HITWALL;
+                        }
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")} nextPos {nextPos}");
+                    }
+                }
+            }
+            return canPass;
         }
 
         private void ActivePump(PumpData data, Pointer<HouseClass> pAttackingHouse, CoordStruct powerPos = default)
