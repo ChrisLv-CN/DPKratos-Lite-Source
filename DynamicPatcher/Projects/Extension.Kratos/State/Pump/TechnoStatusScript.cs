@@ -46,7 +46,7 @@ namespace Extension.Script
 
         public void OnUpdate_Pump()
         {
-            if (!isBuilding)
+            if (!isBuilding && !pTechno.Ref.Base.IsFallingDown)
             {
                 if (PumpState.IsActive() && PumpState.IsReset())
                 {
@@ -65,6 +65,9 @@ namespace Extension.Script
                     pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                     // 停止移动
                     StopMoving();
+                    // Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                    // ILocomotion loco = pFoot.Ref.Locomotor;
+                    // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
                     // 计算下一个坐标点
                     CoordStruct nextPos = GetNextPos(sourcePos);
                     if (default == nextPos)
