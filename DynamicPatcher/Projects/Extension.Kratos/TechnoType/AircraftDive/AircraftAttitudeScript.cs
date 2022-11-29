@@ -55,10 +55,12 @@ namespace Extension.Script
             if (!initFlag)
             {
                 initFlag = true;
-                int dir = GetPoseDir();
-                DirStruct dirStruct = FLHHelper.DirNormalized(dir, 8);
-                pTechno.Ref.Facing.set(dirStruct);
-                pTechno.Ref.TurretFacing.set(dirStruct);
+                if (TryGetAirportDir(out int dir))
+                {
+                    DirStruct dirStruct = FLHHelper.DirNormalized(dir, 8);
+                    pTechno.Ref.Facing.set(dirStruct);
+                    pTechno.Ref.TurretFacing.set(dirStruct);
+                }
             }
             if (!pTechno.IsDeadOrInvisible())
             {
@@ -199,8 +201,9 @@ namespace Extension.Script
             }
         }
 
-        public int GetPoseDir()
+        public bool TryGetAirportDir(out int poseDir)
         {
+            poseDir = RulesClass.Global().PoseDir;
             Pointer<RadioClass> pAircraft = pTechno.Convert<RadioClass>();
             if (pAircraft.Ref.IsInRadioContact())
             {
@@ -212,10 +215,11 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
                     AircraftDockingOffsetData data = pAirport.Convert<TechnoClass>().GetImageConfig<AircraftDockingOffsetData>();
                     // 取设置的dir
-                    return data.Direction[index];
+                    poseDir = data.Direction[index];
                 }
+                return true;
             }
-            return RulesClass.Global().PoseDir;
+            return false;
         }
     }
 }

@@ -64,6 +64,7 @@ namespace Extension.Script
                         }
                     }
                 }
+                // Logger.Log($"{Game.CurrentFrame} 飞机[{section}]{pTechno} 调整产生位置 {aircraftPutOffset}, 偏移 {aircraftPutData.NoHelipadPutOffset}");
                 if (aircraftPutOffset)
                 {
                     pLocation.Ref += aircraftPutData.NoHelipadPutOffset;

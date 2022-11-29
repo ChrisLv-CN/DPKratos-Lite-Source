@@ -745,15 +745,16 @@ namespace ExtensionHooks
         {
             // Logger.Log($"{Game.CurrentFrame} 飞机降落获取朝向，要用IFlyControl {R->EDI} 和RadioClass {R->ESI}");
             Pointer<TechnoClass> pAircraft = (IntPtr)R->ESI;
-            if (pAircraft.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude))
+            if (pAircraft.TryGetComponent<AircraftAttitudeScript>(out AircraftAttitudeScript attitude) && attitude.TryGetAirportDir(out int poseDir))
             {
+                // 有机场
                 // 取设置的dir
-                R->EAX = (uint)attitude.GetPoseDir();
+                R->EAX = (uint)poseDir;
                 // WWSB，只支持8向
-                return 0x41B7BC;
+                return 0x41B7BC; // 这个地址会跳到下面去pop EDI
             }
-            R->EAX = (uint)RulesClass.Global().PoseDir;
-            return 0x41B7BC; // 这个地址会跳到下面去pop EDI
+            // 飞机没有机场
+            return 0x41B78D;
         }
 
         [Hook(HookType.AresHook, Address = 0x41B7BE, Size = 6)]
