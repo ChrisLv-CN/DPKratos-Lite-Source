@@ -34,6 +34,71 @@ namespace Extension.Utilities
             return bulletV.ToBulletVelocity();
         }
 
+        // 高级弹道学
+        public static unsafe BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, CoordStruct targetPos, double speed, int gravity, bool lobber, bool inaccurate, float scatterMin, float scatterMax, out double straightDistance, out double realSpeed)
+        {
+            // 不精确
+            if (inaccurate)
+            {
+                targetPos += GetInaccurateOffset(scatterMin, scatterMax);
+            }
+
+            // 重算抛物线弹道
+            if (gravity == 0)
+            {
+                gravity = RulesClass.Global().Gravity;
+            }
+            int zDiff = targetPos.Z - sourcePos.Z + gravity; // 修正高度差
+            targetPos.Z = 0;
+            sourcePos.Z = 0;
+            straightDistance = targetPos.DistanceFrom(sourcePos);
+            // Logger.Log("位置和目标的水平距离{0}", straightDistance);
+            realSpeed = speed;
+            if (straightDistance == 0 || double.IsNaN(straightDistance))
+            {
+                // 直上直下
+                return new BulletVelocity(0, 0, gravity);
+            }
+            if (realSpeed == 0)
+            {
+                // realSpeed = WeaponTypeClass.GetSpeed((int)straightDistance, gravity);
+                realSpeed = Math.Sqrt(straightDistance * gravity * 1.2);
+                // Logger.Log($"YR计算的速度{realSpeed}, 距离 {(int)straightDistance}, 重力 {gravity}");
+            }
+            // 高抛弹道
+            if (lobber)
+            {
+                realSpeed = (int)(realSpeed * 0.5);
+                // Logger.Log("高抛弹道, 削减速度{0}", realSpeed);
+            }
+            // Logger.Log("重新计算初速度, 当前速度{0}", realSpeed);
+            double vZ = (zDiff * realSpeed) / straightDistance + 0.5 * gravity * straightDistance / realSpeed;
+            // Logger.Log("计算Z方向的初始速度{0}", vZ);
+            BulletVelocity v = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, 0);
+            v *= realSpeed / straightDistance;
+            v.Z = vZ;
+            return v;
+        }
+
+        public static unsafe CoordStruct GetInaccurateOffset(float scatterMin, float scatterMax)
+        {
+            // 不精确, 需要修改目标坐标
+            int min = (int)(scatterMin * 256);
+            int max = scatterMax > 0 ? (int)(scatterMax * 256) : RulesClass.Global().BallisticScatter;
+            // Logger.Log("炮弹[{0}]不精确, 需要重新计算目标位置, 散布范围=[{1}, {2}]", pBullet.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, min, max);
+            if (min > max)
+            {
+                int temp = min;
+                min = max;
+                max = temp;
+            }
+            // 随机
+            double r = MathEx.Random.Next(min, max);
+            var theta = MathEx.Random.NextDouble() * 2 * Math.PI;
+            CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
+            return offset;
+        }
+
         public static unsafe void FireWeaponTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon, CoordStruct flh,
             FireBulletToTarget callback = null, CoordStruct bulletSourcePos = default, bool radialFire = false, int splitAngle = 180, bool radialZ = true)
@@ -82,7 +147,7 @@ namespace Extension.Utilities
         public static unsafe Pointer<BulletClass> FireBulletTo(Pointer<ObjectClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon,
             CoordStruct sourcePos, CoordStruct targetPos,
-            BulletVelocity bulletVelocity)
+            BulletVelocity bulletVelocity = default)
         {
             if (pTarget.IsNull || (pTarget.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.Ref.Base.IsAlive))
             {
@@ -96,17 +161,20 @@ namespace Extension.Utilities
             AttachedParticleSystem(pWeapon, sourcePos, pTarget, pAttacker, targetPos);
             // Play report sound
             PlayReportSound(pWeapon, sourcePos);
-            // Draw weapon anim
-            DrawWeaponAnim(pShooter, pWeapon, sourcePos, targetPos);
-            // FeedbackAttachEffects
-            AttachEffectScript.FeedbackAttach(pShooter, pWeapon);
+            if (!pShooter.IsNull)
+            {
+                // Draw weapon anim
+                DrawWeaponAnim(pShooter, pWeapon, sourcePos, targetPos);
+                // FeedbackAttachEffects
+                AttachEffectScript.FeedbackAttach(pShooter, pWeapon);
+            }
             return pBullet;
         }
 
-        private static unsafe Pointer<BulletClass> FireBullet(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
+        public static unsafe Pointer<BulletClass> FireBullet(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon,
             CoordStruct sourcePos, CoordStruct targetPos,
-            BulletVelocity bulletVelocity)
+            BulletVelocity bulletVelocity = default)
         {
             double fireMult = 1;
             if (!pAttacker.IsDead())
@@ -126,18 +194,40 @@ namespace Extension.Utilities
             int speed = pWeapon.Ref.GetSpeed(sourcePos, targetPos);
             bool bright = pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
 
-            Pointer<BulletClass> pBullet = IntPtr.Zero;
-            pBullet = pWeapon.Ref.Projectile.Ref.CreateBullet(pTarget, pAttacker, damage, pWH, speed, bright);
+            Pointer<BulletClass> pBullet = FireBullet(pWeapon.Ref.Projectile, damage, pWH, speed, bright, pTarget, pAttacker, pAttackingHouse, sourcePos, targetPos, bulletVelocity);
             pBullet.Ref.WeaponType = pWeapon;
             // Logger.Log("{0}发射武器{1}，创建抛射体，目标类型{2}", pAttacker, pWeapon.Ref.Base.ID, pTarget.Ref.WhatAmI());
+            return pBullet;
+        }
+
+        public static Pointer<BulletClass> FireBullet(Pointer<BulletTypeClass> pBulletType,
+            int damage, Pointer<WarheadTypeClass> pWH, int speed, bool bright,
+            Pointer<AbstractClass> pTarget, Pointer<TechnoClass> pAttacker, Pointer<HouseClass> pAttackingHouse,
+            CoordStruct sourcePos, CoordStruct targetPos,
+            BulletVelocity bulletVelocity = default)
+        {
+            Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pTarget, pAttacker, damage, pWH, speed, bright);
+            // Logger.Log($"{Game.CurrentFrame} {pAttacker}发射武器，创建抛射体，目标类型{(!pTarget.IsNull ? pTarget.Ref.WhatAmI() : "UNKNOW")} {pTarget}");
             // 设置所属
             if (!pAttackingHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status))
             {
                 status.pSourceHouse = pAttackingHouse;
             }
+            if (pBulletType.Ref.Arcing)
+            {
+                bulletVelocity = new BulletVelocity(0, 0, RulesClass.Global().Gravity);
+            }
+            if (default == bulletVelocity)
+            {
+                bulletVelocity = GetBulletVelocity(sourcePos, targetPos);
+            }
             // pBullet.Ref.SetTarget(pTarget);
             pBullet.Ref.MoveTo(sourcePos, bulletVelocity);
-            if (pWeapon.Ref.Projectile.Ref.Inviso && !pWeapon.Ref.Projectile.Ref.Airburst)
+            if (default != targetPos)
+            {
+                pBullet.Ref.TargetCoords = targetPos;
+            }
+            if (pBulletType.Ref.Inviso && !pBulletType.Ref.Airburst)
             {
                 pBullet.Ref.Detonate(targetPos);
                 pBullet.Ref.Base.UnInit();

@@ -88,7 +88,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnLateUpdate()
+        public void OnLateUpdate_BlackHole()
         {
             if (CaptureByBlackHole)
             {

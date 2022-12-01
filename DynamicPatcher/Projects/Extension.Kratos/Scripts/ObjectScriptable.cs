@@ -58,6 +58,6 @@ namespace Extension.Script
         public virtual void OnStopCommand() { }
 
 
-        public virtual void OnDetonate(Pointer<CoordStruct> pCoords) { }
+        public virtual void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip) { }
     }
 }

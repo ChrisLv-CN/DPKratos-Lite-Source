@@ -24,40 +24,10 @@ namespace Extension.Ext
             }
         }
     }
-    [Serializable]
-    public enum PumpMode
-    {
-        NONE = 0, MOVE = 1, WARHEAD = 2, BOTH = 3
-    }
-
-    public class PumpModeParser : KEnumParser<PumpMode>
-    {
-        public override bool ParseInitials(string t, ref PumpMode buffer)
-        {
-            switch (t)
-            {
-                case "M":
-                    buffer = PumpMode.MOVE;
-                    return true;
-                case "W":
-                    buffer = PumpMode.WARHEAD;
-                    return true;
-                case "B":
-                    buffer = PumpMode.BOTH;
-                    return true;
-            }
-            return false;
-        }
-    }
 
     [Serializable]
     public class PumpData : FilterEffectData, IStateData
     {
-        static PumpData()
-        {
-            new PumpModeParser().Register();
-        }
-
         public const string TITLE = "Pump.";
 
         public int Range; // 飞多远，距离

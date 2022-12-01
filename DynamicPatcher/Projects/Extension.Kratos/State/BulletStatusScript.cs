@@ -28,6 +28,7 @@ namespace Extension.Script
         public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
         private bool initStateFlag = false;
+        private bool isDead;
 
         public override void Awake()
         {
@@ -66,6 +67,7 @@ namespace Extension.Script
                 initStateFlag = true;
                 // InitState_AttackBeacon();
                 InitState_BlackHole();
+                InitState_Bounce();
                 // InitState_DamageReaction();
                 // InitState_Deselect();
                 InitState_DestroySelf();
@@ -79,21 +81,23 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            OnUpdate_Bounce();
             OnUpdate_DestroySelf();
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {
                 if (LifeData.IsDetonate)
                 {
-                    // Logger.Log("抛射体{0}死亡, {1}", OwnerObject, BulletLifeStatus);
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 死亡 {pBullet.Ref.Base.Base.GetCoords()}");
                     if (!LifeData.IsHarmless)
                     {
                         CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
                         pBullet.Ref.Detonate(location);
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 死亡，调用爆炸 {location}");
                     }
                     pBullet.Ref.Base.Remove();
                     pBullet.Ref.Base.UnInit();
-                    // Logger.Log("抛射体{0}注销", OwnerObject);
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 注销");
                     return;
                 }
                 // 检查抛射体存活
@@ -108,6 +112,18 @@ namespace Extension.Script
                 OnUpdate_BlackHole();
                 OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
+            }
+            else
+            {
+                isDead = true;
+            }
+        }
+
+        public override void OnLateUpdate()
+        {
+            if (!isDead)
+            {
+                OnLateUpdate_BlackHole();
             }
         }
 
@@ -142,14 +158,23 @@ namespace Extension.Script
 
         }
 
-        public override void OnDetonate(Pointer<CoordStruct> pCoords)
+        public override void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip)
         {
             if (!pFakeTarget.IsNull)
             {
                 pFakeTarget.Ref.UnInit();
             }
-
-            OnReceiveDamageDestroy_GiftBox();
+            if (!skip)
+            {
+                if (skip = OnDetonate_Bounce(pCoords))
+                {
+                    return;
+                }
+                if (skip = OnDetonate_GiftBox(pCoords))
+                {
+                    return;
+                }
+            }
         }
 
     }

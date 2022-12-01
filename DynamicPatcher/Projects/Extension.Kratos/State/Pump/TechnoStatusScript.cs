@@ -11,11 +11,6 @@ using Extension.Utilities;
 
 namespace Extension.Script
 {
-    [Serializable]
-    public enum PassError
-    {
-        PASS = 0, HITWALL = 1, UNDERGROUND = 2
-    }
 
     public partial class TechnoStatusScript
     {
@@ -77,14 +72,14 @@ namespace Extension.Script
                         return;
                     }
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得下一个坐标点 {nextPos}, 当前坐标点 {sourcePos}");
-                    PassError canMove = CanMoveTo(sourcePos, nextPos, false);
-                    if (canMove == PassError.HITWALL)
+                    PassError canMove = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false);
+                    if (canMove == PassError.HITWALL || canMove == PassError.HITBUILDING)
                     {
                         // 反弹
                         velocity.X *= -1;
                         velocity.Y *= -1;
                         nextPos = sourcePos + velocity.ToCoordStruct();
-                        canMove = CanMoveTo(sourcePos, nextPos, false);
+                        canMove = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false);
                     }
                     // 被黑洞吸走
                     pTechno.Ref.Base.Mark(MarkType.UP);
@@ -100,6 +95,7 @@ namespace Extension.Script
                     {
                         case PassError.UNDERGROUND:
                         case PassError.HITWALL:
+                        case PassError.HITBUILDING:
                             // 反弹后仍然触底或者撞悬崖
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 下一个坐标点 {nextPos} 无法抵达，终止，当前坐标点 {sourcePos}");
                             // 掉落地面
@@ -108,50 +104,6 @@ namespace Extension.Script
                     }
                 }
             }
-        }
-
-        private PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding)
-        {
-            PassError canPass = PassError.PASS;
-            int deltaZ = sourcePos.Z - nextPos.Z;
-            // 检查地面
-            if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
-            {
-                CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
-                if (cellPos.Z >= nextPos.Z)
-                {
-                    // 沉入地面
-                    nextPos.Z = cellPos.Z;
-                    canPass = PassError.UNDERGROUND;
-                    // 检查悬崖
-                    switch (pTargetCell.Ref.GetTileType())
-                    {
-                        case TileType.Cliff:
-                        case TileType.DestroyableCliff:
-                            // 悬崖上可以往悬崖下移动
-                            if (deltaZ <= 0)
-                            {
-                                canPass = PassError.HITWALL;
-                            }
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
-                            break;
-                    }
-                }
-                // 检查建筑
-                if (!passBuilding)
-                {
-                    Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
-                    if (!pBuilding.IsNull)
-                    {
-                        if (pBuilding.CanHit(nextPos.Z))
-                        {
-                            canPass = PassError.HITWALL;
-                        }
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")} nextPos {nextPos}");
-                    }
-                }
-            }
-            return canPass;
         }
 
         private void ActivePump(PumpData data, Pointer<HouseClass> pAttackingHouse, CoordStruct powerPos = default)
@@ -180,7 +132,7 @@ namespace Extension.Script
                 // 原地起跳，但不精确，随机落点，作为目的地，绘制抛物线
                 if (data.Inaccurate)
                 {
-                    targetPos = sourcePos + BulletTypeHelper.GetInaccurateOffset(data.ScatterMin, data.ScatterMax);
+                    targetPos = sourcePos + WeaponHelper.GetInaccurateOffset(data.ScatterMin, data.ScatterMax);
                 }
                 if (sourcePos == targetPos)
                 {
@@ -196,7 +148,7 @@ namespace Extension.Script
                 }
                 else
                 {
-                    velocity = BulletTypeHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, false, 0, 0, out straightDistance, out realSpeed);
+                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, false, 0, 0, out straightDistance, out realSpeed);
                 }
                 // Logger.Log($"{Game.CurrentFrame} 原地起跳 距离 {straightDistance} 速度 {realSpeed}");
             }
@@ -212,7 +164,7 @@ namespace Extension.Script
                     // 单位在爆炸范围内
                     // Logger.Log($"{Game.CurrentFrame} 往前跳 {dist + forward}");
                     targetPos = FLHHelper.GetForwardCoords(powerPos, sourcePos, dist + forward);
-                    velocity = BulletTypeHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, data.Inaccurate, data.ScatterMin, data.ScatterMax, out straightDistance, out realSpeed);
+                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, data.Inaccurate, data.ScatterMin, data.ScatterMax, out straightDistance, out realSpeed);
                 }
             }
             // Logger.Log($"{Game.CurrentFrame} 得到弹道初速度 {velocity}");

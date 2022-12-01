@@ -76,6 +76,42 @@ namespace Extension.Utilities
             DrawLine(p4, p1, lineColor, outerColor, thickness, duration);
         }
 
+        public static void RedMapCell(CoordStruct sourcePos, int thickness = 1, int duration = 1, bool crosshair = false)
+        {
+            if (crosshair)
+            {
+                RedCrosshair(sourcePos, 128, thickness, duration);
+            }
+            MapCell(sourcePos, new ColorStruct(255, 0, 0), default, thickness, duration);
+        }
+
+        public static void GreenMapCell(CoordStruct sourcePos, int thickness = 1, int duration = 1, bool crosshair = false)
+        {
+            if (crosshair)
+            {
+                GreenCrosshair(sourcePos, 128, thickness, duration);
+            }
+            MapCell(sourcePos, new ColorStruct(0, 255, 0), default, thickness, duration);
+        }
+
+        public static void BlueMapCell(CoordStruct sourcePos, int thickness = 1, int duration = 1, bool crosshair = false)
+        {
+            if (crosshair)
+            {
+                BlueCrosshair(sourcePos, 128, thickness, duration);
+            }
+            MapCell(sourcePos, new ColorStruct(0, 0, 255), default, thickness, duration);
+        }
+
+        public static void MapCell(CoordStruct sourcePos, ColorStruct lineColor, ColorStruct outerColor = default, int thickness = 1, int duration = 1)
+        {
+            if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
+            {
+                CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
+                Cell(cellPos, 128, lineColor, outerColor, thickness, duration);
+            }
+        }
+
         public static void RedLineZ(CoordStruct sourcePos, int length, int thickness = 1, int duration = 1)
         {
             RedLine(sourcePos, sourcePos + new CoordStruct(0, 0, length), thickness, duration);

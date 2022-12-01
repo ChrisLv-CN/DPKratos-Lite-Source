@@ -1022,7 +1022,7 @@ namespace Extension.Script
 
         }
 
-        public override void OnDetonate(Pointer<CoordStruct> pCoords)
+        public override void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip)
         {
             // 不在该事件检索和附加AE，统一用 MapClass_DamageArea 检索和附加
             DestroyAll(pCoords.Data);

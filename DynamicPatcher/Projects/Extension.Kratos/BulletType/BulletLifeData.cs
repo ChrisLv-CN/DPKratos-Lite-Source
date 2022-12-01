@@ -47,7 +47,7 @@ namespace Extension.Ext
         /// </summary>
         /// <param name="harmless"></param>
         /// <param name="skipAE"></param>
-        public void Detonate(bool harmless, bool skipAE = false)
+        public void Detonate(bool harmless = false, bool skipAE = false)
         {
             this.Health = -1;
             this.IsDetonate = true;

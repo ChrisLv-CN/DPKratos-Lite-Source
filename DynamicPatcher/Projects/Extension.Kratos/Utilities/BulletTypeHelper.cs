@@ -87,7 +87,7 @@ namespace Extension.Utilities
 
         public static unsafe bool AmIArcing(this Pointer<BulletClass> pBullet)
         {
-            return pBullet.Ref.Type.Ref.Arcing || pBullet.Ref.Type.Ref.ROT <= 0;
+            return pBullet.Ref.Type.Ref.Arcing || (pBullet.Ref.Type.Ref.ROT <= 0 && !pBullet.Ref.Type.Ref.Inviso);
         }
 
         public static unsafe bool AmIMissile(this Pointer<BulletClass> pBullet)
@@ -100,69 +100,5 @@ namespace Extension.Utilities
             return !pBullet.Ref.Type.Ref.Arcing && pBullet.Ref.Type.Ref.ROT == 1;
         }
 
-        // 高级弹道学
-        public static BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, CoordStruct targetPos, double speed, int gravity, bool lobber, bool inaccurate, float scatterMin, float scatterMax, out double straightDistance, out double realSpeed)
-        {
-            // 不精确
-            if (inaccurate)
-            {
-                targetPos += GetInaccurateOffset(scatterMin, scatterMax);
-            }
-
-            // 重算抛物线弹道
-            if (gravity == 0)
-            {
-                gravity = RulesClass.Global().Gravity;
-            }
-            int zDiff = targetPos.Z - sourcePos.Z + gravity; // 修正高度差
-            targetPos.Z = 0;
-            sourcePos.Z = 0;
-            straightDistance = targetPos.DistanceFrom(sourcePos);
-            // Logger.Log("位置和目标的水平距离{0}", straightDistance);
-            realSpeed = speed;
-            if (straightDistance == 0 || double.IsNaN(straightDistance))
-            {
-                // 直上直下
-                return new BulletVelocity(0, 0, gravity);
-            }
-            if (realSpeed == 0)
-            {
-                // realSpeed = WeaponTypeClass.GetSpeed((int)straightDistance, gravity);
-                realSpeed = Math.Sqrt(straightDistance * gravity * 1.2);
-                // Logger.Log($"YR计算的速度{realSpeed}, 距离 {(int)straightDistance}, 重力 {gravity}");
-            }
-            // 高抛弹道
-            if (lobber)
-            {
-                realSpeed = (int)(realSpeed * 0.5);
-                // Logger.Log("高抛弹道, 削减速度{0}", pBullet.Ref.Speed);
-            }
-            // Logger.Log("重新计算初速度, 当前速度{0}", realSpeed);
-            double vZ = (zDiff * realSpeed) / straightDistance + 0.5 * gravity * straightDistance / realSpeed;
-            // Logger.Log("计算Z方向的初始速度{0}", vZ);
-            BulletVelocity v = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, 0);
-            v *= realSpeed / straightDistance;
-            v.Z = vZ;
-            return v;
-        }
-
-        public static CoordStruct GetInaccurateOffset(float scatterMin, float scatterMax)
-        {
-            // 不精确, 需要修改目标坐标
-            int min = (int)(scatterMin * 256);
-            int max = scatterMax > 0 ? (int)(scatterMax * 256) : RulesClass.Global().BallisticScatter;
-            // Logger.Log("炮弹[{0}]不精确, 需要重新计算目标位置, 散布范围=[{1}, {2}]", pBullet.Ref.Type.Convert<AbstractTypeClass>().Ref.ID, min, max);
-            if (min > max)
-            {
-                int temp = min;
-                min = max;
-                max = temp;
-            }
-            // 随机
-            double r = MathEx.Random.Next(min, max);
-            var theta = MathEx.Random.NextDouble() * 2 * Math.PI;
-            CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
-            return offset;
-        }
     }
 }

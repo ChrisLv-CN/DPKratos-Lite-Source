@@ -10,7 +10,7 @@ namespace Extension.Script
 {
     public interface IBulletScriptable : IObjectScriptable
     {
-        void OnDetonate(Pointer<CoordStruct> pCoords);
+        void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip);
     }
 
 
@@ -52,6 +52,6 @@ namespace Extension.Script
             throw new NotSupportedException("not support OnReceiveDamage in BulletScriptable yet");
         }
 
-        public virtual void OnDetonate(Pointer<CoordStruct> pCoords) { }
+        public virtual void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip) { }
     }
 }

@@ -69,7 +69,7 @@ namespace Extension.Script
             }
         }
 
-        public unsafe void OnReceiveDamageDestroy_GiftBox()
+        public unsafe bool OnDetonate_GiftBox(Pointer<CoordStruct> pCoords)
         {
             if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.IsOpen)
             {
@@ -82,6 +82,7 @@ namespace Extension.Script
                     ReleseGift(gifts, GiftBoxState.Data);
                 }
             }
+            return false;
         }
 
         private void ReleseGift(List<string> gifts, GiftBoxData data)

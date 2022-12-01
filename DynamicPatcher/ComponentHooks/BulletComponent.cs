@@ -86,7 +86,7 @@ namespace ComponentHooks
             return (uint)0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x4690B0, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x4690C1, Size = 8)]
         public static unsafe UInt32 BulletClass_Detonate_Components(REGISTERS* R)
         {
             try
@@ -95,15 +95,21 @@ namespace ComponentHooks
                 var pCoords = R->Stack<Pointer<CoordStruct>>(0x4);
 
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoords));
-
-                return 0;
+                bool skip = false;
+                if (!skip)
+                {
+                    ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoords, ref skip));
+                }
+                if (skip)
+                {
+                    return 0x46A2FB; // skip
+                }
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x468090, Size = 6)]
@@ -115,14 +121,12 @@ namespace ComponentHooks
 
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext.GameObject.Foreach(c => c.OnRender());
-
-                return 0;
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
     }
 }

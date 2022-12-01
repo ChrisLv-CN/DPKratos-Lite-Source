@@ -46,7 +46,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnDetonate(Pointer<CoordStruct> location)
+        public override void OnDetonate(Pointer<CoordStruct> location, ref bool skip)
         {
             // 检索范围内的所有抛射体，并对其造成伤害
             Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
