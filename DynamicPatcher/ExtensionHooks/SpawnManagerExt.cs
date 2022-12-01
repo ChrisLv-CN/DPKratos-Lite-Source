@@ -234,12 +234,13 @@ namespace ExtensionHooks
         //     return 0;
         // }
 
-        [Hook(HookType.AresHook, Address = 0x6632BB, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x66304F, Size = 5)]
         public static unsafe UInt32 RocketLocomotionClass_663030(REGISTERS* R)
         {
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EDX;
+                // Logger.Log($"{Game.CurrentFrame} - 子机导弹 {pTechno} [{pTechno.Ref.Type.Ref.Base.Base.ID}] 爆炸");
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnRocketExplosion());
             }

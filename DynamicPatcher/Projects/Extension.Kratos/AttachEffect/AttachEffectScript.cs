@@ -965,6 +965,7 @@ namespace Extension.Script
 
         public override void OnRocketExplosion()
         {
+            // Logger.Log($"{Game.CurrentFrame} 导弹爆炸");
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.IsActive())

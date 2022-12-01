@@ -35,6 +35,7 @@ namespace Extension.Script
         private bool standIsBuilding = false;
         private bool onStopCommand = false;
         private bool notBeHuman = false;
+        private bool onReceiveDamageDestroy = false;
 
         private LocationMark lastLocationMark;
         private LocationMark forwardLocationMark;
@@ -193,7 +194,7 @@ namespace Extension.Script
         private void ExplodesOrDisappear(bool remove, bool masterIsRocket)
         {
             // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
-            bool explodes = (Data.Explodes || notBeHuman) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
+            bool explodes = (Data.Explodes || notBeHuman || (masterIsRocket && Data.ExplodesWithRocket)) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
             if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
             {
                 // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand} 要死了 explodes = {explodes}");
@@ -350,7 +351,11 @@ namespace Extension.Script
 
         public override void OnRocketExplosion()
         {
-            ExplodesOrDisappear(Data.ExplodesWithMaster, true);
+            // Logger.Log($"{Game.CurrentFrame} 替身 [{Data.Type}]{pStand} 的使者 [{pMaster.Ref.Type.Ref.Base.ID}]{pMaster} 是导弹，自爆了");
+            if (!onReceiveDamageDestroy)
+            {
+                ExplodesOrDisappear(Data.ExplodesWithMaster, true);
+            }
         }
 
         public void UpdateState(Pointer<BulletClass> pBullet)
@@ -770,9 +775,10 @@ namespace Extension.Script
 
         public override void OnReceiveDamageDestroy()
         {
+            this.onReceiveDamageDestroy = true;
             // 我不做人了JOJO
             notBeHuman = Data.ExplodesWithMaster;
-            // Logger.Log($"{Game.CurrentFrame} - 替身 {pStand}[{pStand.Ref.Type.Ref.Base.Base.ID}]的宿主 {pObject}[{pObject.Ref.Type.Ref.Base.ID}]死亡");
+            // Logger.Log($"{Game.CurrentFrame} - 替身 {pStand}[{pStand.Ref.Type.Ref.Base.Base.ID}]的宿主 {pMaster}[{pMaster.Ref.Type.Ref.Base.ID}]被攻击摧毁");
             if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 // 沉没，坠机，不销毁替身

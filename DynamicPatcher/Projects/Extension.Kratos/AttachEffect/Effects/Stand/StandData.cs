@@ -92,6 +92,7 @@ namespace Extension.Ext
 
         public bool Explodes; // 死亡会爆炸
         public bool ExplodesWithMaster; // 使者死亡时强制替身爆炸
+        public bool ExplodesWithRocket; // 跟随子机导弹爆炸
         public bool RemoveAtSinking; // 沉船时移除
 
         public bool PromoteFromMaster; // 与使者同等级
@@ -140,6 +141,7 @@ namespace Extension.Ext
 
             this.Explodes = false;
             this.ExplodesWithMaster = false;
+            this.ExplodesWithRocket = true;
             this.RemoveAtSinking = false;
 
             this.PromoteFromMaster = false;
@@ -202,6 +204,7 @@ namespace Extension.Ext
 
                 this.Explodes = reader.Get(TITLE + "Explodes", this.Explodes);
                 this.ExplodesWithMaster = reader.Get(TITLE + "ExplodesWithMaster", this.ExplodesWithMaster);
+                this.ExplodesWithRocket = reader.Get(TITLE + "ExplodesWithRocket", this.ExplodesWithRocket);
                 this.RemoveAtSinking = reader.Get(TITLE + "RemoveAtSinking", this.RemoveAtSinking);
 
                 this.PromoteFromMaster = reader.Get(TITLE + "PromoteFromMaster", this.PromoteFromMaster);
