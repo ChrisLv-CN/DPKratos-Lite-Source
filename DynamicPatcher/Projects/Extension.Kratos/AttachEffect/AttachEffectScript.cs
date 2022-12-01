@@ -963,6 +963,17 @@ namespace Extension.Script
             }
         }
 
+        public override void OnRocketExplosion()
+        {
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                if (ae.IsActive())
+                {
+                    ae.OnRocketExplosion();
+                }
+            }
+        }
+
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
             this.location = pCoord.Data;

@@ -372,6 +372,18 @@ namespace Extension.Script
             }
         }
 
+        public void OnRocketExplosion()
+        {
+            if (delayToEnable)
+            {
+                return;
+            }
+            foreach (IEffect effect in effects)
+            {
+                effect?.OnRocketExplosion();
+            }
+        }
+
         public void OnPut(Pointer<CoordStruct> location, DirType dirType)
         {
             if (delayToEnable)

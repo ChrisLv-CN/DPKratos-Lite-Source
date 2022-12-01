@@ -77,6 +77,8 @@ namespace Extension.Ext
         // 被超时空兵攻击
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
         public virtual void OnTemporalEliminate(Pointer<TemporalClass> pTemporal) { }
+        // 子机导弹爆炸
+        public virtual void OnRocketExplosion() { }
         // 挂载AE的单位出现在地图上
         public virtual void OnPut(Pointer<CoordStruct> pCoord, DirType dirType) { }
         // 挂载AE的单位从地图隐藏

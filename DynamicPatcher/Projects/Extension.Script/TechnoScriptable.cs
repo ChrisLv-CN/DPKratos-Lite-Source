@@ -14,6 +14,8 @@ namespace Extension.Script
         void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
         void OnTemporalEliminate(Pointer<TemporalClass> pTemporal);
 
+        void OnRocketExplosion();
+
         void OnRegisterDestruction(Pointer<TechnoClass> pKiller, int cost, ref bool skip);
 
         void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire);
@@ -41,6 +43,8 @@ namespace Extension.Script
 
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
         public virtual void OnTemporalEliminate(Pointer<TemporalClass> pTemporal) { }
+
+        public virtual void OnRocketExplosion() { }
 
         public virtual void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType) { }
         public virtual void OnRemove() { }

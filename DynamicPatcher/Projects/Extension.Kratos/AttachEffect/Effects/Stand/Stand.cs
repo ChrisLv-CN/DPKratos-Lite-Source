@@ -187,10 +187,10 @@ namespace Extension.Script
             {
                 return;
             }
-            ExplodesOrDisappear(false);
+            ExplodesOrDisappear(false, false);
         }
 
-        private void ExplodesOrDisappear(bool remove)
+        private void ExplodesOrDisappear(bool remove, bool masterIsRocket)
         {
             // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
             bool explodes = (Data.Explodes || notBeHuman) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
@@ -198,6 +198,10 @@ namespace Extension.Script
             {
                 // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand} 要死了 explodes = {explodes}");
                 standStatus.DestroySelfState.DestroyNow(!explodes);
+                if (masterIsRocket)
+                {
+                    standStatus.OnUpdate_DestroySelf();
+                }
             }
             else
             {
@@ -344,6 +348,11 @@ namespace Extension.Script
             Disable(pMaster.Ref.Base.GetCoords());
         }
 
+        public override void OnRocketExplosion()
+        {
+            ExplodesOrDisappear(Data.ExplodesWithMaster, true);
+        }
+
         public void UpdateState(Pointer<BulletClass> pBullet)
         {
             // Logger.Log($"{Game.CurrentFrame} 抛射体上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
@@ -371,7 +380,7 @@ namespace Extension.Script
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
             {
                 // Logger.Log("{0} 船沉了，自爆吧！", Type.Type);
-                ExplodesOrDisappear(true);
+                ExplodesOrDisappear(true, false);
                 return;
             }
             // reset state

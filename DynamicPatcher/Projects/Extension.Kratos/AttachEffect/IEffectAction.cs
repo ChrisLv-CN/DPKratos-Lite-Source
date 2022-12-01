@@ -35,6 +35,8 @@ namespace Extension.Ext
         // 被超时空兵攻击
         void OnTemporalUpdate(Pointer<TemporalClass> pTemporal);
         void OnTemporalEliminate(Pointer<TemporalClass> pTemporal);
+        // 子机导弹爆炸
+        void OnRocketExplosion();
         // 挂载AE的单位出现在地图上
         void OnPut(Pointer<CoordStruct> pCoord, DirType dirType);
         // 挂载AE的单位从地图隐藏

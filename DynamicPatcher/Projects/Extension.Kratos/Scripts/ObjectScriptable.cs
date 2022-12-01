@@ -33,6 +33,8 @@ namespace Extension.Script
         public virtual void OnTemporalUpdate(Pointer<TemporalClass> pTemporal) { }
         public virtual void OnTemporalEliminate(Pointer<TemporalClass> pTemporal) { }
 
+        public virtual void OnRocketExplosion() { }
+
         public virtual void OnPut(Pointer<CoordStruct> coord, ref DirType dirType) { }
 
         public virtual void OnRemove() { }
