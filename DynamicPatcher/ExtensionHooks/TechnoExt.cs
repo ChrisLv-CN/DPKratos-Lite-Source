@@ -182,7 +182,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x70D6AE, Size = 6)]
-        public static unsafe UInt32 TechnoClass_FireDestroyWeapon_OverrideWeapon(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_Fire_DeathWeapon_OverrideWeapon(REGISTERS* R)
         {
             try
             {
@@ -193,6 +193,35 @@ namespace ExtensionHooks
                 {
                     R->EDI = (uint)pOverrideWeapon;
                     return 0x70D6BA;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x70D773, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Fire_DeathWeapon_Stand(REGISTERS* R)
+        {
+            try
+            {
+                // Logger.Log($"{Game.CurrentFrame} 更改死亡武器的发射者为jojo");
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.AmIStand(out TechnoStatusScript standStatus, out StandData standData) && !standStatus.MyMaster.IsDead())
+                {
+                    // 修改死亡武器的发射者是JOJO
+                    Pointer<TechnoClass> pMaster = standStatus.MyMaster;
+                    if (standStatus.MyMasterIsSpawned && standData.ExperienceToSpawnOwner && !pMaster.Ref.SpawnOwner.IsDead())
+                    {
+                        pMaster = pMaster.Ref.SpawnOwner;
+                    }
+                    if (pMaster.Ref.Type.Ref.Trainable)
+                    {
+                        Pointer<BulletClass> pBullet = (IntPtr)R->EBX;
+                        pBullet.Ref.Owner = pMaster;
+                    }
                 }
             }
             catch (Exception e)
