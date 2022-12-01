@@ -32,6 +32,8 @@ namespace Extension.Script
         public Pointer<TechnoClass> pStand => null != StandExt ? StandExt.OwnerObject : default;
         private Pointer<ObjectClass> pMaster => AE.pOwner;
 
+        private bool masterIsRocket = false;
+        private bool masterIsSpawned = false;
         private bool standIsBuilding = false;
         private bool onStopCommand = false;
         private bool notBeHuman = false;
@@ -91,6 +93,12 @@ namespace Extension.Script
                                 //     Logger.Log($"{Game.CurrentFrame} 同步替身乘客空间");
                                 //     pStand.Ref.Passengers = pTechno.Ref.Passengers;
                                 // }
+                            }
+                            if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
+                            {
+                                masterIsRocket = pTechno.Ref.Type.Ref.MissileSpawn;
+                                masterIsSpawned = masterIsRocket || pTechno.Ref.Type.Ref.Spawned;
+                                standStatus.MyMasterIsSpawned = masterIsSpawned;
                             }
                         }
                         else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
@@ -188,10 +196,10 @@ namespace Extension.Script
             {
                 return;
             }
-            ExplodesOrDisappear(false, false);
+            ExplodesOrDisappear(false);
         }
 
-        private void ExplodesOrDisappear(bool remove, bool masterIsRocket)
+        private void ExplodesOrDisappear(bool remove)
         {
             // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
             bool explodes = (Data.Explodes || notBeHuman || (masterIsRocket && Data.ExplodesWithRocket)) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
@@ -354,7 +362,7 @@ namespace Extension.Script
             // Logger.Log($"{Game.CurrentFrame} 替身 [{Data.Type}]{pStand} 的使者 [{pMaster.Ref.Type.Ref.Base.ID}]{pMaster} 是导弹，自爆了");
             if (!onReceiveDamageDestroy)
             {
-                ExplodesOrDisappear(Data.ExplodesWithMaster, true);
+                ExplodesOrDisappear(Data.ExplodesWithMaster);
             }
         }
 
@@ -385,7 +393,7 @@ namespace Extension.Script
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
             {
                 // Logger.Log("{0} 船沉了，自爆吧！", Type.Type);
-                ExplodesOrDisappear(true, false);
+                ExplodesOrDisappear(true);
                 return;
             }
             // reset state
@@ -454,9 +462,16 @@ namespace Extension.Script
                 }
 
                 // synch Promote
-                if (Data.PromoteFromMaster && pStand.Ref.Type.Ref.Trainable)
+                if (pStand.Ref.Type.Ref.Trainable)
                 {
-                    pStand.Ref.Veterancy = pMaster.Ref.Veterancy;
+                    if (Data.PromoteFromSpawnOwner && masterIsSpawned && !pMaster.Ref.SpawnOwner.IsDead())
+                    {
+                        pStand.Ref.Veterancy = pMaster.Ref.SpawnOwner.Ref.Veterancy;
+                    }
+                    else if (Data.PromoteFromMaster)
+                    {
+                        pStand.Ref.Veterancy = pMaster.Ref.Veterancy;
+                    }
                 }
 
                 // synch PrimaryFactory

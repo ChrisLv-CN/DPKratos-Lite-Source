@@ -74,10 +74,14 @@ namespace Extension.Ext
         public OverrideWeapon Data;
         public OverrideWeapon EliteData;
 
+        public bool UseToDeathWeapon;
+
         public OverrideWeaponData()
         {
             this.Data = null;
             this.EliteData = null;
+
+            this.UseToDeathWeapon = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -99,6 +103,8 @@ namespace Extension.Ext
             }
 
             this.Enable = null != this.Data || null != this.EliteData;
+
+            this.UseToDeathWeapon = reader.Get(TITLE + "UseToDeathWeapon", this.UseToDeathWeapon);
 
         }
 

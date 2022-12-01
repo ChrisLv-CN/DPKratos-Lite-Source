@@ -18,10 +18,10 @@ namespace Extension.Ext
 
         public int WeaponIndex = -1;
 
-        public bool TryGetOverrideWeapon(bool isElite, out Pointer<WeaponTypeClass> pOverrideWeapon)
+        public bool TryGetOverrideWeapon(bool isElite, bool isDeathWeapon, out Pointer<WeaponTypeClass> pOverrideWeapon)
         {
             pOverrideWeapon = IntPtr.Zero;
-            if (IsActive() && CanOverride(isElite, out string weaponType))
+            if (IsActive() && (!Data.UseToDeathWeapon || isDeathWeapon) && CanOverride(isElite, isDeathWeapon, out string weaponType))
             {
                 pOverrideWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponType);
                 return !pOverrideWeapon.IsNull;
@@ -29,10 +29,10 @@ namespace Extension.Ext
             return false;
         }
 
-        private bool CanOverride(bool isElite, out string weaponType)
+        private bool CanOverride(bool isElite, bool isDeathWeapon, out string weaponType)
         {
             weaponType = null;
-            if (null != Data && WeaponIndex >= 0)
+            if (null != Data && (isDeathWeapon || WeaponIndex >= 0))
             {
                 OverrideWeapon data = Data.Data;
                 if (isElite)
@@ -57,7 +57,7 @@ namespace Extension.Ext
                         int i = targetPad.Hit(maxValue);
                         weaponType = types[i];
                     }
-                    if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || overrideIndex == WeaponIndex))
+                    if (!string.IsNullOrEmpty(weaponType) && (overrideIndex < 0 || isDeathWeapon || overrideIndex == WeaponIndex))
                     {
                         // 算概率
                         return chance >= 1 || chance >= MathEx.Random.NextDouble();

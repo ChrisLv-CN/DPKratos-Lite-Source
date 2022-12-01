@@ -140,7 +140,7 @@ namespace ExtensionHooks
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                 if (pTechno.TryGetStatus(out TechnoStatusScript status)
-                    && status.OverrideWeaponState.TryGetOverrideWeapon(pTechno.Ref.Veterancy.IsElite(), out Pointer<WeaponTypeClass> pOverrideWeapon)
+                    && status.OverrideWeaponState.TryGetOverrideWeapon(pTechno.Ref.Veterancy.IsElite(), false, out Pointer<WeaponTypeClass> pOverrideWeapon)
                     && !pOverrideWeapon.IsNull)
                 {
                     // Logger.Log("Override weapon {0}", pWeapon.Ref.Base.ID);
@@ -172,6 +172,27 @@ namespace ExtensionHooks
                     double rofMult = aeManager.CountAttachStatusMultiplier().ROFMultiplier;
                     // Logger.Log($"{Game.CurrentFrame} Techno [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} fire done, weapon [{pWeapon.Ref.Base.ID}], burst {pTechno.Ref.CurrentBurstIndex}, ROF {rof}, ROFMult {rofMult}");
                     R->EAX = (uint)(rof * rofMult);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x70D6AE, Size = 6)]
+        public static unsafe UInt32 TechnoClass_FireDestroyWeapon_OverrideWeapon(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetStatus(out TechnoStatusScript status)
+                    && status.OverrideWeaponState.TryGetOverrideWeapon(pTechno.Ref.Veterancy.IsElite(), true, out Pointer<WeaponTypeClass> pOverrideWeapon)
+                    && !pOverrideWeapon.IsNull)
+                {
+                    R->EDI = (uint)pOverrideWeapon;
+                    return 0x70D6BA;
                 }
             }
             catch (Exception e)

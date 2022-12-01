@@ -20,6 +20,7 @@ namespace Extension.Script
         public TechnoExt MyMasterExt;
         public Pointer<TechnoClass> MyMaster => null != MyMasterExt ? MyMasterExt.OwnerObject : default;
         public StandData StandData;
+        public bool MyMasterIsSpawned;
         public bool MyMasterIsAnim;
 
         public bool StandIsMoving;
@@ -141,50 +142,57 @@ namespace Extension.Script
             {
                 // Logger.Log("{0} 被 {1} 杀死了，价值 {2}，杀手{3}，等级{4}", pTechno.Ref.Type.Ref.Base.Base.ID, pKiller.Ref.Type.Ref.Base.Base.ID, cost, pKiller.Ref.Type.Ref.Trainable ? "可以升级" : "不可训练", pKiller.Ref.Veterancy.Veterancy);
                 // Killer是Stand，而且Master可训练
-                if (pKiller.AmIStand(out TechnoStatusScript standStatus, out StandData standData) && !standStatus.MyMaster.IsNull && standStatus.MyMaster.Ref.Type.Ref.Trainable)
+                if (pKiller.AmIStand(out TechnoStatusScript standStatus, out StandData standData) && !standStatus.MyMaster.IsDead())
                 {
                     Pointer<TechnoClass> pMaster = standStatus.MyMaster;
-                    int transExp = 0;
-                    if (pKiller.Ref.Type.Ref.Trainable)
+                    if (standStatus.MyMasterIsSpawned && standData.ExperienceToSpawnOwner && !pMaster.Ref.SpawnOwner.IsDead())
                     {
-                        // 替身可以训练，经验部分转给使者
-                        int exp = cost;
-                        // 替身已经满级
-                        if (!pKiller.Ref.Veterancy.IsElite())
+                        pMaster = pMaster.Ref.SpawnOwner;
+                    }
+                    if (pMaster.Ref.Type.Ref.Trainable)
+                    {
+                        int transExp = 0;
+                        if (pKiller.Ref.Type.Ref.Trainable)
                         {
+                            // 替身可以训练，经验部分转给使者
+                            int exp = cost;
+                            // 替身已经满级
+                            if (!pKiller.Ref.Veterancy.IsElite())
+                            {
+                                transExp = cost;
+                                exp = 0;
+                                // Logger.Log("替身{0}已经满级，全部经验{1}转给使者{2}", pKiller.Ref.Type.Ref.Base.Base.ID, transExp, pMaster.Ref.Type.Ref.Base.Base.ID);
+                            }
+                            if (!pMaster.Ref.Veterancy.IsElite())
+                            {
+                                // 使者还能获得经验，转移部分给使者
+                                transExp = (int)(cost * standData.ExperienceToMaster);
+                                exp -= transExp;
+                                // Logger.Log("使者{0}没有满级，经验{1}转给使者，替身{2}享用{3}", pMaster.Ref.Type.Ref.Base.Base.ID, transExp, pKiller.Ref.Type.Ref.Base.Base.ID, exp);
+                            }
+                            // 剩余部分自己享用
+                            if (exp != 0)
+                            {
+                                int technoCost = pKiller.Ref.Type.Ref.Base.GetActualCost(pKiller.Ref.Owner);
+                                pKiller.Ref.Veterancy.Add(technoCost, exp);
+                                // Logger.Log("替身{0}享用剩余经验{1}", pKiller.Ref.Type.Ref.Base.Base.ID, exp);
+                            }
+                        }
+                        else
+                        {
+                            // 替身不能训练，经验全部转给使者
                             transExp = cost;
-                            exp = 0;
-                            // Logger.Log("替身{0}已经满级，全部经验{1}转给使者{2}", pKiller.Ref.Type.Ref.Base.Base.ID, transExp, pMaster.Ref.Type.Ref.Base.Base.ID);
+                            // Logger.Log("替身{0}不能训练，全部经验{1}转给使者{2}", pKiller.Ref.Type.Ref.Base.Base.ID, transExp, pMaster.Ref.Type.Ref.Base.Base.ID);
                         }
-                        if (!pMaster.Ref.Veterancy.IsElite())
+                        if (transExp != 0)
                         {
-                            // 使者还能获得经验，转移部分给使者
-                            transExp = (int)(cost * standData.ExperienceToMaster);
-                            exp -= transExp;
-                            // Logger.Log("使者{0}没有满级，经验{1}转给使者，替身{2}享用{3}", pMaster.Ref.Type.Ref.Base.Base.ID, transExp, pKiller.Ref.Type.Ref.Base.Base.ID, exp);
+                            int technoCost = pMaster.Ref.Type.Ref.Base.GetActualCost(pMaster.Ref.Owner);
+                            pMaster.Ref.Veterancy.Add(technoCost, transExp);
+                            // Logger.Log("使者{0}享用分享经验{1}", pMaster.Ref.Type.Ref.Base.Base.ID, transExp);
                         }
-                        // 剩余部分自己享用
-                        if (exp != 0)
-                        {
-                            int technoCost = pKiller.Ref.Type.Ref.Base.GetActualCost(pKiller.Ref.Owner);
-                            pKiller.Ref.Veterancy.Add(technoCost, exp);
-                            // Logger.Log("替身{0}享用剩余经验{1}", pKiller.Ref.Type.Ref.Base.Base.ID, exp);
-                        }
-                    }
-                    else
-                    {
-                        // 替身不能训练，经验全部转给使者
-                        transExp = cost;
-                        // Logger.Log("替身{0}不能训练，全部经验{1}转给使者{2}", pKiller.Ref.Type.Ref.Base.Base.ID, transExp, pMaster.Ref.Type.Ref.Base.Base.ID);
-                    }
-                    if (transExp != 0)
-                    {
-                        int technoCost = pMaster.Ref.Type.Ref.Base.GetActualCost(pMaster.Ref.Owner);
-                        pMaster.Ref.Veterancy.Add(technoCost, transExp);
-                        // Logger.Log("使者{0}享用分享经验{1}", pMaster.Ref.Type.Ref.Base.Base.ID, transExp);
-                    }
 
-                    return true;
+                        return true;
+                    }
                 }
             }
             return false;

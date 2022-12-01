@@ -96,7 +96,9 @@ namespace Extension.Ext
         public bool RemoveAtSinking; // 沉船时移除
 
         public bool PromoteFromMaster; // 与使者同等级
+        public bool PromoteFromSpawnOwner; // 与火箭发射者同等级
         public double ExperienceToMaster; // 经验给使者
+        public bool ExperienceToSpawnOwner; // 经验分给火箭发射者
 
         public bool SelectToMaster; // 选中替身时，改为选中使者
 
@@ -145,7 +147,9 @@ namespace Extension.Ext
             this.RemoveAtSinking = false;
 
             this.PromoteFromMaster = false;
+            this.PromoteFromSpawnOwner = false;
             this.ExperienceToMaster = 0.0;
+            this.ExperienceToSpawnOwner = false;
 
             this.SelectToMaster = false;
 
@@ -208,7 +212,9 @@ namespace Extension.Ext
                 this.RemoveAtSinking = reader.Get(TITLE + "RemoveAtSinking", this.RemoveAtSinking);
 
                 this.PromoteFromMaster = reader.Get(TITLE + "PromoteFromMaster", this.PromoteFromMaster);
+                this.PromoteFromSpawnOwner = reader.Get(TITLE + "PromoteFromSpawnOwner", this.PromoteFromSpawnOwner);
                 this.ExperienceToMaster = reader.GetPercent(TITLE + "ExperienceToMaster", this.ExperienceToMaster);
+                this.ExperienceToSpawnOwner = reader.Get(TITLE + "ExperienceToSpawnOwner", this.ExperienceToSpawnOwner);
 
                 this.SelectToMaster = reader.Get(TITLE + "SelectToMaster", this.SelectToMaster);
 
