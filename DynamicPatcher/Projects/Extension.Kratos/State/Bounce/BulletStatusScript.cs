@@ -36,6 +36,7 @@ namespace Extension.Script
                 if (data.Enable)
                 {
                     BounceState.Enable(data);
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} Bounce {data.Enable} {data.Chance} {data.Elasticity}");
                 }
             }
         }
@@ -45,6 +46,7 @@ namespace Extension.Script
             if (BounceState.IsActive() && !isBounceSplit)
             {
                 this.bounceData = BounceState.Data;
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} Bounce IsActive {bounceData.Chance} {bounceData.Elasticity}");
             }
             if ((isBounceSplit || BounceState.IsActive()) && pBullet.AmIArcing())
             {
@@ -113,7 +115,7 @@ namespace Extension.Script
 
         private bool SpwanSplitCannon()
         {
-            if (isBounceSplit && null != bounceData && bounceData.Enable
+            if ((BounceState.IsActive() || isBounceSplit) && null != bounceData && bounceData.Enable
                 && (bounceData.Times < 0 || bounceIndex < bounceData.Times)
                 && (bounceData.Chance >= 1 || bounceData.Chance.Bingo())
             )
