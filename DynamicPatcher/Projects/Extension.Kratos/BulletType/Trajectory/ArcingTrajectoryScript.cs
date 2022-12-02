@@ -42,24 +42,24 @@ namespace Extension.Script
         public override void OnUpdate()
         {
             ResetVelocity();
-            if (trajectoryData.AdvancedBallistics && !pBullet.Ref.WH.HasPreImpactAnim())
-            {
-                // 接近目标位置时引爆
-                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                CoordStruct targetPos = pBullet.Ref.TargetCoords;
-                CoordStruct tempSourcePos = sourcePos;
-                tempSourcePos.Z = 0;
-                CoordStruct tempTargetPos = targetPos;
-                tempTargetPos.Z = 0;
-                double dist = tempSourcePos.DistanceFrom(tempTargetPos);
-                if (double.IsNaN(dist) || double.IsInfinity(dist) || dist < 64 + pBullet.Ref.Type.Ref.Acceleration)
-                {
-                    // Logger.Log($"{Game.CurrentFrame} - 距离目标太近 {dist} < 64 + {pBullet.Ref.Type.Ref.Acceleration}，直接引爆，height = {pBullet.Ref.Base.GetHeight()} sourcePos = {sourcePos}, targetPos = {targetPos}, velocity = {pBullet.Ref.Velocity}");
-                    pBullet.Ref.Detonate(sourcePos);
-                    pBullet.Ref.Base.Remove();
-                    pBullet.Ref.Base.UnInit();
-                }
-            }
+            // if (!pBullet.IsDeadOrInvisible() && trajectoryData.AdvancedBallistics && !pBullet.Ref.WH.HasPreImpactAnim())
+            // {
+            //     // 接近目标位置时引爆
+            //     CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+            //     CoordStruct targetPos = pBullet.Ref.TargetCoords;
+            //     CoordStruct tempSourcePos = sourcePos;
+            //     tempSourcePos.Z = 0;
+            //     CoordStruct tempTargetPos = targetPos;
+            //     tempTargetPos.Z = 0;
+            //     double dist = tempSourcePos.DistanceFrom(tempTargetPos);
+            //     if (double.IsNaN(dist) || double.IsInfinity(dist) || dist < 128 + pBullet.Ref.Type.Ref.Acceleration)
+            //     {
+            //         // Logger.Log($"{Game.CurrentFrame} - 距离目标太近 {dist} < 64 + {pBullet.Ref.Type.Ref.Acceleration}，直接引爆，height = {pBullet.Ref.Base.GetHeight()} sourcePos = {sourcePos}, targetPos = {targetPos}, velocity = {pBullet.Ref.Velocity}");
+            //         pBullet.Ref.Detonate(sourcePos);
+            //         pBullet.Ref.Base.Remove();
+            //         pBullet.Ref.Base.UnInit();
+            //     }
+            // }
         }
 
         public void ResetVelocity(float speedMultiple = 1f)
@@ -67,7 +67,7 @@ namespace Extension.Script
             if (!InitFlag)
             {
                 InitFlag = true;
-                CoordStruct sourcePos = pBullet.Ref.SourceCoords;
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
                 // 速度控制
@@ -88,9 +88,22 @@ namespace Extension.Script
                 float min = trajectoryData.BallisticScatterMin;
                 float max = trajectoryData.BallisticScatterMax;
 
-                BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, speed, gravity, lobber, inaccurate, min, max, out double straightDistance, out double realSpeed);
+                BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, speed, gravity, lobber, inaccurate, min, max, pBullet.Ref.Velocity.ToCoordStruct().Z, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
                 pBullet.Ref.Speed = (int)realSpeed;
                 pBullet.Ref.Velocity = velocity;
+                if (inaccurate && !pTargetCell.IsNull)
+                {
+                    pBullet.Ref.Target = pTargetCell.Convert<AbstractClass>();
+                }
+
+                BulletEffectHelper.RedCrosshair(sourcePos, 128, 1, 150);
+                BulletEffectHelper.RedCrosshair(targetPos, 128, 1, 150);
+                BulletEffectHelper.RedLine(sourcePos, targetPos, 1, 150);
+                CoordStruct sourceCellPos = MapClass.Instance.GetCellAt(sourcePos).Ref.GetCoordsWithBridge();
+                CoordStruct targetCellPos = MapClass.Instance.GetCellAt(targetPos).Ref.GetCoordsWithBridge();
+                BulletEffectHelper.GreenCell(sourceCellPos, 128, 1, 150, true);
+                BulletEffectHelper.GreenCell(targetCellPos, 128, 1, 150, true);
+
                 /*
                 // 高抛弹道
                 if (!pBullet.Ref.WeaponType.IsNull && pBullet.Ref.WeaponType.Ref.Lobber)

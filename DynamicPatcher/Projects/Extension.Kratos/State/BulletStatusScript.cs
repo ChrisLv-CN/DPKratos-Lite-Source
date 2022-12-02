@@ -81,8 +81,19 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
             OnUpdate_Bounce();
             OnUpdate_DestroySelf();
+            if (!LifeData.IsDetonate && pBullet.AmIArcing() && SubjectToGround && pBullet.Ref.Base.GetHeight() <= 0)
+            {
+                // Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");
+                pBullet.Ref.TargetCoords = location;
+                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell))
+                {
+                    pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+                }
+                LifeData.Detonate();
+            }
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {
@@ -91,20 +102,19 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 死亡 {pBullet.Ref.Base.Base.GetCoords()}");
                     if (!LifeData.IsHarmless)
                     {
-                        CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
                         pBullet.Ref.Detonate(location);
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 死亡，调用爆炸 {location}");
                     }
-                    pBullet.Ref.Base.Remove();
+                    pBullet.Ref.Base.IsAlive = false;
                     pBullet.Ref.Base.UnInit();
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 注销");
+                    isDead = true;
                     return;
                 }
                 // 检查抛射体存活
                 if (LifeData.Health <= 0)
                 {
                     LifeData.IsDetonate = true;
-                    return;
                 }
             }
             if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)

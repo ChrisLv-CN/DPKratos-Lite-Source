@@ -21,15 +21,20 @@ namespace ComponentHooks
 
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 ext.GameObject.Foreach(c => c.OnUpdate());
-
-                return 0;
+                // 接管手动引爆，直接删除抛射体
+                if (!pBullet.Ref.Base.IsAlive)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} [{pBullet.Ref.Type.Ref.Base.Base.ID}]{pBullet} 手动引爆，跳过update");
+                    return 0x467FEE;
+                }
             }
             catch (Exception e)
             {
                 Logger.PrintException(e);
-                return 0;
             }
+            return 0;
         }
+
         [Hook(HookType.AresHook, Address = 0x467FEE, Size = 6)]
         [Hook(HookType.AresHook, Address = 0x466781, Size = 6)]
         public static unsafe UInt32 BulletClass_LateUpdate_Components(REGISTERS* R)
@@ -64,7 +69,7 @@ namespace ComponentHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x468B5D, Size = 6)]
@@ -83,7 +88,7 @@ namespace ComponentHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x4690C1, Size = 8)]

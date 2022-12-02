@@ -148,7 +148,7 @@ namespace Extension.Script
                 }
                 else
                 {
-                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, false, 0, 0, out straightDistance, out realSpeed);
+                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, data.Gravity, data.Lobber, false, 0, 0, data.Gravity, out straightDistance, out realSpeed, out Pointer<CellClass> pTargetCell);
                 }
                 // Logger.Log($"{Game.CurrentFrame} 原地起跳 距离 {straightDistance} 速度 {realSpeed}");
             }
@@ -164,7 +164,7 @@ namespace Extension.Script
                     // 单位在爆炸范围内
                     // Logger.Log($"{Game.CurrentFrame} 往前跳 {dist + forward}");
                     targetPos = FLHHelper.GetForwardCoords(powerPos, sourcePos, dist + forward);
-                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, data.Gravity, data.Lobber, data.Inaccurate, data.ScatterMin, data.ScatterMax, out straightDistance, out realSpeed);
+                    velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, data.Gravity, data.Lobber, data.Inaccurate, data.ScatterMin, data.ScatterMax, data.Gravity, out straightDistance, out realSpeed, out Pointer<CellClass> pTargetCell);
                 }
             }
             // Logger.Log($"{Game.CurrentFrame} 得到弹道初速度 {velocity}");

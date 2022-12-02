@@ -80,7 +80,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         // 除 ROT>0 和 Vertical 之外的抛射体会在Label_158根据速度向量获取坐标
@@ -107,7 +107,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         // Take over to create Warhead Anim
@@ -131,7 +131,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x469EB4, Size = 6)]
@@ -151,7 +151,7 @@ namespace ExtensionHooks
             {
                 Logger.PrintException(e);
             }
-            return (uint)0;
+            return 0;
         }
 
         // 导弹类抛射体当高度低于地面高度时强制引爆

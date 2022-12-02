@@ -35,12 +35,19 @@ namespace Extension.Utilities
         }
 
         // 高级弹道学
-        public static unsafe BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, CoordStruct targetPos, double speed, int gravity, bool lobber, bool inaccurate, float scatterMin, float scatterMax, out double straightDistance, out double realSpeed)
+        public static unsafe BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, ref CoordStruct targetPos,
+            double speed, int gravity, bool lobber, bool inaccurate, float scatterMin, float scatterMax,
+            int zOffset, out double straightDistance, out double realSpeed, out  Pointer<CellClass> pTargetCell)
         {
             // 不精确
             if (inaccurate)
             {
                 targetPos += GetInaccurateOffset(scatterMin, scatterMax);
+            }
+            // 不潜地
+            if (MapClass.Instance.TryGetCellAt(targetPos, out pTargetCell))
+            {
+                targetPos.Z = pTargetCell.Ref.GetCoordsWithBridge().Z;
             }
 
             // 重算抛物线弹道
@@ -48,7 +55,7 @@ namespace Extension.Utilities
             {
                 gravity = RulesClass.Global().Gravity;
             }
-            int zDiff = targetPos.Z - sourcePos.Z + gravity; // 修正高度差
+            int zDiff = targetPos.Z - sourcePos.Z + zOffset; // 修正高度差
             targetPos.Z = 0;
             sourcePos.Z = 0;
             straightDistance = targetPos.DistanceFrom(sourcePos);

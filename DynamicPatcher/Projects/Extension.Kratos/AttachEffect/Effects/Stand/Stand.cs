@@ -368,6 +368,10 @@ namespace Extension.Script
 
         public void UpdateState(Pointer<BulletClass> pBullet)
         {
+            if (pStand.IsNull)
+            {
+                return;
+            }
             // Logger.Log($"{Game.CurrentFrame} 抛射体上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             // Synch Target
             RemoveStandIllegalTarget();
@@ -389,6 +393,10 @@ namespace Extension.Script
 
         public void UpdateState(Pointer<TechnoClass> pMaster, bool masterIsDead)
         {
+            if (pStand.IsNull)
+            {
+                return;
+            }
             // Logger.Log($"{Game.CurrentFrame} 单位上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
             {

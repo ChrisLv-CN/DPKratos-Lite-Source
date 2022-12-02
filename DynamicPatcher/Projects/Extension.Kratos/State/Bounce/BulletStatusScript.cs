@@ -56,6 +56,7 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 没有来得及初始化，重设目标位置 {bounceTargetPos}");
                     arcingTrajectoryScript.ResetVelocity();
                 }
+                SubjectToGround = true;
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
                 int height = pBullet.Ref.Base.GetHeight();
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} v {pBullet.Ref.Velocity} {height} {sourcePos}");
@@ -246,7 +247,7 @@ namespace Extension.Script
                                                 }
                                                 if (pNewBullet.TryGetStatus(out BulletStatusScript status))
                                                 {
-                                                    status.bounceData = bounceData;
+                                                    status.SetBounceData(bounceData);
                                                     status.isBounceSplit = true;
                                                     status.bounceIndex = bounceIndex + 1;
                                                     status.bounceTargetPos = nextTargetPos;
@@ -273,6 +274,19 @@ namespace Extension.Script
                 }
             }
             return false;
+        }
+
+        public void SetBounceData(BounceData bounceData)
+        {
+            BounceData data = Ini.GetConfig<BounceData>(Ini.RulesDependency, section).Data;
+            if (data.Enable)
+            {
+                this.bounceData = data;
+            }
+            else
+            {
+                this.bounceData = bounceData;
+            }
         }
     }
 }
