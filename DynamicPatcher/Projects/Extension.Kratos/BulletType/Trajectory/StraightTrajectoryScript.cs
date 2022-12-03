@@ -44,6 +44,7 @@ namespace Extension.Script
         private TrajectoryData trajectoryData => Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
 
         private StraightBullet straightBullet;
+        private bool resetTargetFlag;
 
         public override void Awake()
         {
@@ -56,7 +57,7 @@ namespace Extension.Script
                     bulletStatus.SubjectToGround = false;
                     break;
                 default:
-                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT != 1 && !trajectoryData.IsStraight();
+                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !trajectoryData.IsStraight();
                     break;
             }
 
@@ -131,6 +132,42 @@ namespace Extension.Script
             {
                 // 强制修正速度
                 pBullet.Ref.Velocity = straightBullet.Velocity;
+            }
+            // 看不懂西木的做法，自己来
+            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+            if (!pTarget.IsNull && !resetTargetFlag)
+            {
+                CoordStruct targetCoord = pBullet.Ref.TargetCoords;
+                CoordStruct targetPos = pTarget.Ref.GetCoords();
+                if (pTarget.Ref.IsInAir())
+                {
+                    // 目标在空中，目标当前的距离和目标位置相差一个格子，则取消目标
+                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
+                    {
+                        if (pCell != pTargetCell)
+                        {
+                            pBullet.Ref.SetTarget(IntPtr.Zero);
+                            resetTargetFlag = true;
+                        }
+                    }
+                    else if (targetCoord.DistanceFrom(targetPos) >= 128)
+                    {
+                        pBullet.Ref.SetTarget(IntPtr.Zero);
+                        resetTargetFlag = true;
+                    }
+                }
+                else
+                {
+                    // 目标离开所在的格子，就设定目标位置的格子为目标
+                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
+                    {
+                        if (pCell != pTargetCell)
+                        {
+                            pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+                            resetTargetFlag = true;
+                        }
+                    }
+                }
             }
         }
 
