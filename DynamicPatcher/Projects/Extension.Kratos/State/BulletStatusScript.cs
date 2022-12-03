@@ -115,18 +115,6 @@ namespace Extension.Script
                     }
                 }
             }
-            // if (!LifeData.IsDetonate && !pBullet.Ref.WH.HasPreImpactAnim() && pBullet.AmIArcing() && SubjectToGround && pBullet.Ref.Base.GetHeight() <= 8)
-            // {
-            //     Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");
-            //     CoordStruct targetPos = location;
-            //     if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell))
-            //     {
-            //         targetPos.Z = pTargetCell.Ref.GetCoordsWithBridge().Z;
-            //         pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
-            //     }
-            //     pBullet.Ref.TargetCoords = targetPos;
-            //     LifeData.Detonate();
-            // }
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {
@@ -138,7 +126,7 @@ namespace Extension.Script
                         pBullet.Ref.Detonate(location);
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 死亡，调用爆炸 {location}");
                     }
-                    pBullet.Ref.Base.IsAlive = false;
+                    // pBullet.Ref.Base.Remove();
                     pBullet.Ref.Base.UnInit();
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 注销");
                     isDead = true;
