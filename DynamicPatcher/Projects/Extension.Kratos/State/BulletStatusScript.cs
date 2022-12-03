@@ -84,16 +84,49 @@ namespace Extension.Script
             CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
             OnUpdate_Bounce();
             OnUpdate_DestroySelf();
-            if (!LifeData.IsDetonate && pBullet.AmIArcing() && SubjectToGround && pBullet.Ref.Base.GetHeight() <= 0)
+            // 是否需要检查潜地
+            if (!LifeData.IsDetonate && !pBullet.Ref.WH.HasPreImpactAnim())
             {
-                // Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");
-                pBullet.Ref.TargetCoords = location;
-                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell))
+                if (SubjectToGround && pBullet.Ref.Base.GetHeight() < 0)
                 {
-                    pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+                    // 潜地
+                    // Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");
+                    CoordStruct targetPos = location;
+                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell))
+                    {
+                        targetPos.Z = pTargetCell.Ref.GetCoordsWithBridge().Z;
+                        pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+                    }
+                    pBullet.Ref.TargetCoords = targetPos;
+                    LifeData.Detonate();
                 }
-                LifeData.Detonate();
+                if (!LifeData.IsDetonate && pBullet.AmIArcing() && pBullet.Ref.Base.GetHeight() <= 8)
+                {
+                    // Arcing 近炸
+                    CoordStruct tempSoucePos = location;
+                    tempSoucePos.Z = 0;
+                    CoordStruct tempTargetPos = pBullet.Ref.TargetCoords;
+                    tempTargetPos.Z = 0;
+                    // Logger.Log($"{Game.CurrentFrame} 炮弹 [{section}]{pBullet} 贴近地面，距离目标 {tempSoucePos.DistanceFrom(tempTargetPos)}");
+                    if (tempSoucePos.DistanceFrom(tempTargetPos) <= 256 + pBullet.Ref.Type.Ref.Acceleration)
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} 炮弹 [{section}]{pBullet} 距离目标太近，强制爆炸");
+                        LifeData.Detonate();
+                    }
+                }
             }
+            // if (!LifeData.IsDetonate && !pBullet.Ref.WH.HasPreImpactAnim() && pBullet.AmIArcing() && SubjectToGround && pBullet.Ref.Base.GetHeight() <= 8)
+            // {
+            //     Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");
+            //     CoordStruct targetPos = location;
+            //     if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell))
+            //     {
+            //         targetPos.Z = pTargetCell.Ref.GetCoordsWithBridge().Z;
+            //         pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+            //     }
+            //     pBullet.Ref.TargetCoords = targetPos;
+            //     LifeData.Detonate();
+            // }
             // 检查抛射体是否已经被摧毁
             if (null != LifeData)
             {

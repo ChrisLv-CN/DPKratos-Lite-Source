@@ -154,10 +154,10 @@ namespace Extension.Script
                                 if (!pWeapon.IsNull)
                                 {
                                     // 取子武器的发射位置
-                                    // 发射位置离地一个重力的高，不然射不出
+                                    // 发射位置离地2个重力的高，不然射不出
                                     CoordStruct nextSourcePos = explodePos;
                                     nextSourcePos.Z = pCell.Ref.GetCoordsWithBridge().Z;
-                                    nextSourcePos.Z += RulesClass.Global().Gravity;
+                                    nextSourcePos.Z += RulesClass.Global().Gravity * 2;
                                     CoordStruct nextTargetPos = default;
                                     // 根据地形削减或加强弹性
                                     switch (landType)

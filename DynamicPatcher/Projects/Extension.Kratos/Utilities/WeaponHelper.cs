@@ -55,10 +55,12 @@ namespace Extension.Utilities
             {
                 gravity = RulesClass.Global().Gravity;
             }
-            int zDiff = targetPos.Z - sourcePos.Z + zOffset; // 修正高度差
-            targetPos.Z = 0;
-            sourcePos.Z = 0;
-            straightDistance = targetPos.DistanceFrom(sourcePos);
+            CoordStruct tempSourcePos = sourcePos;
+            CoordStruct tempTargetPos = targetPos;
+            int zDiff = tempTargetPos.Z - tempSourcePos.Z + zOffset; // 修正高度差
+            tempTargetPos.Z = 0;
+            tempSourcePos.Z = 0;
+            straightDistance = tempTargetPos.DistanceFrom(tempSourcePos);
             // Logger.Log("位置和目标的水平距离{0}", straightDistance);
             realSpeed = speed;
             if (straightDistance == 0 || double.IsNaN(straightDistance))
@@ -81,7 +83,7 @@ namespace Extension.Utilities
             // Logger.Log("重新计算初速度, 当前速度{0}", realSpeed);
             double vZ = (zDiff * realSpeed) / straightDistance + 0.5 * gravity * straightDistance / realSpeed;
             // Logger.Log("计算Z方向的初始速度{0}", vZ);
-            BulletVelocity v = new BulletVelocity(targetPos.X - sourcePos.X, targetPos.Y - sourcePos.Y, 0);
+            BulletVelocity v = new BulletVelocity(tempTargetPos.X - tempSourcePos.X, tempTargetPos.Y - tempSourcePos.Y, 0);
             v *= realSpeed / straightDistance;
             v.Z = vZ;
             return v;
