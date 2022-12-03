@@ -37,7 +37,7 @@ namespace Extension.Utilities
         // 高级弹道学
         public static unsafe BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, ref CoordStruct targetPos,
             double speed, int gravity, bool lobber, bool inaccurate, float scatterMin, float scatterMax,
-            int zOffset, out double straightDistance, out double realSpeed, out  Pointer<CellClass> pTargetCell)
+            int zOffset, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell)
         {
             // 不精确
             if (inaccurate)
@@ -221,10 +221,6 @@ namespace Extension.Utilities
             if (!pAttackingHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status))
             {
                 status.pSourceHouse = pAttackingHouse;
-            }
-            if (pBulletType.Ref.Arcing)
-            {
-                bulletVelocity = new BulletVelocity(0, 0, RulesClass.Global().Gravity);
             }
             if (default == bulletVelocity)
             {
