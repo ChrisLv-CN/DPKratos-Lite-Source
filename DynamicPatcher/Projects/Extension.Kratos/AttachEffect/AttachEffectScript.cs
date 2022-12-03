@@ -579,7 +579,7 @@ namespace Extension.Script
                 }
             }
             // 获取挂载对象的位置和方向
-            LocationMark locationMark = pObject.GetRelativeLocation(stand.Data.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
+            LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
             stand.UpdateLocation(locationMark, locationMark);
         }
 

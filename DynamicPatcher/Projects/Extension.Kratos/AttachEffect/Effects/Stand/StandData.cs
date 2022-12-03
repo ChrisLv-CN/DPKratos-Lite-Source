@@ -62,7 +62,9 @@ namespace Extension.Ext
 
         public string Type; // 替身类型
         public CoordStruct Offset; // 替身相对位置
-        // public Direction Direction; // 相对朝向
+        // public Point2D OffsetRandomF; // 随机F
+        // public Point2D OffsetRandomL; // 随机L
+        // public Point2D OffsetRandomH; // 随机H
         public int Direction; // 相对朝向，16分圆，[0-15]
         public bool LockDirection; // 强制朝向，不论替身在做什么
         public bool FreeDirection; // 完全不控制朝向
@@ -114,6 +116,9 @@ namespace Extension.Ext
         {
             this.Type = null;
             this.Offset = default;
+            // this.OffsetRandomF = default;
+            // this.OffsetRandomL = default;
+            // this.OffsetRandomH = default;
             this.Direction = 0;
             this.LockDirection = false;
             this.FreeDirection = false;
@@ -179,6 +184,9 @@ namespace Extension.Ext
             if (this.Enable = !Type.IsNullOrEmptyOrNone())
             {
                 this.Offset = reader.Get(TITLE + "Offset", this.Offset);
+                // this.OffsetRandomF = reader.Get(TITLE + "OffsetRandomF", this.OffsetRandomF);
+                // this.OffsetRandomL = reader.Get(TITLE + "OffsetRandomL", this.OffsetRandomL);
+                // this.OffsetRandomH = reader.Get(TITLE + "OffsetRandomH", this.OffsetRandomH);
                 this.Direction = reader.GetDir16(TITLE + "Direction", this.Direction);
                 this.LockDirection = reader.Get(TITLE + "LockDirection", this.LockDirection);
                 this.FreeDirection = reader.Get(TITLE + "FreeDirection", this.FreeDirection);
@@ -227,6 +235,16 @@ namespace Extension.Ext
                 this.CabinGroup = reader.Get(TITLE + "CabinGroup", this.CabinGroup);
             }
         }
+
+        // public CoordStruct GetOffset()
+        // {
+        //     CoordStruct offset = this.Offset;
+        //     if (default != OffsetRandomF)
+        //     {
+
+        //     }
+        //     return offset;
+        // }
 
     }
 

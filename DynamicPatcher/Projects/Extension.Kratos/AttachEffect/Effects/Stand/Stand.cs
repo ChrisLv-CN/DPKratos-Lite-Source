@@ -30,6 +30,8 @@ namespace Extension.Script
     {
         public TechnoExt StandExt;
         public Pointer<TechnoClass> pStand => null != StandExt ? StandExt.OwnerObject : default;
+        public CoordStruct Offset => Data.Offset;
+
         private Pointer<ObjectClass> pMaster => AE.pOwner;
 
         private bool masterIsRocket = false;
@@ -140,7 +142,7 @@ namespace Extension.Script
                     }
 
                     // 放置到指定位置
-                    LocationMark locationMark = pMaster.GetRelativeLocation(Data.Offset, Data.Direction, Data.IsOnTurret, Data.IsOnWorld);
+                    LocationMark locationMark = pMaster.GetRelativeLocation(Offset, Data.Direction, Data.IsOnTurret, Data.IsOnWorld);
                     if (default != locationMark.Location)
                     {
                         SetLocation(locationMark.Location);
@@ -626,8 +628,13 @@ namespace Extension.Script
                 {
                     if (masterIsMoving)
                     {
-                        if (isMoving && null != forwardLocationMark)
+                        if (isMoving)
                         {
+                            if (!Data.IsTrain)
+                            {
+                                // 移动前，设置替身的朝向与JOJO相同
+                                pStand.Ref.Facing.set(pMaster.Ref.Facing.current());
+                            }
                             // 往前移动，播放移动动画
                             if (waklRateTimer.Expired())
                             {
