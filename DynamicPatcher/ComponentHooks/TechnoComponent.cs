@@ -245,10 +245,7 @@ namespace ComponentHooks
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
 
                 bool skip = false;
-                if (!skip)
-                {
-                    ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnRegisterDestruction(pKiller, cost, ref skip));
-                }
+                ext.GameObject.Foreach(c => (c as ITechnoScriptable)?.OnRegisterDestruction(pKiller, cost, ref skip));
                 // skip the entire veterancy
                 if (skip)
                 {

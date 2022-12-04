@@ -92,12 +92,12 @@ namespace Extension.Utilities
 
         public static unsafe bool AmIMissile(this Pointer<BulletClass> pBullet)
         {
-            return !pBullet.Ref.Type.Ref.Arcing && pBullet.Ref.Type.Ref.ROT > 1;
+            return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT > 1;
         }
 
         public static unsafe bool AmIRocket(this Pointer<BulletClass> pBullet)
         {
-            return !pBullet.Ref.Type.Ref.Arcing && pBullet.Ref.Type.Ref.ROT == 1;
+            return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT == 1;
         }
 
     }

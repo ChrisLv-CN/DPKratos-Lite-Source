@@ -28,7 +28,6 @@ namespace Extension.Script
         public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
         private bool initStateFlag = false;
-        private bool isDead;
 
         public override void Awake()
         {
@@ -129,7 +128,6 @@ namespace Extension.Script
                     // pBullet.Ref.Base.Remove();
                     pBullet.Ref.Base.UnInit();
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 注销");
-                    isDead = true;
                     return;
                 }
                 // 检查抛射体存活
@@ -144,15 +142,11 @@ namespace Extension.Script
                 OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
             }
-            else
-            {
-                isDead = true;
-            }
         }
 
         public override void OnLateUpdate()
         {
-            if (!isDead)
+            if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
                 OnLateUpdate_BlackHole();
             }
@@ -176,7 +170,7 @@ namespace Extension.Script
         {
             if (null != LifeData && (checkInterceptable || LifeData.Interceptable))
             {
-                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 收到伤害{damageData}");
+                // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 收到伤害{damage} {eliminate} {harmless} {checkInterceptable}");
                 if (eliminate)
                 {
                     LifeData.Detonate(harmless);

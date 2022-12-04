@@ -57,12 +57,12 @@ namespace Extension.Script
                     bulletStatus.SubjectToGround = false;
                     break;
                 default:
-                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !trajectoryData.IsStraight();
+                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !pBullet.Ref.Type.Ref.Inviso && !trajectoryData.IsStraight();
                     break;
             }
 
             // 非直线导弹不执行本脚本
-            if (pBullet.Ref.Type.Ref.ROT != 1 && !trajectoryData.IsStraight())
+            if (pBullet.Ref.Type.Ref.Inviso || pBullet.AmIArcing() || (pBullet.Ref.Type.Ref.ROT != 1 && !trajectoryData.IsStraight()))
             {
                 GameObject.RemoveComponent(this);
                 return;

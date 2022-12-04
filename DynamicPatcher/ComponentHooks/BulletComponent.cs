@@ -97,14 +97,11 @@ namespace ComponentHooks
             try
             {
                 Pointer<BulletClass> pBullet = (IntPtr)R->ECX;
-                var pCoords = R->Stack<Pointer<CoordStruct>>(0x4);
+                Pointer<CoordStruct> pCoordsDetonation = R->Base<IntPtr>(0x8);
 
                 BulletExt ext = BulletExt.ExtMap.Find(pBullet);
                 bool skip = false;
-                if (!skip)
-                {
-                    ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoords, ref skip));
-                }
+                ext.GameObject.Foreach(c => (c as IBulletScriptable)?.OnDetonate(pCoordsDetonation, ref skip));
                 if (skip)
                 {
                     return 0x46A2FB; // skip
