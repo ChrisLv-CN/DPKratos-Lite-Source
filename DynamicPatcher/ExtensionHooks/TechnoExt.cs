@@ -270,6 +270,26 @@ namespace ExtensionHooks
         }
         #endregion
 
+        #region UnitClass Render WO
+        [Hook(HookType.AresHook, Address = 0x73C485, Size = 8)]
+        public static unsafe UInt32 UnitClass_Draw_Voxel_Shadow_WO_Skip(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pUnit = (IntPtr)R->EBP;
+            Pointer<SpawnManagerClass> pSpawnManager = pUnit.Ref.SpawnManager;
+            if (pUnit.Ref.Type.Ref.Base.NoSpawnAlt && !pSpawnManager.IsNull && pSpawnManager.Ref.DrawState() < pSpawnManager.Ref.SpawnCount)
+            {
+                SpawnAltData data = Ini.GetConfig<SpawnAltData>(Ini.RulesDependency, pUnit.Ref.Type.Ref.Base.Base.ID).Data;
+                if (data.NoShadowSpawnAlt)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 跳过 WO的影子渲染 {pUnit.Ref.SpawnManager.Ref.DrawState()}");
+                    // skip draw shadow
+                    return 0x73C5C9;
+                }
+            }
+            return 0;
+        }
+        #endregion
+
         #region UnitClass Deployed
         [Hook(HookType.AresHook, Address = 0x6FF929, Size = 6)]
         public static unsafe UInt32 TechnoClass_Fire_FireOnce(REGISTERS* R)
