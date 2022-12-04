@@ -86,7 +86,7 @@ namespace Extension.Script
             // 是否需要检查潜地
             if (!LifeData.IsDetonate && !pBullet.Ref.WH.HasPreImpactAnim())
             {
-                if (SubjectToGround && pBullet.Ref.Base.GetHeight() < 0)
+                if ((SubjectToGround || isBounceSplit) && pBullet.Ref.Base.GetHeight() < 0)
                 {
                     // 潜地
                     // Logger.Log($"{Game.CurrentFrame} Arcing 抛射体 [{section}]{pBullet} 潜地，强制爆炸");

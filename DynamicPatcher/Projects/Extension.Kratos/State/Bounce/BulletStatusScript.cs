@@ -24,8 +24,6 @@ namespace Extension.Script
         private CoordStruct bounceTargetPos;
         private float speedMultiple = 1.0f;
 
-        private bool hitWallFlip;
-
         public void InitState_Bounce()
         {
             // 初始化状态机
@@ -56,25 +54,8 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 没有来得及初始化，重设目标位置 {bounceTargetPos}");
                     arcingTrajectoryScript.ResetVelocity();
                 }
-                SubjectToGround = true;
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                int height = pBullet.Ref.Base.GetHeight();
-                // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} v {pBullet.Ref.Velocity} {height} {sourcePos}");
-                if (hitWallFlip)
-                {
-                    if (height <= 0)
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 潜地，爆炸 {sourcePos} {pBullet.Ref.TargetCoords}");
-                        if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
-                        {
-                            sourcePos.Z = pCell.Ref.GetCoordsWithBridge().Z;
-                        }
-                        pBullet.Ref.TargetCoords = sourcePos;
-                        // 炸了
-                        LifeData.Detonate(true);
-                    }
-                }
-                if (height > 0)
+                if (pBullet.Ref.Base.GetHeight() > 0)
                 {
                     // 检查撞悬崖反弹
                     CoordStruct nextPos = sourcePos + pBullet.Ref.Velocity.ToCoordStruct();
@@ -87,7 +68,6 @@ namespace Extension.Script
                             pBullet.Ref.Velocity.Y *= -1;
                             pBullet.Ref.SourceCoords = sourcePos;
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 撞墙反弹 {sourcePos} {pBullet.Ref.TargetCoords}");
-                            hitWallFlip = true;
                             break;
                     }
                 }
@@ -102,15 +82,6 @@ namespace Extension.Script
                 this.bounceData = BounceState.Data;
             }
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 爆炸位置 {pBullet.Ref.Base.Base.GetCoords()} {pBullet.Ref.TargetCoords} {pCoords.Data}");
-            if (hitWallFlip)
-            {
-                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                pBullet.Ref.TargetCoords = sourcePos;
-                if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
-                {
-                    pBullet.Ref.Target = pCell.Convert<AbstractClass>();
-                }
-            }
             return SpwanSplitCannon();
         }
 
