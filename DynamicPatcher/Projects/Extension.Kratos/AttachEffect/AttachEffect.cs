@@ -86,6 +86,7 @@ namespace Extension.Script
             InitPaintball(); // always same JoJo and Stand
             InitPump();
             InitRevenge(); // state AffectWho
+            InitScatter();
             InitTeleport();
             InitTransform();
             InitOverrideWeapon(); // state AffectWho

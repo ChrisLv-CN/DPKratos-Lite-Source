@@ -72,6 +72,9 @@ namespace Extension.Script
             // 复仇
             heir.RevengeState = this.RevengeState;
             this.RevengeState = new State<RevengeData>();
+            // 分散
+            heir.ScatterState = this.ScatterState;
+            this.ScatterState = new ScatterState();
             // 传送
             heir.TeleportState = this.TeleportState;
             this.TeleportState = new TeleportState();
@@ -103,6 +106,7 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
+                InitState_Scatter();
                 InitState_Pump();
                 InitState_Revenge();
                 InitState_Teleport();
@@ -149,6 +153,7 @@ namespace Extension.Script
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
                 OnUpdate_Pump();
+                OnUpdate_Scatter();
                 OnUpdate_Teleport();
             }
         }
