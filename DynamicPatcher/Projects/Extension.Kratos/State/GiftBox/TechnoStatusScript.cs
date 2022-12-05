@@ -305,7 +305,13 @@ namespace Extension.Script
                                     // 第一个傻站着，第二个之后的散开
                                     if (scatter || pGiftType.Ref.BalloonHover)
                                     {
-                                        pGift.Ref.Base.Scatter(CoordStruct.Empty, true, false);
+                                        // 分散到所在的格子里
+                                        CoordStruct scatterPos = CoordStruct.Empty;
+                                        if (!pCell.IsNull)
+                                        {
+                                            scatterPos = pCell.Ref.GetCoordsWithBridge();
+                                        }
+                                        pGift.Ref.Base.Scatter(scatterPos, true, false);
                                     }
                                     scatter = true;
                                 }
