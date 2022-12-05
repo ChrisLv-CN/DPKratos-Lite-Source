@@ -38,7 +38,7 @@ namespace Extension.Ext
             {
                 title = "Feedback" + i + ".";
                 FeedbackAttachData data2 = new FeedbackAttachData();
-                data2.Read(reader);
+                data2.Read(reader, title);
                 if (data2.Enable)
                 {
                     FindAndAdd(i, data2);
