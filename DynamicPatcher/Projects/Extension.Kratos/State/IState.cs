@@ -69,11 +69,16 @@ namespace Extension.Ext
             else
             {
                 infinite = false;
-                timer.Start(duration);
+                StartTimer(duration);
             }
             this.frame = Game.CurrentFrame;
             // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
             OnEnable();
+        }
+
+        public virtual void StartTimer(int duration)
+        {
+            timer.Start(duration);
         }
 
         public virtual void OnEnable() { }

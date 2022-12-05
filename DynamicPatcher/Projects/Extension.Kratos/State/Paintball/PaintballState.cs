@@ -14,7 +14,13 @@ namespace Extension.Ext
     [Serializable]
     public class PaintballState : State<PaintballData>
     {
-        
+        private int lastFrame;
+
+        public override void StartTimer(int duration)
+        {
+            base.StartTimer(duration + 1);
+        }
+
         public bool NeedPaint(out bool changeColor, out bool changeBright)
         {
             changeColor = false;
