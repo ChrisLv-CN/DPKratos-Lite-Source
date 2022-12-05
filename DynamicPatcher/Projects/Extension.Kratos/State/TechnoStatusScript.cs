@@ -62,7 +62,7 @@ namespace Extension.Script
             this.DisableWeaponState = new State<DisableWeaponData>();
             // 额外武器
             heir.ExtraFireState = this.ExtraFireState;
-            this.ExtraFireState = new State<ExtraFireData>();
+            this.ExtraFireState = new ExtraFireState();
             // 发射超武
             heir.FireSuperState = this.FireSuperState;
             this.FireSuperState = new State<FireSuperData>();

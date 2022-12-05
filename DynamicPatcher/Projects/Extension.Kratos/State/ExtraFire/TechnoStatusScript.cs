@@ -14,9 +14,8 @@ namespace Extension.Script
 
     public partial class TechnoStatusScript
     {
-        public State<ExtraFireData> ExtraFireState = new State<ExtraFireData>();
+        public ExtraFireState ExtraFireState = new ExtraFireState();
 
-        private Dictionary<string, TimerStruct> extraFireROF = new Dictionary<string, TimerStruct>();
 
         public void InitState_ExtraFire()
         {
@@ -109,20 +108,7 @@ namespace Extension.Script
                                 // 进行ROF检查
                                 // 本次发射的rof
                                 int rof = (int)(pWeapon.Ref.ROF * rofMult);
-                                if (extraFireROF.TryGetValue(weaponId, out TimerStruct rofTimer))
-                                {
-                                    if (rofTimer.Expired())
-                                    {
-                                        canFire = true;
-                                        rofTimer.Start(rof);
-                                        extraFireROF[weaponId] = rofTimer;
-                                    }
-                                }
-                                else
-                                {
-                                    canFire = true;
-                                    extraFireROF.Add(weaponId, new TimerStruct(rof));
-                                }
+                                canFire = ExtraFireState.CheckROF(weaponId, rof);
                             }
                             if (canFire)
                             {
