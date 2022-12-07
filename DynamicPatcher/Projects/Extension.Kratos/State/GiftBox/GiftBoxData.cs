@@ -103,6 +103,8 @@ namespace Extension.Ext
         public bool IsTransform;
         public bool InheritHealth;
         public double HealthPercent;
+        public int HealthNumber;
+        public bool InheritHealthNumber;
         public bool InheritTarget;
         public bool InheritExperience;
         public bool InheritAmmo;
@@ -133,6 +135,7 @@ namespace Extension.Ext
             this.IsTransform = false;
             this.InheritHealth = false;
             this.HealthPercent = 1;
+            this.HealthNumber = 0;
             this.InheritTarget = true;
             this.InheritExperience = true;
             this.InheritAmmo = false;
@@ -204,6 +207,22 @@ namespace Extension.Ext
                 // 固定比例
                 this.HealthPercent = HealthPercent > 1 ? 1 : HealthPercent;
                 this.InheritHealth = false;
+            }
+
+            this.HealthNumber = reader.Get(title + "HealthNumber", this.HealthNumber);
+            {
+                if (HealthNumber > 0)
+                {
+                    // 设置血量数字
+                    this.InheritHealth = true;
+                }
+            }
+
+            this.InheritHealthNumber = reader.Get(title + "InheritHealthNumber", this.InheritHealthNumber);
+            if (InheritHealthNumber)
+            {
+                // 继承血量数字
+                this.InheritHealth = true;
             }
 
             this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);

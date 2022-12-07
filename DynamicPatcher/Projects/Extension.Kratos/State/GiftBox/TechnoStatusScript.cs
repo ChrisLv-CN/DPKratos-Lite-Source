@@ -128,6 +128,7 @@ namespace Extension.Script
                     pFocus = pTechno.Ref.Focus;
                 }
                 // 获取盒子的一些状态
+                int healthNumber = pTechno.Ref.Base.Health;
                 double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
                 healthPercent = healthPercent <= 0 ? 1 : healthPercent; // 盒子死了，继承的血量就是满的
                 bool changeHealth = data.IsTransform || data.InheritHealth; // Transform强制继承
@@ -234,7 +235,22 @@ namespace Extension.Script
                         if (changeHealth)
                         {
                             int strength = pGiftType.Ref.Base.Strength;
-                            int health = (int)(strength * healthPercent);
+                            int health = 0;
+                            if (data.InheritHealthNumber)
+                            {
+                                // 直接继承血量数字
+                                health = healthNumber;
+                            }
+                            else if (data.HealthNumber > 0)
+                            {
+                                // 直接赋予指定血量
+                                health = data.HealthNumber;
+                            }
+                            else
+                            {
+                                // 按比例计算血量
+                                health = (int)(strength * healthPercent);
+                            }
                             // Logger.Log($"{Game.CurrentFrame} - 设置礼物 {pGift} [{pGift.Ref.Type.Ref.Base.Base.ID}] 的血量 {health} / {strength} {healthPercent}");
                             if (health <= 0)
                             {
