@@ -75,6 +75,7 @@ namespace Extension.Ext
         public bool OverrideSameGroup; // 是否覆盖同一个分组
         public string Next; // 结束后播放下一个AE
 
+        public string[] AttachWithOutTypes; // 有这些AE存在则不可赋予
         public bool AttachOnceInTechnoType; // 写在TechnoType上只在创建时赋予一次
         public bool Inheritable; // 是否可以被礼盒礼物继承
 
@@ -104,6 +105,7 @@ namespace Extension.Ext
             this.OverrideSameGroup = false;
             this.Next = null;
 
+            this.AttachWithOutTypes = null;
             this.AttachOnceInTechnoType = false;
             this.Inheritable = true;
 
@@ -152,7 +154,8 @@ namespace Extension.Ext
             if (Enable)
             {
                 int druation = reader.Get("Duration", 0);
-                if (druation != 0) {
+                if (druation != 0)
+                {
                     this.Duration = druation;
                 }
                 this.HoldDuration = Duration <= 0;
@@ -175,14 +178,20 @@ namespace Extension.Ext
                 this.OverrideSameGroup = reader.Get("OverrideSameGroup", this.OverrideSameGroup);
                 this.Next = reader.Get("Next", this.Next);
 
+                this.AttachWithOutTypes = reader.GetList("AttachWithOutTypes", this.AttachWithOutTypes);
                 this.AttachOnceInTechnoType = reader.Get("AttachOnceInTechnoType", this.AttachOnceInTechnoType);
                 this.Inheritable = reader.Get("Inheritable", this.Inheritable);
 
                 base.Read(reader, null);
             }
-
         }
 
+        public bool Contradiction(AttachEffectScript aeManager)
+        {
+            return null != AttachWithOutTypes && AttachWithOutTypes.Any()
+                && null != aeManager.AEStacks && aeManager.AEStacks.Any()
+                && AttachWithOutTypes.Intersect(aeManager.AEStacks.Keys).Count() > 0;
+        }
     }
 
     public static class AttachEffectDataHelper

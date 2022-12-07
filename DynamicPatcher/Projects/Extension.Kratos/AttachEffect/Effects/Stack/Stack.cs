@@ -51,8 +51,10 @@ namespace Extension.Script
         {
             string watch = Data.Watch;
             int stacks = -1;
+            // Logger.Log($"{Game.CurrentFrame} 检查AE {watch} 的层数");
             if (AE.AEManager.AEStacks.ContainsKey(watch) && (stacks = AE.AEManager.AEStacks[watch]) > 0)
             {
+                // Logger.Log($"{Game.CurrentFrame} 检查AE {watch} 的层数 {stacks}");
                 if (Data.Level < 0 || stacks > Data.Level)
                 {
                     count++;
@@ -61,7 +63,7 @@ namespace Extension.Script
                     // 移除被监视者
                     if (Data.RemoveAll)
                     {
-                        AE.AEManager.Remove(new string[] { watch });
+                        AE.AEManager.Disable(new string[] { watch });
                     }
                 }
             }

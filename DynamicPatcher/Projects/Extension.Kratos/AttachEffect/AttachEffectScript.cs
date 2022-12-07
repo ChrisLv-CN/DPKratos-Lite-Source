@@ -243,6 +243,11 @@ namespace Extension.Script
             {
                 return;
             }
+            // 是否有排斥的AE
+            if (data.Contradiction(this))
+            {
+                return;
+            }
             Pointer<TechnoClass> pAttacker = IntPtr.Zero;
             Pointer<HouseClass> pAttackingHouse = pSourceHouse;
             // 调整所属
@@ -392,7 +397,7 @@ namespace Extension.Script
         }
 
         // 关闭并移除指定名称的AE
-        public void Remove(string[] aeTypes)
+        public void Disable(string[] aeTypes)
         {
             if (null != aeTypes && aeTypes.Any())
             {
@@ -402,9 +407,6 @@ namespace Extension.Script
                     if (aeTypes.Contains(ae.AEData.Name))
                     {
                         ae.Disable(location);
-                        AttachEffects.Remove(ae);
-                        DisableDelayTimers.Remove(ae.AEData.Name);
-                        AEStacks.Remove(ae.AEData.Name);
                     }
                 }
             }
@@ -442,6 +444,10 @@ namespace Extension.Script
             if (AEStacks.ContainsKey(name))
             {
                 AEStacks[name]--;
+                if (AEStacks[name] < 1)
+                {
+                    AEStacks.Remove(name);
+                }
             }
         }
 
