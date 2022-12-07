@@ -87,6 +87,7 @@ namespace Extension.Script
             InitPump();
             InitRevenge(); // state AffectWho
             InitScatter();
+            InitStack();
             InitTeleport();
             InitTransform();
             InitOverrideWeapon(); // state AffectWho

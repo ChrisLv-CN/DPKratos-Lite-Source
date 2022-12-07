@@ -143,6 +143,7 @@ namespace Extension.Ext
             ReadPumpData(reader);
             ReadRevengeData(reader);
             ReadScatterData(reader);
+            ReadStackData(reader);
             ReadStandData(reader);
             ReadTeleportData(reader);
             ReadTransformData(reader);
