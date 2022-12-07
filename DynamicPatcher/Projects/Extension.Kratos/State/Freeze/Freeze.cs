@@ -15,25 +15,25 @@ namespace Extension.Script
 
     public partial class AttachEffect
     {
-        public Deactive Deactive;
+        public Freeze Freeze;
 
-        private void InitDeactive()
+        private void InitFreeze()
         {
-            this.Deactive = AEData.DeactiveData.CreateEffect<Deactive>();
-            RegisterEffect(Deactive);
+            this.Freeze = AEData.FreezeData.CreateEffect<Freeze>();
+            RegisterEffect(Freeze);
         }
     }
 
 
     [Serializable]
-    public class Deactive : StateEffect<Deactive, DeactiveData>
+    public class Freeze : StateEffect<Freeze, FreezeData>
     {
-        public override State<DeactiveData> GetState(TechnoStatusScript statusScript)
+        public override State<FreezeData> GetState(TechnoStatusScript statusScript)
         {
-            return statusScript.DeactiveState;
+            return statusScript.FreezeState;
         }
 
-        public override State<DeactiveData> GetState(BulletStatusScript statusScript)
+        public override State<FreezeData> GetState(BulletStatusScript statusScript)
         {
             return null;
         }

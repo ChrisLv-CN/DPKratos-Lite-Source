@@ -76,11 +76,11 @@ namespace Extension.Script
             InitCrateBuff(); // state AffectWho
             InitDamageReaction();
             InitDamageSelf(); // state AffectWho
-            InitDeactive(); // state AffecctWho
             InitDeselect(); // state AffectWho
             InitDestroyAnim();
             InitDisableWeapon(); // state AffectWho
             InitExtraFire(); // state AffectWho
+            InitFreeze(); // state AffecctWho
             InitFireSuper(); // state AffectWho
             InitGiftBox(); // state AffectWho
             InitMark();

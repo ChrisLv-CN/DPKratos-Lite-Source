@@ -11,26 +11,26 @@ namespace Extension.Ext
 
     public partial class AttachEffectData
     {
-        public DeactiveData DeactiveData;
+        public FreezeData FreezeData;
 
-        private void ReadDeactiveData(IConfigReader reader)
+        private void ReadFreezeData(IConfigReader reader)
         {
-            DeactiveData data = new DeactiveData();
+            FreezeData data = new FreezeData();
             data.Read(reader);
             if (data.Enable)
             {
-                this.DeactiveData = data;
+                this.FreezeData = data;
                 this.Enable = true;
             }
         }
     }
 
     [Serializable]
-    public class DeactiveData : EffectData, IStateData
+    public class FreezeData : EffectData, IStateData
     {
-        public const string TITLE = "Deactive.";
+        public const string TITLE = "Freeze.";
 
-        public DeactiveData()
+        public FreezeData()
         {
             this.AffectWho = AffectWho.ALL;
         }

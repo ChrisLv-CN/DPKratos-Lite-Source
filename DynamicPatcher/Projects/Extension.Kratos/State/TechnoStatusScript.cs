@@ -97,11 +97,11 @@ namespace Extension.Script
                 InitState_AttackBeacon();
                 InitState_BlackHole();
                 InitState_DamageReaction();
-                InitState_Deactive();
                 InitState_Deselect();
                 InitState_DestroySelf();
                 InitState_ExtraFire();
                 InitState_FireSuper();
+                InitState_Freeze();
                 InitState_GiftBox();
                 InitState_OverrideWeapon();
                 InitState_Paintball();
@@ -148,8 +148,8 @@ namespace Extension.Script
                 OnUpdate_AttackBeacon();
                 OnUpdate_BlackHole();
                 OnUpdate_DamageReaction();
-                OnUpdate_Deactive();
                 OnUpdate_Deselect();
+                OnUpdate_Freeze();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
                 OnUpdate_Pump();

@@ -15,26 +15,26 @@ namespace Extension.Script
     public partial class TechnoStatusScript
     {
 
-        public State<DeactiveData> DeactiveState = new State<DeactiveData>();
+        public State<FreezeData> FreezeState = new State<FreezeData>();
 
-        public bool CantMove;
+        public bool Freezing;
 
         private bool cantMoveFlag;
 
-        public void InitState_Deactive()
+        public void InitState_Freeze()
         {
             // 初始化状态机
-            DeactiveData data = Ini.GetConfig<DeactiveData>(Ini.RulesDependency, section).Data;
+            FreezeData data = Ini.GetConfig<FreezeData>(Ini.RulesDependency, section).Data;
             if (data.Enable)
             {
-                DeactiveState.Enable(data);
+                FreezeState.Enable(data);
             }
         }
 
-        public void OnUpdate_Deactive()
+        public void OnUpdate_Freeze()
         {
-            this.CantMove = DeactiveState.IsActive();
-            if (CantMove)
+            this.Freezing = FreezeState.IsActive();
+            if (Freezing)
             {
                 if (!cantMoveFlag)
                 {

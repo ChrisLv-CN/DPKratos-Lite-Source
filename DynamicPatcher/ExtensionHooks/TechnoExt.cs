@@ -254,7 +254,7 @@ namespace ExtensionHooks
         public static unsafe UInt32 TechnoClass_IsUnderEMP_CantMove(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove)
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.Freezing)
             {
                 // 不允许移动
                 // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 不允许行动");
@@ -1158,7 +1158,7 @@ namespace ExtensionHooks
         public static unsafe UInt32 FootClass_SetDestination_Stand(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.Jumping || status.CantMove))
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.AmIStand() || status.CaptureByBlackHole || status.Jumping || status.Freezing))
             {
                 // 跳过目的地设置
                 // Logger.Log($"{Game.CurrentFrame} 跳过替身 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 的目的地设置");
