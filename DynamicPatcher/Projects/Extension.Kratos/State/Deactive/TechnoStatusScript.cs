@@ -19,6 +19,8 @@ namespace Extension.Script
 
         public bool CantMove;
 
+        private bool cantMoveFlag;
+
         public void InitState_Deactive()
         {
             // 初始化状态机
@@ -32,6 +34,23 @@ namespace Extension.Script
         public void OnUpdate_Deactive()
         {
             this.CantMove = DeactiveState.IsActive();
+            if (CantMove)
+            {
+                if (!cantMoveFlag)
+                {
+                    // 清除所有目标
+                    pTechno.ClearAllTarget();
+                    // 马上停止活动
+                    if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+                    {
+                        pFoot.Ref.Locomotor.ForceStopMoving();
+                    }
+                }
+            }
+            else
+            {
+                cantMoveFlag = false;
+            }
         }
 
     }

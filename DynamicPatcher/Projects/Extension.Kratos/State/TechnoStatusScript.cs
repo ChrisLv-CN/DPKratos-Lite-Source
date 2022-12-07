@@ -93,9 +93,11 @@ namespace Extension.Script
             if (!initStateFlag)
             {
                 initStateFlag = true;
+                // TODO 初始化状态机
                 InitState_AttackBeacon();
                 InitState_BlackHole();
                 InitState_DamageReaction();
+                InitState_Deactive();
                 InitState_Deselect();
                 InitState_DestroySelf();
                 InitState_ExtraFire();
@@ -146,6 +148,7 @@ namespace Extension.Script
                 OnUpdate_AttackBeacon();
                 OnUpdate_BlackHole();
                 OnUpdate_DamageReaction();
+                OnUpdate_Deactive();
                 OnUpdate_Deselect();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();

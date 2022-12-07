@@ -76,6 +76,7 @@ namespace Extension.Script
             InitCrateBuff(); // state AffectWho
             InitDamageReaction();
             InitDamageSelf(); // state AffectWho
+            InitDeactive(); // state AffecctWho
             InitDeselect(); // state AffectWho
             InitDestroyAnim();
             InitDisableWeapon(); // state AffectWho

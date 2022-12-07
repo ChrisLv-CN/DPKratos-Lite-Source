@@ -133,6 +133,7 @@ namespace Extension.Ext
             ReadCrateBuffData(reader);
             ReadDamageReactionData(reader);
             ReadDamageSelfData(reader);
+            ReadDeactiveData(reader);
             ReadDestroyAnimData(reader);
             ReadDestroySelfData(reader);
             ReadDeselectData(reader);

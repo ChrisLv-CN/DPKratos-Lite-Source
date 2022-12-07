@@ -251,14 +251,28 @@ namespace ExtensionHooks
 
         // Can't do anything, like EMP impact
         [Hook(HookType.AresHook, Address = 0x70EFD0, Size = 6)]
-        public static unsafe UInt32 TechnoClass_CantMove(REGISTERS* R)
+        public static unsafe UInt32 TechnoClass_IsUnderEMP_CantMove(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove)
             {
                 // 不允许移动
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 不允许行动");
                 R->AL = Convert.ToByte(true);
                 return 0x70EFDA;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x736B7E, Size = 0xA)]
+        public static unsafe UInt32 UnitClass_Rotation_SetTurretFacing_Skip(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.Ref.IsUnderEMP())
+            {
+                // 不允许转炮塔
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 不允许行动");
+                return 0x736BE2;
             }
             return 0;
         }
