@@ -89,7 +89,7 @@ namespace Extension.Script
         {
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 收到伤害, Damage = {pDamage.Ref}, ignoreDefenses = {ignoreDefenses}, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
             // 无视防御的真实伤害不做任何分摊
-            if (!ignoreDefenses && !MyMasterIsAnim)
+            if (!ignoreDefenses && !MyMasterIsAnim && pWH.CanShareDamage())
             {
                 if (null != StandData)
                 {

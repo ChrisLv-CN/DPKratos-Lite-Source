@@ -39,7 +39,7 @@ namespace Extension.Script
             // 无视防御的真实伤害不做任何响应
             if (!ignoreDefenses)
             {
-                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData))
+                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && pWH.CanReaction())
                 {
 
                     int damage = pDamage.Data;

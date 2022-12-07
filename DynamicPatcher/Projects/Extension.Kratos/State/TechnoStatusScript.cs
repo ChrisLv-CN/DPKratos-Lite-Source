@@ -23,9 +23,6 @@ namespace Extension.Script
 
         public bool DisableSelectVoice;
 
-
-        public bool CantMove;
-
         public DrivingState DrivingState;
         private Mission lastMission;
 

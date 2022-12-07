@@ -84,5 +84,17 @@ namespace Extension.Utilities
             return whData.Capturer;
         }
 
+        public static bool CanReaction(this Pointer<WarheadTypeClass> pWH)
+        {
+            WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            return !whData.IgnoreDamageReaction;
+        }
+
+        public static bool CanShareDamage(this Pointer<WarheadTypeClass> pWH)
+        {
+            WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            return !whData.IgnoreStandShareDamage;
+        }
+
     }
 }

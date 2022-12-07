@@ -231,6 +231,38 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus) && technoStatus.DisableSelectVoice)
+                {
+                    return 0x6FC01E;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        // Can't do anything, like EMP impact
+        [Hook(HookType.AresHook, Address = 0x70EFD0, Size = 6)]
+        public static unsafe UInt32 TechnoClass_CantMove(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove)
+            {
+                // 不允许移动
+                R->AL = Convert.ToByte(true);
+                return 0x70EFDA;
+            }
+            return 0;
+        }
+
         #region UnitClass SHP IFV
         [Hook(HookType.AresHook, Address = 0x73CD01, Size = 5)]
         public static unsafe UInt32 UnitClass_Drawcode_ChangeTurret(REGISTERS* R)
@@ -330,24 +362,6 @@ namespace ExtensionHooks
             return 0;
         }
         #endregion
-
-        [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
-        public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus) && technoStatus.DisableSelectVoice)
-                {
-                    return 0x6FC01E;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
 
         #region Techno shadow resize in air
         [Hook(HookType.AresHook, Address = 0x73C4FF, Size = 5)] // InAir
@@ -1135,20 +1149,6 @@ namespace ExtensionHooks
                 // 跳过目的地设置
                 // Logger.Log($"{Game.CurrentFrame} 跳过替身 [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 的目的地设置");
                 return 0x4D9711;
-            }
-            return 0;
-        }
-
-        // Can't do anything, like EMP impact
-        [Hook(HookType.AresHook, Address = 0x70EFD0, Size = 6)]
-        public static unsafe UInt32 TechnoClass_CantMove_Stand(REGISTERS* R)
-        {
-            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.CantMove)
-            {
-                // 不允许移动
-                R->AL = Convert.ToByte(true);
-                return 0x70EFDA;
             }
             return 0;
         }
