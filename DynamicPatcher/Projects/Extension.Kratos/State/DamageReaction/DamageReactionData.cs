@@ -98,6 +98,9 @@ namespace Extension.Ext
         public int TriggeredTimes; // 触发次数够就结束
         public bool ResetTimes;
 
+        public string[] TriggeredAttachEffects; // 触发后附加AE
+        public bool TriggeredAttachEffectsFromAttacker; // 触发后附加的AE来源是攻击者
+
         public string Anim;
         public CoordStruct AnimFLH;
         public int AnimDelay;
@@ -121,6 +124,9 @@ namespace Extension.Ext
             this.ActiveOnce = false;
             this.TriggeredTimes = -1;
             this.ResetTimes = false;
+
+            this.TriggeredAttachEffects = null;
+            this.TriggeredAttachEffectsFromAttacker = false;
 
             this.Anim = null;
             this.AnimFLH = default;
@@ -189,6 +195,9 @@ namespace Extension.Ext
             this.ActiveOnce = reader.Get(title + "ActiveOnce", this.ActiveOnce);
             this.TriggeredTimes = reader.Get(title + "TriggeredTimes", this.TriggeredTimes);
             this.ResetTimes = reader.Get(title + "ResetTimes", this.ResetTimes);
+
+            this.TriggeredAttachEffects = reader.GetList(title + "TriggeredAttachEffects", this.TriggeredAttachEffects);
+            this.TriggeredAttachEffectsFromAttacker = reader.Get(title + "TriggeredAttachEffectsFromAttacker", this.TriggeredAttachEffectsFromAttacker);
 
             this.Anim = reader.Get(title + "Anim", this.Anim);
             this.AnimFLH = reader.Get(title + "AnimFLH", this.AnimFLH);

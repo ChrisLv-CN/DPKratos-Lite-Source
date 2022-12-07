@@ -84,6 +84,19 @@ namespace Extension.Script
                         // Logger.Log($"{Game.CurrentFrame} 成功激活一次响应，模式{reactionData.Mode}，调整后伤害值{pDamage.Ref}, CanPlayAnim = {DamageReactionState.CanPlayAnim()}");
                         // 成功激活一次响应
                         DamageReactionState.ActionOnce();
+                        // 附加AE
+                        string[] triggeredAttachEffects = reactionData.TriggeredAttachEffects;
+                        if (null != triggeredAttachEffects && triggeredAttachEffects.Any() && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                        {
+                            if (reactionData.TriggeredAttachEffectsFromAttacker)
+                            {
+                                aeManager.Attach(triggeredAttachEffects, pAttacker, pAttackingHouse);
+                            }
+                            else
+                            {
+                                aeManager.Attach(triggeredAttachEffects);
+                            }
+                        }
                         // 播放响应动画
                         if (!string.IsNullOrEmpty(reactionData.Anim) && DamageReactionState.CanPlayAnim())
                         {
