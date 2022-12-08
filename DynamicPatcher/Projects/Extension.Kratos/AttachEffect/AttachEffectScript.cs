@@ -657,6 +657,28 @@ namespace Extension.Script
             }
         }
 
+        public ImmuneData GetImmageData()
+        {
+            ImmuneData data = new ImmuneData();
+            // 统计AE
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                if (null != ae.Immune && ae.Immune.IsAlive())
+                {
+                    data.Psionics |= ae.Immune.Data.Psionics;
+                    data.PsionicWeapons |= ae.Immune.Data.PsionicWeapons;
+                    data.Radiation |= ae.Immune.Data.Radiation;
+                    data.Poison |= ae.Immune.Data.Poison;
+                    data.EMP |= ae.Immune.Data.EMP;
+                    data.Parasite |= ae.Immune.Data.Parasite;
+                    data.Temporal |= ae.Immune.Data.Temporal;
+                    data.IsLocomotor |= ae.Immune.Data.IsLocomotor;
+                }
+            }
+            data.Enable = data.Psionics || data.PsionicWeapons || data.Radiation || data.Poison || data.EMP || data.Parasite || data.Temporal || data.IsLocomotor;
+            return data;
+        }
+
         public CrateBuffData CountAttachStatusMultiplier()
         {
             CrateBuffData multiplier = new CrateBuffData();
@@ -1013,6 +1035,22 @@ namespace Extension.Script
                     {
                         ae.OnRemove();
                     }
+                }
+            }
+        }
+
+        public override void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
+        {
+            ImmuneData data = null;
+            if (!pWeapon.IsNull && !pWeapon.Ref.Warhead.IsNull
+                && !pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pTargetTechno)
+                && pTargetTechno.TryGetAEManager(out AttachEffectScript aeManager)
+                && (data = aeManager.GetImmageData()).Enable)
+            {
+                // 免疫超时空和磁电
+                if ((pWeapon.Ref.Warhead.Ref.Temporal && data.Temporal) || (pWeapon.Ref.Warhead.Ref.IsLocomotor && data.IsLocomotor))
+                {
+                    ceaseFire = true;
                 }
             }
         }

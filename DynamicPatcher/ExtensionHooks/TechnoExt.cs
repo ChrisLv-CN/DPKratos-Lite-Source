@@ -99,39 +99,105 @@ namespace ExtensionHooks
             // return 0;
         }
 
-        [Obsolete]
-        // Will crash the game. change to use temporalUpdate check range and let go.
-        // [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
-        public static unsafe UInt32 TechnoClass_CanFire_Temporal_CheckRange(REGISTERS* R)
+        #region ImmuneToOOXX
+        // Ares hook in 471C96 and return 471D2E
+        [Hook(HookType.AresHook, Address = 0x471D2E, Size = 7)]
+        public static unsafe UInt32 CaptureManagerClass_Is_Controllable(REGISTERS* R)
         {
-            bool checkRange = R->Stack<bool>(0x2C);
-            if (checkRange)
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().Psionics)
             {
-                // cmp ebx, [eax+28h]      pTarget == Temporal.Target
-                Pointer<AbstractClass> pTarget = (IntPtr)R->EBX;
-                Pointer<TemporalClass> temporal = (IntPtr)R->EAX;
-                if (pTarget == temporal.Ref.Target.Convert<AbstractClass>())
-                {
-                    // check range
-                    Pointer<TechnoClass> pTechno = temporal.Ref.Owner;
-                    if (!pTechno.IsDeadOrInvisible())
-                    {
-                        int weaponIdx = R->Stack<int>(0x28);
-                        // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
-                        if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
-                        {
-                            return 0x6FCD0E; // RANGE
-                        }
-                    }
-                    return 0x6FC168; // REARM
-                }
-                else
-                {
-                    return 0x6FC177; // goto next check
-                }
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to Psionics");
+                return 0x471D35;
             }
             return 0;
         }
+
+        /* Cannot hook in those address, Not Ares or Phobos */
+        /* Modify Damage number in AE's ReceiveDamage function
+        [Hook(HookType.AresHook, Address = 0x701C45, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_PsionicWeapons(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().PsionicWeapons)
+            {
+                Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to PsionicWeapons");
+                return 0x701C4F;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x701C08, Size = 0xA)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_Radiation(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().Radiation)
+            {
+                Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to Radiation");
+                return 0x701C1C;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x701C78, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_Poison(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().Poison)
+            {
+                Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to Poison");
+                return 0x701C82;
+            }
+            return 0;
+        }
+        */
+
+        [Hook(HookType.AresHook, Address = 0x62A91F, Size = 6)]
+        public static unsafe UInt32 ParasiteClass_Legal_Target(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().Parasite)
+            {
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to Parasite");
+                return 0x62A976;
+            }
+            return 0;
+        }
+        #endregion
+
+        // [Obsolete]
+        // Will crash the game. change to use temporalUpdate check range and let go.
+        // [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
+        // public static unsafe UInt32 TechnoClass_CanFire_Temporal_CheckRange(REGISTERS* R)
+        // {
+        //     bool checkRange = R->Stack<bool>(0x2C);
+        //     if (checkRange)
+        //     {
+        //         // cmp ebx, [eax+28h]      pTarget == Temporal.Target
+        //         Pointer<AbstractClass> pTarget = (IntPtr)R->EBX;
+        //         Pointer<TemporalClass> temporal = (IntPtr)R->EAX;
+        //         if (pTarget == temporal.Ref.Target.Convert<AbstractClass>())
+        //         {
+        //             // check range
+        //             Pointer<TechnoClass> pTechno = temporal.Ref.Owner;
+        //             if (!pTechno.IsDeadOrInvisible())
+        //             {
+        //                 int weaponIdx = R->Stack<int>(0x28);
+        //                 // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
+        //                 if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
+        //                 {
+        //                     return 0x6FCD0E; // RANGE
+        //                 }
+        //             }
+        //             return 0x6FC168; // REARM
+        //         }
+        //         else
+        //         {
+        //             return 0x6FC177; // goto next check
+        //         }
+        //     }
+        //     return 0;
+        // }
 
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
