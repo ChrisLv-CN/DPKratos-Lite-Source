@@ -113,6 +113,19 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // Ares skip this whole function, here can do anything.
+        [Hook(HookType.AresHook, Address = 0x53B233, Size = 6)]
+        public static unsafe UInt32 IonStormClass_Dominator_Activate(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.GetImmageData().Psionics)
+            {
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Immune to Dominator");
+                return 0x53B364;
+            }
+            return 0;
+        }
+
         /* Cannot hook in those address, Not Ares or Phobos */
         /* Modify Damage number in AE's ReceiveDamage function
         [Hook(HookType.AresHook, Address = 0x701C45, Size = 6)]

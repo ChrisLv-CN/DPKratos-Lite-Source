@@ -30,7 +30,7 @@ namespace Extension.Script
     {
         public override void OnUpdate(CoordStruct location, bool isDead)
         {
-            ImmuneEMP();
+            ImmuneLogic();
         }
 
         public override void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
@@ -46,14 +46,17 @@ namespace Extension.Script
                     pDamage.Ref = 0;
                 }
             }
-            ImmuneEMP();
+            ImmuneLogic();
         }
 
-        private void ImmuneEMP()
+        private void ImmuneLogic()
         {
-            if (Data.EMP && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                pTechno.Ref.EMPLockRemaining = 0;
+                if (Data.EMP)
+                {
+                    pTechno.Ref.EMPLockRemaining = 0;
+                }
             }
         }
 
