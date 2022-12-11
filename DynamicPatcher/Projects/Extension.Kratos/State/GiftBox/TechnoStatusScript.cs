@@ -51,6 +51,7 @@ namespace Extension.Script
                     // 销毁或重置盒子
                     if (GiftBoxState.Data.Remove)
                     {
+                        GiftBoxState.Disable();
                         if (GiftBoxState.Data.Destroy)
                         {
                             pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
