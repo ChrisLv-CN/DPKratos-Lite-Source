@@ -18,6 +18,7 @@ namespace Extension.Ext
 
         // 替身
         public bool AllowAutoPickStandAsTarget = true;
+        public bool AllowStandAsBaseNormal = false;
 
         // AI
         public bool AllowAIAttackFriendlies = false;

@@ -543,7 +543,7 @@ namespace ExtensionHooks
                 }
                 */
                 // 检查替身
-                if (!found)
+                if (!found && CombatDamage.Data.AllowStandAsBaseNormal)
                 {
                     foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
                     {
