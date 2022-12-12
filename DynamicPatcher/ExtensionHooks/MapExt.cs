@@ -466,7 +466,7 @@ namespace ExtensionHooks
                     }
                     return found;
                 });
-                // 检查JJ
+                // 检查JJ，移动中的JJ不在这里
                 if (!found && !pCell.Ref.Jumpjet.IsNull)
                 {
                     Pointer<TechnoClass> pTarget = pCell.Ref.Jumpjet.Convert<TechnoClass>();
@@ -476,6 +476,68 @@ namespace ExtensionHooks
                         found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
                     }
                 }
+                /*
+                // 检查飞天的载具
+                if (!found)
+                {
+                    UnitClass.Array.FindObject((pUnit) =>
+                    {
+                        Pointer<TechnoClass> pTarget = pUnit.Convert<TechnoClass>();
+                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                        {
+                            // 检查所属
+                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
+                            {
+                                // 检查距离
+                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
+                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
+                            }
+                        }
+                        return found;
+                    });
+                }
+                // 检查飞天的步兵
+                if (!found)
+                {
+                    InfantryClass.Array.FindObject((pInf) =>
+                    {
+                        Pointer<TechnoClass> pTarget = pInf.Convert<TechnoClass>();
+                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                        {
+                            // 检查所属
+                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
+                            {
+                                // 检查距离
+                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
+                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
+                            }
+                        }
+                        return found;
+                    });
+                }
+                // 检查飞天的飞机
+                if (!found)
+                {
+                    AircraftClass.Array.FindObject((pAircraft) =>
+                    {
+                        Pointer<TechnoClass> pTarget = pAircraft.Convert<TechnoClass>();
+                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                        {
+                            // 检查所属
+                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
+                            {
+                                // 检查距离
+                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
+                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
+                            }
+                        }
+                        return found;
+                    });
+                }
+                */
                 // 检查替身
                 if (!found)
                 {
