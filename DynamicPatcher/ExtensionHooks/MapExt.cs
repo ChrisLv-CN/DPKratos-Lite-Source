@@ -313,7 +313,7 @@ namespace ExtensionHooks
             Pointer<BuildingTypeClass> pBuildingType = DisplayClass.Display_PendingObject;
             if (pBuildingType.Ref.Base.Base.Base.Base.WhatAmI() == AbstractType.BuildingType)
             {
-                BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, RulesClass.SectionAudioVisual).Data;
+                BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, pBuildingType.Ref.Base.Base.Base.ID).Data;
                 if (data.Mode == BuildingRangeMode.LINE)
                 {
                     // 显示建造范围
@@ -402,48 +402,52 @@ namespace ExtensionHooks
         public static unsafe UInt32 DisplayClass_Passes_Proximity_Check_MobileMCV(REGISTERS* R)
         {
             Pointer<CellClass> pCell = (IntPtr)R->EAX;
-            BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, RulesClass.SectionAudioVisual).Data;
-            switch (data.Mode)
+            Pointer<BuildingTypeClass> pBuildingType = DisplayClass.Display_PendingObject;
+            if (!pBuildingType.IsNull)
             {
-                case BuildingRangeMode.CELL:
-                    if (pCell.Ref.SlopeIndex == 0)
-                    {
-                        CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
-                        CoordStruct pE = cellPos + new CoordStruct(128, -128, 0);
-                        Point2D E = pE.ToClientPos();
-                        CoordStruct pW = cellPos + new CoordStruct(-128, 128, 0);
-                        Point2D W = pW.ToClientPos();
-
-                        RectangleStruct rect = Surface.Current.Ref.GetRect();
-                        rect.Height -= 34;
-                        if (W.Y < rect.Height && E.Y < rect.Height)
+                BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, pBuildingType.Ref.Base.Base.Base.ID).Data;
+                switch (data.Mode)
+                {
+                    case BuildingRangeMode.CELL:
+                        if (pCell.Ref.SlopeIndex == 0)
                         {
-                            CoordStruct pN = cellPos + new CoordStruct(-128, -128, 0);
-                            Point2D N = pN.ToClientPos();
-                            CoordStruct pS = cellPos + new CoordStruct(128, 128, 0);
-                            Point2D S = pS.ToClientPos();
-                            int color = data.Color.RGB2DWORD();
-                            Surface.Current.Ref.DrawLine(N, E, color);
-                            Surface.Current.Ref.DrawLine(E, S, color);
-                            Surface.Current.Ref.DrawLine(S, W, color);
-                            Surface.Current.Ref.DrawLine(W, N, color);
+                            CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
+                            CoordStruct pE = cellPos + new CoordStruct(128, -128, 0);
+                            Point2D E = pE.ToClientPos();
+                            CoordStruct pW = cellPos + new CoordStruct(-128, 128, 0);
+                            Point2D W = pW.ToClientPos();
+
+                            RectangleStruct rect = Surface.Current.Ref.GetRect();
+                            rect.Height -= 34;
+                            if (W.Y < rect.Height && E.Y < rect.Height)
+                            {
+                                CoordStruct pN = cellPos + new CoordStruct(-128, -128, 0);
+                                Point2D N = pN.ToClientPos();
+                                CoordStruct pS = cellPos + new CoordStruct(128, 128, 0);
+                                Point2D S = pS.ToClientPos();
+                                int color = data.Color.RGB2DWORD();
+                                Surface.Current.Ref.DrawLine(N, E, color);
+                                Surface.Current.Ref.DrawLine(E, S, color);
+                                Surface.Current.Ref.DrawLine(S, W, color);
+                                Surface.Current.Ref.DrawLine(W, N, color);
+                            }
                         }
-                    }
-                    break;
-                case BuildingRangeMode.SHP:
-                    if (!data.SHPFileName.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pSHP))
-                    {
-                        // WWSB
-                        CellStruct cell = pCell.Ref.MapCoords;
-                        CoordStruct newPos = new CoordStruct(((((cell.X << 8) + 128) / 256) << 8), ((((cell.Y << 8) + 128) / 256) << 8), 0);
-                        Point2D postion = TacticalClass.Global().CoordsToScreen(newPos);
-                        postion -= TacticalClass.Global().TacticalPos;
-                        int zAdjust = 15 * pCell.Ref.Level;
-                        postion.Y += -1 - zAdjust;
-                        int frame = pCell.Ref.SlopeIndex + 2;
-                        Surface.Current.Ref.DrawSHP(FileSystem.PALETTE_PAL, pSHP, data.ZeroFrameIndex + frame, postion);
-                    }
-                    break;
+                        break;
+                    case BuildingRangeMode.SHP:
+                        if (!data.SHPFileName.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pSHP))
+                        {
+                            // WWSB
+                            CellStruct cell = pCell.Ref.MapCoords;
+                            CoordStruct newPos = new CoordStruct(((((cell.X << 8) + 128) / 256) << 8), ((((cell.Y << 8) + 128) / 256) << 8), 0);
+                            Point2D postion = TacticalClass.Global().CoordsToScreen(newPos);
+                            postion -= TacticalClass.Global().TacticalPos;
+                            int zAdjust = 15 * pCell.Ref.Level;
+                            postion.Y += -1 - zAdjust;
+                            int frame = pCell.Ref.SlopeIndex + 2;
+                            Surface.Current.Ref.DrawSHP(FileSystem.PALETTE_PAL, pSHP, data.ZeroFrameIndex + frame, postion);
+                        }
+                        break;
+                }
             }
             Pointer<BuildingClass> pBase = pCell.Ref.GetBuilding();
             R->EAX = (uint)pBase;

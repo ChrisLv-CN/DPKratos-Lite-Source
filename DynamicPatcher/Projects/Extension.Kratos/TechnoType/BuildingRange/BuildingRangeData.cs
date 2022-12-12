@@ -64,6 +64,14 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            // 读全局
+            ISectionReader sectionReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
+            this.Mode = sectionReader.Get(TITLE + "Mode", this.Mode);
+            this.Color = sectionReader.Get(TITLE + "Color", this.Color);
+            this.SHPFileName = sectionReader.Get(TITLE + "SHP", this.SHPFileName);
+            this.ZeroFrameIndex = sectionReader.Get(TITLE + "ZeroFrameIndex", this.ZeroFrameIndex);
+
+            // 读个体
             this.Mode = reader.Get(TITLE + "Mode", this.Mode);
             this.Color = reader.Get(TITLE + "Color", this.Color);
             this.SHPFileName = reader.Get(TITLE + "SHP", this.SHPFileName);
