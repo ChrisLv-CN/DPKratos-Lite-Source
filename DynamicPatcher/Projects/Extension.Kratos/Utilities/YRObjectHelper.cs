@@ -66,6 +66,11 @@ namespace Extension.Utilities
             return Convert.ToUInt32(c2, 2);
         }
 
+        public static int RGB2DWORD(this ColorStruct color)
+        {
+            return Drawing.RGB2DWORD(color);
+        }
+
         public static int GetRandomValue(this Point2D point, int defVal)
         {
             int min = point.X;
