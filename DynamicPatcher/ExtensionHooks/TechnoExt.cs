@@ -212,6 +212,34 @@ namespace ExtensionHooks
         //     return 0;
         // }
 
+        [Hook(HookType.AresHook, Address = 0x6F37E7, Size = 0xA)]
+        public static unsafe UInt32 TechnoClass_SelectWeapon_SecondaryCheckAA_SwitchByRange(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<AbstractClass> pTarget = R->Stack<IntPtr>(0x1C);
+            Pointer<WeaponTypeClass> pPrimary = R->Stack<IntPtr>(0x14);
+            Pointer<WeaponTypeClass> pSecondary = R->Stack<IntPtr>(0x10);
+            // check AA
+            if (pSecondary.Ref.Projectile.Ref.AA && pTarget.Ref.IsInAir())
+            {
+                return 0x6F3807;
+            }
+            else
+            {
+                SelectWeaponData data = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                if (data.UseRange)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} {pPrimary.Ref.Base.ID} {pSecondary.Ref.Base.ID} select weapon index = {R->EAX}");
+                    // 检查副武器射程
+                    if (!pTechno.Ref.IsCloseEnough(pTarget, 0) && pTechno.Ref.IsCloseEnough(pTarget, 1))
+                    {
+                        return 0x6F3807;
+                    }
+                }
+            }
+            return 0x6F37AD;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
         public static unsafe UInt32 TechnoClass_Fire_OverrideWeapon(REGISTERS* R)
         {
