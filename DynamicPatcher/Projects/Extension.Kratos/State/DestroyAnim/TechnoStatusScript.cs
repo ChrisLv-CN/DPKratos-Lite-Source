@@ -96,13 +96,8 @@ namespace Extension.Script
                             if (!data.Random && facing % 8 == 0)
                             {
                                 // 0的方向是游戏中的北方，是↗，素材0帧是朝向0点，是↑
-                                index = FLHHelper.Dir2FacingIndex(pTechno.Ref.Facing.current(), facing);
+                                index = pTechno.Ref.Facing.current().Dir2FrameIndex(facing);
                                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 单位朝向{index}/{facing}");
-                                index = (int)(facing / 8) + index;
-                                if (index >= facing)
-                                {
-                                    index = 0;
-                                }
                             }
                             else
                             {

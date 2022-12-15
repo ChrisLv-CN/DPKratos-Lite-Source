@@ -332,12 +332,29 @@ namespace Extension.Utilities
         /// <param name="dir"></param>
         /// <param name="facing"></param>
         /// <returns></returns>
-        public static int Dir2FacingIndex(DirStruct dir, int facing)
+        public static int Dir2FacingIndex(this DirStruct dir, int facing)
         {
             uint bits = (uint)Math.Round(Math.Sqrt(facing), MidpointRounding.AwayFromZero);
             double face = dir.GetValue(bits);
             double x = (face / (1 << (int)bits)) * facing;
             int index = (int)Math.Round(x, MidpointRounding.AwayFromZero);
+            return index;
+        }
+
+        /// <summary>
+        /// 0的方向是游戏中的北方，是↗，SHP素材0帧是朝向0点，是↑
+        /// </summary>
+        /// <param name="dir"></param>
+        /// <param name="facing"></param>
+        /// <returns></returns>
+        public static int Dir2FrameIndex(this DirStruct dir, int facing)
+        {
+            int index = dir.Dir2FacingIndex(facing);
+            index = (int)(facing / 8) + index;
+            if (index >= facing)
+            {
+                index = 0;
+            }
             return index;
         }
 

@@ -338,6 +338,226 @@ namespace ExtensionHooks
             return 0;
         }
 
+        #region UnitClass Desguise
+        [Hook(HookType.AresHook, Address = 0x7466D8, Size = 0xA)]
+        public static unsafe UInt32 UnitClass_Set_Desguise(REGISTERS* R)
+        {
+            Pointer<AbstractClass> pTarget = (IntPtr)R->ESI;
+            if (pTarget.Ref.WhatAmI() == AbstractType.Unit)
+            {
+                if (pTarget.Convert<ObjectClass>().Ref.IsDisguised())
+                {
+                    // 伪装成目标单位的伪装
+                    return 0x7466E6;
+                }
+                else
+                {
+                    // 我自己来
+                    Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                    Pointer<TechnoClass> pTechno = (IntPtr)R->EDI;
+                    pTechno.Ref.Disguise = pTargetTechno.Ref.Base.Type;
+                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} [{pTechno.Ref.Type}] 伪装成 [{pTechno.Ref.Disguise}] 所属 {pTechno.Ref.DisguisedAsHouse}");
+                    R->EAX = (uint)pTarget.Ref.GetOwningHouse();
+                    return 0x746704;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x746AFF, Size = 0xA)]
+        public static unsafe UInt32 UnitClass_Desguise_Update_MoveToClear(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<ObjectTypeClass> pDisguise = pTechno.Ref.Disguise;
+            if (!pDisguise.IsNull && pDisguise.Ref.Base.Base.WhatAmI() == AbstractType.UnitType)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 自动伪装 {pTechno.Ref.Disguise} {pTechno.Ref.DisguisedAsHouse}");
+                // Don't clear
+                return 0x746A9C;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73C71D, Size = 6)]
+        public static unsafe UInt32 UnitClass_DrawSHP_FacingDir(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                // WWSB 自己算起始帧
+                Pointer<UnitTypeClass> pTargetType = pTechno.Ref.Base.GetDisguise(true).Convert<UnitTypeClass>();
+                int facing = pTargetType.Ref.Facings;
+                // 0的方向是游戏中的北方，是↗，素材0帧是朝向0点，是↑
+                int index = pTechno.Ref.Facing.current().Dir2FrameIndex(facing);
+                // Logger.Log($"{Game.CurrentFrame} OOXX dirIndex = {index}, facing = {facing}, walk = {pTargetType.Ref.WalkFrames}, fire = {pTargetType.Ref.FiringFrames}, {R->EDX} {R->EBX} x {R->ESI}");
+                // EDX是播放的帧序号
+                int frameOffset = (int)R->EDX;
+                if (frameOffset == 0)
+                {
+                    // 站立状态
+                    R->EDX += (uint)(index);
+                }
+                else
+                {
+                    // 移动状态
+                    // ???, UnitTypeClass.WalkFrames拿到的不是WalkFrames
+                    int walkFrames = Ini.GetSection(Ini.ArtDependency, pTargetType.Ref.Base.Base.Base.ID).Get("WalkFrames", 1);
+                    R->EDX += (uint)(index * walkFrames + pTargetType.Ref.StartWalkFrame);
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73C655, Size = 6)]
+        public static unsafe UInt32 UnitClass_DrawSHP_TechnoType(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                return 0x73C65B;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73C69D, Size = 6)]
+        public static unsafe UInt32 UnitClass_DrawSHP_TechnoType2(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                return 0x73C6A3;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73C702, Size = 6)]
+        public static unsafe UInt32 UnitClass_DrawSHP_TechnoType3(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                return 0x73C708;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73C725, Size = 5)]
+        public static unsafe UInt32 UnitClass_DrawSHP_HasTurret(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                Pointer<ObjectTypeClass> pTargetType = pTechno.Ref.Base.GetDisguise(true);
+                if (!pTargetType.IsNull && !pTargetType.Convert<TechnoTypeClass>().Ref.Turret)
+                {
+                    // Logger.Log($"{Game.CurrentFrame} 渲染 TargetType {pTargetType.Ref.Base.ID} 渲染的帧序号 {R->EBX}");
+                    // no turret
+                    return 0x73CE0D;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73B765, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x73BA78, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x73BD8B, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x73BDA3, Size = 5)]
+        public static unsafe UInt32 UnitClass_DrawVoxel_TurretFacing(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            // 本体没有炮塔
+            if (!pTechno.Ref.Type.Ref.Turret && pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            {
+                Pointer<ObjectTypeClass> pTargetType = pTechno.Ref.Base.GetDisguise(true);
+                if (!pTargetType.IsNull && pTargetType.Convert<TechnoTypeClass>().Ref.Turret)
+                {
+                    // 伪装的对象有炮塔，将身体的朝向赋给炮塔
+                    Pointer<DirStruct> pDir = (IntPtr)R->EAX;
+                    DirStruct dir = pTechno.Ref.Facing.current();
+                    pDir.Data = dir;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73B8E3, Size = 5)]
+        public static unsafe UInt32 UnitClass_DrawVoxel_HasChargeTurret(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            Pointer<TechnoTypeClass> pTechnoType = (IntPtr)R->EBX;
+            // 渲染伪装对象
+            if (pTechnoType != pTechno.Ref.Type)
+            {
+                if (pTechnoType.Ref.TurretCount > 0 && !pTechnoType.Ref.IsGattling)
+                {
+                    return 0x73B8EC;
+                }
+                else
+                {
+                    return 0x73B92F;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73BC28, Size = 5)]
+        public static unsafe UInt32 UnitClass_DrawVoxel_HasChargeTurret2(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            Pointer<TechnoTypeClass> pTechnoType = (IntPtr)R->EBX;
+            // 渲染伪装对象
+            if (pTechnoType != pTechno.Ref.Type)
+            {
+                if (pTechnoType.Ref.TurretCount > 0 && !pTechnoType.Ref.IsGattling)
+                {
+                    if (pTechno.Ref.CurrentTurretNumber < 0)
+                    {
+                        R->Stack<int>(0x1C, 0);
+                    }
+                    return 0x73BC35;
+                }
+                else
+                {
+                    return 0x73BD79;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73BA63, Size = 5)]
+        public static unsafe UInt32 UnitClass_DrawVoxel_TurretOffset(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
+            Pointer<TechnoTypeClass> pTechnoType = (IntPtr)R->EBX;
+            // 渲染伪装对象
+            if (pTechnoType != pTechno.Ref.Type)
+            {
+                if (pTechnoType.Ref.TurretCount > 0 && !pTechnoType.Ref.IsGattling)
+                {
+                    if (pTechno.Ref.CurrentTurretNumber < 0)
+                    {
+                        R->Stack<int>(0x1C, 0);
+                    }
+                    return 0x73BC35;
+                }
+                else
+                {
+                    return 0x73BD79;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x706724, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Draw_VXL_Disguise_Blit_Flags(REGISTERS* R)
+        {
+            return 0x706731;
+        }
+        #endregion
+
         [Hook(HookType.AresHook, Address = 0x6FC018, Size = 6)]
         public static unsafe UInt32 TechnoClass_Select_SkipVoice(REGISTERS* R)
         {
