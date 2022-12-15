@@ -24,7 +24,7 @@ namespace Extension.Script
 
         public override void Awake()
         {
-            if (null == AntiBulletData || !AntiBulletData.Enable || NoPassengers() || PrimaryWeaponNoAA())
+            if (null == AntiBulletData || !AntiBulletData.Enable || NoPassengers() || WeaponNoAA())
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}] 关闭 AntiMissile. {NoPassengers()} {PrimaryWeaponNoAA()}");
                 AntiBulletData.Enable = false;
@@ -39,22 +39,48 @@ namespace Extension.Script
             return AntiBulletData.ForPassengers && pTechno.Ref.Type.Ref.Passengers <= 0;
         }
 
-        private bool PrimaryWeaponNoAA()
+        private bool WeaponNoAA()
         {
             bool noAA = true;
-            // 检查单位时候具有主武器
+            // 检查单位时候具有防空武器
             if (AntiBulletData.Self)
             {
                 Pointer<WeaponTypeClass> pPrimary = pTechno.Ref.Type.Ref.get_Primary();
-                if (pPrimary.IsNull || pPrimary.Ref.Projectile.IsNull)
+                bool noPrimary = pPrimary.IsNull || pPrimary.Ref.Projectile.IsNull;
+                Pointer<WeaponTypeClass> pSecondary = pTechno.Ref.Type.Ref.get_Secondary();
+                bool noSecondary = pSecondary.IsNull || pSecondary.Ref.Projectile.IsNull;
+
+                if (AntiBulletData.Weapon == 0 && noPrimary)
                 {
                     Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] has no Primary weapon, disable AntiMissile.");
                 }
+                else if (AntiBulletData.Weapon == 1 && noSecondary)
+                {
+                    Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] has no Secondary weapon, disable AntiMissile.");
+                }
+                else if (noPrimary && noSecondary)
+                {
+                    Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] has no Any weapon, disable AntiMissile.");
+                }
                 else
                 {
-                    if (noAA = !pPrimary.Ref.Projectile.Ref.AA)
+                    bool primaryAA = !noPrimary && pPrimary.Ref.Projectile.Ref.AA;
+                    bool secondaryAA = !noSecondary && pSecondary.Ref.Projectile.Ref.AA;
+                    if (AntiBulletData.Weapon == 0 && !primaryAA)
                     {
                         Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] Primary weapon has no AA, disable AntiMissile.");
+                    }
+                    else if (AntiBulletData.Weapon == 1 && !secondaryAA)
+                    {
+                        Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] Secondary weapon has no AA, disable AntiMissile.");
+                    }
+                    else if (!primaryAA && !secondaryAA)
+                    {
+                        Logger.LogWarning($"{Game.CurrentFrame} Techno [{section}] All weapon has no AA, disable AntiMissile.");
+                    }
+                    else
+                    {
+                        noAA = false;
                     }
                 }
             }

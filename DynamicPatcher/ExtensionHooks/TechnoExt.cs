@@ -178,6 +178,42 @@ namespace ExtensionHooks
         }
         #endregion
 
+
+        [Hook(HookType.AresHook, Address = 0x6F36DB, Size = 0xA)]
+        public static unsafe UInt32 TechnoClass_SelectWeapon_AntiMissile(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<AbstractClass> pTarget = R->Stack<IntPtr>(0x1C);
+            Pointer<WeaponTypeClass> pPrimary = R->Stack<IntPtr>(0x14);
+            Pointer<WeaponTypeClass> pSecondary = R->Stack<IntPtr>(0x10);
+            if (pTarget.Ref.WhatAmI() == AbstractType.Bullet)
+            {
+                AntiBulletData data = Ini.GetConfig<AntiBulletData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                if (data.Enable && data.Weapon >= 0)
+                {
+                    // 自己捕获的目标，按设置选择武器
+                    if (data.Weapon == 1)
+                    {
+                        return 0x6F3807; // 返回副武器
+                    }
+                    else
+                    {
+                        return 0x6F37AD; // 返回主武器
+                    }
+                }
+                // 自动选择可以使用的武器
+                if (pSecondary.Ref.Projectile.Ref.AA && (!pPrimary.Ref.Projectile.Ref.AA || pTechno.Ref.IsCloseEnough(pTarget, 1)))
+                {
+                    return 0x6F3807; // 返回副武器
+                }
+            }
+            else if (R->EBP != 0)
+            {
+                return 0x6F36E3; // 继续检查护甲
+            }
+            return 0x6F37AD; // 返回主武器
+        }
+
         [Hook(HookType.AresHook, Address = 0x6F37E7, Size = 0xA)]
         public static unsafe UInt32 TechnoClass_SelectWeapon_SecondaryCheckAA_SwitchByRange(REGISTERS* R)
         {

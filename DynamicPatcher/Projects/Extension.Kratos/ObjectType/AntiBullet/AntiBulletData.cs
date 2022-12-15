@@ -13,6 +13,7 @@ namespace Extension.Ext
     public class AntiBulletData : INIConfig
     {
         public bool Enable;
+        public int Weapon;
         public bool OneShotOneKill;
         public bool Harmless;
         public bool Self;
@@ -25,6 +26,7 @@ namespace Extension.Ext
         public AntiBulletData()
         {
             this.Enable = false;
+            this.Weapon = -1;
             this.OneShotOneKill = true;
             this.Harmless = false;
             this.Self = true;
@@ -38,6 +40,7 @@ namespace Extension.Ext
         public override void Read(IConfigReader reader)
         {
             this.Enable = reader.Get("AntiMissile.Enable", this.Enable);
+            this.Weapon = reader.Get("AntiMissile.Weapon", this.Weapon);
             this.OneShotOneKill = reader.Get("AntiMissile.OneShotOneKill", this.OneShotOneKill);
             this.Harmless = reader.Get("AntiMissile.Harmless", this.Harmless);
             this.Self = reader.Get("AntiMissile.Self", this.Self);
@@ -46,13 +49,6 @@ namespace Extension.Ext
             this.Range = reader.Get("AntiMissile.Range", this.Range);
             this.EliteRange = reader.Get("AntiMissile.EliteRange", this.Range);
             this.Rate = reader.Get("AntiMissile.Rate", this.Rate);
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{{\"Enable\":{0}, \"OneShotOneKill\":{1}, \"Harmless\":{2}, \"Self\":{3}, \"ForPassengers\":{4}, \"ScanAll\":{5}, \"Range\":{6}, \"EliteRange\":{7}, \"Rate\":{8}}}",
-                Enable, OneShotOneKill, Harmless, Self, ForPassengers, ScanAll, Range, EliteRange, Rate
-            );
         }
 
     }
