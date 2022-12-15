@@ -178,40 +178,6 @@ namespace ExtensionHooks
         }
         #endregion
 
-        // [Obsolete]
-        // Will crash the game. change to use temporalUpdate check range and let go.
-        // [Hook(HookType.AresHook, Address = 0x6FC163, Size = 5)]
-        // public static unsafe UInt32 TechnoClass_CanFire_Temporal_CheckRange(REGISTERS* R)
-        // {
-        //     bool checkRange = R->Stack<bool>(0x2C);
-        //     if (checkRange)
-        //     {
-        //         // cmp ebx, [eax+28h]      pTarget == Temporal.Target
-        //         Pointer<AbstractClass> pTarget = (IntPtr)R->EBX;
-        //         Pointer<TemporalClass> temporal = (IntPtr)R->EAX;
-        //         if (pTarget == temporal.Ref.Target.Convert<AbstractClass>())
-        //         {
-        //             // check range
-        //             Pointer<TechnoClass> pTechno = temporal.Ref.Owner;
-        //             if (!pTechno.IsDeadOrInvisible())
-        //             {
-        //                 int weaponIdx = R->Stack<int>(0x28);
-        //                 // Logger.Log($"{Game.CurrentFrame} 超时空武器检查目标是否相同 Techno = [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} == {temporal.Ref.Owner}, wapIdx = {weaponIdx}, {pTechno.Ref.IsCloseEnough(pTarget, weaponIdx)}");
-        //                 if (!pTechno.Ref.IsCloseEnough(pTarget, weaponIdx))
-        //                 {
-        //                     return 0x6FCD0E; // RANGE
-        //                 }
-        //             }
-        //             return 0x6FC168; // REARM
-        //         }
-        //         else
-        //         {
-        //             return 0x6FC177; // goto next check
-        //         }
-        //     }
-        //     return 0;
-        // }
-
         [Hook(HookType.AresHook, Address = 0x6F37E7, Size = 0xA)]
         public static unsafe UInt32 TechnoClass_SelectWeapon_SecondaryCheckAA_SwitchByRange(REGISTERS* R)
         {
@@ -339,6 +305,77 @@ namespace ExtensionHooks
         }
 
         #region UnitClass Desguise
+        [Hook(HookType.AresHook, Address = 0x6F422F, Size = 6)]
+        public static unsafe UInt32 TechnoClass_Init_PermaDisguise(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            bool custom = false;
+            Pointer<ObjectTypeClass> pDisguise = IntPtr.Zero;
+            switch (pTechno.Ref.Base.Base.WhatAmI())
+            {
+                case AbstractType.Unit:
+                    // 伪装成自己
+                    pDisguise = pTechno.Ref.Type.Convert<ObjectTypeClass>();
+                    // 检查微观设置
+                    DisguiseData unitData = Ini.GetConfig<DisguiseData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                    if (!unitData.DefaultUnitDisguise.IsNullOrEmptyOrNone())
+                    {
+                        Pointer<UnitTypeClass> pType = UnitTypeClass.ABSTRACTTYPE_ARRAY.Find(unitData.DefaultUnitDisguise);
+                        if (!pType.IsNull)
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 初始伪装成单位设置的[{unitData.DefaultUnitDisguise}]");
+                            // 伪装成指定的坦克
+                            pDisguise = pType.Convert<ObjectTypeClass>();
+                            custom = true;
+                        }
+                    }
+                    if (!custom)
+                    {
+                        // 阵营所属的伪装坦克
+                        Pointer<HouseClass> pHouse = (IntPtr)R->EAX;
+                        int sideIndex = pHouse.Ref.SideIndex;
+                        if (SideClass.ABSTRACTTYPE_ARRAY.Count() > sideIndex)
+                        {
+                            string sideId = SideClass.ABSTRACTTYPE_ARRAY.Array[sideIndex].Ref.Base.ID;
+                            DisguiseData sideData = Ini.GetConfig<DisguiseData>(Ini.RulesDependency, sideId).Data;
+                            if (!sideData.DefaultUnitDisguise.IsNullOrEmptyOrNone())
+                            {
+                                Pointer<UnitTypeClass> pType = UnitTypeClass.ABSTRACTTYPE_ARRAY.Find(sideData.DefaultUnitDisguise);
+                                if (!pType.IsNull)
+                                {
+                                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 初始伪装成阵营设置的[{unitData.DefaultUnitDisguise}]");
+                                    // 伪装成指定的坦克
+                                    pDisguise = pType.Convert<ObjectTypeClass>();
+                                }
+                            }
+                        }
+                    }
+                    custom = true;
+                    break;
+                case AbstractType.Infantry:
+                    // 阵营设置，Ares接管，不理会，只管微观设置
+                    DisguiseData infData = Ini.GetConfig<DisguiseData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                    if (!infData.DefaultDisguise.IsNullOrEmptyOrNone())
+                    {
+                        Pointer<InfantryTypeClass> pType = InfantryTypeClass.ABSTRACTTYPE_ARRAY.Find(infData.DefaultDisguise);
+                        if (!pType.IsNull)
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 初始伪装成单位设置的[{infData.DefaultDisguise}]");
+                            // 伪装成指定的步兵
+                            pDisguise = pType.Convert<ObjectTypeClass>();
+                            custom = true;
+                        }
+                    }
+                    break;
+            }
+            if (custom && !pDisguise.IsNull)
+            {
+                pTechno.Ref.Disguise = pDisguise;
+                return 0x6F4277;
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x7466D8, Size = 0xA)]
         public static unsafe UInt32 UnitClass_Set_Desguise(REGISTERS* R)
         {
@@ -386,23 +423,26 @@ namespace ExtensionHooks
             {
                 // WWSB 自己算起始帧
                 Pointer<UnitTypeClass> pTargetType = pTechno.Ref.Base.GetDisguise(true).Convert<UnitTypeClass>();
-                int facing = pTargetType.Ref.Facings;
-                // 0的方向是游戏中的北方，是↗，素材0帧是朝向0点，是↑
-                int index = pTechno.Ref.Facing.current().Dir2FrameIndex(facing);
-                // Logger.Log($"{Game.CurrentFrame} OOXX dirIndex = {index}, facing = {facing}, walk = {pTargetType.Ref.WalkFrames}, fire = {pTargetType.Ref.FiringFrames}, {R->EDX} {R->EBX} x {R->ESI}");
-                // EDX是播放的帧序号
-                int frameOffset = (int)R->EDX;
-                if (frameOffset == 0)
+                if (pTargetType.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.UnitType)
                 {
-                    // 站立状态
-                    R->EDX += (uint)(index);
-                }
-                else
-                {
-                    // 移动状态
-                    // ???, UnitTypeClass.WalkFrames拿到的不是WalkFrames
-                    int walkFrames = Ini.GetSection(Ini.ArtDependency, pTargetType.Ref.Base.Base.Base.ID).Get("WalkFrames", 1);
-                    R->EDX += (uint)(index * walkFrames + pTargetType.Ref.StartWalkFrame);
+                    int facing = pTargetType.Ref.Facings;
+                    // 0的方向是游戏中的北方，是↗，素材0帧是朝向0点，是↑
+                    int index = pTechno.Ref.Facing.current().Dir2FrameIndex(facing);
+                    // Logger.Log($"{Game.CurrentFrame} OOXX dirIndex = {index}, facing = {facing}, walk = {pTargetType.Ref.WalkFrames}, fire = {pTargetType.Ref.FiringFrames}, {R->EDX} {R->EBX} x {R->ESI}");
+                    // EDX是播放的帧序号
+                    int frameOffset = (int)R->EDX;
+                    if (frameOffset == 0)
+                    {
+                        // 站立状态
+                        R->EDX += (uint)(index);
+                    }
+                    else
+                    {
+                        // 移动状态
+                        // ???, UnitTypeClass.WalkFrames拿到的不是WalkFrames
+                        int walkFrames = Ini.GetSection(Ini.ArtDependency, pTargetType.Ref.Base.Base.Base.ID).Get("WalkFrames", 1);
+                        R->EDX += (uint)(index * walkFrames + pTargetType.Ref.StartWalkFrame);
+                    }
                 }
             }
             return 0;
