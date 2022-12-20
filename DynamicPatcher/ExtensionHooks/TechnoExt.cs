@@ -488,9 +488,11 @@ namespace ExtensionHooks
         public static unsafe UInt32 UnitClass_DrawSHP_TechnoType(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
-            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            Pointer<ObjectTypeClass> pTargetType = IntPtr.Zero;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player)
+                && (pTargetType = pTechno.Ref.Base.GetDisguise(true)).Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.UnitType)
             {
-                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                R->ECX = (uint)pTargetType;
                 return 0x73C65B;
             }
             return 0;
@@ -500,9 +502,11 @@ namespace ExtensionHooks
         public static unsafe UInt32 UnitClass_DrawSHP_TechnoType2(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
-            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            Pointer<ObjectTypeClass> pTargetType = IntPtr.Zero;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player)
+                && (pTargetType = pTechno.Ref.Base.GetDisguise(true)).Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.UnitType)
             {
-                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                R->ECX = (uint)pTargetType;
                 return 0x73C6A3;
             }
             return 0;
@@ -512,9 +516,11 @@ namespace ExtensionHooks
         public static unsafe UInt32 UnitClass_DrawSHP_TechnoType3(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
-            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player))
+            Pointer<ObjectTypeClass> pTargetType = IntPtr.Zero;
+            if (pTechno.Ref.Base.IsDisguised() && !pTechno.Ref.IsClearlyVisibleTo(HouseClass.Player)
+                && (pTargetType = pTechno.Ref.Base.GetDisguise(true)).Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.UnitType)
             {
-                R->ECX = (uint)pTechno.Ref.Base.GetDisguise(true);
+                R->ECX = (uint)pTargetType;
                 return 0x73C708;
             }
             return 0;
