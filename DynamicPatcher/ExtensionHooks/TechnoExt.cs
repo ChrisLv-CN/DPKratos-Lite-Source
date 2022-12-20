@@ -186,30 +186,46 @@ namespace ExtensionHooks
             Pointer<AbstractClass> pTarget = R->Stack<IntPtr>(0x1C);
             Pointer<WeaponTypeClass> pPrimary = R->Stack<IntPtr>(0x14);
             Pointer<WeaponTypeClass> pSecondary = R->Stack<IntPtr>(0x10);
-            if (pTarget.Ref.WhatAmI() == AbstractType.Bullet)
+            if (R->EBP != 0)
             {
-                AntiBulletData data = Ini.GetConfig<AntiBulletData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
-                if (data.Enable && data.Weapon >= 0)
-                {
-                    // 自己捕获的目标，按设置选择武器
-                    if (data.Weapon == 1)
-                    {
-                        return 0x6F3807; // 返回副武器
-                    }
-                    else
-                    {
-                        return 0x6F37AD; // 返回主武器
-                    }
-                }
-                // 自动选择可以使用的武器
-                if (pSecondary.Ref.Projectile.Ref.AA && (!pPrimary.Ref.Projectile.Ref.AA || pTechno.Ref.IsCloseEnough(pTarget, 1)))
-                {
-                    return 0x6F3807; // 返回副武器
-                }
-            }
-            else if (R->EBP != 0)
-            {
+                // 攻击的是单位
                 return 0x6F36E3; // 继续检查护甲
+            }
+            else
+            {
+                // 攻击的是没有护甲的玩意儿，格子，覆盖物，抛射体等等
+                AbstractType abstractType = pTarget.Ref.WhatAmI();
+                switch (abstractType)
+                {
+                    case AbstractType.Bullet:
+                        AntiBulletData antiBulletData = Ini.GetConfig<AntiBulletData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                        if (antiBulletData.Enable && antiBulletData.Weapon >= 0)
+                        {
+                            // 自己捕获的目标，按设置选择武器
+                            if (antiBulletData.Weapon == 1)
+                            {
+                                return 0x6F3807; // 返回副武器
+                            }
+                            else
+                            {
+                                return 0x6F37AD; // 返回主武器
+                            }
+                        }
+                        // 自动选择可以使用的武器
+                        if (pSecondary.Ref.Projectile.Ref.AA && (!pPrimary.Ref.Projectile.Ref.AA || pTechno.Ref.IsCloseEnough(pTarget, 1)))
+                        {
+                            return 0x6F3807; // 返回副武器
+                        }
+                        break;
+                    case AbstractType.Cell:
+                        SelectWeaponData selectWeaponData = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                        SelectWeaponData data = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
+                        if (pSecondary.Ref.Projectile.Ref.AG && data.UseSecondary(pTechno, pTarget, pPrimary, pSecondary))
+                        {
+                            return 0x6F3807; // 返回副武器
+                        }
+                        break;
+                }
             }
             return 0x6F37AD; // 返回主武器
         }
@@ -224,22 +240,17 @@ namespace ExtensionHooks
             // check AA
             if (pSecondary.Ref.Projectile.Ref.AA && pTarget.Ref.IsInAir())
             {
-                return 0x6F3807;
+                return 0x6F3807; // 返回副武器
             }
             else
             {
                 SelectWeaponData data = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
-                if (data.UseRange)
+                if (data.UseSecondary(pTechno, pTarget, pPrimary, pSecondary))
                 {
-                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} {pPrimary.Ref.Base.ID} {pSecondary.Ref.Base.ID} select weapon index = {R->EAX}");
-                    // 检查副武器射程
-                    if (!pTechno.Ref.IsCloseEnough(pTarget, 0) && pTechno.Ref.IsCloseEnough(pTarget, 1))
-                    {
-                        return 0x6F3807;
-                    }
+                    return 0x6F3807; // 返回副武器
                 }
             }
-            return 0x6F37AD;
+            return 0x6F37AD; // 返回主武器
         }
 
         [Hook(HookType.AresHook, Address = 0x6FDD61, Size = 5)]
