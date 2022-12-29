@@ -121,7 +121,7 @@ namespace Extension.Ext
         public int ZeroFrameIndex;
         public int MaxFrameIndex;
         public Point2D ImageSize;
-        public int Warp;
+        public int Wrap;
 
         public bool NoNumbers; // 不使用数字
         // long text
@@ -152,7 +152,7 @@ namespace Extension.Ext
             this.ZeroFrameIndex = 0;
             this.MaxFrameIndex = -1;
             this.ImageSize = new Point2D(5, 8);
-            this.Warp = 1;
+            this.Wrap = 1;
 
             this.NoNumbers = false;
             // long text
@@ -184,7 +184,7 @@ namespace Extension.Ext
             data.ZeroFrameIndex = this.ZeroFrameIndex;
             data.MaxFrameIndex = this.MaxFrameIndex;
             data.ImageSize = this.ImageSize;
-            data.Warp = this.Warp;
+            data.Wrap = this.Wrap;
 
             data.NoNumbers = this.NoNumbers;
             data.HitSHP = this.HitSHP;
@@ -216,7 +216,7 @@ namespace Extension.Ext
             this.ZeroFrameIndex = reader.Get(title + "ZeroFrameIndex", ZeroFrameIndex);
             this.MaxFrameIndex = reader.Get(title + "MaxFrameIndex", MaxFrameIndex);
             this.ImageSize = reader.Get(title + "ImageSize", ImageSize);
-            this.Warp = reader.Get(title + "Warp", Warp);
+            this.Wrap = reader.Get(title + "Wrap", Wrap);
 
             this.NoNumbers = reader.Get(title + "NoNumbers", NoNumbers);
             // long text

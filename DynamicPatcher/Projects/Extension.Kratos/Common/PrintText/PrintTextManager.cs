@@ -72,14 +72,14 @@ namespace Extension.Ext
             if (data.UseSHP && data.SHPDrawStyle == SHPDrawStyle.PROGRESS)
             {
                 string file = data.SHPFileName;
-                int idx = data.ZeroFrameIndex + number / data.Warp;
+                int idx = data.ZeroFrameIndex + number / data.Wrap;
                 if (data.MaxFrameIndex >= 0)
                 {
                     idx = Math.Min(data.MaxFrameIndex, idx);
                 }
                 if (!file.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
                 {
-                    // Logger.Log($"{Game.CurrentFrame} - 使用自定义SHP {file}, {idx}帧, 位置{pos}");
+                    // Logger.Log($"{Game.CurrentFrame} - {data.ZeroFrameIndex} + {number} / {data.Wrap} 使用自定义SHP {file}, {idx}帧, 位置{pos}");
                     // 显示对应的帧
                     pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, rect.GetThisPointer());
                 }
