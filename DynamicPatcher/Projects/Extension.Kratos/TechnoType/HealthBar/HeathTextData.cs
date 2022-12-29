@@ -35,31 +35,6 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public enum HealthTextAlign
-    {
-        LEFT = 0, CENTER = 1, RIGHT = 2
-    }
-    public class HealthTextAlignParser : KEnumParser<HealthTextAlign>
-    {
-        public override bool ParseInitials(string t, ref HealthTextAlign buffer)
-        {
-            switch (t)
-            {
-                case "L":
-                    buffer = HealthTextAlign.LEFT;
-                    return true;
-                case "C":
-                    buffer = HealthTextAlign.CENTER;
-                    return true;
-                case "R":
-                    buffer = HealthTextAlign.RIGHT;
-                    return true;
-            }
-            return false;
-        }
-    }
-
-    [Serializable]
     public class HealthText : PrintTextData
     {
         public bool Hidden;
@@ -67,12 +42,10 @@ namespace Extension.Ext
         public bool ShowHover;
         public HealthTextStyle Style;
         public HealthTextStyle HoverStyle;
-        public HealthTextAlign Align;
 
         static HealthText()
         {
             new HealthTextStyleParser().Register();
-            new HealthTextAlignParser().Register();
         }
 
         public HealthText(HealthState healthState) : base()
@@ -82,7 +55,7 @@ namespace Extension.Ext
             this.ShowHover = false;
             this.Style = HealthTextStyle.FULL;
             this.HoverStyle = HealthTextStyle.SHORT;
-            this.Align = HealthTextAlign.LEFT;
+            this.Align = PrintTextAlign.LEFT;
 
             this.SHPFileName = "pipsnum.shp";
             this.ImageSize = new Point2D(5, 8);
@@ -112,7 +85,6 @@ namespace Extension.Ext
             data.ShowHover = this.ShowHover;
             data.Style = this.Style;
             data.HoverStyle = this.HoverStyle;
-            data.Align = this.Align;
             return data;
         }
 
@@ -124,7 +96,6 @@ namespace Extension.Ext
             this.ShowHover = reader.Get(title + "ShowHover", ShowHover);
             this.Style = reader.Get(title + "Style", Style);
             this.HoverStyle = reader.Get(title + "HoverStyle", HoverStyle);
-            this.Align = reader.Get(title + "Align", Align);
         }
 
     }

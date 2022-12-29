@@ -66,17 +66,62 @@ namespace Extension.Ext
     }
 
     [Serializable]
+    public enum PrintTextAlign
+    {
+        LEFT = 0, CENTER = 1, RIGHT = 2
+    }
+    public class PrintTextAlignParser : KEnumParser<PrintTextAlign>
+    {
+        public override bool ParseInitials(string t, ref PrintTextAlign buffer)
+        {
+            switch (t)
+            {
+                case "L":
+                    buffer = PrintTextAlign.LEFT;
+                    return true;
+                case "C":
+                    buffer = PrintTextAlign.CENTER;
+                    return true;
+                case "R":
+                    buffer = PrintTextAlign.RIGHT;
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    [Serializable]
+    public enum SHPDrawStyle
+    {
+        NUMBER = 0,
+        TEXT = 1, // 固定帧
+        PROGRESS = 2 // 进度条
+    }
+
+    [Serializable]
     public class PrintTextData
     {
+
+        static PrintTextData()
+        {
+            new PrintTextAlignParser().Register();
+        }
+
         public Point2D Offset;
         public Point2D ShadowOffset;
         public ColorStruct Color;
         public ColorStruct ShadowColor;
+        public bool IsHouseColor;
+
+        public PrintTextAlign Align;
+
         public bool UseSHP;
-        public bool CustomSHP; // 强制使用shp文件的某一帧来渲染
+        public SHPDrawStyle SHPDrawStyle; // 使用哪个帧来渲染
         public string SHPFileName;
         public int ZeroFrameIndex;
+        public int MaxFrameIndex;
         public Point2D ImageSize;
+        public int Warp;
 
         public bool NoNumbers; // 不使用数字
         // long text
@@ -97,11 +142,17 @@ namespace Extension.Ext
             this.ShadowOffset = new Point2D(1, 1);
             this.Color = new ColorStruct(252, 252, 252);
             this.ShadowColor = new ColorStruct(82, 85, 82);
+            this.IsHouseColor = false;
+
+            this.Align = PrintTextAlign.LEFT;
+
             this.UseSHP = false;
-            this.CustomSHP = false;
+            this.SHPDrawStyle = SHPDrawStyle.NUMBER;
             this.SHPFileName = "pipsnum.shp";
             this.ZeroFrameIndex = 0;
+            this.MaxFrameIndex = -1;
             this.ImageSize = new Point2D(5, 8);
+            this.Warp = 1;
 
             this.NoNumbers = false;
             // long text
@@ -123,11 +174,17 @@ namespace Extension.Ext
             data.ShadowOffset = this.ShadowOffset;
             data.Color = this.Color;
             data.ShadowColor = this.ShadowColor;
+            data.IsHouseColor = this.IsHouseColor;
+
+            data.Align = this.Align;
+
             data.UseSHP = this.UseSHP;
-            data.CustomSHP = this.CustomSHP;
+            data.SHPDrawStyle = this.SHPDrawStyle;
             data.SHPFileName = this.SHPFileName;
             data.ZeroFrameIndex = this.ZeroFrameIndex;
+            data.MaxFrameIndex = this.MaxFrameIndex;
             data.ImageSize = this.ImageSize;
+            data.Warp = this.Warp;
 
             data.NoNumbers = this.NoNumbers;
             data.HitSHP = this.HitSHP;
@@ -150,10 +207,16 @@ namespace Extension.Ext
             this.ShadowOffset = reader.Get(title + "ShadowOffset", ShadowOffset);
             this.Color = reader.Get(title + "Color", Color);
             this.ShadowColor = reader.Get(title + "ShadowColor", ShadowColor);
+            this.IsHouseColor = reader.Get(title + "IsHouseColor", IsHouseColor);
+
+            this.Align = reader.Get(title + "Align", Align);
+
             this.UseSHP = reader.Get(title + "UseSHP", UseSHP);
             this.SHPFileName = reader.Get(title + "SHP", SHPFileName);
             this.ZeroFrameIndex = reader.Get(title + "ZeroFrameIndex", ZeroFrameIndex);
+            this.MaxFrameIndex = reader.Get(title + "MaxFrameIndex", MaxFrameIndex);
             this.ImageSize = reader.Get(title + "ImageSize", ImageSize);
+            this.Warp = reader.Get(title + "Warp", Warp);
 
             this.NoNumbers = reader.Get(title + "NoNumbers", NoNumbers);
             // long text

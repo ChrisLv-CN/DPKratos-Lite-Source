@@ -84,6 +84,7 @@ namespace Extension.Script
             InitFireSuper(); // state AffectWho
             InitGiftBox(); // state AffectWho
             InitImmune();
+            InitInfo();
             InitMark();
             InitPaintball(); // always same JoJo and Stand
             InitPump();

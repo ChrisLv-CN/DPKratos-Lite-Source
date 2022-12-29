@@ -142,6 +142,7 @@ namespace Extension.Ext
             ReadFreezeData(reader);
             ReadGiftBoxData(reader);
             ReadImmuneData(reader);
+            ReadInfoData(reader);
             ReadMarkData(reader);
             ReadPaintballData(reader);
             ReadPumpData(reader);

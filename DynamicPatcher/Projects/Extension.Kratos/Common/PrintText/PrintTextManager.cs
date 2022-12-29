@@ -1,3 +1,4 @@
+using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,16 +59,42 @@ namespace Extension.Ext
                 {
                     // 获得锚点位置
                     Point2D pos2 = pos + offset;
-                    Print(rollingText.Text, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
+                    Print(rollingText.Text, default, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
                     rollingTextQueue.Enqueue(rollingText);
                 }
             }
         }
 
-        public static void Print(string text, PrintTextData data, Point2D pos, Pointer<RectangleStruct> pBound, Pointer<Surface> pSurface, bool isBuilding)
+        public static void Print(int number, ColorStruct houseColor, PrintTextData data, Point2D pos, bool isBuilding = false)
+        {
+            Pointer<Surface> pSurface = Surface.Current;
+            RectangleStruct rect = pSurface.Ref.GetRect();
+            if (data.UseSHP && data.SHPDrawStyle == SHPDrawStyle.PROGRESS)
+            {
+                string file = data.SHPFileName;
+                int idx = data.ZeroFrameIndex + number / data.Warp;
+                if (data.MaxFrameIndex >= 0)
+                {
+                    idx = Math.Min(data.MaxFrameIndex, idx);
+                }
+                if (!file.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
+                {
+                    // Logger.Log($"{Game.CurrentFrame} - 使用自定义SHP {file}, {idx}帧, 位置{pos}");
+                    // 显示对应的帧
+                    pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, rect.GetThisPointer());
+                }
+            }
+            else
+            {
+                // Logger.Log($"{Game.CurrentFrame} 渲染数字 {number}, 位置{pos}");
+                Print(number.ToString(), houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
+            }
+        }
+
+        public static void Print(string text, ColorStruct houseColor, PrintTextData data, Point2D pos, Pointer<RectangleStruct> pBound, Pointer<Surface> pSurface, bool isBuilding)
         {
 
-            bool noNumbers = data.NoNumbers || data.CustomSHP;
+            bool noNumbers = data.NoNumbers || data.SHPDrawStyle != SHPDrawStyle.NUMBER;
             LongText longText = LongText.NONE;
             if (Enum.IsDefined(typeof(LongText), text.ToUpper()))
             {
@@ -91,11 +118,10 @@ namespace Extension.Ext
                     // 使用长字符不使用数字
                     string file = null;
                     int idx = 0;
-                    if (data.CustomSHP)
+                    if (data.SHPDrawStyle == SHPDrawStyle.TEXT)
                     {
                         file = data.SHPFileName;
                         idx = data.ZeroFrameIndex;
-                        // Logger.Log($"{Game.CurrentFrame} 使用自定义SHP {file} {idx}");
                     }
                     else
                     {
@@ -125,9 +151,9 @@ namespace Extension.Ext
                                 return;
                         }
                     }
-                    if (FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
+                    if (!file.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
                     {
-                        // Logger.Log("{0} - 使用自定义SHP {1}, {2}", Game.CurrentFrame, data.SHPFileName, pSHP);
+                        // Logger.Log($"{Game.CurrentFrame} - 使用自定义SHP {file}, {idx}帧, 位置{pos}");
                         // 显示对应的帧
                         pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, pBound);
                     }
@@ -195,7 +221,7 @@ namespace Extension.Ext
                         frameIndex += frameOffset;
                         if (FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pCustomSHP))
                         {
-                            // Logger.Log("{0} - 使用自定义SHP {1}, {2}", Game.CurrentFrame, data.SHPFileName, pCustomSHP);
+                            // Logger.Log($"{Game.CurrentFrame} - 使用SHP渲染{text} {data.SHPFileName}, {frameIndex}帧, 位置{pos}");
                             // 显示对应的帧
                             pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, frameIndex, pos, pBound);
                         }
@@ -213,6 +239,10 @@ namespace Extension.Ext
                 }
                 // 使用文字显示数字
                 ColorStruct textColor = data.Color; // 文字时渲染颜色
+                if (data.IsHouseColor && default != houseColor)
+                {
+                    textColor = houseColor;
+                }
                 int x = FontSize.X;
                 int y = isBuilding ? FontSize.X / 2 : 0;
                 // 拆成单个字符

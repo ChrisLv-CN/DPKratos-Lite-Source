@@ -148,7 +148,7 @@ namespace Extension.Script
                                     {
                                         // 自定义SHP
                                         temp.UseSHP = true;
-                                        temp.CustomSHP = true;
+                                        temp.SHPDrawStyle = SHPDrawStyle.TEXT; // 使用指定的帧
                                         temp.SHPFileName = reactionData.CustomSHP;
                                         temp.ZeroFrameIndex = reactionData.CustomSHPIndex;
                                         damageText.OrderDamageText("WWSB", location, temp);

@@ -155,7 +155,7 @@ namespace Extension.Script
                     pos.Y = pos.Y - data.ImageSize.Y / 2;
 
                     // 按对齐方式再次调整锚点
-                    if (data.Align != HealthTextAlign.LEFT)
+                    if (data.Align != PrintTextAlign.LEFT)
                     {
                         int x = data.ImageSize.X % 2 == 0 ? data.ImageSize.X : data.ImageSize.X + 1;
                         int textWidth = text.ToCharArray().Length * x;
@@ -176,7 +176,7 @@ namespace Extension.Script
                     pos.Y = pos.Y - PrintTextManager.FontSize.Y + 5; // 字是20格高，上4中9下7
 
                     // 按对齐方式再次调整锚点
-                    if (data.Align != HealthTextAlign.LEFT)
+                    if (data.Align != PrintTextAlign.LEFT)
                     {
                         RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
                         int textWidth = textRect.Width;
@@ -194,25 +194,25 @@ namespace Extension.Script
                         }
                     }
                 }
-                PrintTextManager.Print(text, data, pos, pBound, Surface.Current, isBuilding);
+                PrintTextManager.Print(text, pTechno.Ref.Owner.Ref.LaserColor, data, pos, pBound, Surface.Current, isBuilding);
             }
 
         }
 
-        private void OffsetPosAlign(ref Point2D pos, int textWidth, int barWidth, HealthTextAlign align, bool isBuilding, bool useSHP)
+        private void OffsetPosAlign(ref Point2D pos, int textWidth, int barWidth, PrintTextAlign align, bool isBuilding, bool useSHP)
         {
             // Logger.Log($"{Game.CurrentFrame} textWidth = {textWidth}, barWidth = {barWidth}, align = {align}, isBuilding = {isBuilding}");
             int offset = barWidth - textWidth;
             switch (align)
             {
-                case HealthTextAlign.CENTER:
+                case PrintTextAlign.CENTER:
                     pos.X += offset / 2;
                     if (isBuilding)
                     {
                         pos.Y -= offset / 4;
                     }
                     break;
-                case HealthTextAlign.RIGHT:
+                case PrintTextAlign.RIGHT:
                     pos.X += offset;
                     if (!useSHP)
                     {
