@@ -87,7 +87,7 @@ namespace Extension.Script
             InitMark();
             InitPaintball(); // always same JoJo and Stand
             InitPump();
-            InitRevenge(); // state AffectWho
+            InitRevenge();
             InitScatter();
             InitStack();
             InitTeleport();
@@ -223,6 +223,11 @@ namespace Extension.Script
         public bool IsSameGroup(AttachEffectData otherType)
         {
             return this.AEData.Group > -1 && otherType.Group > -1 && this.AEData.Group == otherType.Group;
+        }
+
+        public int GetTimeLeft()
+        {
+            return immortal ? this.duration : lifeTimer.GetTimeLeft();;
         }
 
         public void MergeDuation(int otherDuration)
@@ -422,6 +427,20 @@ namespace Extension.Script
             foreach (IEffect effect in effects)
             {
                 effect?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+            }
+        }
+
+        public void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH,
+            DamageState damageState,
+            Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        {
+            if (delayToEnable)
+            {
+                return;
+            }
+            foreach (IEffect effect in effects)
+            {
+                effect?.OnReceiveDamage2(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             }
         }
 

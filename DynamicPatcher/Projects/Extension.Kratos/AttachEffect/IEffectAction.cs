@@ -43,6 +43,8 @@ namespace Extension.Ext
         void OnRemove();
         // 收到伤害
         void OnReceiveDamage(Pointer<int> pDamage, int DistanceFromEpicenter, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, bool IgnoreDefenses, bool PreventPassengerEscape, Pointer<HouseClass> pAttackingHouse);
+        // 收到实际伤害
+        void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse);
         // 收到伤害导致死亡
         void OnReceiveDamageDestroy();
         // 按下G键

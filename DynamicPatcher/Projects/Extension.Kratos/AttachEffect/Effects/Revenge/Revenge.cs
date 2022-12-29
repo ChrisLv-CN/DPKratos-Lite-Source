@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
@@ -12,48 +13,49 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-    public partial class TechnoStatusScript
+    public partial class AttachEffect
     {
-        public State<RevengeData> RevengeState = new State<RevengeData>();
+        public Revenge Revenge;
 
-        public void InitState_Revenge()
+        private void InitRevenge()
         {
-            // 初始化状态机
-            RevengeData data = Ini.GetConfig<RevengeData>(Ini.RulesDependency, section).Data;
-            if (data.Enable)
-            {
-                RevengeState.Enable(data);
-            }
+            this.Revenge = AEData.RevengeData.CreateEffect<Revenge>();
+            RegisterEffect(Revenge);
         }
+    }
 
-        public unsafe void OnReceiveDamage2_Revenge(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+
+    [Serializable]
+    public class Revenge : Effect<RevengeData>
+    {
+        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            RevengeData data = null;
-            if (!pAttacker.IsNull && RevengeState.IsActive() && ((data = RevengeState.Data).Realtime || damageState == DamageState.NowDead) && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno) && !pAttacker.IsDeadOrInvisible())
+            if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead) && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno) && !pAttacker.IsDeadOrInvisible())
             {
                 // 过滤平民
+                Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                if (data.DeactiveWhenCivilian && !pHouse.IsNull && pHouse.IsCivilian())
+                if (Data.DeactiveWhenCivilian && !pHouse.IsNull && pHouse.IsCivilian())
                 {
                     return;
                 }
                 // 过滤浮空
-                if (!data.AffectInAir && pAttackerTechno.InAir())
+                if (!Data.AffectInAir && pAttackerTechno.InAir())
                 {
                     return;
                 }
                 // 发射武器复仇
-                if (data.CanAffectHouse(pHouse, pAttackingHouse) && data.CanAffectType(pAttackerTechno) && data.IsOnMark(pAttackerTechno))
+                if (Data.CanAffectHouse(pHouse, pAttackingHouse) && Data.CanAffectType(pAttackerTechno) && Data.IsOnMark(pAttackerTechno))
                 {
                     // 使用武器复仇
-                    if (null != data.Types && data.Types.Any())
+                    if (null != Data.Types && Data.Types.Any())
                     {
                         AttachFireScript attachFire = pTechno.FindOrAllocate<AttachFireScript>();
                         if (null != attachFire)
                         {
                             Pointer<AbstractClass> pRevengTarget = pAttacker.Convert<AbstractClass>();
                             // 发射武器
-                            foreach (string weaponId in data.Types)
+                            foreach (string weaponId in Data.Types)
                             {
                                 if (!weaponId.IsNullOrEmptyOrNone())
                                 {
@@ -63,10 +65,10 @@ namespace Extension.Script
                         }
                     }
                     // 使用AE复仇
-                    if (null != data.AttachEffects && data.AttachEffects.Any())
+                    if (null != Data.AttachEffects && Data.AttachEffects.Any())
                     {
                         AttachEffectScript aeManager = pAttackerTechno.GetComponent<AttachEffectScript>();
-                        aeManager.Attach(data.AttachEffects, pTechno.Convert<ObjectClass>(), pHouse);
+                        aeManager.Attach(Data.AttachEffects, pTechno.Convert<ObjectClass>(), pHouse);
                     }
                 }
             }

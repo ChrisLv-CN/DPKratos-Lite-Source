@@ -647,11 +647,6 @@ namespace Extension.Script
                             // 同步禁止选择
                             status.DeselectState.Enable(duration, token, data);
                         }
-                        else if (data is RevengeData)
-                        {
-                            // 同步复仇
-                            status.RevengeState.Enable(duration, token, data);
-                        }
                     }
                 }
             }
@@ -1077,6 +1072,20 @@ namespace Extension.Script
             }
 
         }
+
+        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH,
+            DamageState damageState,
+            Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        {
+            foreach (AttachEffect ae in AttachEffects)
+            {
+                if (ae.IsActive())
+                {
+                    ae.OnReceiveDamage2(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+                }
+            }
+        }
+
 
         public override void OnDetonate(Pointer<CoordStruct> pCoords, ref bool skip)
         {
