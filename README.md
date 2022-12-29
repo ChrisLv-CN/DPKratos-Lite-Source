@@ -3,8 +3,8 @@
 关于Kratos-Lite（About Kratos-Lite）
 ============
 
-原 `Kratos Build8` 现更名为 `Kraots-Lite`。   
-The original `Kratos Build8` is now rename as `Kraots-Lite`.
+原 `Kratos Build8` 现更名为 `Kratos-Lite`。   
+The original `Kratos Build8` is now rename as `Kratos-Lite`.
 
 新版本将深度结合DP2.1的框架结构，对代码进行完全重构，想比之前的版本，具有更轻量、更快的速度、更便捷的更新机制。   
 The new version will deeply combine the framework structure of DP2.1, completely refactor the code, and have a lighter, faster and more convenient update mechanism than the previous version.
