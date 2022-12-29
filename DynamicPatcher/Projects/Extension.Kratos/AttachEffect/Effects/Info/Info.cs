@@ -29,8 +29,6 @@ namespace Extension.Script
     public class Info : Effect<InfoData>
     {
 
-        private int count;
-
         public override void OnRenderEnd(CoordStruct location)
         {
             string watch = Data.Watch;
@@ -53,13 +51,41 @@ namespace Extension.Script
                 {
                     int number = -1;
                     List<AttachEffect> aes = aem.AttachEffects;
+                    bool breakout = false;
                     for (int i = aes.Count() - 1; i >= 0; i--)
                     {
                         AttachEffect temp = aes[i];
                         if (temp.AEData.Name == watch)
                         {
-                            number = temp.GetTimeLeft();
-                            break;
+                            int num = temp.GetTimeLeft();
+                            // Logger.Log($"{Game.CurrentFrame} 监视AE[{watch}]，剩余时间{num}，排序{Data.DurationInfo.Sort}");
+                            switch (Data.DurationInfo.Sort)
+                            {
+                                case SortType.MIN:
+                                    if (num < number)
+                                    {
+                                        number = num;
+                                    }
+                                    break;
+                                case SortType.MAX:
+                                    if (num > number)
+                                    {
+                                        number = num;
+                                    }
+                                    break;
+                                default:
+                                    number = num;
+                                    breakout = true;
+                                    break;
+                            }
+                            if (breakout)
+                            {
+                                break;
+                            }
+                            if (number < 0)
+                            {
+                                number = num;
+                            }
                         }
                     }
                     if (number > -1)
@@ -88,20 +114,6 @@ namespace Extension.Script
                     }
                 }
             }
-        }
-
-        private bool IsPlayerControl()
-        {
-            Pointer<HouseClass> pHouse = IntPtr.Zero;
-            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
-            {
-                pHouse = pTechno.Ref.Owner;
-            }
-            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
-            {
-                pHouse = pBullet.GetSourceHouse();
-            }
-            return !pHouse.IsNull && pHouse.Ref.PlayerControl;
         }
 
         /// <summary>

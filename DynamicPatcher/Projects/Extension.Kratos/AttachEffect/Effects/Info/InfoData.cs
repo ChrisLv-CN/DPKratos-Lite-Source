@@ -54,23 +54,61 @@ namespace Extension.Ext
     }
 
     [Serializable]
+    public enum SortType
+    {
+        FIRST = 0, MIN = 1, MAX = 2
+    }
+    public class SortTypeParser : KEnumParser<SortType>
+    {
+        public override bool Parse(string val, ref SortType buffer)
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                string t = val.Substring(0, 3).ToUpper();
+                return ParseInitials(t, ref buffer);
+            }
+            return false;
+        }
+
+        public override bool ParseInitials(string t, ref SortType buffer)
+        {
+            switch (t)
+            {
+                case "MIN":
+                    buffer = SortType.MIN;
+                    return true;
+                case "MAX":
+                    buffer = SortType.MAX;
+                    return true;
+                default:
+                    buffer = SortType.FIRST;
+                    return true;
+            }
+        }
+    }
+
+    [Serializable]
     public class InfoEntity : PrintTextData
     {
         static InfoEntity()
         {
             new InfoModeParser().Register();
-            new PrintTextAlignParser().Register();
+            new SortTypeParser().Register();
         }
 
         public InfoMode Mode;
         public bool ShowEnemy;
         public bool OnlySelected;
 
+        public SortType Sort;
+
         public InfoEntity() : base()
         {
             this.Mode = InfoMode.NONE;
             this.ShowEnemy = true;
             this.OnlySelected = false;
+
+            this.Sort = SortType.FIRST;
 
             this.Align = PrintTextAlign.CENTER;
             this.Color = new ColorStruct(0, 252, 0);
@@ -80,7 +118,7 @@ namespace Extension.Ext
         {
             base.Read(reader, title);
             this.Mode = reader.Get(title + "Mode", Mode);
-            switch(Mode)
+            switch (Mode)
             {
                 case InfoMode.SHP:
                     this.UseSHP = true;
@@ -92,6 +130,8 @@ namespace Extension.Ext
             }
             this.ShowEnemy = reader.Get(title + "ShowEnemy", ShowEnemy);
             this.OnlySelected = reader.Get(title + "OnlySelected", OnlySelected);
+
+            this.Sort = reader.Get(title + "Sort", Sort);
         }
     }
 

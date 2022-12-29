@@ -24,7 +24,7 @@ namespace Extension.Utilities
             Parsers.RemoveParser<T>();
         }
 
-        public bool Parse(string val, ref T buffer)
+        public virtual bool Parse(string val, ref T buffer)
         {
             if (!string.IsNullOrEmpty(val))
             {
