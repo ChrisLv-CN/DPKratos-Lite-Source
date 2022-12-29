@@ -28,9 +28,9 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamage2_Revenge(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (damageState == DamageState.NowDead && !pAttacker.IsNull && RevengeState.IsActive() && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno) && !pAttacker.IsDeadOrInvisible())
+            RevengeData data = null;
+            if (!pAttacker.IsNull && RevengeState.IsActive() && ((data = RevengeState.Data).Realtime || damageState == DamageState.NowDead) && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno) && !pAttacker.IsDeadOrInvisible())
             {
-                RevengeData data = RevengeState.Data;
                 // 过滤平民
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
                 if (data.DeactiveWhenCivilian && !pHouse.IsNull && pHouse.IsCivilian())

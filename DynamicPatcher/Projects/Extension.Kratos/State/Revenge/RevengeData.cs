@@ -34,6 +34,7 @@ namespace Extension.Ext
 
         public string[] Types;
         public string[] AttachEffects;
+        public bool Realtime;
 
         static RevengeData()
         {
@@ -45,6 +46,7 @@ namespace Extension.Ext
         {
             this.Types = null;
             this.AttachEffects = null;
+            this.Realtime = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -58,6 +60,8 @@ namespace Extension.Ext
             {
                 this.Enable = AffectTechno;
             }
+
+            this.Realtime = reader.Get(TITLE + "Realtime", this.Realtime);
         }
 
     }
