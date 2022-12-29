@@ -14,6 +14,7 @@ namespace Extension.Script
     public partial class TechnoStatusScript : TechnoScriptable
     {
         public static Dictionary<TechnoExt, StandData> StandArray = new Dictionary<TechnoExt, StandData>();
+        public static Dictionary<TechnoExt, StandData> ImmuneStandArray = new Dictionary<TechnoExt, StandData>();
         public static List<TechnoExt> VirtualUnitArray = new List<TechnoExt>();
 
         // 抛射体上的替身有可能因为抛射体的发射者已经挂了而为空
@@ -41,37 +42,38 @@ namespace Extension.Script
             if (AmIStand())
             {
                 // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, add to list.");
-                StandArray.Add(Owner, StandData);
+                if (StandData.Immune)
+                {
+                    ImmuneStandArray.Add(Owner, StandData);
+                }
+                else
+                {
+                    StandArray.Add(Owner, StandData);
+                }
             }
+            else if (VirtualUnit)
+            {
+                // 单位既是替身又是虚单位，只加入替身清单
+                VirtualUnitArray.Add(Owner);
+            }
+            // 虚单位拔地而起
             if (VirtualUnit)
             {
                 pTechno.Ref.Base.Mark(MarkType.UP);
-                // 单位既是替身又是虚单位，只加入替身清单
-                if (!StandArray.ContainsKey(Owner))
-                {
-                    VirtualUnitArray.Add(Owner);
-                }
             }
         }
 
         public void OnReceiveDamageDestroy_StandUnit()
         {
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 被炸死, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
-            if (AmIStand())
-            {
-                // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} is stand, remove form list.");
-                StandArray.Remove(Owner);
-            }
-            if (VirtualUnit)
-            {
-                VirtualUnitArray.Remove(Owner);
-            }
+            OnRemove_StandUnit();
         }
 
         public void OnRemove_StandUnit()
         {
             // Logger.Log($"{Game.CurrentFrame}, [{section}]{pTechno} remove on the map");
             StandArray.Remove(Owner);
+            ImmuneStandArray.Remove(Owner);
             VirtualUnitArray.Remove(Owner);
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
@@ -487,17 +488,7 @@ namespace ExtensionHooks
                     UnitClass.Array.FindObject((pUnit) =>
                     {
                         Pointer<TechnoClass> pTarget = pUnit.Convert<TechnoClass>();
-                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
-                        {
-                            // 检查所属
-                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
-                            {
-                                // 检查距离
-                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
-                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
-                            }
-                        }
+                        found = pTarget.CanBeBase(houseIndex, pCell);
                         return found;
                     });
                 }
@@ -507,17 +498,7 @@ namespace ExtensionHooks
                     InfantryClass.Array.FindObject((pInf) =>
                     {
                         Pointer<TechnoClass> pTarget = pInf.Convert<TechnoClass>();
-                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
-                        {
-                            // 检查所属
-                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
-                            {
-                                // 检查距离
-                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
-                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
-                            }
-                        }
+                        found = pTarget.CanBeBase(houseIndex, pCell);
                         return found;
                     });
                 }
@@ -527,17 +508,7 @@ namespace ExtensionHooks
                     AircraftClass.Array.FindObject((pAircraft) =>
                     {
                         Pointer<TechnoClass> pTarget = pAircraft.Convert<TechnoClass>();
-                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                        if (!pTarget.IsDeadOrInvisible() && pTarget.InAir() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
-                        {
-                            // 检查所属
-                            if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
-                            {
-                                // 检查距离
-                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
-                                found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
-                            }
-                        }
+                        found = pTarget.CanBeBase(houseIndex, pCell);
                         return found;
                     });
                 }
@@ -550,17 +521,20 @@ namespace ExtensionHooks
                         if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
                         {
                             Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
-                            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                            if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                            if (found = pTarget.CanBeBase(houseIndex, pCell))
                             {
-                                // 检查所属
-                                if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
-                                {
-                                    // 检查距离
-                                    CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
-                                    found = MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
-                                }
-                                if (found)
+                                break;
+                            }
+                        }
+                    }
+                    if (!found)
+                    {
+                        foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.ImmuneStandArray)
+                        {
+                            if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                            {
+                                Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
+                                if (found = pTarget.CanBeBase(houseIndex, pCell))
                                 {
                                     break;
                                 }

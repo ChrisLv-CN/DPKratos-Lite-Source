@@ -115,5 +115,21 @@ namespace Extension.Utilities
             }
             return true;
         }
+
+        public static bool CanBeBase(this Pointer<TechnoClass> pTechno, int houseIndex, Pointer<CellClass> pCell, bool checkInAir = false)
+        {
+            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+            if (!pTechno.IsDeadOrInvisible() && (!checkInAir || pTechno.InAir()) && BaseNormalData.CanBeBase(pTechno.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTechno.Ref.Owner).IsNull)
+            {
+                // 检查所属
+                if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
+                {
+                    // 检查距离
+                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                    return MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
+                }
+            }
+            return false;
+        }
     }
 }
