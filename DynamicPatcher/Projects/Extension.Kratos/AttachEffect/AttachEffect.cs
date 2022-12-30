@@ -226,9 +226,24 @@ namespace Extension.Script
             return this.AEData.Group > -1 && otherType.Group > -1 && this.AEData.Group == otherType.Group;
         }
 
-        public int GetTimeLeft()
+        public bool TryGetInitDelayTimeLeft(out int timeLeft)
         {
-            return immortal ? this.duration : lifeTimer.GetTimeLeft();;
+            timeLeft = -1;
+            if (delayToEnable)
+            {
+                timeLeft = initialDelayTimer.GetTimeLeft();
+            }
+            return timeLeft > -1;
+        }
+
+        public bool TryGetDurationTimeLeft(out int timeLeft)
+        {
+            timeLeft = -1;
+            if (!immortal)
+            {
+                timeLeft = lifeTimer.GetTimeLeft();
+            }
+            return timeLeft > -1;
         }
 
         public void MergeDuation(int otherDuration)

@@ -143,15 +143,19 @@ namespace Extension.Ext
 
         public string Watch;
 
-        public InfoEntity DurationInfo;
-        public InfoEntity StackInfo;
+        public InfoEntity Duration;
+        public InfoEntity Delay;
+        public InfoEntity InitDelay;
+        public InfoEntity Stack;
 
 
         public InfoData()
         {
             this.Watch = null;
-            this.DurationInfo = new InfoEntity();
-            this.StackInfo = new InfoEntity();
+            this.Duration = new InfoEntity();
+            this.Delay = new InfoEntity();
+            this.InitDelay = new InfoEntity();
+            this.Stack = new InfoEntity();
         }
 
         public InfoData(IConfigReader reader) : this()
@@ -165,10 +169,15 @@ namespace Extension.Ext
 
             this.Watch = reader.Get(TITLE + "Watch", this.Watch);
 
-            this.DurationInfo.Read(reader, TITLE + "Duration.");
-            this.StackInfo.Read(reader, TITLE + "Stack.");
+            this.Duration.Read(reader, TITLE + "Duration.");
+            this.Delay.Read(reader, TITLE + "Delay.");
+            this.InitDelay.Read(reader, TITLE + "InitDelay.");
+            this.Stack.Read(reader, TITLE + "Stack.");
 
-            this.Enable = DurationInfo.Mode != InfoMode.NONE || StackInfo.Mode != InfoMode.NONE;
+            this.Enable = Duration.Mode != InfoMode.NONE
+                        || Delay.Mode != InfoMode.NONE
+                        || InitDelay.Mode != InfoMode.NONE
+                        || Stack.Mode != InfoMode.NONE;
         }
 
     }

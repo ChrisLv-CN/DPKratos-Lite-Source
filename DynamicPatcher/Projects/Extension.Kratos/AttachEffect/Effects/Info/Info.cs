@@ -44,62 +44,119 @@ namespace Extension.Script
             }
             ColorStruct houseColor = !pHouse.IsNull ? pHouse.Ref.LaserColor : default;
             bool isPlayerControl = !pHouse.IsNull && pHouse.Ref.PlayerControl;
-            // 显示Duration
-            if (Data.DurationInfo.Mode != InfoMode.NONE)
+            Point2D pos = location.ToClientPos();
+            // 显示Duration和InitDelay
+            bool checkDuration = false;
+            bool checkInitDelay = false;
+            if (checkDuration = Data.Duration.Mode != InfoMode.NONE || (checkInitDelay = Data.InitDelay.Mode != InfoMode.NONE))
             {
-                if ((Data.DurationInfo.ShowEnemy || isPlayerControl) && (!Data.DurationInfo.OnlySelected || pOwner.Ref.IsSelected))
+                if ((Data.Duration.ShowEnemy || isPlayerControl) && (!Data.Duration.OnlySelected || pOwner.Ref.IsSelected))
                 {
-                    int number = -1;
+                    int duration = -1;
+                    int initDelay = -1;
                     List<AttachEffect> aes = aem.AttachEffects;
-                    bool breakout = false;
                     for (int i = aes.Count() - 1; i >= 0; i--)
                     {
                         AttachEffect temp = aes[i];
                         if (temp.AEData.Name == watch)
                         {
-                            int num = temp.GetTimeLeft();
-                            // Logger.Log($"{Game.CurrentFrame} 监视AE[{watch}]，剩余时间{num}，排序{Data.DurationInfo.Sort}");
-                            switch (Data.DurationInfo.Sort)
+                            // 读取Duration
+                            if (checkDuration && temp.TryGetDurationTimeLeft(out int durationLeft))
                             {
-                                case SortType.MIN:
-                                    if (num < number)
-                                    {
-                                        number = num;
-                                    }
-                                    break;
-                                case SortType.MAX:
-                                    if (num > number)
-                                    {
-                                        number = num;
-                                    }
-                                    break;
-                                default:
-                                    number = num;
-                                    breakout = true;
-                                    break;
+                                switch (Data.Duration.Sort)
+                                {
+                                    case SortType.MIN:
+                                        if (durationLeft < duration)
+                                        {
+                                            duration = durationLeft;
+                                        }
+                                        break;
+                                    case SortType.MAX:
+                                        if (durationLeft > duration)
+                                        {
+                                            duration = durationLeft;
+                                        }
+                                        break;
+                                    default:
+                                        checkDuration = false;
+                                        break;
+                                }
+                                if (duration < 0)
+                                {
+                                    duration = durationLeft;
+                                }
                             }
-                            if (breakout)
+                            // 读取InitDelay
+                            if (checkInitDelay && temp.TryGetInitDelayTimeLeft(out int delayLeft))
+                            {
+                                switch (Data.InitDelay.Sort)
+                                {
+                                    case SortType.MIN:
+                                        if (delayLeft < initDelay)
+                                        {
+                                            initDelay = delayLeft;
+                                        }
+                                        break;
+                                    case SortType.MAX:
+                                        if (delayLeft > initDelay)
+                                        {
+                                            initDelay = delayLeft;
+                                        }
+                                        break;
+                                    default:
+                                        checkInitDelay = false;
+                                        break;
+                                }
+                                if (initDelay < 0)
+                                {
+                                    initDelay = delayLeft;
+                                }
+                            }
+                            if (!checkDuration && !checkInitDelay)
                             {
                                 break;
                             }
-                            if (number < 0)
-                            {
-                                number = num;
-                            }
                         }
                     }
-                    if (number > -1)
+                    if (duration > -1)
                     {
                         // Logger.Log($"{Game.CurrentFrame} 监视[{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}上的AE[{watch}]剩余时间{number}");
                         // 显示Duration
-                        PrintInfoText(number, houseColor, location, Data.DurationInfo);
+                        PrintInfoText(duration, houseColor, pos, Data.Duration);
+                    }
+                    if (initDelay > -1)
+                    {
+                        // 显示InitDelay
+                        PrintInfoText(duration, houseColor, pos, Data.InitDelay);
+                    }
+                }
+            }
+            // 显示Delay
+            if (Data.Delay.Mode != InfoMode.NONE)
+            {
+                if ((Data.Duration.ShowEnemy || isPlayerControl) && (!Data.Duration.OnlySelected || pOwner.Ref.IsSelected))
+                {
+                    int delay = -1;
+                    if (aem.DisableDelayTimers.ContainsKey(watch))
+                    {
+                        TimerStruct timer = aem.DisableDelayTimers[watch];
+                        if (timer.InProgress())
+                        {
+                            delay = timer.GetTimeLeft();
+                        }
+                    }
+                    if (delay > -1)
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} 监视[{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}上的AE[{watch}]有{stacks}层");
+                        // 显示delay
+                        PrintInfoText(delay, houseColor, pos, Data.Delay);
                     }
                 }
             }
             // 显示Stack
-            if (Data.StackInfo.Mode != InfoMode.NONE)
+            if (Data.Stack.Mode != InfoMode.NONE)
             {
-                if ((Data.StackInfo.ShowEnemy || isPlayerControl) && (!Data.StackInfo.OnlySelected || pOwner.Ref.IsSelected))
+                if ((Data.Stack.ShowEnemy || isPlayerControl) && (!Data.Stack.OnlySelected || pOwner.Ref.IsSelected))
                 {
                     int stacks = -1;
                     if (aem.AEStacks.ContainsKey(watch))
@@ -110,7 +167,7 @@ namespace Extension.Script
                     {
                         // Logger.Log($"{Game.CurrentFrame} 监视[{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}上的AE[{watch}]有{stacks}层");
                         // 显示Stacks
-                        PrintInfoText(stacks, houseColor, location, Data.StackInfo);
+                        PrintInfoText(stacks, houseColor, pos, Data.Stack);
                     }
                 }
             }
@@ -121,10 +178,10 @@ namespace Extension.Script
         /// </summary>
         /// <param name="number"></param>
         /// <param name="data"></param>
-        private void PrintInfoText(int number, ColorStruct houseColor, CoordStruct location, InfoEntity data)
+        private void PrintInfoText(int number, ColorStruct houseColor, Point2D location, InfoEntity data)
         {
             // 调整锚点
-            Point2D pos = location.ToClientPos();
+            Point2D pos = location;
             pos.X += data.Offset.X; // 锚点向右的偏移值
             pos.Y += data.Offset.Y; // 锚点向下的偏移值
 
