@@ -1,3 +1,4 @@
+using System.Drawing;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -47,28 +48,38 @@ namespace Extension.Script
                 // 发射武器复仇
                 if (Data.CanAffectHouse(pHouse, pAttackingHouse) && Data.CanAffectType(pAttackerTechno) && Data.IsOnMark(pAttackerTechno))
                 {
-                    // 使用武器复仇
-                    if (null != Data.Types && Data.Types.Any())
+                    Pointer<TechnoClass> pRevenger = pTechno;
+                    Pointer<HouseClass> pRevengerHouse = pHouse;
+                    if (Data.FromSource)
                     {
-                        AttachFireScript attachFire = pTechno.FindOrAllocate<AttachFireScript>();
-                        if (null != attachFire)
+                        pRevenger = AE.pSource;
+                        pRevengerHouse = AE.pSourceHouse;
+                    }
+                    if (!pRevenger.IsNull)
+                    {
+                        // 使用武器复仇
+                        if (null != Data.Types && Data.Types.Any())
                         {
-                            Pointer<AbstractClass> pRevengTarget = pAttacker.Convert<AbstractClass>();
-                            // 发射武器
-                            foreach (string weaponId in Data.Types)
+                            AttachFireScript attachFire = pRevenger.FindOrAllocate<AttachFireScript>();
+                            if (null != attachFire)
                             {
-                                if (!weaponId.IsNullOrEmptyOrNone())
+                                Pointer<AbstractClass> pRevengTarget = pAttacker.Convert<AbstractClass>();
+                                // 发射武器
+                                foreach (string weaponId in Data.Types)
                                 {
-                                    attachFire.FireCustomWeapon(pTechno, pAttacker.Convert<AbstractClass>(), pHouse, weaponId, default);
+                                    if (!weaponId.IsNullOrEmptyOrNone())
+                                    {
+                                        attachFire.FireCustomWeapon(pRevenger, pAttacker.Convert<AbstractClass>(), pRevengerHouse, weaponId, default);
+                                    }
                                 }
                             }
                         }
-                    }
-                    // 使用AE复仇
-                    if (null != Data.AttachEffects && Data.AttachEffects.Any())
-                    {
-                        AttachEffectScript aeManager = pAttackerTechno.GetComponent<AttachEffectScript>();
-                        aeManager.Attach(Data.AttachEffects, pTechno.Convert<ObjectClass>(), pHouse);
+                        // 使用AE复仇
+                        if (null != Data.AttachEffects && Data.AttachEffects.Any())
+                        {
+                            AttachEffectScript aeManager = pAttackerTechno.GetComponent<AttachEffectScript>();
+                            aeManager.Attach(Data.AttachEffects, pRevenger.Convert<ObjectClass>(), pRevengerHouse);
+                        }
                     }
                 }
             }
