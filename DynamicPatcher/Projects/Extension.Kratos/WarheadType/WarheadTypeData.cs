@@ -32,6 +32,8 @@ namespace Extension.Ext
         public bool Teleporter;
         // 弹头捕获标记
         public bool Capturer;
+        // 不触发复仇
+        public bool IgnoreRevenge;
         // 不触发伤害响应
         public bool IgnoreDamageReaction;
         // 替身不分摊伤害
@@ -55,6 +57,7 @@ namespace Extension.Ext
 
             this.Teleporter = false;
             this.Capturer = false;
+            this.IgnoreRevenge = false;
             this.IgnoreDamageReaction = false;
             this.IgnoreStandShareDamage = false;
         }
@@ -78,6 +81,7 @@ namespace Extension.Ext
 
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
             this.Capturer = reader.Get("Capturer", this.Capturer);
+            this.IgnoreRevenge = reader.Get("IgnoreRevenge", this.IgnoreRevenge);
             this.IgnoreDamageReaction = reader.Get("IgnoreDamageReaction", this.IgnoreDamageReaction);
             this.IgnoreStandShareDamage = reader.Get("IgnoreStandShareDamage", this.IgnoreStandShareDamage);
         }

@@ -31,7 +31,10 @@ namespace Extension.Script
     {
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead) && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno) && !pAttacker.IsDeadOrInvisible())
+            if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead)
+                && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno)
+                && !pAttacker.IsDeadOrInvisible()
+                && pWH.CanRevenge())
             {
                 // 过滤平民
                 Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
@@ -48,14 +51,19 @@ namespace Extension.Script
                 // 发射武器复仇
                 if (Data.CanAffectHouse(pHouse, pAttackingHouse) && Data.CanAffectType(pAttackerTechno) && Data.IsOnMark(pAttackerTechno))
                 {
-                    Pointer<TechnoClass> pRevenger = pTechno;
+                    Pointer<TechnoClass> pRevenger = pTechno; // 复仇者
                     Pointer<HouseClass> pRevengerHouse = pHouse;
+                    Pointer<TechnoClass> pRevengeTargetTechno = pAttackerTechno; // 报复对象
+                    if (Data.ToSource)
+                    {
+                        pRevengeTargetTechno = AE.pSource;
+                    }
                     if (Data.FromSource)
                     {
                         pRevenger = AE.pSource;
                         pRevengerHouse = AE.pSourceHouse;
                     }
-                    if (!pRevenger.IsNull)
+                    if (!pRevenger.IsNull && !pRevengeTargetTechno.IsDeadOrInvisible())
                     {
                         // 使用武器复仇
                         if (null != Data.Types && Data.Types.Any())
@@ -63,21 +71,19 @@ namespace Extension.Script
                             AttachFireScript attachFire = pRevenger.FindOrAllocate<AttachFireScript>();
                             if (null != attachFire)
                             {
-                                Pointer<AbstractClass> pRevengTarget = pAttacker.Convert<AbstractClass>();
                                 // 发射武器
                                 foreach (string weaponId in Data.Types)
                                 {
                                     if (!weaponId.IsNullOrEmptyOrNone())
                                     {
-                                        attachFire.FireCustomWeapon(pRevenger, pAttacker.Convert<AbstractClass>(), pRevengerHouse, weaponId, default);
+                                        attachFire.FireCustomWeapon(pRevenger, pRevengeTargetTechno.Convert<AbstractClass>(), pRevengerHouse, weaponId, default);
                                     }
                                 }
                             }
                         }
                         // 使用AE复仇
-                        if (null != Data.AttachEffects && Data.AttachEffects.Any())
+                        if (null != Data.AttachEffects && Data.AttachEffects.Any() && pRevengeTargetTechno.TryGetAEManager(out AttachEffectScript aeManager))
                         {
-                            AttachEffectScript aeManager = pAttackerTechno.GetComponent<AttachEffectScript>();
                             aeManager.Attach(Data.AttachEffects, pRevenger.Convert<ObjectClass>(), pRevengerHouse);
                         }
                     }

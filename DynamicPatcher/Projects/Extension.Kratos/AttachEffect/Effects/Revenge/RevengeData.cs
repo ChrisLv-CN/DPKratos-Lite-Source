@@ -36,6 +36,7 @@ namespace Extension.Ext
         public string[] AttachEffects;
         public bool Realtime;
         public bool FromSource;
+        public bool ToSource;
 
         static RevengeData()
         {
@@ -49,6 +50,7 @@ namespace Extension.Ext
             this.AttachEffects = null;
             this.Realtime = false;
             this.FromSource = false;
+            this.ToSource = false;
         }
 
         public override void Read(IConfigReader reader)
@@ -65,6 +67,7 @@ namespace Extension.Ext
 
             this.Realtime = reader.Get(TITLE + "Realtime", this.Realtime);
             this.FromSource = reader.Get(TITLE + "FromSource", this.FromSource);
+            this.ToSource = reader.Get(TITLE + "ToSource", this.ToSource);
         }
 
     }
