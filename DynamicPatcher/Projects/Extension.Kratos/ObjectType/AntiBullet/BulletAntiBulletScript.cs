@@ -27,7 +27,7 @@ namespace Extension.Script
             Pointer<TechnoClass> pShooter = pBullet.Ref.Owner;
             if (!pShooter.IsNull && pShooter.TryGetComponent<TechnoAntiBulletScript>(out TechnoAntiBulletScript technoAntiBullet))
             {
-                AntiBulletData antiBulletData = technoAntiBullet.AntiBulletData;
+                AntiBulletData antiBulletData = technoAntiBullet.Data;
                 if (null != antiBulletData)
                 {
                     bulletStatus.DamageData.Eliminate = antiBulletData.OneShotOneKill;
