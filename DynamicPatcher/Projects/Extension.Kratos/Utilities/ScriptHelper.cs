@@ -37,12 +37,29 @@ namespace Extension.Utilities
         // 便利
         public static AnimStatusScript GetStatus(this Pointer<AnimClass> pAnim)
         {
-            return pAnim.GetComponent<AnimStatusScript>();
+            if (pAnim.TryGetStatus(out AnimStatusScript animStatus))
+            {
+                return animStatus;
+            }
+            return null;
         }
 
-        public static bool TryGetStatus(this Pointer<AnimClass> pAnim, out AnimStatusScript bulletStatus)
+        public static bool TryGetStatus(this Pointer<AnimClass> pAnim, out AnimStatusScript animStatus)
         {
-            return pAnim.TryGetComponent<AnimStatusScript>(out bulletStatus);
+            animStatus = null;
+            if (!pAnim.IsNull)
+            {
+                AnimExt ext = AnimExt.ExtMap.Find(pAnim);
+                if (null != ext)
+                {
+                    if (null == ext.Status)
+                    {
+                        ext.Status = ext.GameObject.GetComponent<AnimStatusScript>();
+                    }
+                    animStatus = (AnimStatusScript)ext.Status;
+                }
+            }
+            return null != animStatus;
         }
         #endregion
 
@@ -70,14 +87,42 @@ namespace Extension.Utilities
         }
 
         // 便利
+        // public static TechnoStatusScript GetStatus(this Pointer<TechnoClass> pTechno)
+        // {
+        //     return pTechno.GetComponent<TechnoStatusScript>();
+        // }
+
+        // public static bool TryGetStatus(this Pointer<TechnoClass> pTechno, out TechnoStatusScript technoStatus)
+        // {
+        //     return pTechno.TryGetComponent<TechnoStatusScript>(out technoStatus);
+        // }
+
+        // 便利
         public static TechnoStatusScript GetStatus(this Pointer<TechnoClass> pTechno)
         {
-            return pTechno.GetComponent<TechnoStatusScript>();
+            if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus))
+            {
+                return technoStatus;
+            }
+            return null;
         }
 
         public static bool TryGetStatus(this Pointer<TechnoClass> pTechno, out TechnoStatusScript technoStatus)
         {
-            return pTechno.TryGetComponent<TechnoStatusScript>(out technoStatus);
+            technoStatus = null;
+            if (!pTechno.IsNull)
+            {
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext)
+                {
+                    if (null == ext.Status)
+                    {
+                        ext.Status = ext.GameObject.GetComponent<TechnoStatusScript>();
+                    }
+                    technoStatus = (TechnoStatusScript)ext.Status;
+                }
+            }
+            return null != technoStatus;
         }
 
         public static TechnoStatusScript GetTechnoStatus(this Pointer<AbstractClass> pTarget)
@@ -136,12 +181,29 @@ namespace Extension.Utilities
         // 便利
         public static BulletStatusScript GetStatus(this Pointer<BulletClass> pBullet)
         {
-            return pBullet.GetComponent<BulletStatusScript>();
+            if (pBullet.TryGetStatus(out BulletStatusScript bulletStatus))
+            {
+                return bulletStatus;
+            }
+            return null;
         }
 
         public static bool TryGetStatus(this Pointer<BulletClass> pBullet, out BulletStatusScript bulletStatus)
         {
-            return pBullet.TryGetComponent<BulletStatusScript>(out bulletStatus);
+            bulletStatus = null;
+            if (!pBullet.IsNull)
+            {
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                if (null != ext)
+                {
+                    if (null == ext.Status)
+                    {
+                        ext.Status = ext.GameObject.GetComponent<BulletStatusScript>();
+                    }
+                    bulletStatus = (BulletStatusScript)ext.Status;
+                }
+            }
+            return null != bulletStatus;
         }
 
         public static BulletStatusScript GetBulletStatus(this Pointer<AbstractClass> pTarget)
@@ -251,32 +313,93 @@ namespace Extension.Utilities
         // 便利
         public static AttachEffectScript GetAEManegr(this Pointer<ObjectClass> pObject)
         {
-            return pObject.GetComponent<AttachEffectScript>();
+            if (pObject.TryGetAEManager(out AttachEffectScript aeManager))
+            {
+                return aeManager;
+            }
+            return null;
         }
 
         public static bool TryGetAEManager(this Pointer<ObjectClass> pObject, out AttachEffectScript aeManager)
         {
-            return pObject.TryGetComponent<AttachEffectScript>(out aeManager);
+            aeManager = null;
+            if (!pObject.IsNull)
+            {
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    return pTechno.TryGetAEManager(out aeManager);
+                }
+                else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    return pBullet.TryGetAEManager(out aeManager);
+                }
+            }
+            return null != aeManager;
         }
+
+
+        // public static AttachEffectScript GetAEManegr(this Pointer<TechnoClass> pTechno)
+        // {
+        //     return pTechno.GetComponent<AttachEffectScript>();
+        // }
+
+        // public static bool TryGetAEManager(this Pointer<TechnoClass> pTechno, out AttachEffectScript aeManager)
+        // {
+        //     return pTechno.TryGetComponent<AttachEffectScript>(out aeManager);
+        // }
 
         public static AttachEffectScript GetAEManegr(this Pointer<TechnoClass> pTechno)
         {
-            return pTechno.GetComponent<AttachEffectScript>();
+            if (pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+            {
+                return aeManager;
+            }
+            return null;
         }
 
         public static bool TryGetAEManager(this Pointer<TechnoClass> pTechno, out AttachEffectScript aeManager)
         {
-            return pTechno.TryGetComponent<AttachEffectScript>(out aeManager);
+            aeManager = null;
+            if (!pTechno.IsNull)
+            {
+                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                if (null != ext)
+                {
+                    if (null == ext.AEManager)
+                    {
+                        ext.AEManager = ext.GameObject.GetComponent<AttachEffectScript>();
+                    }
+                    aeManager = (AttachEffectScript)ext.AEManager;
+                }
+            }
+            return null != aeManager;
         }
 
         public static AttachEffectScript GetAEManegr(this Pointer<BulletClass> pBullet)
         {
-            return pBullet.GetComponent<AttachEffectScript>();
+            if (pBullet.TryGetAEManager(out AttachEffectScript aeManager))
+            {
+                return aeManager;
+            }
+            return null;
         }
 
         public static bool TryGetAEManager(this Pointer<BulletClass> pBullet, out AttachEffectScript aeManager)
         {
-            return pBullet.TryGetComponent<AttachEffectScript>(out aeManager);
+            aeManager = null;
+            if (!pBullet.IsNull)
+            {
+                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
+                if (null != ext)
+                {
+                    if (null == ext.AEManager)
+                    {
+                        ext.AEManager = ext.GameObject.GetComponent<AttachEffectScript>();
+                    }
+                    aeManager = (AttachEffectScript)ext.AEManager;
+                }
+            }
+            return null != aeManager;
         }
         #endregion
 
