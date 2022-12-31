@@ -13,7 +13,18 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
-        private SpawnAnimsData spawnAnimsData => Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
+        private SpawnAnimsData _spawnAnimsData;
+        private SpawnAnimsData spawnAnimsData
+        {
+            get
+            {
+                if (null == _spawnAnimsData)
+                {
+                    _spawnAnimsData = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
+                }
+                return _spawnAnimsData;
+            }
+        }
 
         public void OnNext_SpawnAnims(Pointer<AnimTypeClass> pNext)
         {

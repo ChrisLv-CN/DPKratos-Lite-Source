@@ -13,7 +13,18 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
-        public AnimDamageData AnimDamageData => Ini.GetConfig<AnimDamageData>(Ini.ArtDependency, section).Data;
+        private AnimDamageData _animDamageData;
+        private AnimDamageData animDamageData
+        {
+            get
+            {
+                if (null == _animDamageData)
+                {
+                    _animDamageData = Ini.GetConfig<AnimDamageData>(Ini.ArtDependency, section).Data;
+                }
+                return _animDamageData;
+            }
+        }
 
         private TechnoExt createrExt;
         private Pointer<TechnoClass> creater => null != createrExt ? createrExt.OwnerObject : default;
@@ -24,7 +35,7 @@ namespace Extension.Script
 
         public void SetCreater(Pointer<TechnoClass> pTechno)
         {
-            if (AnimDamageData.KillByCreater && !pTechno.IsNull)
+            if (animDamageData.KillByCreater && !pTechno.IsNull)
             {
                 createrExt = TechnoExt.ExtMap.Find(pTechno);
             }
@@ -39,13 +50,13 @@ namespace Extension.Script
             if (!initDelayFlag)
             {
                 initDelayFlag = true;
-                weaponDelay.Start(AnimDamageData.InitDelay);
+                weaponDelay.Start(animDamageData.InitDelay);
             }
             if (!createrIsDeadth)
             {
                 if (creater.IsNull)
                 {
-                    if (AnimDamageData.KillByCreater && !pAnim.Ref.OwnerObject.IsNull && pAnim.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
+                    if (animDamageData.KillByCreater && !pAnim.Ref.OwnerObject.IsNull && pAnim.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
                     {
                         createrExt = TechnoExt.ExtMap.Find(pTechno);
                     }
@@ -77,10 +88,10 @@ namespace Extension.Script
                     location = pAnim.Ref.Bounce.GetCoords();
                 }
                 int damage = (int)pAnimType.Ref.Damage;
-                if (damage != 0 || (!AnimDamageData.Weapon.IsNullOrEmptyOrNone() && AnimDamageData.UseWeaponDamage))
+                if (damage != 0 || (!animDamageData.Weapon.IsNullOrEmptyOrNone() && animDamageData.UseWeaponDamage))
                 {
                     // 制造伤害
-                    string weaponType = AnimDamageData.Weapon;
+                    string weaponType = animDamageData.Weapon;
                     Pointer<WarheadTypeClass> pWH = pAnimType.Ref.Warhead;
                     // 检查动画类型有没有写弹头
                     if (!weaponType.IsNullOrEmptyOrNone())
@@ -90,7 +101,7 @@ namespace Extension.Script
                         if (!pWeapon.IsNull)
                         {
                             // 使用武器的伤害数值
-                            if (AnimDamageData.UseWeaponDamage)
+                            if (animDamageData.UseWeaponDamage)
                             {
                                 damage = pWeapon.Ref.Damage;
                             }
@@ -107,7 +118,7 @@ namespace Extension.Script
                                     pBullet.SetSourceHouse(pAnim.Ref.Owner);
                                     pBullet.Ref.Detonate(location);
                                     pBullet.Ref.Base.UnInit();
-                                    weaponDelay.Start(AnimDamageData.Delay);
+                                    weaponDelay.Start(animDamageData.Delay);
                                 }
                             }
                         }
@@ -119,13 +130,13 @@ namespace Extension.Script
                         {
                             // Logger.Log($"{Game.CurrentFrame} - 动画 {pAnim} [{pAnimType.Ref.Base.Base.ID}] 用弹头播放伤害 TypeDamage = {damage}, AnimDamage = {pAnim.Ref.Damage}, Warhead = {pAnimType.Ref.Warhead}");
                             MapClass.DamageArea(location, damage, creater, pWH, true, pAnim.Ref.Owner);
-                            weaponDelay.Start(AnimDamageData.Delay);
+                            weaponDelay.Start(animDamageData.Delay);
                             if (bright)
                             {
                                 MapClass.FlashbangWarheadAt(damage, pWH, location);
                             }
                             // 播放弹头动画
-                            if (AnimDamageData.PlayWarheadAnim)
+                            if (animDamageData.PlayWarheadAnim)
                             {
                                 LandType landType = LandType.Clear;
                                 if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))

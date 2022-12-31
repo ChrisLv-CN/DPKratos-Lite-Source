@@ -17,12 +17,13 @@ namespace Extension.Script
     {
         public PlaySuperScript(AnimExt owner) : base(owner) { }
 
-        private PlaySuperData data => Ini.GetConfig<PlaySuperData>(Ini.ArtDependency, section).Data;
+        private PlaySuperData data;
 
         private bool playSuperWeaponFlag = false;
 
         public override void Awake()
         {
+            data = Ini.GetConfig<PlaySuperData>(Ini.ArtDependency, section).Data;
             if (!data.Enable)
             {
                 GameObject.RemoveComponent(this);
