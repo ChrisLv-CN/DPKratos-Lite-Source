@@ -21,13 +21,24 @@ namespace Extension.Script
 
         public bool InitFlag;
 
-        private TrajectoryData trajectoryData => Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+        private TrajectoryData _data;
+        private TrajectoryData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         public override void Awake()
         {
             if (!pBullet.Ref.Type.Ref.Arcing
                 || pBullet.Ref.Type.Ref.ROT > 0
-                || !trajectoryData.AdvancedBallistics)
+                || !data.AdvancedBallistics)
             {
                 GameObject.RemoveComponent(this);
                 return;
@@ -57,10 +68,10 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} 炮弹 [{section}]{pBullet} 出膛初速度 {pBullet.Ref.Velocity}");
 
                 // 速度控制
-                if (trajectoryData.ArcingFixedSpeed > 0)
+                if (data.ArcingFixedSpeed > 0)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 原抛射体[{section}]{pBullet} 速度{pBullet.Ref.Speed}, 高级弹道学, 改使用恒定速度{trajectoryData.ArcingFixedSpeed}");
-                    pBullet.Ref.Speed = trajectoryData.ArcingFixedSpeed;
+                    pBullet.Ref.Speed = data.ArcingFixedSpeed;
                 }
                 else
                 {
@@ -70,9 +81,9 @@ namespace Extension.Script
                 int speed = (int)(pBullet.Ref.Speed * speedMultiple);
                 int gravity = RulesClass.Global().Gravity;
                 bool lobber = !pBullet.Ref.WeaponType.IsNull ? pBullet.Ref.WeaponType.Ref.Lobber : false;
-                bool inaccurate = trajectoryData.Inaccurate;
-                float min = trajectoryData.BallisticScatterMin;
-                float max = trajectoryData.BallisticScatterMax;
+                bool inaccurate = data.Inaccurate;
+                float min = data.BallisticScatterMin;
+                float max = data.BallisticScatterMax;
 
                 BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, speed, gravity, lobber, inaccurate, min, max, pBullet.Ref.Velocity.ToCoordStruct().Z, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
                 pBullet.Ref.Speed = (int)realSpeed;

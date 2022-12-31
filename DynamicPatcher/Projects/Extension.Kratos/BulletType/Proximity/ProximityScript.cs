@@ -87,7 +87,17 @@ namespace Extension.Script
 
         private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
 
-        private ProximityData proximityData => Ini.GetConfig<ProximityData>(Ini.RulesDependency, section).Data;
+        private ProximityData _data;
+        private ProximityData data
+        {
+            get {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<ProximityData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private Proximity proximity;
         private int proximityRange = -1;
@@ -111,7 +121,7 @@ namespace Extension.Script
                 }
             }
             // 设置碰触引擎
-            if (proximityData.Force)
+            if (data.Force)
             {
                 ActiveProximity();
             }
@@ -119,7 +129,7 @@ namespace Extension.Script
 
         public void ActiveProximity()
         {
-            this.proximity = new Proximity(pBullet.Ref.Type.Ref.CourseLockDuration, proximityData.PenetrationTimes);
+            this.proximity = new Proximity(pBullet.Ref.Type.Ref.CourseLockDuration, data.PenetrationTimes);
         }
 
         public override void OnLateUpdate()
@@ -155,7 +165,7 @@ namespace Extension.Script
                         return;
                     }
                     // 计算碰撞的半径，超过1格，确定搜索范围
-                    int cellSpread = (proximityData.Arm / 256) + 1;
+                    int cellSpread = (data.Arm / 256) + 1;
                     // Logger.Log("Arm = {0}，确定搜索范围 {1} 格", Proximity.Data.Arm, cellSpread);
 
                     // 每个格子只检查一次
@@ -236,10 +246,10 @@ namespace Extension.Script
                             {
                                 // 检查建筑在范围内
                                 Pointer<BuildingClass> pBuilding = pTarget.Convert<BuildingClass>();
-                                hit = pBuilding.CanHit(sourcePos.Z, proximityData.Blade, proximityData.ZOffset);
+                                hit = pBuilding.CanHit(sourcePos.Z, data.Blade, data.ZOffset);
                                 // Logger.Log($"{Game.CurrentFrame} 碰触建筑 {pBuilding}");
                                 // 检查建筑是否被炸过
-                                if (hit && proximityData.PenetrationBuildingOnce)
+                                if (hit && data.PenetrationBuildingOnce)
                                 {
                                     hit = pBuilding != pSourceTargetBuilding && !proximity.CheckAndMarkBuilding(pBuilding);
                                 }
@@ -251,8 +261,8 @@ namespace Extension.Script
                                 // 判定原点抬升至与抛射体同高
                                 sourceTestPos.Z = sourcePos.Z;
                                 // 目标点在脚下，加上高度修正偏移值
-                                CoordStruct targetTestPos = targetPos + new CoordStruct(0, 0, proximityData.ZOffset);
-                                if (proximityData.Blade)
+                                CoordStruct targetTestPos = targetPos + new CoordStruct(0, 0, data.ZOffset);
+                                if (data.Blade)
                                 {
                                     // 无视高度，只检查横向距离
                                     targetTestPos.Z = sourceTestPos.Z;
@@ -260,7 +270,7 @@ namespace Extension.Script
                                 // BulletEffectHelper.RedCrosshair(sourceTestPos, 128, 1, 75);
                                 // BulletEffectHelper.RedCrosshair(targetTestPos, 128, 1, 75);
                                 // BulletEffectHelper.BlueLine(sourceTestPos, targetTestPos, 3, 75);
-                                hit = targetTestPos.DistanceFrom(sourceTestPos) <= proximityData.Arm;
+                                hit = targetTestPos.DistanceFrom(sourceTestPos) <= data.Arm;
                                 // Logger.Log("目标单位坐标加上修正值{0}, 与抛射体的距离{1}，检测半径{2}", Proximity.Data.ZOffset, targetTestPos.DistanceFrom(sourceTestPos), Proximity.Data.Arm);
                             }
 
@@ -271,7 +281,7 @@ namespace Extension.Script
                                 CoordStruct detonatePos = targetPos; // 爆点在与目标位置
                                 // BulletEffectHelper.RedCrosshair(detonatePos, 2048, 1, 75);
                                 // Logger.Log("抛射体位置{0}，偏移位置{1}", sourcePos, detonatePos);
-                                if (ManualDetonation(sourcePos, !proximityData.Penetration, pTarget.Convert<AbstractClass>(), detonatePos))
+                                if (ManualDetonation(sourcePos, !data.Penetration, pTarget.Convert<AbstractClass>(), detonatePos))
                                 {
                                     // 爆了就结束了
                                     break;
@@ -288,7 +298,7 @@ namespace Extension.Script
         {
             // 检查死亡和发射者
             if (pTarget.IsDeadOrInvisible() || pTarget == pBullet.Ref.Owner
-                || (!proximityData.AffectsClocked && pTarget.IsCloaked())
+                || (!data.AffectsClocked && pTarget.IsCloaked())
                 || pTarget.Ref.IsImmobilized)
             {
                 return true;
@@ -304,15 +314,15 @@ namespace Extension.Script
             {
                 if (pTargetOwner == bulletStatus.pSourceHouse)
                 {
-                    return proximityData.AffectsAllies || proximityData.AffectsOwner;
+                    return data.AffectsAllies || data.AffectsOwner;
                 }
                 else if (pTargetOwner.Ref.IsAlliedWith(bulletStatus.pSourceHouse))
                 {
-                    return proximityData.AffectsAllies;
+                    return data.AffectsAllies;
                 }
                 else
                 {
-                    return proximityData.AffectsEnemies;
+                    return data.AffectsEnemies;
                 }
             }
             return false;
@@ -328,7 +338,7 @@ namespace Extension.Script
             // }
 
             // 检查穿透次数是否用完
-            KABOOM = KABOOM || null == proximity || !proximityData.Penetration || proximity.TimesDone();
+            KABOOM = KABOOM || null == proximity || !data.Penetration || proximity.TimesDone();
 
             if (KABOOM)
             {
@@ -350,7 +360,7 @@ namespace Extension.Script
                 Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
 
                 // 检查自定义武器是否存在，存在则使用自定义武器制造伤害，不存在就用自身制造伤害
-                string weaponId = proximityData.PenetrationWeapon;
+                string weaponId = data.PenetrationWeapon;
                 if (!string.IsNullOrEmpty(weaponId))
                 {
                     // 对敌人造成自定义武器的伤害
@@ -362,7 +372,7 @@ namespace Extension.Script
                     }
                 }
                 // 检查是否使用其他弹头
-                string warheadId = proximityData.PenetrationWarhead;
+                string warheadId = data.PenetrationWarhead;
                 if (!string.IsNullOrEmpty(warheadId))
                 {
                     Pointer<WarheadTypeClass> pOverrideWH = WarheadTypeClass.ABSTRACTTYPE_ARRAY.Find(warheadId);

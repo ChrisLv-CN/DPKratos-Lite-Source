@@ -41,14 +41,25 @@ namespace Extension.Script
         private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
         private ProximityScript proximity => GameObject.GetComponent<ProximityScript>();
 
-        private TrajectoryData trajectoryData => Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+        private TrajectoryData _data;
+        private TrajectoryData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private StraightBullet straightBullet;
         private bool resetTargetFlag;
 
         public override void Awake()
         {
-            switch (trajectoryData.SubjectToGround)
+            switch (data.SubjectToGround)
             {
                 case SubjectToGround.YES:
                     bulletStatus.SubjectToGround = true;
@@ -57,12 +68,12 @@ namespace Extension.Script
                     bulletStatus.SubjectToGround = false;
                     break;
                 default:
-                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !pBullet.Ref.Type.Ref.Inviso && !trajectoryData.IsStraight();
+                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !pBullet.Ref.Type.Ref.Inviso && !data.IsStraight();
                     break;
             }
 
             // 非直线导弹不执行本脚本
-            if (pBullet.Ref.Type.Ref.Inviso || pBullet.AmIArcing() || (pBullet.Ref.Type.Ref.ROT != 1 && !trajectoryData.IsStraight()))
+            if (pBullet.Ref.Type.Ref.Inviso || pBullet.AmIArcing() || (pBullet.Ref.Type.Ref.ROT != 1 && !data.IsStraight()))
             {
                 GameObject.RemoveComponent(this);
                 return;
@@ -80,7 +91,7 @@ namespace Extension.Script
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
                 // 绝对直线，重设目标坐标
-                if (trajectoryData.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
+                if (data.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
                 {
                     // Logger.Log("{0} 绝对直线弹道", pBullet.Ref.Type.Ref.Base.Base.ID);
                     double distance = targetPos.DistanceFrom(sourcePos);

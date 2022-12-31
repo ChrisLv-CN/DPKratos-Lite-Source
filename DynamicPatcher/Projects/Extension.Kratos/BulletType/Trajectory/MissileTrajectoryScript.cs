@@ -19,7 +19,18 @@ namespace Extension.Script
     {
         public MissileTrajectoryScript(BulletExt owner) : base(owner) { }
 
-        private TrajectoryData trajectoryData => Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+        private TrajectoryData _data;
+        private TrajectoryData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
 
         public override void Awake()
@@ -45,22 +56,22 @@ namespace Extension.Script
             }
 
             // 翻转发射方向
-            if (trajectoryData.ReverseVelocity)
+            if (data.ReverseVelocity)
             {
                 BulletVelocity velocity = pBullet.Ref.Velocity;
                 pBullet.Ref.Velocity *= -1;
-                if (!trajectoryData.ReverseVelocityZ)
+                if (!data.ReverseVelocityZ)
                 {
                     pBullet.Ref.Velocity.Z = velocity.Z;
                 }
             }
 
             // 晃动的出膛方向
-            if (trajectoryData.ShakeVelocity != 0)
+            if (data.ShakeVelocity != 0)
             {
                 BulletVelocity velocity = pBullet.Ref.Velocity;
-                double shakeX = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
-                double shakeY = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
+                double shakeX = MathEx.Random.NextDouble() * data.ShakeVelocity;
+                double shakeY = MathEx.Random.NextDouble() * data.ShakeVelocity;
                 double shakeZ = MathEx.Random.NextDouble();
                 pBullet.Ref.Velocity.X *= shakeX;
                 pBullet.Ref.Velocity.Y *= shakeY;
