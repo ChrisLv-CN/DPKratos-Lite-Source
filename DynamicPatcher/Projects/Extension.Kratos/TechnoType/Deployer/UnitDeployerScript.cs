@@ -20,7 +20,18 @@ namespace Extension.Script
     {
         public UnitDeployerScript(TechnoExt owner) : base(owner) { }
 
-        private DeployToTransformData data => Ini.GetConfig<DeployToTransformData>(Ini.RulesDependency, section).Data;
+        private DeployToTransformData _data;
+        private DeployToTransformData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<DeployToTransformData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         public override void Awake()
         {

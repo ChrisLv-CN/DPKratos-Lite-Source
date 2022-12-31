@@ -23,7 +23,18 @@ namespace Extension.Script
 
         public float PitchAngle;
 
-        private AircraftAttitudeData attitudeData => Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, section).Data;
+        private AircraftAttitudeData _data;
+        private AircraftAttitudeData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
         private bool disable; // 关闭俯仰姿态自动调整，但不会影响俯冲
         private float targetAngle;
         private bool smooth; // 平滑的改变角度
@@ -43,7 +54,7 @@ namespace Extension.Script
                 return;
             }
 
-            this.disable = attitudeData.Disable;
+            this.disable = data.Disable;
             this.PitchAngle = 0f;
             this.smooth = true;
             this.lockAngle = false;
@@ -119,7 +130,7 @@ namespace Extension.Script
                     int dir = 0;
                     if (pFly.Ref.IsLanding)
                     {
-                        dir = attitudeData.SpawnLandDir;
+                        dir = data.SpawnLandDir;
                         // Logger.Log($"{Game.CurrentFrame} Landing dir {dir}");
                         DirStruct targetDir = pSpawnOwner.GetDirectionRelative(dir, false);
                         pTechno.Ref.Facing.turn(targetDir);
@@ -131,7 +142,7 @@ namespace Extension.Script
                         {
                             case Mission.Guard:
                             case Mission.Area_Guard:
-                                dir = attitudeData.SpawnTakeoffDir;
+                                dir = data.SpawnTakeoffDir;
                                 // Logger.Log($"{Game.CurrentFrame} Takeoff dir {dir}");
                                 DirStruct targetDir = pSpawnOwner.GetDirectionRelative(dir, false);
                                 pTechno.Ref.Facing.set(targetDir);
@@ -213,9 +224,9 @@ namespace Extension.Script
                 if (index < 12)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 傻逼飞机 [{pAircraft.Ref.Base.Base.Type.Ref.Base.ID}] 关联的机场 [{pAirport.Ref.Type.Ref.Base.Base.Base.ID}]{pAirport} 第{index}号停机位");
-                    AircraftDockingOffsetData data = pAirport.Convert<TechnoClass>().GetImageConfig<AircraftDockingOffsetData>();
+                    AircraftDockingOffsetData dockingOffsetdata = pAirport.Convert<TechnoClass>().GetImageConfig<AircraftDockingOffsetData>();
                     // 取设置的dir
-                    poseDir = data.Direction[index];
+                    poseDir = dockingOffsetdata.Direction[index];
                 }
                 return true;
             }

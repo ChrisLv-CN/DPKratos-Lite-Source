@@ -22,7 +22,18 @@ namespace Extension.Script
 
         public bool SkipROF;
 
-        private AutoFireAreaWeaponData data => Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section).Data;
+        private AutoFireAreaWeaponData _data;
+        private AutoFireAreaWeaponData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private TimerStruct reloadTimer;
         private TimerStruct initialDelayTimer;

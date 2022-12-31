@@ -27,7 +27,18 @@ namespace Extension.Script
         public AircraftGuardState State = AircraftGuardState.STOP;
         public bool Clockwise = false; // 顺时针巡航
 
-        private AircraftAreaGuardData data => Ini.GetConfig<AircraftAreaGuardData>(Ini.RulesDependency, section).Data;
+        private AircraftAreaGuardData _data;
+        private AircraftAreaGuardData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<AircraftAreaGuardData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private CoordStruct destCenter = default; // 航点
         private List<CoordStruct> destList = new List<CoordStruct>(); // 巡航的下一个实际坐标点

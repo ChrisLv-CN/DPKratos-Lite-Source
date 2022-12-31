@@ -763,9 +763,10 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
-                if (pTechno.TryGetComponent<DeployFireOnceScript>(out DeployFireOnceScript deployer))
+                Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
+                if (pMission.Ref.CurrentMission == Mission.Unload)
                 {
-                    deployer.UnitDeployFireOnce();
+                    pMission.Ref.QueueMission(Mission.Stop, true);
                 }
             }
             catch (Exception e)

@@ -19,7 +19,18 @@ namespace Extension.Script
     {
         public AircraftPutScript(TechnoExt owner) : base(owner) { }
 
-        private AircraftPutData aircraftPutData => Ini.GetConfig<AircraftPutData>(Ini.RulesDependency, section).Data;
+        private AircraftPutData _data;
+        private AircraftPutData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<AircraftPutData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private bool aircraftPutOffsetFlag = false;
         private bool aircraftPutOffset = false;
@@ -27,7 +38,7 @@ namespace Extension.Script
         public override void Awake()
         {
             if (!pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
-                || null == aircraftPutData.PadAircraftTypes || !aircraftPutData.PadAircraftTypes.Contains(section))
+                || null == data.PadAircraftTypes || !data.PadAircraftTypes.Contains(section))
             {
                 GameObject.RemoveComponent(this);
                 return;
@@ -41,18 +52,18 @@ namespace Extension.Script
             {
                 Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
                 // Logger.Log($"{Game.CurrentFrame} put [{section}]{pTechno} 当前有停机坪数量 {pHouse.Ref.AirportDocks}, 机场数量 {pHouse.Ref.NumAirpads}, 飞机数量 {AircraftClass.Array.Count()}");
-                if (pHouse.Ref.AirportDocks <= 0 || pHouse.Ref.AirportDocks < CountAircraft(aircraftPutData.PadAircraftTypes))
+                if (pHouse.Ref.AirportDocks <= 0 || pHouse.Ref.AirportDocks < CountAircraft(data.PadAircraftTypes))
                 {
                     aircraftPutOffsetFlag = true;
                 }
             }
 
             // 调整飞机出生点位
-            if (!aircraftPutOffsetFlag && default != aircraftPutData.NoHelipadPutOffset)
+            if (!aircraftPutOffsetFlag && default != data.NoHelipadPutOffset)
             {
                 aircraftPutOffsetFlag = true;
                 aircraftPutOffset = true;
-                if (!aircraftPutData.ForcePutOffset)
+                if (!data.ForcePutOffset)
                 {
                     // check Building has Helipad
                     if (MapClass.Instance.TryGetCellAt(pLocation.Ref, out Pointer<CellClass> pCell))
@@ -67,7 +78,7 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} 飞机[{section}]{pTechno} 调整产生位置 {aircraftPutOffset}, 偏移 {aircraftPutData.NoHelipadPutOffset}");
                 if (aircraftPutOffset)
                 {
-                    pLocation.Ref += aircraftPutData.NoHelipadPutOffset;
+                    pLocation.Ref += data.NoHelipadPutOffset;
                 }
             }
         }
@@ -78,7 +89,7 @@ namespace Extension.Script
             {
                 aircraftPutOffset = false;
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                CoordStruct pos = location + aircraftPutData.NoHelipadPutOffset;
+                CoordStruct pos = location + data.NoHelipadPutOffset;
                 // Logger.Log("Change put Location {0} to {1}", location, pos);
                 pTechno.Ref.Base.SetLocation(pos);
                 if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))

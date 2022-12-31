@@ -20,7 +20,27 @@ namespace Extension.Script
     {
         public PassengersScript(TechnoExt owner) : base(owner) { }
 
-        private PassengersData data => Ini.GetConfig<PassengersData>(Ini.RulesDependency, section).Data;
+        private PassengersData _data;
+        private PassengersData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<PassengersData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
+
+        public override void Awake()
+        {
+            if (!pTechno.Convert<AbstractClass>().Ref.AbstractFlags.HasFlag(AbstractFlags.Foot))
+            {
+                GameObject.RemoveComponent(this);
+                return;
+            }
+        }
 
         /// <summary>
         /// 乘客只有塞进OpenTopped的载具内，才会执行Update

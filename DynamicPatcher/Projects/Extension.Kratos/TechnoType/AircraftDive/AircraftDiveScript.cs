@@ -28,14 +28,25 @@ namespace Extension.Script
         public AircraftDiveStatus DiveStatus;
 
         private AircraftAttitudeScript attitudeScript => GameObject.GetComponent<AircraftAttitudeScript>();
-        private AircraftDiveData aircraftDiveData => Ini.GetConfig<AircraftDiveData>(Ini.RulesDependency, section).Data;
+        private AircraftDiveData _data;
+        private AircraftDiveData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<AircraftDiveData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private bool activeDive;
 
         public override void Awake()
         {
             ILocomotion locomotion = null;
-            if (!aircraftDiveData.Enable || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
+            if (!data.Enable || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || (locomotion = pAircraft.Convert<FootClass>().Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
                 GameObject.RemoveComponent(this);
@@ -62,7 +73,7 @@ namespace Extension.Script
                 }
 
                 // 带蛋起飞，并且高度超过设定值时，开启俯冲
-                if (pFly.Ref.IsElevating && pTechno.Ref.Base.GetHeight() >= aircraftDiveData.FlightLevel)
+                if (pFly.Ref.IsElevating && pTechno.Ref.Base.GetHeight() >= data.FlightLevel)
                 {
                     activeDive = true;
                 }
@@ -78,7 +89,7 @@ namespace Extension.Script
                         }
                         else
                         {
-                            if (aircraftDiveData.PullUpAfterFire)
+                            if (data.PullUpAfterFire)
                             {
                                 // 持续保持头对准目标
                                 attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
@@ -97,7 +108,7 @@ namespace Extension.Script
                             // 检查距离目标的距离是否足够近以触发俯冲姿态
                             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                             CoordStruct targetPos = pTarget.Ref.GetCoords();
-                            int distance = (int)(aircraftDiveData.Distance * 256);
+                            int distance = (int)(data.Distance * 256);
                             if (distance == 0)
                             {
                                 int weaponIndex = pTechno.Ref.SelectWeapon(pTarget);
@@ -109,7 +120,7 @@ namespace Extension.Script
                                 // 进入俯冲状态
                                 DiveStatus = AircraftDiveStatus.DIVEING;
                                 // 调整飞行高度
-                                pFly.Ref.FlightLevel = aircraftDiveData.FlightLevel;
+                                pFly.Ref.FlightLevel = data.FlightLevel;
                                 // 头对准目标
                                 attitudeScript.UpdateHeadToCoord(pTarget.Ref.GetCoords(), true);
                                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始俯冲 修改飞行高度为 {pFly.Ref.FlightLevel}");
@@ -123,7 +134,7 @@ namespace Extension.Script
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             // Logger.Log($"{Game.CurrentFrame} 投弹 是否拉起 {aircraftDiveData.PullUpAfterFire}");
-            if (aircraftDiveData.PullUpAfterFire && DiveStatus == AircraftDiveStatus.DIVEING)
+            if (data.PullUpAfterFire && DiveStatus == AircraftDiveStatus.DIVEING)
             {
                 DiveStatus = AircraftDiveStatus.PULLUP;
             }

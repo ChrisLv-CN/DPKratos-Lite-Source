@@ -20,7 +20,18 @@ namespace Extension.Script
 
         public SpawnFireOnceScript(TechnoExt owner) : base(owner) { }
 
-        private SpawnFireOnceData spawnFireOnceData => Ini.GetConfig<SpawnFireOnceData>(Ini.RulesDependency, section).Data;
+        private SpawnFireOnceData _data;
+        private SpawnFireOnceData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<SpawnFireOnceData>(Ini.RulesDependency, section).Data;
+                }
+                return _data;
+            }
+        }
 
         private TimerStruct spawnFireOnceDelay;
         private bool spawnFireFlag;
@@ -44,7 +55,7 @@ namespace Extension.Script
                 Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
                 if (!pSpawnOwner.IsNull && pSpawnOwner.TryGetComponent<SpawnFireOnceScript>(out SpawnFireOnceScript ext))
                 {
-                    if (ext.spawnFireOnceData.FireOnce)
+                    if (ext.data.FireOnce)
                     {
                         ext.CancelSpawnDest();
                     }
@@ -66,7 +77,7 @@ namespace Extension.Script
         {
             if (!spawnFireFlag)
             {
-                spawnFireOnceDelay.Start(spawnFireOnceData.Delay);
+                spawnFireOnceDelay.Start(data.Delay);
                 spawnFireFlag = true;
             }
             else
