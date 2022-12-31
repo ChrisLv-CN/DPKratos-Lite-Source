@@ -75,6 +75,7 @@ namespace Extension.Ext
         public int ZOffset; // ZAdjust偏移值
         public bool SameTilter; // 同步倾斜
         public bool SameMoving; // 同步移动动画
+        public bool StickOnFloor; // 同步移动动画时贴在地上
 
         public bool SameHouse; // 与使者同所属
         public bool SameTarget; // 与使者同个目标
@@ -129,6 +130,7 @@ namespace Extension.Ext
             this.ZOffset = 14;
             this.SameTilter = true;
             this.SameMoving = false;
+            this.StickOnFloor = true;
 
             this.SameHouse = true;
             this.SameTarget = true;
@@ -197,6 +199,7 @@ namespace Extension.Ext
                 this.ZOffset = reader.Get(TITLE + "ZOffset", this.ZOffset);
                 this.SameTilter = reader.Get(TITLE + "SameTilter", this.SameTilter);
                 this.SameMoving = reader.Get(TITLE + "SameMoving", this.SameMoving);
+                this.StickOnFloor = reader.Get(TITLE + "StickOnFloor", this.StickOnFloor);
 
                 this.SameHouse = reader.Get(TITLE + "SameHouse", this.SameHouse);
                 this.SameTarget = reader.Get(TITLE + "SameTarget", this.SameTarget);
