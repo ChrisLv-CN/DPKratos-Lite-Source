@@ -317,7 +317,7 @@ namespace ExtensionHooks
                     {
                         // Logger.Log($"{Game.CurrentFrame} - {pAnim} {pAnim.Ref.Type.Ref.Base.Base.ID} Extras {R->EDI} {R->EAX} ");
                         R->EAX = 0;
-                        return 0x423D9B;
+                        return 0x423D98;
                     }
                 }
             }
