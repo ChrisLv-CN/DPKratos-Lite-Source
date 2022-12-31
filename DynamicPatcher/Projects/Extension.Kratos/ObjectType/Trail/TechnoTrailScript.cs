@@ -19,13 +19,22 @@ namespace Extension.Script
 
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(TechnoStatusScript))]
+    // [UpdateAfter(typeof(TechnoStatusScript))]
     public class TechnoTrailScript : TechnoScriptable
     {
         public TechnoTrailScript(TechnoExt owner) : base(owner) { }
 
         private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private List<Trail> trails;
+
+        public override void Awake()
+        {
+            if (!pTechno.Convert<AbstractClass>().Ref.AbstractFlags.HasFlag(AbstractFlags.Foot))
+            {
+                GameObject.RemoveComponent(this);
+                return;
+            }
+        }
 
         public void SetupTrails(List<Trail> trails = null)
         {
@@ -54,7 +63,7 @@ namespace Extension.Script
 
         public override void OnLateUpdate()
         {
-            if (null != trails)
+            if (null != trails && trails.Any())
             {
                 if (!pTechno.IsDeadOrInvisibleOrCloaked() && pTechno.Ref.Base.GetHeight() >= 0)
                 {

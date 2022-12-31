@@ -27,6 +27,10 @@ namespace Extension.Script
             {
                 this.trails = trails;
             }
+            else
+            {
+                GameObject.RemoveComponent(this);
+            }
         }
 
         public override void OnLateUpdate()
