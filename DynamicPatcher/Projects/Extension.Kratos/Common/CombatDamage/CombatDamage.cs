@@ -14,7 +14,7 @@ namespace Extension.Ext
     public class CombatDamage
     {
 
-        public static CombatDamageData Data => Ini.GetConfig<CombatDamageData>(Ini.RulesDependency, RulesClass.SectionCombatDamage).Data;
+        public static CombatDamageData Data = Ini.GetConfig<CombatDamageData>(Ini.RulesDependency, RulesClass.SectionCombatDamage).Data;
 
     }
 }
