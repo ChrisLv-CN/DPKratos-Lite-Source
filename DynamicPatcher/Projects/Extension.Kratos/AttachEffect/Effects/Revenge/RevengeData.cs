@@ -34,6 +34,7 @@ namespace Extension.Ext
 
         public string[] Types;
         public string[] AttachEffects;
+        public CoordStruct FireFLH;
         public bool Realtime;
         public bool FromSource;
         public bool ToSource;
@@ -48,6 +49,7 @@ namespace Extension.Ext
         {
             this.Types = null;
             this.AttachEffects = null;
+            this.FireFLH = default;
             this.Realtime = false;
             this.FromSource = false;
             this.ToSource = false;
@@ -64,7 +66,7 @@ namespace Extension.Ext
             {
                 this.Enable = AffectTechno;
             }
-
+            this.FireFLH = reader.Get(TITLE + "FireFLH", this.FireFLH);
             this.Realtime = reader.Get(TITLE + "Realtime", this.Realtime);
             this.FromSource = reader.Get(TITLE + "FromSource", this.FromSource);
             this.ToSource = reader.Get(TITLE + "ToSource", this.ToSource);
