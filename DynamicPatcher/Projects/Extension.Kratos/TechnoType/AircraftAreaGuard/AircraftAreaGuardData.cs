@@ -28,7 +28,7 @@ namespace Extension.Ext
         {
             this.AreaGuard = false;
             this.GuardRange = 5;
-            this.AutoFire = false;
+            this.AutoFire = true;
             this.MaxAmmo = 1;
             this.GuardRadius = 5;
             this.FindRangeAroundSelf = false;

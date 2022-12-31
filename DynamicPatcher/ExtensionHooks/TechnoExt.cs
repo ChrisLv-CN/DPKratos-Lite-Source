@@ -381,7 +381,7 @@ namespace ExtensionHooks
                         // 阵营所属的伪装坦克
                         Pointer<HouseClass> pHouse = (IntPtr)R->EAX;
                         int sideIndex = pHouse.Ref.SideIndex;
-                        if (SideClass.ABSTRACTTYPE_ARRAY.Count() > sideIndex)
+                        if (sideIndex >= 0 && SideClass.ABSTRACTTYPE_ARRAY.Count() > sideIndex)
                         {
                             string sideId = SideClass.ABSTRACTTYPE_ARRAY.Array[sideIndex].Ref.Base.ID;
                             DisguiseData sideData = Ini.GetConfig<DisguiseData>(Ini.RulesDependency, sideId).Data;

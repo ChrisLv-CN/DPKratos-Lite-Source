@@ -358,7 +358,12 @@ namespace Extension.Script
         private bool CheckTarget(Pointer<TechnoClass> pTarget)
         {
             bool pick = false;
-            if (!pTarget.IsDeadOrInvisible() && !pTarget.Ref.Type.Ref.Base.Insignificant && !pTarget.Ref.Owner.Ref.IsAlliedWith(pTechno.Ref.Owner))
+            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+            Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
+            if (!pTarget.IsDeadOrInvisibleOrCloaked()
+                && !pTarget.Ref.Type.Ref.Base.Insignificant
+                && (!pTarget.Ref.Base.IsDisguised() || pTarget.Ref.IsClearlyVisibleTo(pHouse) || !(pTargetHouse = pTarget.Ref.Base.GetDisguiseHouse(true)).IsNull)
+                && !pTargetHouse.Ref.IsAlliedWith(pHouse))
             {
                 pick = true;
                 // 检查平民
@@ -367,9 +372,9 @@ namespace Extension.Script
                     // Ares 的平民敌对目标
                     pick = Ini.GetSection(Ini.RulesDependency, pTarget.Ref.Type.Ref.Base.Base.ID).Get("CivilianEnemy", false);
                     // Ares 的反击平民
-                    if (!pick && pTechno.Ref.Owner.AutoRepel() && !pTarget.Ref.Target.IsNull && pTarget.Ref.Target.CastToTechno(out Pointer<TechnoClass> pTargetTarget))
+                    if (!pick && pHouse.AutoRepel() && !pTarget.Ref.Target.IsNull && pTarget.Ref.Target.CastToTechno(out Pointer<TechnoClass> pTargetTarget))
                     {
-                        pick = pTechno.Ref.Owner.Ref.IsAlliedWith(pTargetTarget.Ref.Owner);
+                        pick = pHouse.Ref.IsAlliedWith(pTargetTarget.Ref.Owner);
                     }
                 }
             }
