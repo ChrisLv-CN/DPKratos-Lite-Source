@@ -41,16 +41,16 @@ namespace Extension.Script
         private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
         private ProximityScript proximity => GameObject.GetComponent<ProximityScript>();
 
-        private TrajectoryData _data;
+        private IConfigWrapper<TrajectoryData> _data;
         private TrajectoryData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

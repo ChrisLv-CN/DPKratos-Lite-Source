@@ -87,15 +87,15 @@ namespace Extension.Script
 
         private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
 
-        private ProximityData _data;
+        private IConfigWrapper<ProximityData> _data;
         private ProximityData data
         {
             get {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<ProximityData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<ProximityData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 
