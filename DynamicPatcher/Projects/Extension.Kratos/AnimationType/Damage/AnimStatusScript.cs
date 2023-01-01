@@ -13,16 +13,16 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
-        private AnimDamageData _animDamageData;
+        private IConfigWrapper<AnimDamageData> _animDamageData;
         private AnimDamageData animDamageData
         {
             get
             {
                 if (null == _animDamageData)
                 {
-                    _animDamageData = Ini.GetConfig<AnimDamageData>(Ini.ArtDependency, section).Data;
+                    _animDamageData = Ini.GetConfig<AnimDamageData>(Ini.ArtDependency, section);
                 }
-                return _animDamageData;
+                return _animDamageData.Data;
             }
         }
 

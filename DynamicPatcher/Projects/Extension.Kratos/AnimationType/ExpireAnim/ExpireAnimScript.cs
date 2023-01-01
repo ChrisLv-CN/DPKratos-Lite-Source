@@ -13,10 +13,21 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
+        private IConfigWrapper<ExpireAnimData> _expireAnimData;
+        private ExpireAnimData expireAnimData
+        {
+            get
+            {
+                if (null == _expireAnimData)
+                {
+                    _expireAnimData = Ini.GetConfig<ExpireAnimData>(Ini.ArtDependency, section);
+                }
+                return _expireAnimData.Data;
+            }
+        }
 
         public bool OverrideExpireAnimOnWater()
         {
-            ExpireAnimData expireAnimData = Ini.GetConfig<ExpireAnimData>(Ini.ArtDependency, section).Data;
             if (!expireAnimData.ExpireAnimOnWater.IsNullOrEmptyOrNone())
             {
                 // Logger.Log($"{Game.CurrentFrame} 试图接管 落水动画 {animType}");

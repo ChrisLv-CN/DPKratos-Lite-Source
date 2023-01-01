@@ -13,16 +13,16 @@ namespace Extension.Script
 
     public partial class AnimStatusScript
     {
-        private SpawnAnimsData _spawnAnimsData;
+        private IConfigWrapper<SpawnAnimsData> _spawnAnimsData;
         private SpawnAnimsData spawnAnimsData
         {
             get
             {
                 if (null == _spawnAnimsData)
                 {
-                    _spawnAnimsData = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section).Data;
+                    _spawnAnimsData = Ini.GetConfig<SpawnAnimsData>(Ini.ArtDependency, section);
                 }
-                return _spawnAnimsData;
+                return _spawnAnimsData.Data;
             }
         }
 

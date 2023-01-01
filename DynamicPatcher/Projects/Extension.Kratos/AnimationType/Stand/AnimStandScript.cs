@@ -17,7 +17,18 @@ namespace Extension.Script
     {
         public AnimStandScript(AnimExt owner) : base(owner) { }
 
-        private StandData data;
+        private IConfigWrapper<StandData> _data;
+        private StandData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<StandData>(Ini.ArtDependency, section);
+                }
+                return _data.Data;
+            }
+        }
         private bool initFlag = false;
 
         private TechnoExt standExt;
@@ -25,7 +36,6 @@ namespace Extension.Script
 
         public override void Awake()
         {
-            data = Ini.GetConfig<StandData>(Ini.ArtDependency, section).Data;
             if (!data.Enable)
             {
                 GameObject.RemoveComponent(this);
