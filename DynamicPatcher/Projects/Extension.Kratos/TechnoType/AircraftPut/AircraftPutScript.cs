@@ -19,16 +19,16 @@ namespace Extension.Script
     {
         public AircraftPutScript(TechnoExt owner) : base(owner) { }
 
-        private AircraftPutData _data;
+        private IConfigWrapper<AircraftPutData> _data;
         private AircraftPutData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<AircraftPutData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AircraftPutData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

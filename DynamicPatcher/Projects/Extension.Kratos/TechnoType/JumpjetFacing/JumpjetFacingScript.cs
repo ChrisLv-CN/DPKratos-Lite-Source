@@ -20,16 +20,16 @@ namespace Extension.Script
 
         public JumpjetFacingScript(TechnoExt owner) : base(owner) { }
 
-        private JumpjetFacingData _data;
+        private IConfigWrapper<JumpjetFacingData> _data;
         private JumpjetFacingData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<JumpjetFacingData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<JumpjetFacingData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

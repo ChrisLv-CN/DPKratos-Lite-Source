@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
+using Extension.Components;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
@@ -27,6 +28,12 @@ namespace Extension.Script
         private Mission lastMission;
 
         private bool isBuilding;
+        private bool isInfantry;
+        private bool isUnit;
+        private bool isAircraft;
+
+        private bool isVoxel;
+        private bool isFearless;
 
         private bool initStateFlag = false;
 
@@ -81,6 +88,23 @@ namespace Extension.Script
         {
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
             this.isBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
+            switch(pTechno.Ref.Base.Base.WhatAmI())
+            {
+                case AbstractType.Building:
+                    isBuilding = true;
+                    break;
+                case AbstractType.Infantry:
+                    isInfantry = true;
+                    isFearless = pTechno.Convert<InfantryClass>().Ref.Type.Ref.Fearless;
+                    break;
+                case AbstractType.Unit:
+                    isUnit = true;
+                    break;
+                case AbstractType.Aircraft:
+                    isAircraft = true;
+                    break;
+            }
+            isVoxel = pTechno.Ref.IsVoxel();
         }
 
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
@@ -143,11 +167,14 @@ namespace Extension.Script
                 }
                 OnUpdate_AttackBeacon();
                 OnUpdate_BlackHole();
+                OnUpdate_CrawlingFLH();
                 OnUpdate_DamageReaction();
+                OnUpdate_DamageText();
                 OnUpdate_Deselect();
                 OnUpdate_Freeze();
                 OnUpdate_GiftBox();
                 OnUpdate_Paintball();
+                OnUpdate_Passenger();
                 OnUpdate_Pump();
                 OnUpdate_Scatter();
                 OnUpdate_Teleport();
@@ -213,7 +240,7 @@ namespace Extension.Script
         {
             OnReceiveDamage2_BlackHole(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_DestroyAnim(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
-
+            OnReceiveDamage2_DamageText(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_GiftBox(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
         }
 
@@ -243,6 +270,10 @@ namespace Extension.Script
                 {
                     return;
                 }
+                if (ceaseFire = CanFire_Passenger(pTarget, pWeapon))
+                {
+                    return;
+                }
             }
         }
 
@@ -252,6 +283,7 @@ namespace Extension.Script
             OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
+            OnFire_RockerPitch(pTarget, weaponIndex);
         }
 
         public override void OnSelect(ref bool selectable)

@@ -23,16 +23,16 @@ namespace Extension.Script
 
         public float PitchAngle;
 
-        private AircraftAttitudeData _data;
+        private IConfigWrapper<AircraftAttitudeData> _data;
         private AircraftAttitudeData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AircraftAttitudeData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
         private bool disable; // 关闭俯仰姿态自动调整，但不会影响俯冲

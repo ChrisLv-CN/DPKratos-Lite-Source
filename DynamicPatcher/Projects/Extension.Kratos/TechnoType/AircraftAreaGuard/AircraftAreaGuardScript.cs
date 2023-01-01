@@ -27,16 +27,16 @@ namespace Extension.Script
         public AircraftGuardState State = AircraftGuardState.STOP;
         public bool Clockwise = false; // 顺时针巡航
 
-        private AircraftAreaGuardData _data;
+        private IConfigWrapper<AircraftAreaGuardData> _data;
         private AircraftAreaGuardData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<AircraftAreaGuardData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AircraftAreaGuardData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

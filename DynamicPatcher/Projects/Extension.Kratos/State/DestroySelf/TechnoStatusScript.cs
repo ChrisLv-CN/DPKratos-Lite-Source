@@ -41,10 +41,7 @@ namespace Extension.Script
                 }
                 else
                 {
-                    if (pTechno.TryGetComponent<DamageTextScript>(out DamageTextScript damageText))
-                    {
-                        damageText.SkipDamageText = true;
-                    }
+                    skipDamageText = true;
                     // Logger.Log($"{Game.CurrentFrame} - [{section}]{pTechno} 阿伟死了，炸了他");
                     pTechno.Ref.Base.TakeDamage(pTechno.Ref.Base.Health + 1, pTechno.Ref.Type.Ref.Crewed);
                     // pTechno.Ref.Base.Destroy();

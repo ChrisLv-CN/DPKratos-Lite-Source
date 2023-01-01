@@ -30,23 +30,14 @@ namespace Extension.Script
         }
     }
 
-    [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    public class DamageTextScript : TechnoScriptable
+    public partial class TechnoStatusScript
     {
 
-        public DamageTextScript(TechnoExt owner) : base(owner) { }
+        private bool skipDamageText = false;
+        private Dictionary<DamageText, DamageTextCache> DamageCache = new Dictionary<DamageText, DamageTextCache>();
+        private Dictionary<DamageText, DamageTextCache> RepairCache = new Dictionary<DamageText, DamageTextCache>();
 
-        public bool SkipDamageText = false;
-        Dictionary<DamageText, DamageTextCache> DamageCache = new Dictionary<DamageText, DamageTextCache>();
-        Dictionary<DamageText, DamageTextCache> RepairCache = new Dictionary<DamageText, DamageTextCache>();
-
-        public override void Awake()
-        {
-            
-        }
-
-        public override void OnUpdate()
+        public void OnUpdate_DamageText()
         {
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             int frame = Game.CurrentFrame;
@@ -72,7 +63,7 @@ namespace Extension.Script
             }
         }
 
-        public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
+        public void OnReceiveDamage2_DamageText(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             Pointer<TechnoClass> pTechno = Owner.OwnerObject;
             if (SkipDrawDamageText(pWH, out DamageTextData whDamageTextType))
@@ -81,7 +72,7 @@ namespace Extension.Script
             }
             else
             {
-                SkipDamageText = false;
+                skipDamageText = false;
             }
             string text = null;
             DamageText data = null;
@@ -150,12 +141,12 @@ namespace Extension.Script
         public bool SkipDrawDamageText(Pointer<WarheadTypeClass> pWH, out DamageTextData damageTextType)
         {
             damageTextType = null;
-            if (!SkipDamageText && !pTechno.IsInvisible() && !pTechno.IsCloaked() && !pWH.IsNull)
+            if (!skipDamageText && !pTechno.IsInvisible() && !pTechno.IsCloaked() && !pWH.IsNull)
             {
                 string section = pWH.Ref.Base.ID;
 
                 damageTextType = Ini.GetConfig<DamageTextData>(Ini.RulesDependency, section).Data;
-                return null == damageTextType;
+                return damageTextType.Hidden;
             }
             return true;
         }

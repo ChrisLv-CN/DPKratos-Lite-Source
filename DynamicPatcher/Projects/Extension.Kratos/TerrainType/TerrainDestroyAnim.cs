@@ -11,10 +11,10 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
-    public class TerrainDestroyAnim
+    public static class TerrainDestroyAnim
     {
 
-        public static void PlayDestroyAnim(Pointer<TerrainClass> pTerrain)
+        public static void PlayDestroyAnim(this Pointer<TerrainClass> pTerrain)
         {
             string section = pTerrain.Ref.Type.Ref.Base.Base.ID;
             TerrainDestroyAnimData data = Ini.GetConfig<TerrainDestroyAnimData>(Ini.RulesDependency, section).Data;

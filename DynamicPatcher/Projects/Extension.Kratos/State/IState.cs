@@ -26,9 +26,9 @@ namespace Extension.Ext
 
         public T Data;
 
-        protected bool active;
-        protected bool infinite;
-        protected TimerStruct timer;
+        private bool active;
+        private bool infinite;
+        private TimerStruct timer;
 
         private int frame; // 当前帧
 

@@ -20,16 +20,16 @@ namespace Extension.Script
     {
         public UnitDeployerScript(TechnoExt owner) : base(owner) { }
 
-        private DeployToTransformData _data;
+        private IConfigWrapper<DeployToTransformData> _data;
         private DeployToTransformData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<DeployToTransformData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<DeployToTransformData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

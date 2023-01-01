@@ -11,54 +11,41 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-    [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    public class HealthBar : TechnoScriptable
+    public partial class TechnoStatusScript
     {
         // 全局设置
         private static HealthTextControlData healthTextTypeControlData = new HealthTextControlData();
 
-        public HealthBar(TechnoExt owner) : base(owner) { }
-
-        private HealthTextData healthTextTypeData;
-
-
-        public override void Awake()
+        private HealthTextData _healthTextTypeData;
+        private HealthTextData healthTextTypeData
         {
-            if (!healthTextTypeControlData.Hidden)
+            get
             {
-                switch (Owner.OwnerObject.Ref.BaseAbstract.WhatAmI())
+                if (null == _healthTextTypeData)
                 {
-                    case AbstractType.Building:
-                        // if (null == healthTextTypeData || RulesExt.Instance.GeneralHealthTextTypeControlDataHasChanged)
-                        // {
-                        //     healthTextTypeData = RulesExt.Instance.GeneralHealthTextTypeControlData.Building.Clone();
-                        // }
-                        // healthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.");
-                        // healthTextTypeData.TryReadHealthTextType(reader, section, "HealthText.Building.");
-                        healthTextTypeData = healthTextTypeControlData.Building.Clone();
-                        break;
-                    case AbstractType.Infantry:
-                        healthTextTypeData = healthTextTypeControlData.Infantry.Clone();
-                        break;
-                    case AbstractType.Unit:
-                        healthTextTypeData = healthTextTypeControlData.Unit.Clone();
-                        break;
-                    case AbstractType.Aircraft:
-                        healthTextTypeData = healthTextTypeControlData.Aircraft.Clone();
-                        break;
+                    if (isBuilding)
+                    {
+                        _healthTextTypeData = healthTextTypeControlData.Building.Clone();
+                    }
+                    else if (isInfantry)
+                    {
+                        _healthTextTypeData = healthTextTypeControlData.Infantry.Clone();
+                    }
+                    else if (isUnit)
+                    {
+                        _healthTextTypeData = healthTextTypeControlData.Unit.Clone();
+                    }
+                    else if (isAircraft)
+                    {
+                        _healthTextTypeData = healthTextTypeControlData.Aircraft.Clone();
+                    }
+                    if (null != _healthTextTypeData)
+                    {
+                        ISectionReader reader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), section);
+                        _healthTextTypeData.Read(reader);
+                    }
                 }
-                // 读取私有设置
-                if (null != healthTextTypeData)
-                {
-                    string section = Owner.OwnerObject.Ref.Type.Ref.Base.Base.ID;
-                    ISectionReader reader = Ini.GetSection(Ini.GetDependency(INIConstant.RulesName), section);
-                    healthTextTypeData.Read(reader);
-                }
-            }
-            if (null == healthTextTypeData || healthTextTypeData.Hidden)
-            {
-                GameObject.RemoveComponent(this);
+                return _healthTextTypeData;
             }
         }
 

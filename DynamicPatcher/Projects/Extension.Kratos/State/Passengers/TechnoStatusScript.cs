@@ -12,51 +12,37 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-
-    [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(TechnoStatusScript))]
-    public class PassengersScript : TechnoScriptable
+    public partial class TechnoStatusScript
     {
-        public PassengersScript(TechnoExt owner) : base(owner) { }
 
-        private PassengersData _data;
-        private PassengersData data
+        private IConfigWrapper<PassengersData> _passengersData;
+        private PassengersData passengersData
         {
             get
             {
-                if (null == _data)
+                if (null == _passengersData)
                 {
-                    _data = Ini.GetConfig<PassengersData>(Ini.RulesDependency, section).Data;
+                    _passengersData = Ini.GetConfig<PassengersData>(Ini.RulesDependency, section);
                 }
-                return _data;
-            }
-        }
-
-        public override void Awake()
-        {
-            if (!pTechno.Convert<AbstractClass>().Ref.AbstractFlags.HasFlag(AbstractFlags.Foot))
-            {
-                GameObject.RemoveComponent(this);
-                return;
+                return _passengersData.Data;
             }
         }
 
         /// <summary>
         /// 乘客只有塞进OpenTopped的载具内，才会执行Update
         /// </summary>
-        public override void OnUpdate()
+        public void OnUpdate_Passenger()
         {
-            if (!pTechno.IsDead())
+            if (!isBuilding)
             {
                 // check the transporter settings
                 Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
                 if (!pTransporter.IsNull)
                 {
                     // 获取运输载具上设置的乘客行为
-                    if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
+                    if (pTransporter.TryGetStatus(out TechnoStatusScript transporter))
                     {
-                        PassengersData data = transporter.data;
+                        PassengersData data = transporter.passengersData;
                         if (null != data && data.OpenTopped)
                         {
                             if (!data.PassiveAcquire)
@@ -79,17 +65,18 @@ namespace Extension.Script
             }
         }
 
-        public override void CanFire(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon, ref bool ceaseFire)
+        public bool CanFire_Passenger(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeapon)
         {
-            if (!ceaseFire)
+            bool ceaseFire = false;
+            if (!isBuilding)
             {
                 // check the transporter settings
                 Pointer<TechnoClass> pTransporter = pTechno.Ref.Transporter;
                 if (!pTransporter.IsNull)
                 {
-                    if (pTransporter.TryGetComponent<PassengersScript>(out PassengersScript transporter))
+                    if (pTransporter.TryGetStatus(out TechnoStatusScript transporter))
                     {
-                        PassengersData data = transporter.data;
+                        PassengersData data = transporter.passengersData;
                         if (null != data && data.OpenTopped)
                         {
                             Mission transporterMission = pTransporter.Convert<ObjectClass>().Ref.GetCurrentMission();
@@ -107,6 +94,7 @@ namespace Extension.Script
                     }
                 }
             }
+            return ceaseFire;
         }
 
     }

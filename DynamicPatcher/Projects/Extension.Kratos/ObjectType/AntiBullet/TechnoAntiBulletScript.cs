@@ -18,16 +18,16 @@ namespace Extension.Script
     {
         public TechnoAntiBulletScript(TechnoExt owner) : base(owner) { }
 
-        private AntiBulletData data;
+        private IConfigWrapper<AntiBulletData> _data;
         public AntiBulletData Data
         {
             get
             {
-                if (null == data)
+                if (null == _data)
                 {
-                    data = Ini.GetConfig<AntiBulletData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AntiBulletData>(Ini.RulesDependency, section);
                 }
-                return data;
+                return _data.Data;
             }
         }
 

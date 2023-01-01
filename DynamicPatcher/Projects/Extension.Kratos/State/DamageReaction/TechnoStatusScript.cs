@@ -115,10 +115,10 @@ namespace Extension.Script
                             }
                         }
                         // 显示DamageText
-                        if (reactionData.ActionText && pTechno.TryGetComponent<DamageTextScript>(out DamageTextScript damageText))
+                        if (reactionData.ActionText)
                         {
                             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-                            if (!damageText.SkipDrawDamageText(pWH, out DamageTextData damageTextData))
+                            if (!SkipDrawDamageText(pWH, out DamageTextData damageTextData))
                             {
                                 DamageText data = null;
                                 switch (reactionData.TextStyle)
@@ -151,20 +151,20 @@ namespace Extension.Script
                                         temp.SHPDrawStyle = SHPDrawStyle.TEXT; // 使用指定的帧
                                         temp.SHPFileName = reactionData.CustomSHP;
                                         temp.ZeroFrameIndex = reactionData.CustomSHPIndex;
-                                        damageText.OrderDamageText("WWSB", location, temp);
+                                        OrderDamageText("WWSB", location, temp);
                                         // Logger.Log($"{Game.CurrentFrame} 使用自定义SHP {reactionData.CustomSHP} {reactionData.CustomSHPIndex}");
                                     }
                                     else if (!string.IsNullOrEmpty(reactionData.CustomText))
                                     {
                                         // 自定义文字
                                         temp.UseSHP = false;
-                                        damageText.OrderDamageText(reactionData.CustomText, location, temp);
+                                        OrderDamageText(reactionData.CustomText, location, temp);
                                         // Logger.Log($"{Game.CurrentFrame} 使用自定义文字 {reactionData.CustomText}");
                                     }
                                     else
                                     {
                                         // 使用默认设置
-                                        damageText.OrderDamageText(reactionData.DefaultText.ToString(), location, temp);
+                                        OrderDamageText(reactionData.DefaultText.ToString(), location, temp);
                                         // Logger.Log($"{Game.CurrentFrame} 使用默认设置 {reactionData.DefaultText}");
                                     }
                                 }

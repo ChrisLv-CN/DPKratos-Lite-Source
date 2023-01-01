@@ -32,6 +32,19 @@ namespace Extension.Script
         private SwizzleablePointer<AbstractClass> pDest = new SwizzleablePointer<AbstractClass>(IntPtr.Zero);
         private SwizzleablePointer<AbstractClass> pFocus = new SwizzleablePointer<AbstractClass>(IntPtr.Zero);
 
+        private IConfigWrapper<TechnoTypeData> _typeData;
+        private TechnoTypeData typeData
+        {
+            get
+            {
+                if (null == _typeData)
+                {
+                    _typeData = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, section);
+                }
+                return _typeData.Data;
+            }
+        }
+
         public void InitState_Teleport()
         {
             // 初始化状态机
@@ -138,7 +151,6 @@ namespace Extension.Script
                                         MapClass.Instance.RevealArea2(targetPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
                                         MapClass.Instance.RevealArea2(targetPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
 
-                                        TechnoTypeData typeData = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, section).Data;
                                         // 播放自定义传送动画
                                         Pointer<AnimTypeClass> pAnimType = IntPtr.Zero;
                                         if (typeData.WarpOut.IsNullOrEmpty())

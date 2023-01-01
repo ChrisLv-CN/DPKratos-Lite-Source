@@ -35,8 +35,18 @@ namespace Extension.Script
         public AttachEffectScript(IExtension owner) : base(owner) { }
 
         public Pointer<ObjectClass> pOwner => pObject;
-        public AttachEffectTypeData AETypeData => Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section).Data;
-
+        public IConfigWrapper<AttachEffectTypeData> aeTypeData = null;
+        public AttachEffectTypeData AETypeData
+        {
+            get
+            {
+                if (null == aeTypeData)
+                {
+                    aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section);
+                }
+                return aeTypeData.Data;
+            }
+        }
         public List<AttachEffect> AttachEffects; // 所有有效的AE
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
         public Dictionary<string, int> AEStacks; // 同名AE的叠加层数
@@ -50,7 +60,18 @@ namespace Extension.Script
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
-        private AttachEffectTypeTypeData aeTypeTypeData => Ini.GetConfig<AttachEffectTypeTypeData>(Ini.RulesDependency, section).Data;
+        private IConfigWrapper<AttachEffectTypeTypeData> aeTypeTypeData = null;
+        private AttachEffectTypeTypeData AETypeTypeData
+        {
+            get
+            {
+                if (null == aeTypeTypeData)
+                {
+                    aeTypeTypeData = Ini.GetConfig<AttachEffectTypeTypeData>(Ini.RulesDependency, section);
+                }
+                return aeTypeTypeData.Data;
+            }
+        }
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
         private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
         private bool isDead = false;
@@ -747,7 +768,7 @@ namespace Extension.Script
                     if (!pPassenger.IsNull && !pPassenger.IsDead())
                     {
                         // 查找该乘客身上的AEMode设置
-                        if (pPassenger.TryGetAEManager(out AttachEffectScript pAEM))
+                        if (pPassenger.Convert<TechnoClass>().TryGetAEManager(out AttachEffectScript pAEM))
                         {
                             int aeMode = pAEM.AETypeData.AEMode;
                             if (aeMode >= 0)
@@ -839,10 +860,10 @@ namespace Extension.Script
                     });
                 }
                 // 添加分组的
-                if (aeTypeTypeData.Enable)
+                if (AETypeTypeData.Enable)
                 {
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组");
-                    foreach (AttachEffectTypeData typeData in aeTypeTypeData.Datas.Values)
+                    foreach (AttachEffectTypeData typeData in AETypeTypeData.Datas.Values)
                     {
                         if (typeData.AttachByPassenger)
                         {

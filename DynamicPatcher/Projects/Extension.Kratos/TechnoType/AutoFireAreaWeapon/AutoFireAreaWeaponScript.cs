@@ -22,16 +22,16 @@ namespace Extension.Script
 
         public bool SkipROF;
 
-        private AutoFireAreaWeaponData _data;
+        private IConfigWrapper<AutoFireAreaWeaponData> _data;
         private AutoFireAreaWeaponData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

@@ -28,16 +28,16 @@ namespace Extension.Script
         public AircraftDiveStatus DiveStatus;
 
         private AircraftAttitudeScript attitudeScript => GameObject.GetComponent<AircraftAttitudeScript>();
-        private AircraftDiveData _data;
+        private IConfigWrapper<AircraftDiveData> _data;
         private AircraftDiveData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<AircraftDiveData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<AircraftDiveData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 

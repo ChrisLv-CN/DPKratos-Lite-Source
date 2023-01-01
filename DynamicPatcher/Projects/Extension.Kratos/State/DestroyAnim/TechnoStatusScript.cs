@@ -19,7 +19,18 @@ namespace Extension.Script
         private HouseExt killerHouseExt;
         private Pointer<HouseClass> pKillerHouse => null != killerHouseExt ? killerHouseExt.OwnerObject : default;
 
-        private DestroyAnimData destroyAnimData => Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, section).Data;
+        private IConfigWrapper<DestroyAnimData> _destroyAnimData;
+        private DestroyAnimData destroyAnimData
+        {
+            get
+            {
+                if (null == _destroyAnimData)
+                {
+                    _destroyAnimData = Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, section);
+                }
+                return _destroyAnimData.Data;
+            }
+        }
 
         public unsafe void OnReceiveDamage2_DestroyAnim(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {

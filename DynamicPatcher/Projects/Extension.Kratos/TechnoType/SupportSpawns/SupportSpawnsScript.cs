@@ -20,6 +20,21 @@ namespace Extension.Script
 
         public SupportSpawnsScript(TechnoExt owner) : base(owner) { }
 
+        private IConfigWrapper<SupportSpawnsData> _data;
+        private SupportSpawnsData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
+                    string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
+                    _data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection);
+                }
+                return _data.Data;
+            }
+        }
+
         private TimerStruct supportFireROF;
         private int flipY = 1;
 
@@ -27,7 +42,7 @@ namespace Extension.Script
         {
             // I'm not a Spawn
             if (!pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out var pAircraft)
-               || !pAircraft.Ref.Type.Ref.Base.Spawned)
+               || !pAircraft.Ref.Type.Ref.Base.Spawned || pTechno.Ref.SpawnOwner.IsNull || !data.Enable)
             {
                 GameObject.RemoveComponent(this);
                 return;
@@ -41,8 +56,6 @@ namespace Extension.Script
                 Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
                 if (!pSpawnOwner.IsDeadOrInvisible())
                 {
-                    string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
-                    SupportSpawnsData data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection).Data;
                     if (data.Enable && data.Always)
                     {
                         SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
@@ -57,8 +70,6 @@ namespace Extension.Script
             Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
             if (!pSpawnOwner.IsDeadOrInvisible())
             {
-                string spawnOwnerSection = pSpawnOwner.Ref.Type.Ref.Base.Base.ID;
-                SupportSpawnsData data = Ini.GetConfig<SupportSpawnsData>(Ini.RulesDependency, spawnOwnerSection).Data;
                 if (data.Enable && !data.Always)
                 {
                     SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();

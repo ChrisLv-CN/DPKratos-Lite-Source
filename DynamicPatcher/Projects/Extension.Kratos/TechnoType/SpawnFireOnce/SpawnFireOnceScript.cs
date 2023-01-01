@@ -20,16 +20,16 @@ namespace Extension.Script
 
         public SpawnFireOnceScript(TechnoExt owner) : base(owner) { }
 
-        private SpawnFireOnceData _data;
+        private IConfigWrapper<SpawnFireOnceData> _data;
         private SpawnFireOnceData data
         {
             get
             {
                 if (null == _data)
                 {
-                    _data = Ini.GetConfig<SpawnFireOnceData>(Ini.RulesDependency, section).Data;
+                    _data = Ini.GetConfig<SpawnFireOnceData>(Ini.RulesDependency, section);
                 }
-                return _data;
+                return _data.Data;
             }
         }
 
