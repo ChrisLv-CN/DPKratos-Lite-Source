@@ -6,6 +6,7 @@ using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.FileFormats;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Script;
 using Extension.Utilities;
@@ -50,17 +51,20 @@ namespace Extension.Ext
 
         public static void PrintText(object sender, EventArgs args)
         {
-            // 打印滚动文字
-            for (int i = 0; i < rollingTextQueue.Count; i++)
+            if (((GScreenEventArgs)args).IsLateRender)
             {
-                RollingText rollingText = rollingTextQueue.Dequeue();
-                // 检查存活然后渲染
-                if (rollingText.CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound))
+                // 打印滚动文字
+                for (int i = 0; i < rollingTextQueue.Count; i++)
                 {
-                    // 获得锚点位置
-                    Point2D pos2 = pos + offset;
-                    Print(rollingText.Text, default, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
-                    rollingTextQueue.Enqueue(rollingText);
+                    RollingText rollingText = rollingTextQueue.Dequeue();
+                    // 检查存活然后渲染
+                    if (rollingText.CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound))
+                    {
+                        // 获得锚点位置
+                        Point2D pos2 = pos + offset;
+                        Print(rollingText.Text, default, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
+                        rollingTextQueue.Enqueue(rollingText);
+                    }
                 }
             }
         }

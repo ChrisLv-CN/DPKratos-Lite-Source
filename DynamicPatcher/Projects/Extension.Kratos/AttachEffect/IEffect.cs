@@ -67,11 +67,9 @@ namespace Extension.Ext
         public virtual void ResetDuration() { }
 
         // 渲染
-        public virtual void OnRender(CoordStruct location) { }
-        public virtual void OnRenderEnd(CoordStruct location) { }
+        public virtual void OnGScreenRender(CoordStruct location) { }
         // 更新
         public virtual void OnUpdate(CoordStruct location, bool isDead) { }
-        public virtual void OnLateUpdate(CoordStruct location, bool isDead) { }
         // 被超时空冻结更新
         public virtual void OnWarpUpdate(CoordStruct location, bool isDead) { }
         // 被超时空兵攻击

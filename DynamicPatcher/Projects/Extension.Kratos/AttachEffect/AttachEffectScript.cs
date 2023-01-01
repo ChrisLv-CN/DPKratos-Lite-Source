@@ -5,6 +5,7 @@ using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
@@ -123,10 +124,17 @@ namespace Extension.Script
             heir.locationSpace = this.locationSpace;
 
             // 转移完成后，重置
-            Awake();
+            OnAwake();
         }
 
         public override void Awake()
+        {
+            OnAwake();
+            // 注册Render事件
+            EventSystem.GScreen.AddTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
+        }
+
+        private void OnAwake()
         {
             this.AttachEffects = new List<AttachEffect>();
             this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
@@ -595,19 +603,13 @@ namespace Extension.Script
 
                 if (null != preMark)
                 {
-                    LocationMark forward = preMark;
-                    int forwardIndex = markIndex - 1;
-                    if (forwardIndex > -1 && forwardIndex < locationMarks.Count)
-                    {
-                        forward = locationMarks[forwardIndex];
-                    }
-                    stand.UpdateLocation(preMark, forward);
+                    stand.UpdateLocation(preMark);
                     return;
                 }
             }
             // 获取挂载对象的位置和方向
             LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
-            stand.UpdateLocation(locationMark, locationMark);
+            stand.UpdateLocation(locationMark);
         }
 
         public bool HasSpace()
@@ -786,40 +788,28 @@ namespace Extension.Script
             return null != passengerIds && passengerIds.Any();
         }
 
-        public override void OnRender()
+        /// <summary>
+        /// 广播渲染事件，调整替身的位置，OnRender不在视野不执行
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        public void OnGScreenRender(object sender, EventArgs args)
         {
-            isDead = pObject.IsDead();
-            location = pOwner.Ref.Base.GetCoords();
-            for (int i = Count() - 1; i >= 0; i--)
+            if (((GScreenEventArgs)args).IsBeginRender)
             {
-                AttachEffect ae = AttachEffects[i];
-                if (ae.IsActive())
-                {
-                    ae.OnRender(location);
-                }
-            }
-        }
-
-        public override void OnRenderEnd()
-        {
-            renderFlag = !isDead;
-            if (renderFlag)
-            {
-                // 记录下位置
                 location = MarkLocation();
-                // 更新替身的位置
+                // 专门执行替身的定位工作
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
                 {
                     AttachEffect ae = AttachEffects[i];
                     if (ae.IsActive())
                     {
-                        // 如果是替身，额外执行替身的定位操作
                         if (null != ae.Stand && ae.Stand.IsAlive())
                         {
                             UpdateStandLocation(ae.Stand, ref markIndex); // 调整位置
                         }
-                        ae.OnRenderEnd(location);
+                        ae.OnGScreenRender(location);
                     }
                 }
             }
@@ -885,28 +875,12 @@ namespace Extension.Script
                 }
                 this.attachEffectOnceFlag = true;
             }
-
-            // 记录下位置
-            if (renderFlag)
-            {
-                location = pOwner.Ref.Base.GetCoords();
-            }
-            else
-            {
-                location = MarkLocation();
-            }
             // 逐个触发有效的AEbuff，并移除无效的AEbuff
-            int markIndex = 0;
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
                 if (ae.IsActive())
                 {
-                    if (!renderFlag && null != ae.Stand && ae.Stand.IsAlive())
-                    {
-                        // 替身不需要渲染时，在update中调整替身的位置
-                        UpdateStandLocation(ae.Stand, ref markIndex);
-                    }
                     // Logger.Log($"{Game.CurrentFrame} - {pOwner} [{pOwner.Ref.Type.Ref.Base.ID}] {ae.Type.Name} 执行更新");
                     ae.OnUpdate(location, isDead);
                 }
@@ -929,21 +903,6 @@ namespace Extension.Script
                         // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
                         Attach(nextAE, ae.pOwner, ae.pSourceHouse, false);
                     }
-                }
-            }
-            renderFlag = false;
-        }
-
-        public override void OnLateUpdate()
-        {
-            isDead = pObject.IsDead();
-            location = pOwner.Ref.Base.GetCoords();
-            for (int i = Count() - 1; i >= 0; i--)
-            {
-                AttachEffect ae = AttachEffects[i];
-                if (ae.IsActive())
-                {
-                    ae.OnLateUpdate(location, isDead);
                 }
             }
         }
@@ -1145,6 +1104,7 @@ namespace Extension.Script
                 ReduceStackCount(ae);
             }
             AttachEffects.Clear();
+            EventSystem.GScreen.RemoveTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
         }
 
         public override void OnGuardCommand()

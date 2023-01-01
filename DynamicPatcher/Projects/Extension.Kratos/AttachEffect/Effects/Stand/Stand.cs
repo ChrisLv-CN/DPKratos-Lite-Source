@@ -42,7 +42,6 @@ namespace Extension.Script
         private bool onReceiveDamageDestroy = false;
 
         private LocationMark lastLocationMark;
-        private LocationMark forwardLocationMark;
         private bool isMoving = false;
         private TimerStruct waklRateTimer;
 
@@ -236,7 +235,7 @@ namespace Extension.Script
             StandExt = null;
         }
 
-        public override void OnRenderEnd(CoordStruct location)
+        public override void OnGScreenRender(CoordStruct location)
         {
             if (!standIsBuilding && pMaster.CastToFoot(out Pointer<FootClass> pMasterFoot))
             {
@@ -718,14 +717,13 @@ namespace Extension.Script
             }
         }
 
-        public void UpdateLocation(LocationMark mark, LocationMark forward)
+        public void UpdateLocation(LocationMark mark)
         {
             if (null != lastLocationMark && !isMoving)
             {
                 isMoving = lastLocationMark.Location != mark.Location;
             }
             lastLocationMark = mark;
-            forwardLocationMark = forward;
             SetLocation(mark.Location);
             SetDirection(mark.Direction, false);
         }

@@ -16,7 +16,16 @@ namespace Extension.EventSystems
         public override string Name => "SidebarClass_Draw_It";
         public override string Description => "Raised when Sidebar is Render";
     }
+    public class GScreenEventArgs : EventArgs
+    {
+        public GScreenEventArgs(bool isBeginRender)
+        {
+            IsBeginRender = isBeginRender;
+        }
 
+        public bool IsBeginRender { get; }
+        public bool IsLateRender => !IsBeginRender;
+    }
     public class GScreenEventSystem : EventSystem
     {
 

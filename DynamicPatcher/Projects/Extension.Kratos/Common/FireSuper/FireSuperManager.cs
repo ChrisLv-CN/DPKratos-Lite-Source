@@ -43,17 +43,21 @@ namespace Extension.Ext
 
         public static void Update(object sender, EventArgs args)
         {
-            for (int i = 0; i < fireSuperWeaponQueue.Count; i++)
+            LogicClassUpdateEventArgs eventArgs = (LogicClassUpdateEventArgs)args;
+            if (eventArgs.IsBeginUpdate)
             {
-                FireSuperWeapon fireSuperWeapon = fireSuperWeaponQueue.Dequeue();
-                if (fireSuperWeapon.CanLaunch())
+                for (int i = 0; i < fireSuperWeaponQueue.Count; i++)
                 {
-                    LaunchSuperWeapons(fireSuperWeapon.House, fireSuperWeapon.Location, fireSuperWeapon.Data);
-                    fireSuperWeapon.Cooldown();
-                }
-                if (!fireSuperWeapon.IsDone())
-                {
-                    fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
+                    FireSuperWeapon fireSuperWeapon = fireSuperWeaponQueue.Dequeue();
+                    if (fireSuperWeapon.CanLaunch())
+                    {
+                        LaunchSuperWeapons(fireSuperWeapon.House, fireSuperWeapon.Location, fireSuperWeapon.Data);
+                        fireSuperWeapon.Cooldown();
+                    }
+                    if (!fireSuperWeapon.IsDone())
+                    {
+                        fireSuperWeaponQueue.Enqueue(fireSuperWeapon);
+                    }
                 }
             }
         }

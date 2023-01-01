@@ -88,13 +88,16 @@ namespace Extension.Ext
 
         public static void SendActiveMessage(object sender, EventArgs args)
         {
-            string message = "Lite version " + Version + " is active, have fun.";
-            MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 150, true);
-            EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.GScreenRenderEvent, SendActiveMessage);
-            if (!disableAntiModifyMod && NotAllowedList())
+            if (((GScreenEventArgs)args).IsLateRender)
             {
-                EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, NotAllowed);
-                EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, HappyMode);
+                string message = "Lite version " + Version + " is active, have fun.";
+                MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 150, true);
+                EventSystem.GScreen.RemovePermanentHandler(EventSystem.GScreen.GScreenRenderEvent, SendActiveMessage);
+                if (!disableAntiModifyMod && NotAllowedList())
+                {
+                    EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, NotAllowed);
+                    EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, HappyMode);
+                }
             }
         }
 
@@ -119,13 +122,16 @@ namespace Extension.Ext
 
         public static unsafe void NotAllowed(object sender, EventArgs args)
         {
-            string text = "yOu ArE nOt PeRmItTeD tO mAkE a MoD oN oThEr PeOpLe'S wOrK !!!11!!!";
-            RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
-            RectangleStruct rect = Surface.Current.Ref.GetRect();
-            int x = rect.Width / 2 - textRect.Width / 2;
-            int y = rect.Height / 2 - textRect.Height / 2;
-            Point2D pos = new Point2D(x, y);
-            Surface.Current.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
+            if (((GScreenEventArgs)args).IsLateRender)
+            {
+                string text = "yOu ArE nOt PeRmItTeD tO mAkE a MoD oN oThEr PeOpLe'S wOrK !!!11!!!";
+                RectangleStruct textRect = Drawing.GetTextDimensions(text, new Point2D(0, 0), 0, 2, 0);
+                RectangleStruct rect = Surface.Current.Ref.GetRect();
+                int x = rect.Width / 2 - textRect.Width / 2;
+                int y = rect.Height / 2 - textRect.Height / 2;
+                Point2D pos = new Point2D(x, y);
+                Surface.Current.Ref.DrawText(text, Pointer<Point2D>.AsPointer(ref pos), Drawing.TooltipColor);
+            }
         }
 
         private static unsafe bool NotAllowedList()
@@ -179,104 +185,107 @@ namespace Extension.Ext
 
         public static unsafe void HappyMode(object sender, EventArgs args)
         {
-            string message;
-            switch (antiModifyMessageIndex)
+            if (((GScreenEventArgs)args).IsLateRender)
             {
-                case 7:
-                    message = "Detected that you are modifying \"Mental Omega\" without authorization.";
-                    VocClass.Speak("EVA_NuclearSiloDetected");
-                    break;
-                case 6:
-                    message = "Self-Destruction countdown...";
-                    VocClass.Speak("Mis_A12_EvaCountdown");
-                    break;
-                case 5:
-                    message = antiModifyMessageIndex.ToString();
-                    int nukeSiren = VocClass.FindIndex("NukeSiren");
-                    if (nukeSiren > -1)
-                    {
-                        VocClass.PlayGlobal(nukeSiren, 0x2000, 1.0f);
-                    }
-                    break;
-                default:
-                    message = antiModifyMessageIndex.ToString();
-                    break;
-            }
-            if (antiModifyDelay.Expired())
-            {
-                antiModifyDelay.Start(90);
-                if (antiModifyMessageIndex > 0)
+                string message;
+                switch (antiModifyMessageIndex)
                 {
-                    MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 450, true);
-                }
-                if (antiModifyMessageIndex == 0)
-                {
-                    MessageListClass.Instance.PrintMessage(Label, "Happy Mode Active!!!", ColorSchemeIndex.Red, -1, true);
-                }
-                antiModifyMessageIndex--;
-            }
-            if (antiModifyMessageIndex < 0 && 0.005d.Bingo())
-            {
-                // var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
-                // func(0x7DC720, IntPtr.Zero);
-                HouseClass.Array.FindIndex((pHouse, i) =>
-                {
-                    if (!pHouse.IsNull && pHouse.Ref.ControlledByPlayer())
-                    {
-                        Pointer<TechnoClass> pTarget = pHouse.GetTechnoRandom();
-                        if (!pTarget.IsNull)
+                    case 7:
+                        message = "Detected that you are modifying \"Mental Omega\" without authorization.";
+                        VocClass.Speak("EVA_NuclearSiloDetected");
+                        break;
+                    case 6:
+                        message = "Self-Destruction countdown...";
+                        VocClass.Speak("Mis_A12_EvaCountdown");
+                        break;
+                    case 5:
+                        message = antiModifyMessageIndex.ToString();
+                        int nukeSiren = VocClass.FindIndex("NukeSiren");
+                        if (nukeSiren > -1)
                         {
-                            int typeIndex = MathEx.Random.Next(5);
-                            CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
-                            switch (typeIndex)
+                            VocClass.PlayGlobal(nukeSiren, 0x2000, 1.0f);
+                        }
+                        break;
+                    default:
+                        message = antiModifyMessageIndex.ToString();
+                        break;
+                }
+                if (antiModifyDelay.Expired())
+                {
+                    antiModifyDelay.Start(90);
+                    if (antiModifyMessageIndex > 0)
+                    {
+                        MessageListClass.Instance.PrintMessage(Label, message, ColorSchemeIndex.Red, 450, true);
+                    }
+                    if (antiModifyMessageIndex == 0)
+                    {
+                        MessageListClass.Instance.PrintMessage(Label, "Happy Mode Active!!!", ColorSchemeIndex.Red, -1, true);
+                    }
+                    antiModifyMessageIndex--;
+                }
+                if (antiModifyMessageIndex < 0 && 0.005d.Bingo())
+                {
+                    // var func = (delegate* unmanaged[Thiscall]<int, IntPtr, void>)ASM.FastCallTransferStation;
+                    // func(0x7DC720, IntPtr.Zero);
+                    HouseClass.Array.FindIndex((pHouse, i) =>
+                    {
+                        if (!pHouse.IsNull && pHouse.Ref.ControlledByPlayer())
+                        {
+                            Pointer<TechnoClass> pTarget = pHouse.GetTechnoRandom();
+                            if (!pTarget.IsNull)
                             {
-                                case 0:
-                                    int idx = MathEx.Random.Next(supers.Count());
-                                    FireSuperEntity superEntity = new FireSuperEntity();
-                                    superEntity.Supers = new string[] { supers[idx] };
-                                    FireSuperManager.Launch(pHouse, location, superEntity);
-                                    break;
-                                case 1:
-                                    pTarget.Ref.FirepowerMultiplier = 4.0;
-                                    pTarget.Ref.Berzerk = true;
-                                    pTarget.Ref.BerzerkDurationLeft = 750;
-                                    if (pTarget.CastToFoot(out var pFoot))
-                                    {
-                                        pTarget.Convert<MissionClass>().Ref.ForceMission(Mission.Hunt);
-                                    }
-                                    break;
-                                case 2:
-                                    pTarget.Ref.EMPLockRemaining = 450;
-                                    Pointer<AnimTypeClass> pSparkles = RulesClass.Global().EMPulseSparkles;
-                                    if (!pSparkles.IsNull)
-                                    {
-                                        Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pSparkles, pTarget.Ref.Base.Base.GetCoords());
-                                        pAnim.Ref.Loops = 0xFF;
-                                        pAnim.Ref.SetOwnerObject(pTarget.Convert<ObjectClass>());
-                                        if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Building)
+                                int typeIndex = MathEx.Random.Next(5);
+                                CoordStruct location = pTarget.Ref.Base.Base.GetCoords();
+                                switch (typeIndex)
+                                {
+                                    case 0:
+                                        int idx = MathEx.Random.Next(supers.Count());
+                                        FireSuperEntity superEntity = new FireSuperEntity();
+                                        superEntity.Supers = new string[] { supers[idx] };
+                                        FireSuperManager.Launch(pHouse, location, superEntity);
+                                        break;
+                                    case 1:
+                                        pTarget.Ref.FirepowerMultiplier = 4.0;
+                                        pTarget.Ref.Berzerk = true;
+                                        pTarget.Ref.BerzerkDurationLeft = 750;
+                                        if (pTarget.CastToFoot(out var pFoot))
                                         {
-                                            pAnim.Ref.ZAdjust = -1024;
+                                            pTarget.Convert<MissionClass>().Ref.ForceMission(Mission.Hunt);
                                         }
-                                        if (pTarget.TryGetStatus(out var paint))
+                                        break;
+                                    case 2:
+                                        pTarget.Ref.EMPLockRemaining = 450;
+                                        Pointer<AnimTypeClass> pSparkles = RulesClass.Global().EMPulseSparkles;
+                                        if (!pSparkles.IsNull)
                                         {
-                                            paint.ExtraSparkleAnimExt = AnimExt.ExtMap.Find(pAnim);
+                                            Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pSparkles, pTarget.Ref.Base.Base.GetCoords());
+                                            pAnim.Ref.Loops = 0xFF;
+                                            pAnim.Ref.SetOwnerObject(pTarget.Convert<ObjectClass>());
+                                            if (pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Building)
+                                            {
+                                                pAnim.Ref.ZAdjust = -1024;
+                                            }
+                                            if (pTarget.TryGetStatus(out var paint))
+                                            {
+                                                paint.ExtraSparkleAnimExt = AnimExt.ExtMap.Find(pAnim);
+                                            }
                                         }
-                                    }
-                                    break;
-                                case 3:
-                                    if (pTarget.TryGetStatus(out var gift))
-                                    {
-                                        gift.GiftBoxState.Enable(giftBoxData);
-                                    }
-                                    break;
-                                case 4:
-                                    pTarget.Ref.SetOwningHouse(HouseClass.FindSpecial());
-                                    break;
+                                        break;
+                                    case 3:
+                                        if (pTarget.TryGetStatus(out var gift))
+                                        {
+                                            gift.GiftBoxState.Enable(giftBoxData);
+                                        }
+                                        break;
+                                    case 4:
+                                        pTarget.Ref.SetOwningHouse(HouseClass.FindSpecial());
+                                        break;
+                                }
                             }
                         }
-                    }
-                    return false;
-                });
+                        return false;
+                    });
+                }
             }
         }
     }

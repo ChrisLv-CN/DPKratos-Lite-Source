@@ -349,6 +349,7 @@ namespace ComponentHooks
             return 0;
         }
 
+/* 不需要Render事件，用GScreenEvent
         #region Render
         public static UInt32 TechnoClass_Render_Components(Pointer<TechnoClass> pTechno)
         {
@@ -429,6 +430,7 @@ namespace ComponentHooks
             return TechnoClass_Render2(pUnit.Convert<TechnoClass>());
         }
         #endregion
+*/
 
         [Hook(HookType.AresHook, Address = 0x5F45A0, Size = 5)]
         public static unsafe UInt32 TechnoClass_Select(REGISTERS* R)

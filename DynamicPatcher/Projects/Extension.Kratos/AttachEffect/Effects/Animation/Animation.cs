@@ -124,7 +124,7 @@ namespace Extension.Script
             CreateIdleAnim();
         }
 
-        public override void OnRenderEnd(CoordStruct location)
+        public override void OnGScreenRender(CoordStruct location)
         {
             // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]持续动画 {pAnim.Pointer}[{Data.IdleAnim}], 透明度 {pAnim.Ref.UnderTemporal}, 类型透明度 {pAnim.Ref.Data.Ref.Translucency}");
             UpdateLocation(location);
@@ -172,7 +172,6 @@ namespace Extension.Script
                         break;
                 }
             }
-            UpdateLocation(location);
         }
 
         private void UpdateLocation(CoordStruct location)

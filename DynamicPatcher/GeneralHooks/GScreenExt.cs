@@ -18,13 +18,25 @@ namespace ExtensionHooks
             EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, PrintTextManager.PrintText);
         }
 
-        // [Hook(HookType.AresHook, Address = 0x4F4497, Size = 6)] // GScreenClass_Render
-        [Hook(HookType.AresHook, Address = 0x4F4583, Size = 6)] // GScreenClass_Render
+        [Hook(HookType.AresHook, Address = 0x4F4497, Size = 6)] // GScreenClass_Render
         public static unsafe UInt32 GScreenClass_Render(REGISTERS* R)
         {
             try
             {
-                EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, EventArgs.Empty);
+                EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, new GScreenEventArgs(true));
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+        [Hook(HookType.AresHook, Address = 0x4F4583, Size = 6)] // GScreenClass_Render
+        public static unsafe UInt32 GScreenClass_Render_Late(REGISTERS* R)
+        {
+            try
+            {
+                EventSystem.GScreen.Broadcast(EventSystem.GScreen.GScreenRenderEvent, new GScreenEventArgs(false));
             }
             catch (Exception e)
             {

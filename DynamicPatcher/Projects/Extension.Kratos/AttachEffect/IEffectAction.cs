@@ -25,11 +25,9 @@ namespace Extension.Ext
         void ResetDuration();
 
         // 渲染
-        void OnRender(CoordStruct location);
-        void OnRenderEnd(CoordStruct location);
+        void OnGScreenRender(CoordStruct location);
         // 更新
         void OnUpdate(CoordStruct location, bool isDead);
-        void OnLateUpdate(CoordStruct location, bool isDead);
         // 被超时空冻结更新
         void OnWarpUpdate(CoordStruct location, bool isDead);
         // 被超时空兵攻击

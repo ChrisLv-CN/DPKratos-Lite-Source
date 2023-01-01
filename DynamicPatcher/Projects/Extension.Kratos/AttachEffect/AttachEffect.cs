@@ -306,7 +306,7 @@ namespace Extension.Script
             }
         }
 
-        public void OnRender(CoordStruct location)
+        public void OnGScreenRender(CoordStruct location)
         {
             if (delayToEnable)
             {
@@ -315,19 +315,7 @@ namespace Extension.Script
 
             foreach (IEffect effect in effects)
             {
-                effect?.OnRender(location);
-            }
-        }
-
-        public void OnRenderEnd(CoordStruct location)
-        {
-            if (delayToEnable)
-            {
-                return;
-            }
-            foreach (IEffect effect in effects)
-            {
-                effect?.OnRenderEnd(location);
+                effect?.OnGScreenRender(location);
             }
         }
 
@@ -346,18 +334,6 @@ namespace Extension.Script
             foreach (IEffect effect in effects)
             {
                 effect?.OnUpdate(location, isDead);
-            }
-        }
-
-        public void OnLateUpdate(CoordStruct location, bool isDead)
-        {
-            if (delayToEnable)
-            {
-                return;
-            }
-            foreach (IEffect effect in effects)
-            {
-                effect?.OnLateUpdate(location, isDead);
             }
         }
 
