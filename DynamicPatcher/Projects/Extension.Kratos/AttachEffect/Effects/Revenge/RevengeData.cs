@@ -39,6 +39,9 @@ namespace Extension.Ext
         public bool FromSource;
         public bool ToSource;
 
+        public bool ActiveOnce;
+        public int TriggeredTimes;
+
         static RevengeData()
         {
             new WreckOwnerParser().Register();
@@ -53,6 +56,9 @@ namespace Extension.Ext
             this.Realtime = false;
             this.FromSource = false;
             this.ToSource = false;
+
+            this.ActiveOnce = false;
+            this.TriggeredTimes = -1;
         }
 
         public override void Read(IConfigReader reader)
@@ -70,6 +76,9 @@ namespace Extension.Ext
             this.Realtime = reader.Get(TITLE + "Realtime", this.Realtime);
             this.FromSource = reader.Get(TITLE + "FromSource", this.FromSource);
             this.ToSource = reader.Get(TITLE + "ToSource", this.ToSource);
+
+            this.ActiveOnce = reader.Get(TITLE + "ActiveOnce", this.ActiveOnce);
+            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
         }
 
     }

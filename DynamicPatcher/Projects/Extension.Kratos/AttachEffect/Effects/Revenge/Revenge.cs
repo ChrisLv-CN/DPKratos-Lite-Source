@@ -29,6 +29,10 @@ namespace Extension.Script
     [Serializable]
     public class Revenge : Effect<RevengeData>
     {
+
+        private int count;
+        private int markFrame;
+
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead)
@@ -85,6 +89,23 @@ namespace Extension.Script
                         if (null != Data.AttachEffects && Data.AttachEffects.Any() && pRevengeTargetTechno.TryGetAEManager(out AttachEffectScript aeManager))
                         {
                             aeManager.Attach(Data.AttachEffects, pRevenger.Convert<ObjectClass>(), pRevengerHouse);
+                        }
+                    }
+                    // 检查触发次数
+                    if (Data.TriggeredTimes > 0 && ++count >= Data.TriggeredTimes)
+                    {
+                        Disable(default);
+                    }
+                    // 检查持续帧内触发
+                    if (Data.ActiveOnce)
+                    {
+                        if (markFrame == 0)
+                        {
+                            markFrame = Game.CurrentFrame;
+                        }
+                        if (Game.CurrentFrame != markFrame)
+                        {
+                            Disable(default);
                         }
                     }
                 }
