@@ -55,6 +55,20 @@ namespace Extension.Script
                 // 发射武器复仇
                 if (Data.CanAffectHouse(pHouse, pAttackingHouse) && Data.CanAffectType(pAttackerTechno) && Data.IsOnMark(pAttackerTechno))
                 {
+                    // 检查持续帧内触发
+                    if (Data.ActiveOnce)
+                    {
+                        int currentFrame = Game.CurrentFrame;
+                        if (markFrame == 0)
+                        {
+                            markFrame = currentFrame;
+                        }
+                        if (currentFrame != markFrame)
+                        {
+                            Disable(default);
+                            return;
+                        }
+                    }
                     Pointer<TechnoClass> pRevenger = pTechno; // 复仇者
                     Pointer<HouseClass> pRevengerHouse = pHouse;
                     Pointer<TechnoClass> pRevengeTargetTechno = pAttackerTechno; // 报复对象
@@ -95,18 +109,6 @@ namespace Extension.Script
                     if (Data.TriggeredTimes > 0 && ++count >= Data.TriggeredTimes)
                     {
                         Disable(default);
-                    }
-                    // 检查持续帧内触发
-                    if (Data.ActiveOnce)
-                    {
-                        if (markFrame == 0)
-                        {
-                            markFrame = Game.CurrentFrame;
-                        }
-                        if (Game.CurrentFrame != markFrame)
-                        {
-                            Disable(default);
-                        }
                     }
                 }
             }
