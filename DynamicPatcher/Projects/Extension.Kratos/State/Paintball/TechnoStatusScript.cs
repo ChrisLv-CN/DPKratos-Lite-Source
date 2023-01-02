@@ -23,6 +23,7 @@ namespace Extension.Script
         private float deactivateDimEMP = 0.8f;
         private float deactivateDimPowered = 0.5f;
 
+        private bool buildingWasColor = false;
         private bool buildingWasBerzerk = false;
         private bool buildingWasEMP = false;
 
@@ -43,12 +44,13 @@ namespace Extension.Script
         {
             if (isBuilding && !AmIStand())
             {
+                // 检查状态有所变化，则重新渲染
                 if (pTechno.Ref.Berzerk)
                 {
                     if (!buildingWasBerzerk)
                     {
                         buildingWasBerzerk = true;
-                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                        pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
                 else
@@ -56,7 +58,7 @@ namespace Extension.Script
                     if (buildingWasBerzerk)
                     {
                         buildingWasBerzerk = false;
-                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                        pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
 
@@ -65,7 +67,7 @@ namespace Extension.Script
                     if (!buildingWasEMP)
                     {
                         buildingWasEMP = true;
-                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                        pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
                 else
@@ -73,14 +75,26 @@ namespace Extension.Script
                     if (buildingWasEMP)
                     {
                         buildingWasEMP = true;
-                        pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                        pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
 
                 if (PaintballState.IsActive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}, ForceShilded {pTechno.Ref.IsForceShilded}");
-                    pTechno.Ref.Base.Mark(MarkType.CHANGE);
+                    if (!buildingWasColor)
+                    {
+                        buildingWasColor = true;
+                        pTechno.Ref.Base.NeedsRedraw = true;
+                    }
+                }
+                else
+                {
+                    if (buildingWasColor)
+                    {
+                        buildingWasColor = true;
+                        pTechno.Ref.Base.NeedsRedraw = true;
+                    }
                 }
             }
 
