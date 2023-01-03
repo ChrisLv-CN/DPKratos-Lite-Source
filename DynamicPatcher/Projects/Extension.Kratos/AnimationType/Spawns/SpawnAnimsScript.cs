@@ -28,6 +28,8 @@ namespace Extension.Script
 
         public void OnNext_SpawnAnims(Pointer<AnimTypeClass> pNext)
         {
+            // 动画next会换类型，要刷新设置
+            _spawnAnimsData = null;
             if (spawnAnimsData.TriggerOnNext)
             {
                 ExpandAnims.PlayExpandAnims(spawnAnimsData, pAnim.Ref.Base.Base.GetCoords(), pAnim.Ref.Owner);
