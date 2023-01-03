@@ -6,6 +6,7 @@ using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
@@ -54,6 +55,27 @@ namespace Extension.Script
                 return;
             }
 
+            InitData();
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public override void OnUnInit()
+        {
+            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public void OnTransform(object sender, EventArgs args)
+        {
+            Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
+            if (!pTarget.IsNull && pTarget == pTechno)
+            {
+                _data = null;
+                InitData();
+            }
+        }
+
+        private void InitData()
+        {
             this.disable = data.Disable;
             this.PitchAngle = 0f;
             this.smooth = true;

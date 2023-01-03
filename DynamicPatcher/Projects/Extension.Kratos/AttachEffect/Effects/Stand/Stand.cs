@@ -732,7 +732,7 @@ namespace Extension.Script
         {
             // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand, location);
             pStand.Ref.Base.SetLocation(location);
-            if (!Data.IsTrain && Data.SameMoving && Data.StickOnFloor && !pStand.Ref.Type.Ref.JumpJet)
+            if (!Data.IsTrain && Data.SameMoving && Data.StickOnFloor && !pStand.Ref.Type.Ref.JumpJet && pMaster.Ref.GetHeight() == 0)
             {
                 // 贴在地上
                 pStand.Ref.Base.SetHeight(0);

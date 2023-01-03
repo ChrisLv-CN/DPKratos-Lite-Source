@@ -32,19 +32,6 @@ namespace Extension.Script
         private SwizzleablePointer<AbstractClass> pDest = new SwizzleablePointer<AbstractClass>(IntPtr.Zero);
         private SwizzleablePointer<AbstractClass> pFocus = new SwizzleablePointer<AbstractClass>(IntPtr.Zero);
 
-        private IConfigWrapper<TechnoTypeData> _typeData;
-        private TechnoTypeData typeData
-        {
-            get
-            {
-                if (null == _typeData)
-                {
-                    _typeData = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, section);
-                }
-                return _typeData.Data;
-            }
-        }
-
         public void InitState_Teleport()
         {
             // 初始化状态机

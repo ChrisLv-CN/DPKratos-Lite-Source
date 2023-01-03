@@ -6,71 +6,55 @@ using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
 namespace Extension.Script
 {
 
-
-    [Serializable]
-    [GlobalScriptable(typeof(TechnoExt))]
-    [UpdateAfter(typeof(TechnoStatusScript))]
-    public class AutoFireAreaWeaponScript : TechnoScriptable
+    public partial class TechnoStatusScript
     {
-        public AutoFireAreaWeaponScript(TechnoExt owner) : base(owner) { }
 
         public bool SkipROF;
 
-        private IConfigWrapper<AutoFireAreaWeaponData> _data;
-        private AutoFireAreaWeaponData data
+        private IConfigWrapper<AutoFireAreaWeaponData> _autoFireAreaWeaponData;
+        private AutoFireAreaWeaponData autoFireAreaWeaponData
         {
             get
             {
-                if (null == _data)
+                if (null == _autoFireAreaWeaponData)
                 {
-                    _data = Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section);
+                    _autoFireAreaWeaponData = Ini.GetConfig<AutoFireAreaWeaponData>(Ini.RulesDependency, section);
                 }
-                return _data.Data;
+                return _autoFireAreaWeaponData.Data;
             }
         }
 
         private TimerStruct reloadTimer;
         private TimerStruct initialDelayTimer;
 
-        public override void Awake()
+        public void OnUpdate_AutoFireAreaWeapon()
         {
             Pointer<WeaponStruct> pWeapon = IntPtr.Zero;
-            if (data.WeaponIndex < 0
-                || (pWeapon = pTechno.Ref.GetWeapon(data.WeaponIndex)).IsNull || pWeapon.Ref.WeaponType.IsNull)
-            {
-                GameObject.RemoveComponent(this);
-                return;
-            }
-            initialDelayTimer.Start(data.InitialDelay);
-        }
-
-        public override void OnUpdate()
-        {
-            if (!pTechno.IsDeadOrInvisible())
+            if (autoFireAreaWeaponData.Enable && !(pWeapon = pTechno.Ref.GetWeapon(autoFireAreaWeaponData.WeaponIndex)).IsNull)
             {
                 if (initialDelayTimer.Expired() && reloadTimer.Expired())
                 {
-                    Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(data.WeaponIndex);
                     // 检查弹药消耗
                     int technoAmmo = pTechno.Ref.Ammo;
                     int weaponAmmo = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.WeaponType.Ref.Base.ID).Data.Ammo;
                     if (technoAmmo >= 0)
                     {
                         int leftAmmo = technoAmmo - weaponAmmo;
-                        if (data.CheckAmmo || data.UseAmmo)
+                        if (autoFireAreaWeaponData.CheckAmmo || autoFireAreaWeaponData.UseAmmo)
                         {
                             if (leftAmmo < 0)
                             {
                                 return;
                             }
                         }
-                        if (data.UseAmmo)
+                        if (autoFireAreaWeaponData.UseAmmo)
                         {
                             pTechno.Ref.Ammo = leftAmmo;
                             pTechno.Ref.ReloadNow();
@@ -82,20 +66,20 @@ namespace Extension.Script
                         rof = (int)(rof * aeManager.CountAttachStatusMultiplier().ROFMultiplier);
                     }
                     reloadTimer.Start(rof);
-                    if (data.TargetToGround)
+                    if (autoFireAreaWeaponData.TargetToGround)
                     {
                         CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                         if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell) && !pCell.IsNull)
                         {
                             SkipROF = true;
-                            pTechno.Ref.Fire_IgnoreType(pCell.Convert<AbstractClass>(), data.WeaponIndex);
+                            pTechno.Ref.Fire_IgnoreType(pCell.Convert<AbstractClass>(), autoFireAreaWeaponData.WeaponIndex);
                             SkipROF = false;
                         }
                     }
                     else
                     {
                         SkipROF = true;
-                        pTechno.Ref.Fire_IgnoreType(pTechno.Convert<AbstractClass>(), data.WeaponIndex);
+                        pTechno.Ref.Fire_IgnoreType(pTechno.Convert<AbstractClass>(), autoFireAreaWeaponData.WeaponIndex);
                         SkipROF = false;
                     }
 

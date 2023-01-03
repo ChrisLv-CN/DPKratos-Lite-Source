@@ -5,6 +5,7 @@ using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
@@ -33,6 +34,21 @@ namespace Extension.Script
             {
                 GameObject.RemoveComponent(this);
                 return;
+            }
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public override void OnUnInit()
+        {
+            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public void OnTransform(object sender, EventArgs args)
+        {
+            Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
+            if (!pTarget.IsNull && pTarget == pTechno)
+            {
+                SetupTrails();
             }
         }
 

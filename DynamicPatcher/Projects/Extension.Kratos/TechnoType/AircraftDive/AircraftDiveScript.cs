@@ -6,6 +6,7 @@ using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.Utilities;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
@@ -54,6 +55,22 @@ namespace Extension.Script
             }
             // Pointer<FlyLocomotionClass> pFly = locomotion.ToLocomotionClass<FlyLocomotionClass>();
             // this.flightLevel = pFly.Ref.FlightLevel;
+        
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public override void OnUnInit()
+        {
+            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public void OnTransform(object sender, EventArgs args)
+        {
+            Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
+            if (!pTarget.IsNull && pTarget == pTechno)
+            {
+                _data = null;
+            }
         }
 
         public override void OnUpdate()

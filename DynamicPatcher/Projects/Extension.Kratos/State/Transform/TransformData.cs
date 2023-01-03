@@ -15,17 +15,19 @@ namespace Extension.Ext
 
         private void ReadTransformData(IConfigReader reader)
         {
-            TransformData data = new TransformData(reader);
+            TransformData data = new TransformData();
+            data.Read(reader);
             if (data.Enable)
             {
                 this.TransformData = data;
                 this.Enable = true;
+                this.DiscardOnTramsform = false;
             }
         }
     }
 
     [Serializable]
-    public class TransformData : EffectData
+    public class TransformData : EffectData, IStateData
     {
 
         public const string TITLE = "Transform.";
@@ -36,11 +38,6 @@ namespace Extension.Ext
         public TransformData()
         {
             this.TransformToType = null;
-        }
-
-        public TransformData(IConfigReader reader) : this()
-        {
-            Read(reader);
         }
 
         public override void Read(IConfigReader reader)

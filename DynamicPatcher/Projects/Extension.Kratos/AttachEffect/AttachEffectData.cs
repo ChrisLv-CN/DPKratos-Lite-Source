@@ -64,6 +64,7 @@ namespace Extension.Ext
         public Point2D InitialRandomDelay; // 随机初始延迟
 
         public bool DiscardOnEntry; // 离开地图则失效
+        public bool DiscardOnTramsform; // 发生类型改变时失效
         public bool PenetratesIronCurtain; // 弹头附加，影响铁幕
         public bool FromTransporter; // 弹头附加，乘客附加时，视为载具
         public bool ReceiverOwn; // 弹头附加，属于被赋予对象
@@ -94,6 +95,7 @@ namespace Extension.Ext
             this.InitialRandomDelay = default;
 
             this.DiscardOnEntry = false;
+            this.DiscardOnTramsform = true;
             this.PenetratesIronCurtain = false;
             this.FromTransporter = true;
             this.ReceiverOwn = false;
@@ -170,6 +172,7 @@ namespace Extension.Ext
                 this.InitialRandomDelay = reader.Get("InitialRandomDelay", this.InitialRandomDelay);
 
                 this.DiscardOnEntry = reader.Get("DiscardOnEntry", this.DiscardOnEntry);
+                this.DiscardOnTramsform = reader.Get("DiscardOnTramsform", this.DiscardOnTramsform);
                 this.PenetratesIronCurtain = reader.Get("PenetratesIronCurtain", this.PenetratesIronCurtain);
                 this.FromTransporter = reader.Get("FromTransporter", this.FromTransporter);
                 this.ReceiverOwn = reader.Get("ReceiverOwn", this.ReceiverOwn);

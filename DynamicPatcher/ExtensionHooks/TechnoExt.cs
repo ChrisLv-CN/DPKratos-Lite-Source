@@ -281,7 +281,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                if (pTechno.TryGetComponent<AutoFireAreaWeaponScript>(out AutoFireAreaWeaponScript autoFire) && autoFire.SkipROF)
+                if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.SkipROF)
                 {
                     return 0x6FF2BE; // skip ROF
                 }

@@ -36,6 +36,7 @@ namespace Extension.Script
         public AttachEffectScript(IExtension owner) : base(owner) { }
 
         public Pointer<ObjectClass> pOwner => pObject;
+
         public IConfigWrapper<AttachEffectTypeData> aeTypeData = null;
         public AttachEffectTypeData AETypeData
         {
@@ -51,6 +52,8 @@ namespace Extension.Script
         public List<AttachEffect> AttachEffects; // 所有有效的AE
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
         public Dictionary<string, int> AEStacks; // 同名AE的叠加层数
+
+        public bool IsBullet;
 
         public List<int> PassengerIds; // 乘客持有的ID
 
@@ -132,6 +135,7 @@ namespace Extension.Script
             OnAwake();
             // 注册Render事件
             EventSystem.GScreen.AddTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }
 
         private void OnAwake()
@@ -139,6 +143,8 @@ namespace Extension.Script
             this.AttachEffects = new List<AttachEffect>();
             this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
             this.AEStacks = new Dictionary<string, int>();
+
+            this.IsBullet = pObject.Ref.Base.WhatAmI() == AbstractType.Bullet;
 
             this.location = pOwner.Ref.Base.GetCoords();
 
@@ -815,6 +821,37 @@ namespace Extension.Script
             }
         }
 
+        /// <summary>
+        /// 广播变形事件，重新读取类型信息
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        public void OnTransform(object sender, EventArgs args)
+        {
+            if (!IsBullet)
+            {
+                Pointer<TechnoClass> pTechno = ((TechnoTypeChangeEventArgs)args).pTechno;
+                if (!pTechno.IsNull && pTechno.Convert<ObjectClass>() == pOwner)
+                {
+                    attachEffectOnceFlag = false;
+                    aeTypeTypeData = null;
+                    aeTypeData = null;
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]发生了类型改变，当前类型[{pObject.Ref.Type.Ref.Base.ID}]");
+                    // 移除不保留的AE
+                    for (int i = Count() - 1; i >= 0; i--)
+                    {
+                        AttachEffect ae = AttachEffects[i];
+                        if (ae.IsActive() && ae.AEData.DiscardOnTramsform)
+                        {
+                            ae.Disable(location);
+                            AttachEffects.Remove(ae);
+                            ReduceStackCount(ae);
+                        }
+                    }
+                }
+            }
+        }
+
         public override void OnUpdate()
         {
             isDead = pOwner.IsDead();
@@ -1105,6 +1142,7 @@ namespace Extension.Script
             }
             AttachEffects.Clear();
             EventSystem.GScreen.RemoveTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
+            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }
 
         public override void OnGuardCommand()

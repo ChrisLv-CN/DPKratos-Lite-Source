@@ -27,6 +27,19 @@ namespace Extension.Script
         public DrivingState DrivingState;
         private Mission lastMission;
 
+        private IConfigWrapper<TechnoTypeData> _typeData;
+        private TechnoTypeData typeData
+        {
+            get
+            {
+                if (null == _typeData)
+                {
+                    _typeData = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, section);
+                }
+                return _typeData.Data;
+            }
+        }
+
         private bool isBuilding;
         private bool isInfantry;
         private bool isUnit;
@@ -86,9 +99,11 @@ namespace Extension.Script
 
         public override void Awake()
         {
+            Awake_Transform();
+
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
             this.isBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
-            switch(pTechno.Ref.Base.Base.WhatAmI())
+            switch (pTechno.Ref.Base.Base.WhatAmI())
             {
                 case AbstractType.Building:
                     isBuilding = true;
@@ -107,6 +122,26 @@ namespace Extension.Script
             isVoxel = pTechno.Ref.IsVoxel();
         }
 
+        private void InitState()
+        {
+            // TODO 初始化状态机
+            InitState_AttackBeacon();
+            InitState_BlackHole();
+            InitState_DamageReaction();
+            InitState_Deselect();
+            InitState_DestroySelf();
+            InitState_ExtraFire();
+            InitState_FireSuper();
+            InitState_Freeze();
+            InitState_GiftBox();
+            InitState_OverrideWeapon();
+            InitState_Paintball();
+            InitState_Scatter();
+            InitState_Pump();
+            InitState_Teleport();
+            InitState_VirtualUnit();
+        }
+
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
             OnPut_StandUnit(pCoord, dirType);
@@ -114,22 +149,7 @@ namespace Extension.Script
             if (!initStateFlag)
             {
                 initStateFlag = true;
-                // TODO 初始化状态机
-                InitState_AttackBeacon();
-                InitState_BlackHole();
-                InitState_DamageReaction();
-                InitState_Deselect();
-                InitState_DestroySelf();
-                InitState_ExtraFire();
-                InitState_FireSuper();
-                InitState_Freeze();
-                InitState_GiftBox();
-                InitState_OverrideWeapon();
-                InitState_Paintball();
-                InitState_Scatter();
-                InitState_Pump();
-                InitState_Teleport();
-                InitState_VirtualUnit();
+                InitState();
             }
         }
 
@@ -165,7 +185,10 @@ namespace Extension.Script
                         }
                         break;
                 }
+                OnUpdate_Transfrom();
+
                 OnUpdate_AttackBeacon();
+                OnUpdate_AutoFireAreaWeapon();
                 OnUpdate_BlackHole();
                 OnUpdate_CrawlingFLH();
                 OnUpdate_DamageReaction();
@@ -246,6 +269,7 @@ namespace Extension.Script
 
         public override void OnReceiveDamageDestroy()
         {
+            OnReceiveDamageDestroy_Transform();
             OnReceiveDamageDestroy_StandUnit();
 
             OnReceiveDamageDestroy_GiftBox();
@@ -296,6 +320,18 @@ namespace Extension.Script
             {
                 return;
             }
+        }
+
+        public void OnTransform()
+        {
+            _autoFireAreaWeaponData = null;
+            _crawlingFLHData = null;
+            _destroyAnimData = null;
+            _healthTextTypeData = null;
+            _passengersData = null;
+            _typeData = null;
+            // 重新初始化状态机
+            InitState();
         }
 
         public void StopMoving()

@@ -16,6 +16,7 @@ namespace Extension.EventSystems
         public static SaveGameEventSystem SaveGame { get; }
 
         public static GScreenEventSystem GScreen { get; }
+        public static TechnoEventSystem Techno { get; }
 
 
         private static event EventHandler OnClearTemporaryHandler;
@@ -30,6 +31,7 @@ namespace Extension.EventSystems
             PointerExpire = new PointerExpireEventSystem();
             SaveGame = new SaveGameEventSystem();
             GScreen = new GScreenEventSystem();
+            Techno = new TechnoEventSystem();
         }
 
 
