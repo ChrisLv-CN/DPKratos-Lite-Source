@@ -89,6 +89,7 @@ namespace Extension.Ext
     {
 
         public const string TITLE = "GiftBox.";
+        public bool ForceTransform = false;
 
         public GiftBoxEntity Data;
         public GiftBoxEntity EliteData;
@@ -107,6 +108,7 @@ namespace Extension.Ext
         public bool InheritHealthNumber;
         public bool InheritTarget;
         public bool InheritExperience;
+        public bool InheritROF;
         public bool InheritAmmo;
         public bool InheritAE;
         public Mission ForceMission = Mission.None;
@@ -138,6 +140,7 @@ namespace Extension.Ext
             this.HealthNumber = 0;
             this.InheritTarget = true;
             this.InheritExperience = true;
+            this.InheritROF = false;
             this.InheritAmmo = false;
             this.InheritAE = false;
             this.ForceMission = Mission.None;
@@ -188,11 +191,9 @@ namespace Extension.Ext
             this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
 
             this.IsTransform = reader.Get(title + "IsTransform", this.IsTransform);
-            if (IsTransform)
+            if (IsTransform || ForceTransform)
             {
-                this.Remove = true; // 释放后移除
-                this.Destroy = false; // 静默删除
-                this.InheritHealth = true; // 继承血量
+                ForTransform();
             }
 
             this.HealthPercent = reader.GetPercent(title + "HealthPercent", this.HealthPercent);
@@ -227,6 +228,7 @@ namespace Extension.Ext
 
             this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);
             this.InheritExperience = reader.Get(title + "InheritExp", this.InheritExperience);
+            this.InheritROF = reader.Get(title + "InheritROF", this.InheritROF);
             this.InheritAmmo = reader.Get(title + "InheritAmmo", this.InheritAmmo);
             this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
             this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
@@ -237,13 +239,18 @@ namespace Extension.Ext
 
         public void ForTransform()
         {
-            this.Remove = true;
-            this.Destroy = false;
+            this.Remove = true; // 释放后移除
+            this.Destroy = false; // 静默删除
             this.OpenWhenDestroyed = false;
             this.OpenWhenHealthPercent = false;
             this.IsTransform = true;
-            this.InheritHealth = true;
+            this.InheritHealth = true; // 继承血量
             this.HealthPercent = 0;
+            this.InheritTarget = true; // 继承目标
+            this.InheritExperience = true; // 继承经验
+            this.InheritROF = true; // 继承ROF计时器
+            this.InheritAmmo = true; // 继承弹药
+            this.InheritAE = true; // 继承AE
         }
 
     }

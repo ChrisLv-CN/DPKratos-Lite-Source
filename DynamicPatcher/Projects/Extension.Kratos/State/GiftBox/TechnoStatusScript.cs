@@ -269,6 +269,12 @@ namespace Extension.Script
                             pGift.Ref.Veterancy = pTechno.Ref.Veterancy;
                         }
 
+                        // 继承ROF
+                        if (data.InheritROF && pTechno.Ref.ROFTimer.InProgress())
+                        {
+                            pGift.Ref.ROFTimer.Start(pTechno.Ref.ROFTimer.GetTimeLeft());
+                        }
+
                         // 继承弹药
                         if (data.InheritAmmo && pGiftType.Ref.Ammo > 1 && pTechno.Ref.Type.Ref.Ammo > 1)
                         {

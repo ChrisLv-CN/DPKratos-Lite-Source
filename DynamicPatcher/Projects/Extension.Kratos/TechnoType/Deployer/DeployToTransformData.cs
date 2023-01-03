@@ -16,6 +16,8 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            base.ForceTransform = true;
+
             base.Read(reader, TITLE);
 
             // 兼容旧版语句
@@ -35,7 +37,6 @@ namespace Extension.Ext
                 }
                 this.Enable = null != Data || null != EliteData;
             }
-            ForTransform(); // 强制修改部分属性
         }
 
     }
