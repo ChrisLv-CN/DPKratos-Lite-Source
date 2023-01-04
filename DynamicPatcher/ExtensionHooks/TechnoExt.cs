@@ -684,6 +684,18 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x736A26, Size = 0x6)]
+        public static unsafe UInt32 UnitClass_Rotation_SetTurretFacingToTarget_Skip(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.LockTurret)
+            {
+                // 不允许转炮塔
+                R->EDX = (uint)status.LockTurretDir.GetThisPointer();
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x736B7E, Size = 0xA)]
         public static unsafe UInt32 UnitClass_Rotation_SetTurretFacing_Skip(REGISTERS* R)
         {

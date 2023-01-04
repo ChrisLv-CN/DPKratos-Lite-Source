@@ -50,6 +50,8 @@ namespace Extension.Script
 
         private bool initStateFlag = false;
 
+        private CoordStruct location;
+
         /// <summary>
         /// 继承除了GiftBox之外的状态
         /// </summary>
@@ -155,6 +157,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            location = pTechno.Ref.Base.Base.GetCoords();
             OnUpdate_DestroySelf();
             if (!pTechno.IsDead())
             {
@@ -201,6 +204,7 @@ namespace Extension.Script
                 OnUpdate_Pump();
                 OnUpdate_Scatter();
                 OnUpdate_Teleport();
+                OnUpdate_TurretAngle();
             }
         }
 
@@ -298,6 +302,10 @@ namespace Extension.Script
                 {
                     return;
                 }
+                // if (ceaseFire = CanFire_TurretAngle(pTarget, pWeapon))
+                // {
+                //     return;
+                // }
             }
         }
 
@@ -329,6 +337,7 @@ namespace Extension.Script
             _destroyAnimData = null;
             _healthTextTypeData = null;
             _passengersData = null;
+            _turretAngleData = null;
             _typeData = null;
             // 重新初始化状态机
             InitState();
