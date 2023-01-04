@@ -51,9 +51,11 @@ namespace Extension.Script
                         case DeathZoneAction.TURN:
                             BlockTurretFacing(bodyDir, bodyDirIndex, min, max, delta);
                             // 转动车身朝向目标
-                            if (!AmIStand() || null == StandData || !StandData.LockDirection || StandData.FreeDirection)
+                            if ((!AmIStand() || null == StandData || !StandData.LockDirection || StandData.FreeDirection || isBuilding)
+                                && !isMoving
+                                && !pTechno.Ref.Facing.in_motion())
                             {
-                                pTechno.Ref.Facing.turn(targetDir);
+                                TurnBodyToAngle(bodyDir, targetDir, bodyDirIndex);
                             }
                             break;
                         default:
@@ -161,6 +163,48 @@ namespace Extension.Script
                 }
             }
             return false;
+        }
+
+        private void TurnBodyToAngle(DirStruct bodyDir, DirStruct targetDir, int bodyDirIndex)
+        {
+            DirStruct turnDir = targetDir;
+            if (default != turretAngleData.SideboardAngle)
+            {
+                int delta = 0;
+                int turnAngle = 0;
+                int targetAngle = bodyDir.IncludedAngle360(targetDir);
+                if (targetAngle > 180)
+                {
+                    // 目标在左区，大值
+                    turnAngle = turretAngleData.SideboardAngle.Y;
+                }
+                else if (targetAngle > 0)
+                {
+                    // 目标在右区，小值
+                    turnAngle = turretAngleData.SideboardAngle.X;
+                }
+                if (turnAngle < targetAngle)
+                {
+                    // 侧舷的角度在目标的左边，顺时针转差值
+                    delta = targetAngle - turnAngle;
+                }
+                else if (turnAngle > targetAngle)
+                {
+                    // 侧舷的角度在目标的右边，逆时针转差值
+                    delta = 360 - (turnAngle - targetAngle);
+                }
+                // 算实际世界坐标角度
+                delta += bodyDirIndex;
+                if (delta > 360)
+                {
+                    delta -= 360;
+                }
+                if (delta > 0)
+                {
+                    turnDir = FLHHelper.DirNormalized(delta, 360);
+                }
+            }
+            pTechno.Ref.Facing.turn(turnDir);
         }
 
     }

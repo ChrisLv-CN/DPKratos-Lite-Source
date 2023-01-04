@@ -50,12 +50,16 @@ namespace Extension.Ext
         public Point2D Angle;
         public DeathZoneAction Action;
 
+        public Point2D SideboardAngle;
+
         public TurretAngleData()
         {
             this.Enable = false;
 
             this.Angle = default;
             this.Action = DeathZoneAction.CLEAR;
+
+            this.SideboardAngle = default;
         }
 
         public override void Read(IConfigReader reader)
@@ -64,41 +68,63 @@ namespace Extension.Ext
             // 计算死区
             if (default != Angle)
             {
-                // 最大值
-                int max = Angle.X;
-                if (max < 0)
-                {
-                    max = Math.Abs(max);
-                }
-                if (max > 180)
-                {
-                    max = 180;
-                }
-                else if (max == 0)
-                {
-                    max = 360;
-                }
-                else
-                {
-                    max = 360 - max;
-                }
-                // 最小值
-                int min = Angle.Y;
-                if (min < 0)
-                {
-                    min = Math.Abs(min);
-                }
-                if (min > 180)
-                {
-                    min = 180;
-                }
-                // 死区
-                this.Angle.X = min;
-                this.Angle.Y = max;
+                FormatAngle(ref Angle);
             }
             this.Enable = default != Angle && (Angle.Y - Angle.X) > 0;
 
             this.Action = reader.Get(TITLE + "Action", this.Action);
+            this.SideboardAngle = reader.Get(TITLE + "SideboardAngle", this.SideboardAngle);
+            if (default != SideboardAngle)
+            {
+                FormatAngle(ref SideboardAngle);
+                // 侧舷角度在死区内，以死区为界
+                if (SideboardAngle.X > Angle.X)
+                {
+                    SideboardAngle.X = Angle.X;
+                }
+                if (SideboardAngle.Y < Angle.Y)
+                {
+                    SideboardAngle.Y = Angle.Y;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 顺时针旋转，所以X是右，Y是左，与设定值颠倒
+        /// </summary>
+        /// <param name="angle"></param>
+        private void FormatAngle(ref Point2D angle)
+        {
+            // 最大值
+            int max = angle.X;
+            if (max < 0)
+            {
+                max = -max;
+            }
+            if (max > 180)
+            {
+                max = 180;
+            }
+            else if (max == 0)
+            {
+                max = 360;
+            }
+            else
+            {
+                max = 360 - max;
+            }
+            // 最小值
+            int min = angle.Y;
+            if (min < 0)
+            {
+                min = -min;
+            }
+            if (min > 180)
+            {
+                min = 180;
+            }
+            angle.X = min;
+            angle.Y = max;
         }
     }
 

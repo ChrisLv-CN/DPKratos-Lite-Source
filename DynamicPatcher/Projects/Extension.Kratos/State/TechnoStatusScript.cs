@@ -51,6 +51,7 @@ namespace Extension.Script
         private bool initStateFlag = false;
 
         private CoordStruct location;
+        private bool isMoving;
 
         /// <summary>
         /// 继承除了GiftBox之外的状态
@@ -187,6 +188,11 @@ namespace Extension.Script
                             DrivingState = DrivingState.Stand;
                         }
                         break;
+                }
+                if (!isBuilding)
+                {
+                    Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                    isMoving = pFoot.Ref.Locomotor.Is_Moving() && pFoot.Ref.GetCurrentSpeed() > 0;
                 }
                 OnUpdate_Transfrom();
 
