@@ -36,6 +36,8 @@ namespace Extension.Script
             }
         }
 
+        private bool initFlag = false;
+
         private TimerStruct supportFireROF;
         private int flipY = 1;
 
@@ -43,13 +45,26 @@ namespace Extension.Script
         {
             // I'm not a Spawn
             if (!pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out var pAircraft)
-               || !pAircraft.Ref.Type.Ref.Base.Spawned || pTechno.Ref.SpawnOwner.IsNull || !data.Enable)
+               || !pAircraft.Ref.Type.Ref.Base.Spawned)
             {
                 GameObject.RemoveComponent(this);
                 return;
             }
-        
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            // SpwanOwner在这里拿不到，在put里检查
+        }
+
+        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
+        {
+            if (pTechno.Ref.SpawnOwner.IsNull || !data.Enable)
+            {
+                GameObject.RemoveComponent(this);
+                return;
+            }
+            if (!initFlag)
+            {
+                initFlag = true;
+                EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            }
         }
 
         public override void OnUnInit()
@@ -68,7 +83,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            if (!pTechno.IsDeadOrInvisible())
+            if (initFlag && !pTechno.IsDeadOrInvisible())
             {
                 Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
                 if (!pSpawnOwner.IsDeadOrInvisible())
@@ -85,7 +100,7 @@ namespace Extension.Script
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
-            if (!pSpawnOwner.IsDeadOrInvisible())
+            if (initFlag && !pSpawnOwner.IsDeadOrInvisible())
             {
                 if (data.Enable && !data.Always)
                 {
