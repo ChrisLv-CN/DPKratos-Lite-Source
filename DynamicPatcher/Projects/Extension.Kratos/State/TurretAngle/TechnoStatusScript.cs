@@ -39,41 +39,60 @@ namespace Extension.Script
             Pointer<AbstractClass> pTarget = IntPtr.Zero;
             if ((isUnit || isBuilding) && turretAngleData.Enable && hasTurret && !(pTarget = pTechno.Ref.Target).IsNull)
             {
-                if (TargetInDeathZone(pTarget, out DirStruct bodyDir, out DirStruct targetDir, out int bodyDirIndex, out int targetDirIndex, out int min, out int max, out int delta))
+                bool isCloseEnough = pTechno.Ref.IsCloseEnoughToAttack(pTarget);
+                CoordStruct sourcePos = location;
+                CoordStruct targetPos = pTarget.Ref.GetCoords();
+                // 目标所在方向
+                DirStruct targetDir = sourcePos.Point2Dir(targetPos);
+                // 车体朝向方向
+                DirStruct bodyDir = pTechno.Ref.Facing.current();
+                // 取夹角的度数值
+                int delta = bodyDir.IncludedAngle360(targetDir, out int bodyDirIndex, out int targetDirIndex);
+                // 启用侧舷接敌
+                if (turretAngleData.AutoTurn && isCloseEnough)
                 {
-                    // 在死区内
-                    // Logger.Log($"{Game.CurrentFrame} 旋转角度 {delta} 在死区 {turretAngleData.Angle} 内");
-                    switch (turretAngleData.Action)
-                    {
-                        case DeathZoneAction.BLOCK:
-                            BlockTurretFacing(bodyDir, bodyDirIndex, min, max, delta);
-                            break;
-                        case DeathZoneAction.TURN:
-                            BlockTurretFacing(bodyDir, bodyDirIndex, min, max, delta);
-                            // 转动车身朝向目标
-                            if ((!AmIStand() || null == StandData || !StandData.LockDirection || StandData.FreeDirection || isBuilding)
-                                && !isMoving
-                                && !pTechno.Ref.Facing.in_motion())
-                            {
-                                TurnBodyToAngle(bodyDir, targetDir, bodyDirIndex);
-                            }
-                            break;
-                        default:
-                            pTechno.ClearAllTarget();
-                            break;
-                    }
+                    TryTurnBodyToAngle(bodyDir, targetDir, bodyDirIndex, delta);
                 }
-                else
+                // 启用炮塔限界
+                if (turretAngleData.AngleLimit)
                 {
-                    // 不在死区，但是如果死区过小，炮塔会从最近的位置转过去，穿过死区，强制转回前方绕过死区
-                    int targetAngle = bodyDir.IncludedAngle360(targetDir);
-                    if (max - min <= 180)
+                    // 判断是否在死区内
+                    int min = turretAngleData.Angle.X;
+                    int max = turretAngleData.Angle.Y;
+                    if (delta > min && delta < max)
                     {
-                        LockTurret = ForceTurretToForward(bodyDir, targetAngle);
+                        // 在死区内
+                        // Logger.Log($"{Game.CurrentFrame} 旋转角度 {delta} 在死区 {turretAngleData.Angle} 内");
+                        switch (turretAngleData.Action)
+                        {
+                            case DeathZoneAction.BLOCK:
+                                BlockTurretFacing(bodyDir, bodyDirIndex, min, max, delta);
+                                break;
+                            case DeathZoneAction.TURN:
+                                BlockTurretFacing(bodyDir, bodyDirIndex, min, max, delta);
+                                if (isCloseEnough)
+                                {
+                                    // 转动车身朝向目标
+                                    TryTurnBodyToAngle(bodyDir, targetDir, bodyDirIndex, delta);
+                                }
+                                break;
+                            default:
+                                pTechno.ClearAllTarget();
+                                break;
+                        }
                     }
                     else
                     {
-                        LockTurret = false;
+                        // 不在死区，但是如果死区过小，炮塔会从最近的位置转过去，穿过死区，强制转回前方绕过死区
+                        int targetAngle = bodyDir.IncludedAngle360(targetDir);
+                        if (max - min <= 180)
+                        {
+                            LockTurret = ForceTurretToForward(bodyDir, targetAngle);
+                        }
+                        else
+                        {
+                            LockTurret = false;
+                        }
                     }
                 }
             }
@@ -111,7 +130,7 @@ namespace Extension.Script
         private void BlockTurretFacing(DirStruct bodyDir, int bodyDirIndex, int min, int max, int delta)
         {
             // 炮塔卡在限位上
-            int targetAngle = 0;
+            int targetAngle = TurretAngleData.GetTurnAngle(delta, min, max);
             // 更靠近哪一边
             int length = max - min;
             if ((delta - min) < (length / 2))
@@ -165,46 +184,71 @@ namespace Extension.Script
             return false;
         }
 
-        private void TurnBodyToAngle(DirStruct bodyDir, DirStruct targetDir, int bodyDirIndex)
+        /// <summary>
+        /// 如果启用侧舷接敌，则计算侧舷的可用角度，否则直接把头怼过去
+        /// </summary>
+        /// <param name="bodyDir"></param>
+        /// <param name="targetDir"></param>
+        /// <param name="bodyDirIndex"></param>
+        /// <returns></returns>
+        private bool TryTurnBodyToAngle(DirStruct bodyDir, DirStruct targetDir, int bodyDirIndex, int delta)
         {
-            DirStruct turnDir = targetDir;
-            if (default != turretAngleData.SideboardAngle)
+            if ((!AmIStand() || null == StandData || !StandData.LockDirection || StandData.FreeDirection || isBuilding)
+                && !isMoving
+                && !pTechno.Ref.Facing.in_motion())
             {
-                int delta = 0;
-                int turnAngle = 0;
-                int targetAngle = bodyDir.IncludedAngle360(targetDir);
-                if (targetAngle > 180)
+                DirStruct turnDir = targetDir;
+                // 启用侧舷接敌，计算侧舷角度和方位
+                if (turretAngleData.AutoTurn)
                 {
-                    // 目标在左区，大值
-                    turnAngle = turretAngleData.SideboardAngle.Y;
+                    Point2D angleZone = default;
+                    int targetAngle = bodyDir.IncludedAngle360(targetDir);
+                    if (targetAngle >= 180)
+                    {
+                        // 目标在左区，正后方算左边
+                        angleZone = turretAngleData.SideboardAngleL;
+                    }
+                    else
+                    {
+                        // 目标在右区，正前方算右边
+                        angleZone = turretAngleData.SideboardAngleR;
+                    }
+                    // 目标角度在死区内，旋转
+                    if (targetAngle < angleZone.X || targetAngle > angleZone.Y)
+                    {
+                        int turnAngle = TurretAngleData.GetTurnAngle(delta, angleZone);
+                        int turnDelta = 0;
+                        if (turnAngle < targetAngle)
+                        {
+                            // 侧舷的角度在目标的左边，顺时针转差值
+                            turnDelta = targetAngle - turnAngle;
+                        }
+                        else if (turnAngle > targetAngle)
+                        {
+                            // 侧舷的角度在目标的右边，逆时针转差值
+                            turnDelta = 360 - (turnAngle - targetAngle);
+                        }
+                        // 算实际世界坐标角度
+                        turnDelta += bodyDirIndex;
+                        if (turnDelta > 360)
+                        {
+                            turnDelta -= 360;
+                        }
+                        if (turnDelta > 0)
+                        {
+                            turnDir = FLHHelper.DirNormalized(turnDelta, 360);
+                        }
+
+                        pTechno.Ref.Facing.turn(turnDir);
+                    }
                 }
-                else if (targetAngle > 0)
+                else
                 {
-                    // 目标在右区，小值
-                    turnAngle = turretAngleData.SideboardAngle.X;
+                    pTechno.Ref.Facing.turn(turnDir);
                 }
-                if (turnAngle < targetAngle)
-                {
-                    // 侧舷的角度在目标的左边，顺时针转差值
-                    delta = targetAngle - turnAngle;
-                }
-                else if (turnAngle > targetAngle)
-                {
-                    // 侧舷的角度在目标的右边，逆时针转差值
-                    delta = 360 - (turnAngle - targetAngle);
-                }
-                // 算实际世界坐标角度
-                delta += bodyDirIndex;
-                if (delta > 360)
-                {
-                    delta -= 360;
-                }
-                if (delta > 0)
-                {
-                    turnDir = FLHHelper.DirNormalized(delta, 360);
-                }
+                return true;
             }
-            pTechno.Ref.Facing.turn(turnDir);
+            return false;
         }
 
     }
