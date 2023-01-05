@@ -186,6 +186,11 @@ namespace ComponentHooks
                 if (pWH.IsToy())
                 {
                     pDamage.Ref = 0;
+                    DamageByToyWH = true;
+                }
+                else
+                {
+                    DamageByToyWH = false;
                 }
             }
             catch (Exception e)
@@ -194,6 +199,8 @@ namespace ComponentHooks
             }
             return 0;
         }
+
+        private static bool DamageByToyWH = false;
 
         // after TakeDamage
         [Hook(HookType.AresHook, Address = 0x701DFF, Size = 7)]
@@ -218,6 +225,17 @@ namespace ComponentHooks
             }
             return 0;
         }
+
+        [Hook(HookType.AresHook, Address = 0x701F9A, Size = 6)]
+        public static unsafe UInt32 TechnoClass_ReceiveDamage_SkipAllReaction(REGISTERS* R)
+        {
+            if (DamageByToyWH)
+            {
+                return 0x702D11;
+            }
+            return 0x70202E;
+        }
+
 
         // TakeDamage to destroy
         [Hook(HookType.AresHook, Address = 0x702050, Size = 6)]
@@ -354,88 +372,88 @@ namespace ComponentHooks
             return 0;
         }
 
-/* 不需要Render事件，用GScreenEvent
-        #region Render
-        public static UInt32 TechnoClass_Render_Components(Pointer<TechnoClass> pTechno)
-        {
-            try
-            {
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.GameObject.Foreach(c => c.OnRender());
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-        [Hook(HookType.AresHook, Address = 0x4144B0, Size = 5)]
-        public static unsafe UInt32 AircraftClass_Render_Components(REGISTERS* R)
-        {
-            Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
-            return TechnoClass_Render_Components(pAircraft.Convert<TechnoClass>());
-        }
-        [Hook(HookType.AresHook, Address = 0x43D290, Size = 5)]
-        public static unsafe UInt32 BuildingClass_Render_Components(REGISTERS* R)
-        {
-            Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
-            return TechnoClass_Render_Components(pBuilding.Convert<TechnoClass>());
-        }
-        [Hook(HookType.AresHook, Address = 0x518F90, Size = 7)]
-        public static unsafe UInt32 InfantryClass_Render_Components(REGISTERS* R)
-        {
-            Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
-            return TechnoClass_Render_Components(pInfantry.Convert<TechnoClass>());
-        }
-        [Hook(HookType.AresHook, Address = 0x73CEC0, Size = 5)]
-        public static unsafe UInt32 UnitClass_Render_Components(REGISTERS* R)
-        {
-            Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
-            return TechnoClass_Render_Components(pUnit.Convert<TechnoClass>());
-        }
-        #endregion
+        /* 不需要Render事件，用GScreenEvent
+                #region Render
+                public static UInt32 TechnoClass_Render_Components(Pointer<TechnoClass> pTechno)
+                {
+                    try
+                    {
+                        TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                        ext.GameObject.Foreach(c => c.OnRender());
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.PrintException(e);
+                    }
+                    return 0;
+                }
+                [Hook(HookType.AresHook, Address = 0x4144B0, Size = 5)]
+                public static unsafe UInt32 AircraftClass_Render_Components(REGISTERS* R)
+                {
+                    Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
+                    return TechnoClass_Render_Components(pAircraft.Convert<TechnoClass>());
+                }
+                [Hook(HookType.AresHook, Address = 0x43D290, Size = 5)]
+                public static unsafe UInt32 BuildingClass_Render_Components(REGISTERS* R)
+                {
+                    Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
+                    return TechnoClass_Render_Components(pBuilding.Convert<TechnoClass>());
+                }
+                [Hook(HookType.AresHook, Address = 0x518F90, Size = 7)]
+                public static unsafe UInt32 InfantryClass_Render_Components(REGISTERS* R)
+                {
+                    Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
+                    return TechnoClass_Render_Components(pInfantry.Convert<TechnoClass>());
+                }
+                [Hook(HookType.AresHook, Address = 0x73CEC0, Size = 5)]
+                public static unsafe UInt32 UnitClass_Render_Components(REGISTERS* R)
+                {
+                    Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
+                    return TechnoClass_Render_Components(pUnit.Convert<TechnoClass>());
+                }
+                #endregion
 
-        #region After Render
-        public static UInt32 TechnoClass_Render2(Pointer<TechnoClass> pTechno)
-        {
-            try
-            {
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                ext.GameObject.Foreach(c => c.OnRenderEnd());
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-        [Hook(HookType.AresHook, Address = 0x4149F0, Size = 5)]
-        public static unsafe UInt32 AircraftClass_Render2(REGISTERS* R)
-        {
-            Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
-            return TechnoClass_Render2(pAircraft.Convert<TechnoClass>());
-        }
-        // Not supported and do not need this.
-        // [Hook(HookType.AresHook, Address = 0x43DA6C, Size = 7)]
-        // public static unsafe UInt32 BuildingClass_Render2(REGISTERS* R)
-        // {
-        //     Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
-        //     return TechnoClass_Render2(pBuilding.Convert<TechnoClass>());
-        // }
-        [Hook(HookType.AresHook, Address = 0x51961A, Size = 5)]
-        public static unsafe UInt32 InfantryClass_Render2(REGISTERS* R)
-        {
-            Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
-            return TechnoClass_Render2(pInfantry.Convert<TechnoClass>());
-        }
-        [Hook(HookType.AresHook, Address = 0x73D410, Size = 5)]
-        public static unsafe UInt32 UnitClass_Render2(REGISTERS* R)
-        {
-            Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
-            return TechnoClass_Render2(pUnit.Convert<TechnoClass>());
-        }
-        #endregion
-*/
+                #region After Render
+                public static UInt32 TechnoClass_Render2(Pointer<TechnoClass> pTechno)
+                {
+                    try
+                    {
+                        TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
+                        ext.GameObject.Foreach(c => c.OnRenderEnd());
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.PrintException(e);
+                    }
+                    return 0;
+                }
+                [Hook(HookType.AresHook, Address = 0x4149F0, Size = 5)]
+                public static unsafe UInt32 AircraftClass_Render2(REGISTERS* R)
+                {
+                    Pointer<AircraftClass> pAircraft = (IntPtr)R->ECX;
+                    return TechnoClass_Render2(pAircraft.Convert<TechnoClass>());
+                }
+                // Not supported and do not need this.
+                // [Hook(HookType.AresHook, Address = 0x43DA6C, Size = 7)]
+                // public static unsafe UInt32 BuildingClass_Render2(REGISTERS* R)
+                // {
+                //     Pointer<BuildingClass> pBuilding = (IntPtr)R->ECX;
+                //     return TechnoClass_Render2(pBuilding.Convert<TechnoClass>());
+                // }
+                [Hook(HookType.AresHook, Address = 0x51961A, Size = 5)]
+                public static unsafe UInt32 InfantryClass_Render2(REGISTERS* R)
+                {
+                    Pointer<InfantryClass> pInfantry = (IntPtr)R->ECX;
+                    return TechnoClass_Render2(pInfantry.Convert<TechnoClass>());
+                }
+                [Hook(HookType.AresHook, Address = 0x73D410, Size = 5)]
+                public static unsafe UInt32 UnitClass_Render2(REGISTERS* R)
+                {
+                    Pointer<UnitClass> pUnit = (IntPtr)R->ECX;
+                    return TechnoClass_Render2(pUnit.Convert<TechnoClass>());
+                }
+                #endregion
+        */
 
         [Hook(HookType.AresHook, Address = 0x5F45A0, Size = 5)]
         public static unsafe UInt32 TechnoClass_Select(REGISTERS* R)
