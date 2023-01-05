@@ -90,10 +90,11 @@ namespace Extension.Utilities
             return !whData.IgnoreRevenge;
         }
 
-        public static bool CanReaction(this Pointer<WarheadTypeClass> pWH)
+        public static bool CanReaction(this Pointer<WarheadTypeClass> pWH, out DamageReactionMode[] ignoreModes)
         {
             WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-            return !whData.IgnoreDamageReaction;
+            ignoreModes = whData.IgnoreDamageReactionModes;
+            return !whData.IgnoreDamageReaction || (null != ignoreModes && ignoreModes.Any());
         }
 
         public static bool CanShareDamage(this Pointer<WarheadTypeClass> pWH)

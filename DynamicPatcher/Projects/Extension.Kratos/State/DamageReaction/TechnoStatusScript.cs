@@ -39,25 +39,31 @@ namespace Extension.Script
             // 无视防御的真实伤害不做任何响应
             if (!ignoreDefenses)
             {
-                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && pWH.CanReaction())
+                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && pWH.CanReaction(out DamageReactionMode[] ignoreModes))
                 {
-
+                    Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 收到伤害 [{(ignoreModes == null ? "null" : string.Join(",", ignoreModes))}]");
                     int damage = pDamage.Data;
                     bool action = false;
                     switch (reactionData.Mode)
                     {
                         case DamageReactionMode.REDUCE:
-                            // 调整伤害系数
-                            pDamage.Ref = (int)(damage * reactionData.ReducePercent);
-                            action = true;
-                            // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 伤害{damage} 调整伤害系数 {reactionData.ReducePercent}");
+                            action = null == ignoreModes || !ignoreModes.Contains(DamageReactionMode.REDUCE);
+                            if (action)
+                            {
+                                // 调整伤害系数
+                                pDamage.Ref = (int)(damage * reactionData.ReducePercent);
+                                // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 伤害{damage} 调整伤害系数 {reactionData.ReducePercent}");
+                            }
                             break;
                         case DamageReactionMode.FORTITUDE:
                             if (damage >= reactionData.MaxDamage)
                             {
-                                // 伤害大于阈值，降低为固定值
-                                pDamage.Ref = reactionData.MaxDamage;
-                                action = true;
+                                action = null == ignoreModes || !ignoreModes.Contains(DamageReactionMode.FORTITUDE);
+                                if (action)
+                                {
+                                    // 伤害大于阈值，降低为固定值
+                                    pDamage.Ref = reactionData.MaxDamage;
+                                }
                                 // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 刚毅盾");
                             }
                             break;
@@ -67,16 +73,22 @@ namespace Extension.Script
                             int realDamage = pTechno.GetRealDamage(damage, pWH, ignoreDefenses, distanceFromEpicenter);
                             if (realDamage >= pTechno.Ref.Base.Health)
                             {
-                                // 回避致命伤害
-                                pDamage.Ref = 0;
-                                action = true;
-                                // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 免死");
+                                action = null == ignoreModes || !ignoreModes.Contains(DamageReactionMode.PREVENT);
+                                if (action)
+                                {
+                                    // 回避致命伤害
+                                    pDamage.Ref = 0;
+                                    // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 免死");
+                                }
                             }
                             break;
                         default:
-                            pDamage.Ref = 0; // 成功闪避，消除伤害
-                            action = true;
+                            action = null == ignoreModes || !ignoreModes.Contains(DamageReactionMode.EVASION);
                             // Logger.Log($"{Game.CurrentFrame} {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} 响应 闪避");
+                            if (action)
+                            {
+                                pDamage.Ref = 0; // 成功闪避，消除伤害
+                            }
                             break;
                     }
                     if (action)

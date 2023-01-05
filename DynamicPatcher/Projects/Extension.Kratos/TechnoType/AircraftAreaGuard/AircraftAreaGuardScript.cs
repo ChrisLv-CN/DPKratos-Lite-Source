@@ -325,9 +325,10 @@ namespace Extension.Script
             {
                 // 飞机有武器
                 Pointer<WeaponStruct> pPrimary = pTechno.Ref.GetWeapon(0);
+                bool hasPrimary = !pPrimary.IsNull && !pPrimary.Ref.WeaponType.IsNull && !pPrimary.Ref.WeaponType.Ref.NeverUse;
                 Pointer<WeaponStruct> pSecondary = pTechno.Ref.GetWeapon(1);
-                if ((!pPrimary.IsNull && !pPrimary.Ref.WeaponType.IsNull && !pPrimary.Ref.WeaponType.Ref.NeverUse)
-                    || (!pSecondary.IsNull && !pSecondary.Ref.WeaponType.IsNull && !pSecondary.Ref.WeaponType.Ref.NeverUse))
+                bool hasSecondary = !pSecondary.IsNull && !pSecondary.Ref.WeaponType.IsNull && !pSecondary.Ref.WeaponType.Ref.NeverUse;
+                if (hasPrimary || hasSecondary)
                 {
                     CoordStruct sourcePos = location;
                     if (!data.FindRangeAroundSelf)
@@ -339,7 +340,7 @@ namespace Extension.Script
                     // 搜索可以攻击的目标
                     Pointer<AbstractClass> pTarget = IntPtr.Zero;
                     // 使用Cell搜索目标
-                    bool canAA = (!pPrimary.IsNull && pPrimary.Ref.WeaponType.Ref.Projectile.Ref.AA) || (!pSecondary.IsNull && pSecondary.Ref.WeaponType.Ref.Projectile.Ref.AA);
+                    bool canAA = (hasPrimary && pPrimary.Ref.WeaponType.Ref.Projectile.Ref.AA) || (hasSecondary && pSecondary.Ref.WeaponType.Ref.Projectile.Ref.AA);
                     // 检索范围内的单位类型
                     List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(sourcePos, cellSpread, canAA, false);
                     // TODO 对检索到的单位按威胁值排序
@@ -412,13 +413,27 @@ namespace Extension.Script
                 // 能否对其进行攻击
                 Pointer<AbstractClass> pTargetAbs = pTarget.Convert<AbstractClass>();
                 int weaponIdx = pTechno.Ref.SelectWeapon(pTargetAbs);
-                FireError fireError = pTechno.Ref.GetFireError(pTargetAbs, weaponIdx, true);
-                switch (fireError)
+                Pointer<WeaponStruct> pWeaponStruct = pTechno.Ref.GetWeapon(weaponIdx);
+                Pointer<WeaponTypeClass> pWeapon = IntPtr.Zero;
+                if (!pWeaponStruct.IsNull && !(pWeapon = pWeaponStruct.Ref.WeaponType).IsNull)
                 {
-                    case FireError.ILLEGAL:
-                    case FireError.CANT:
-                        pick = false;
-                        break;
+                    // 判断护甲
+                    pick = pWeapon.Ref.Warhead.Ref.Versus[(int)pTarget.Ref.Type.Ref.Base.Armor] > 0.2;
+                    if (pick)
+                    {
+                        FireError fireError = pTechno.Ref.GetFireError(pTargetAbs, weaponIdx, true);
+                        switch (fireError)
+                        {
+                            case FireError.ILLEGAL:
+                            case FireError.CANT:
+                                pick = false;
+                                break;
+                        }
+                    }
+                }
+                else
+                {
+                    pick = false;
                 }
             }
             return pick;

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
@@ -12,6 +14,12 @@ namespace Extension.Ext
     [Serializable]
     public class WarheadTypeData : INIConfig
     {
+
+        static WarheadTypeData()
+        {
+            new DamageReactionModeParser().Register();
+        }
+
         // YR
         // Ares
         public bool AffectsOwner;
@@ -36,6 +44,7 @@ namespace Extension.Ext
         public bool IgnoreRevenge;
         // 不触发伤害响应
         public bool IgnoreDamageReaction;
+        public DamageReactionMode[] IgnoreDamageReactionModes;
         // 替身不分摊伤害
         public bool IgnoreStandShareDamage;
 
@@ -59,6 +68,7 @@ namespace Extension.Ext
             this.Capturer = false;
             this.IgnoreRevenge = false;
             this.IgnoreDamageReaction = false;
+            this.IgnoreDamageReactionModes = null;
             this.IgnoreStandShareDamage = false;
         }
 
@@ -83,6 +93,11 @@ namespace Extension.Ext
             this.Capturer = reader.Get("Capturer", this.Capturer);
             this.IgnoreRevenge = reader.Get("IgnoreRevenge", this.IgnoreRevenge);
             this.IgnoreDamageReaction = reader.Get("IgnoreDamageReaction", this.IgnoreDamageReaction);
+            this.IgnoreDamageReactionModes = reader.GetList("IgnoreDamageReaction.Modes", this.IgnoreDamageReactionModes);
+            if (null != IgnoreDamageReactionModes && IgnoreDamageReactionModes.Any())
+            {
+                this.IgnoreDamageReaction = true;
+            }
             this.IgnoreStandShareDamage = reader.Get("IgnoreStandShareDamage", this.IgnoreStandShareDamage);
         }
 
