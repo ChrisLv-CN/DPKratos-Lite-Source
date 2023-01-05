@@ -35,7 +35,8 @@ namespace Extension.Ext
 
         public bool ClearTarget;
 
-        
+        // 玩具弹头
+        public bool IsToy;
         // 弹头传送标记
         public bool Teleporter;
         // 弹头捕获标记
@@ -64,6 +65,7 @@ namespace Extension.Ext
 
             this.ClearTarget = false;
 
+            this.IsToy = false;
             this.Teleporter = false;
             this.Capturer = false;
             this.IgnoreRevenge = false;
@@ -89,6 +91,7 @@ namespace Extension.Ext
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
 
+            this.IsToy = reader.Get("IsToy", this.IsToy);
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
             this.Capturer = reader.Get("Capturer", this.Capturer);
             this.IgnoreRevenge = reader.Get("IgnoreRevenge", this.IgnoreRevenge);

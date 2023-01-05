@@ -309,7 +309,6 @@ namespace Extension.Script
             this.destCenter = default;
             this.destList.Clear();
             this.destIndex = 0;
-            pTechno.Convert<MissionClass>().Ref.QueueMission(Mission.Enter, false);
         }
 
         private void BackToAirport()

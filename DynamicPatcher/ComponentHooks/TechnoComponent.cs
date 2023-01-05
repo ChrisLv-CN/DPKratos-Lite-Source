@@ -1,12 +1,13 @@
-﻿using DynamicPatcher;
-using Extension.Ext;
-using Extension.Script;
-using PatcherYRpp;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicPatcher;
+using Extension.Ext;
+using Extension.Script;
+using Extension.Utilities;
+using PatcherYRpp;
 
 namespace ComponentHooks
 {
@@ -182,6 +183,10 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
+                if (pWH.IsToy())
+                {
+                    pDamage.Ref = 0;
+                }
             }
             catch (Exception e)
             {

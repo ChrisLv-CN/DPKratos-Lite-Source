@@ -41,7 +41,7 @@ namespace Extension.Script
             {
                 if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && pWH.CanReaction(out DamageReactionMode[] ignoreModes))
                 {
-                    Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 收到伤害 [{(ignoreModes == null ? "null" : string.Join(",", ignoreModes))}]");
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 收到伤害 [{(ignoreModes == null ? "null" : string.Join(",", ignoreModes))}]");
                     int damage = pDamage.Data;
                     bool action = false;
                     switch (reactionData.Mode)
