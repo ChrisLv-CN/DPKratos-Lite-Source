@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Extension.Components;
 using Extension.EventSystems;
 using Extension.Ext;
+using Extension.Script;
 
 namespace GeneralHooks
 {
@@ -16,6 +17,8 @@ namespace GeneralHooks
         static General()
         {
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, MathExHandler);
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, TechnoStatusScript.Clear);
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, BulletStatusScript.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, PrintTextManager.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, BaseNormalData.Clear);
         }

@@ -13,48 +13,6 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class DecoyBullet
-    {
-        public BulletExt BulletExt;
-        public Pointer<BulletClass> pBullet => null != BulletExt ? BulletExt.OwnerObject : default;
-
-        public CoordStruct LaunchPort;
-
-        public int Life;
-
-        public DecoyBullet(BulletExt bulletExt, CoordStruct launchPort, int life = 150)
-        {
-            this.BulletExt = bulletExt;
-            this.LaunchPort = launchPort;
-            this.Life = life;
-        }
-
-        public bool IsNotDeath()
-        {
-            if (--Life <= 0)
-            {
-                // Is death
-                if (!pBullet.IsNull)
-                {
-                    CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
-                    pBullet.Ref.Detonate(location);
-                    pBullet.Ref.Base.Remove();
-                    pBullet.Ref.Base.UnInit();
-                }
-                BulletExt = null;
-                return false;
-            }
-            return true;
-        }
-
-        public override string ToString()
-        {
-            return string.Format("{{\"Bullet\": {0}, \"LaunchPort\": {1}, \"Life\": {2}}}", pBullet, LaunchPort, Life);
-        }
-
-    }
-
-    [Serializable]
     public class DecoyMissile
     {
         public bool Enable;
@@ -79,7 +37,7 @@ namespace Extension.Ext
 
         public bool Elite;
 
-        public List<DecoyBullet> Decoys;
+        public List<BulletExt> Decoys;
 
         public DecoyMissile(DecoyMissileData data, Pointer<WeaponTypeClass> pWeapon, Pointer<WeaponTypeClass> pEliteWeapon, bool elite = false)
         {
@@ -100,7 +58,7 @@ namespace Extension.Ext
             this.Reloading = 0;
             this.Fire = data.AlwaysFire;
             this.Elite = elite;
-            Decoys = new List<DecoyBullet>();
+            Decoys = new List<BulletExt>();
         }
 
         public Pointer<WeaponTypeClass> FindWeapon(bool elite)
@@ -141,21 +99,32 @@ namespace Extension.Ext
             this.Fire = this.Data.AlwaysFire;
         }
 
-        public void AddDecoy(Pointer<BulletClass> pDecoy, CoordStruct launchPort, int life)
+        public void AddDecoy(Pointer<BulletClass> pDecoy, CoordStruct launchPos, int life)
         {
             if (null == Decoys)
             {
-                Decoys = new List<DecoyBullet>();
+                Decoys = new List<BulletExt>();
             }
-            DecoyBullet decoy = new DecoyBullet(BulletExt.ExtMap.Find(pDecoy), launchPort, life);
-            Decoys.Add(decoy);
+            BulletExt decoy = BulletExt.ExtMap.Find(pDecoy);
+            if (null != decoy)
+            {
+                MissileTrajectoryScript script = decoy.GameObject.GetComponent<MissileTrajectoryScript>();
+                if (null != script)
+                {
+                    script.IsDecoy = true;
+                    script.LaunchPos = launchPos;
+                    script.LifeTimer.Start(life);
+
+                    Decoys.Add(decoy);
+                }
+            }
         }
 
         public void ClearDecoy()
         {
             Decoys.RemoveAll((deocy) =>
             {
-                return deocy.Life <= 0 || deocy.pBullet.IsNull || !deocy.pBullet.Ref.Base.IsAlive;
+                return null == deocy || deocy.OwnerObject.IsDeadOrInvisible();
             });
         }
 
@@ -165,30 +134,32 @@ namespace Extension.Ext
             if (null != Decoys && (count = Decoys.Count) > 0)
             {
                 int ans = MathEx.Random.Next(count);
-                DecoyBullet decoy = Decoys[ans == count ? ans - 1 : ans];
+                BulletExt decoy = Decoys[ans == count ? ans - 1 : ans];
                 Decoys.Remove(decoy);
-                return decoy.pBullet;
+                return decoy.OwnerObject;
             }
             return Pointer<BulletClass>.Zero;
         }
 
         public Pointer<BulletClass> CloseEnoughDecoy(CoordStruct pos, double min)
         {
-            int index = -1;
+            Pointer<BulletClass> pDecoy = IntPtr.Zero;
             double distance = min;
             for (int i = 0; i < Decoys.Count; i++)
             {
-                DecoyBullet decoy = Decoys[i];
-                CoordStruct location = pos;
-                double x = 0;
-                if (!decoy.pBullet.IsNull
-                    && (x = pos.DistanceFrom(decoy.pBullet.Ref.Base.Base.GetCoords())) < distance)
+                BulletExt decoy = Decoys[i];
+                Pointer<BulletClass> pBullet = IntPtr.Zero;
+                if (null != decoy && !(pBullet = decoy.OwnerObject).IsDeadOrInvisible())
                 {
-                    distance = x;
-                    index = i;
+                    double x = pos.DistanceFrom(pBullet.Ref.Base.Base.GetCoords());
+                    if (x < distance)
+                    {
+                        distance = x;
+                        pDecoy = pBullet;
+                    }
                 }
             }
-            return index >= 0 ? Decoys[index].pBullet : default;
+            return pDecoy;
         }
     }
 

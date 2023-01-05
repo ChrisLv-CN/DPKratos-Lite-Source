@@ -16,6 +16,9 @@ namespace Extension.Script
     // [UpdateAfter(typeof(AttachEffectScript))]
     public partial class BulletStatusScript : BulletScriptable
     {
+
+        public static List<BulletExt> TargetAircraftBullets = new List<BulletExt>();
+
         public BulletStatusScript(BulletExt owner) : base(owner) { }
 
         public SwizzleablePointer<HouseClass> pSourceHouse = new SwizzleablePointer<HouseClass>(HouseClass.FindSpecial());
@@ -28,6 +31,11 @@ namespace Extension.Script
         public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
         private bool initStateFlag = false;
+
+        public static void Clear(object sender, EventArgs args)
+        {
+            TargetAircraftBullets.Clear();
+        }
 
         public override void Awake()
         {
@@ -76,6 +84,16 @@ namespace Extension.Script
                 // InitState_OverrideWeapon();
                 // InitState_Paintball();
             }
+            Pointer<AbstractClass> pTarget = IntPtr.Zero;
+            if (pBullet.AmIMissile() && !(pTarget = pBullet.Ref.Target).IsNull && pTarget.Ref.WhatAmI() == AbstractType.Aircraft)
+            {
+                TargetAircraftBullets.Add(Owner);
+            }
+        }
+
+        public override void OnUnInit()
+        {
+            TargetAircraftBullets.Remove(Owner);
         }
 
         public override void OnUpdate()

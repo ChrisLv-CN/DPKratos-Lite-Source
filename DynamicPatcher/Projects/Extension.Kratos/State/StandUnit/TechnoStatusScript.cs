@@ -28,6 +28,13 @@ namespace Extension.Script
 
         public bool VirtualUnit;
 
+        public static void Clear(object sender, EventArgs args)
+        {
+            StandArray.Clear();
+            ImmuneStandArray.Clear();
+            VirtualUnitArray.Clear();
+        }
+
         public void InitState_VirtualUnit()
         {
             if (Ini.GetSection(Ini.RulesDependency, section).Get("VirtualUnit", false))

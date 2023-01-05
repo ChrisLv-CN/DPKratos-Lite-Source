@@ -19,6 +19,22 @@ namespace Extension.Script
     {
         public MissileTrajectoryScript(BulletExt owner) : base(owner) { }
 
+        public bool IsDecoy;
+        public CoordStruct LaunchPos;
+        public TimerStruct LifeTimer;
+        private int _weaponRange;
+        private int WeaponRange
+        {
+            get
+            {
+                if (0 == _weaponRange && !pBullet.Ref.WeaponType.IsNull)
+                {
+                    _weaponRange = pBullet.Ref.WeaponType.Ref.Range;
+                }
+                return _weaponRange;
+            }
+        }
+
         private IConfigWrapper<TrajectoryData> _data;
         private TrajectoryData data
         {
@@ -32,6 +48,7 @@ namespace Extension.Script
             }
         }
 
+        private BulletStatusScript status => pBullet.GetStatus();
 
         public override void Awake()
         {
@@ -76,6 +93,39 @@ namespace Extension.Script
                 pBullet.Ref.Velocity.X *= shakeX;
                 pBullet.Ref.Velocity.Y *= shakeY;
                 pBullet.Ref.Velocity.Z *= shakeZ;
+            }
+        }
+
+        public override void OnUpdate()
+        {
+            if (IsDecoy && !pBullet.IsDeadOrInvisible())
+            {
+                // 检查存活时间
+                if (LifeTimer.Expired())
+                {
+                    if (pBullet.TryGetStatus(out BulletStatusScript status))
+                    {
+                        status.LifeData.Detonate(true);
+                    }
+                    else
+                    {
+                        CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+                        pBullet.Ref.Detonate(location);
+                        pBullet.Ref.Base.Remove();
+                        pBullet.Ref.Base.UnInit();
+                    }
+                }
+                else
+                {
+                    // 执行热诱弹轨迹变化
+                    // Check distance to Change speed and target point
+                    int speed = pBullet.Ref.Speed - 5;
+                    pBullet.Ref.Speed = speed < 10 ? 10 : speed;
+                    if (speed > 10 && LaunchPos.DistanceFrom(pBullet.Ref.Base.Base.GetCoords()) <= WeaponRange)
+                    {
+                        pBullet.Ref.Base.Location += new CoordStruct(0, 0, 64);
+                    }
+                }
             }
         }
 

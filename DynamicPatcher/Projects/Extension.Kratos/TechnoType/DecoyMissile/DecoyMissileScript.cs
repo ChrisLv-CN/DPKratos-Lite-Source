@@ -57,39 +57,14 @@ namespace Extension.Script
             if (null != decoyMissile && decoyMissile.Enable && !decoyMissile.Weapon.IsNull && !decoyMissile.EliteWeapon.IsNull)
             {
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
                 Pointer<WeaponTypeClass> pWeapon = decoyMissile.FindWeapon(pTechno.Ref.Veterancy.IsElite());
                 int distance = pWeapon.Ref.Range;
-                // change decoy speed and target.
-                for (int i = 0; i < decoyMissile.Decoys.Count; i++)
-                {
-                    // Check life count down;
-                    DecoyBullet decoy = decoyMissile.Decoys[i];
-                    if (decoy.IsNotDeath())
-                    {
-                        // Check distance to Change speed and target point
-                        Pointer<BulletClass> pBullet = decoy.pBullet;
-                        if (null != pBullet && !pBullet.IsNull)
-                        {
-                            int speed = pBullet.Ref.Speed - 5;
-                            pBullet.Ref.Speed = speed < 10 ? 10 : speed;
-                            if (speed > 10 && decoy.LaunchPort.DistanceFrom(pBullet.Ref.Base.Base.GetCoords()) <= distance)
-                            {
-                                pBullet.Ref.Base.Location += new CoordStruct(0, 0, 64);
-                            }
-
-                        }
-                    }
-                    decoyMissile.Decoys[i] = decoy;
-                }
-
                 // remove dead decoy
                 decoyMissile.ClearDecoy();
 
                 // Fire decoy
                 if (decoyMissile.Fire)
                 {
-
                     if (decoyMissile.DropOne())
                     {
                         FacingStruct facing = pTechno.Ref.GetRealFacing();
@@ -159,7 +134,7 @@ namespace Extension.Script
                         return false;
                     });
                 }
-                else
+                else if (pTechno.InAir())
                 {
                     // 检查到有一发朝向自己发射的导弹时，启动热诱弹发射
                     pTechno.FindBulletTargetMe((pBullet) =>

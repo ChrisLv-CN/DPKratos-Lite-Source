@@ -20,16 +20,22 @@ namespace Extension.Utilities
 
         public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, Found<BulletClass> func)
         {
-            BulletClass.Array.FindObject((pBullet) =>
+            Pointer<AbstractClass> pSelf = pTechno.Convert<AbstractClass>();
+            foreach(BulletExt bulletExt in BulletStatusScript.TargetAircraftBullets)
             {
-                // 抛射体拥有目标，且目标是自己
-                Pointer<AbstractClass> pBulletTarget = pBullet.Ref.Target;
-                if (!pBulletTarget.IsNull && pBulletTarget == pTechno.Convert<AbstractClass>())
+                if (null != bulletExt && !bulletExt.OwnerObject.IsDeadOrInvisible())
                 {
-                    return func(pBullet);
+                    Pointer<BulletClass> pBullet = bulletExt.OwnerObject;
+                    Pointer<AbstractClass> pTarget = IntPtr.Zero;
+                    if (!pBullet.IsDeadOrInvisible() && !(pTarget = pBullet.Ref.Target).IsNull)
+                    {
+                        if (pTarget == pSelf && func(pBullet))
+                        {
+                            break;
+                        }
+                    }
                 }
-                return false;
-            });
+            }
         }
 
         public static void FindOwnerTechno(Pointer<HouseClass> pHouse, Found<TechnoClass> func, bool allied = false, bool enemies = false)
