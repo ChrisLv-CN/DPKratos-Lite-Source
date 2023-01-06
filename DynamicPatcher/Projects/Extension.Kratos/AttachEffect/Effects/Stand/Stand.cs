@@ -771,7 +771,11 @@ namespace Extension.Script
         {
             if (pStand.Ref.HasTurret())
             {
-                pStand.Ref.TurretFacing.turn(targetDir);
+                // 炮塔的旋转交给炮塔旋转自己控制
+                if (!pStand.TryGetStatus(out TechnoStatusScript status) || !status.TurretAngleData.Enable)
+                {
+                    pStand.Ref.TurretFacing.turn(targetDir);
+                }
             }
             else
             {
@@ -779,10 +783,20 @@ namespace Extension.Script
             }
         }
 
-        private void ForceSetFacing(DirStruct targetDir)
+        private void ForceSetFacing(DirStruct bodyDir)
         {
-            pStand.Ref.Facing.set(targetDir);
-            pStand.Ref.TurretFacing.set(targetDir);
+            pStand.Ref.Facing.set(bodyDir);
+            if (pStand.Ref.HasTurret())
+            {
+                if (pStand.TryGetStatus(out TechnoStatusScript status) && status.DefaultAngleIsChange(bodyDir))
+                {
+                    pStand.Ref.TurretFacing.set(status.LockTurretDir);
+                }
+                else
+                {
+                    pStand.Ref.TurretFacing.set(bodyDir);
+                }
+            }
         }
 
         public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)

@@ -20,7 +20,7 @@ namespace Extension.Script
         public bool LockTurret;
 
         private IConfigWrapper<TurretAngleData> _turretAngleData;
-        private TurretAngleData turretAngleData
+        public TurretAngleData TurretAngleData
         {
             get
             {
@@ -35,9 +35,55 @@ namespace Extension.Script
 
         private bool hasTurret;
 
+        public void OnPut_TurretAngle(Pointer<CoordStruct> pCoord, DirType dirType)
+        {
+            if ((isUnit || isBuilding) && TurretAngleData.Enable && hasTurret)
+            {
+                // 车体朝向方向
+                DirStruct bodyDir = pTechno.Ref.Facing.current();
+                LockTurretDir = bodyDir;
+                if (ChangeDefaultDir = DefaultAngleIsChange(bodyDir))
+                {
+                    pTechno.Ref.TurretFacing.set(LockTurretDir);
+                }
+            }
+            else
+            {
+                ChangeDefaultDir = false;
+            }
+        }
+
+        public bool DefaultAngleIsChange(DirStruct bodyDir)
+        {
+            // 车体朝向方向，游戏限制只能划180份
+            int bodyDirIndex = bodyDir.Dir2FacingIndex(180) * 2;
+            if (ChangeDefaultDir = TryGetDefaultAngle(ref bodyDirIndex, out DirStruct newDefaultDir))
+            {
+                LockTurretDir = newDefaultDir;
+            }
+            return ChangeDefaultDir;
+        }
+
+        private bool TryGetDefaultAngle(ref int bodyDirIndex, out DirStruct newDefaultDir)
+        {
+            newDefaultDir = default;
+            if (TurretAngleData.DefaultAngle > 0)
+            {
+                // 修改单位朝向指向虚拟方向
+                bodyDirIndex += TurretAngleData.DefaultAngle;
+                if (bodyDirIndex > 360)
+                {
+                    bodyDirIndex -= 360;
+                }
+                newDefaultDir = FLHHelper.DirNormalized(bodyDirIndex, 360);
+                return true;
+            }
+            return false;
+        }
+
         public void OnUpdate_TurretAngle()
         {
-            if ((isUnit || isBuilding) && turretAngleData.Enable && hasTurret)
+            if ((isUnit || isBuilding) && TurretAngleData.Enable && hasTurret)
             {
                 CoordStruct sourcePos = location;
                 // 车体朝向方向
@@ -45,24 +91,13 @@ namespace Extension.Script
                 LockTurretDir = bodyDir;
                 // 车体朝向方向，游戏限制只能划180份
                 int bodyDirIndex = bodyDir.Dir2FacingIndex(180) * 2;
-                if (turretAngleData.DefaultAngle > 0)
-                {
-                    // 修改单位朝向指向虚拟方向
-                    bodyDirIndex += turretAngleData.DefaultAngle;
-                    if (bodyDirIndex > 360)
-                    {
-                        bodyDirIndex -= 360;
-                    }
-                    LockTurretDir = FLHHelper.DirNormalized(bodyDirIndex, 360);
-                    // 修改单位朝向指向虚拟方向，后面计算以该虚拟方向为正面
-                    bodyDir = LockTurretDir;
-                    ChangeDefaultDir = true;
-                }
-                else
-                {
-                    ChangeDefaultDir = false;
-                }
 
+                if (ChangeDefaultDir = TryGetDefaultAngle(ref bodyDirIndex, out DirStruct newDefaultDir))
+                {
+                    LockTurretDir = newDefaultDir;
+                }
+                // 修改单位朝向指向虚拟方向，后面计算以该虚拟方向为正面
+                bodyDir = LockTurretDir;
                 // 攻击目标或者移动目标存在，指向
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
                 bool hasTarget = !pTarget.IsNull;
@@ -81,21 +116,21 @@ namespace Extension.Script
                     // 目标在射程范围内
                     bool isCloseEnough = pTechno.Ref.IsCloseEnoughToAttack(pTarget);
                     // 启用侧舷接敌
-                    if (hasTarget && isCloseEnough && turretAngleData.AutoTurn)
+                    if (hasTarget && isCloseEnough && TurretAngleData.AutoTurn)
                     {
                         TryTurnBodyToAngle(targetDir, bodyDirIndex, bodyTargetDelta);
                     }
                     // 启用炮塔限界
-                    if (turretAngleData.AngleLimit)
+                    if (TurretAngleData.AngleLimit)
                     {
                         // 判断是否在死区内
-                        int min = turretAngleData.Angle.X;
-                        int max = turretAngleData.Angle.Y;
+                        int min = TurretAngleData.Angle.X;
+                        int max = TurretAngleData.Angle.Y;
 
                         if (InDeadZone(bodyTargetDelta, min, max))
                         {
                             // 在死区内
-                            DeathZoneAction action = turretAngleData.Action;
+                            DeathZoneAction action = TurretAngleData.Action;
                             // 移动前往目的地非攻击目标，改变策略卡住炮塔朝向
                             if ((!hasTarget || !isCloseEnough) && ChangeDefaultDir)
                             {
@@ -274,18 +309,18 @@ namespace Extension.Script
             {
                 DirStruct turnDir = targetDir;
                 // 启用侧舷接敌，计算侧舷角度和方位
-                if (turretAngleData.AutoTurn)
+                if (TurretAngleData.AutoTurn)
                 {
                     Point2D angleZone = default;
                     if (bodyTargetDelta >= 180)
                     {
                         // 目标在左区，正后方算左边
-                        angleZone = turretAngleData.SideboardAngleL;
+                        angleZone = TurretAngleData.SideboardAngleL;
                     }
                     else
                     {
                         // 目标在右区，正前方算右边
-                        angleZone = turretAngleData.SideboardAngleR;
+                        angleZone = TurretAngleData.SideboardAngleR;
                     }
                     // 目标角度在死区内，旋转
                     if (bodyTargetDelta < angleZone.X || bodyTargetDelta > angleZone.Y)

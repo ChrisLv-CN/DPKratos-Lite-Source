@@ -154,6 +154,7 @@ namespace Extension.Script
                 initStateFlag = true;
                 InitState();
             }
+            OnPut_TurretAngle(pCoord, dirType);
         }
 
         public override void OnUpdate()

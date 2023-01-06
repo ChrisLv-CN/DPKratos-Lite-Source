@@ -248,7 +248,6 @@ namespace Extension.Ext
             return turnAngle;
         }
 
-        /*
         public static void ShowLineForTest(Point2D angle, int bodyDirIndex, CoordStruct location, ColorStruct color, int length = 1024)
         {
             // 测试显示范围
@@ -268,7 +267,6 @@ namespace Extension.Ext
             BulletEffectHelper.DrawLine(location, targetPos, color, default, 1, 1);
             Surface.Primary.Ref.DrawText(index.ToString(), targetPos, color);
         }
-        */
     }
 
 
