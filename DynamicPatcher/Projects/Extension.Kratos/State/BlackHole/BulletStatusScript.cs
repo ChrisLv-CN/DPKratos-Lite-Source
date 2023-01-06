@@ -19,7 +19,18 @@ namespace Extension.Script
 
         public bool CaptureByBlackHole;
 
-        private SwizzleablePointer<ObjectClass> pBlackHole = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
+        private IExtension blackHoleExt;
+        private Pointer<ObjectClass> pBlackHole
+        {
+            get
+            {
+                if (null != blackHoleExt)
+                {
+                    return blackHoleExt.OwnerObject;
+                }
+                return default;
+            }
+        }
         private BlackHoleData blackHoleData;
         private TimerStruct blackHoleDamageDelay;
 
@@ -30,6 +41,7 @@ namespace Extension.Script
             if (BlackHoleData.Enable)
             {
                 BlackHoleState.Enable(BlackHoleData);
+                BlackHoleState.Owner = Owner;
             }
         }
 
@@ -38,13 +50,13 @@ namespace Extension.Script
             // 黑洞吸人
             if (BlackHoleState.IsReady())
             {
-                BlackHoleState.StartCapture(pBullet.Convert<ObjectClass>(), pSourceHouse);
+                BlackHoleState.StartCapture(Owner, pSourceHouse);
             }
             // 被黑洞吸收中
             if (CaptureByBlackHole)
             {
                 if (pBlackHole.IsNull
-                    || !pBlackHole.Pointer.TryGetBlackHoleState(out BlackHoleState blackHoleState)
+                    || !pBlackHole.TryGetBlackHoleState(out BlackHoleState blackHoleState)
                     || !blackHoleState.IsActive()
                     || OutOfBlackHole(blackHoleState)
                     || !blackHoleState.IsOnMark(pBullet)
@@ -57,7 +69,7 @@ namespace Extension.Script
                     CoordStruct blackHolePos = pBlackHole.Ref.Base.GetCoords();
                     if (blackHoleData.ChangeTarget)
                     {
-                        pBullet.Ref.SetTarget(pBlackHole.Pointer.Convert<AbstractClass>());
+                        pBullet.Ref.SetTarget(pBlackHole.Convert<AbstractClass>());
                         pBullet.Ref.TargetCoords = blackHolePos;
                     }
                     // 加上偏移值
@@ -94,7 +106,7 @@ namespace Extension.Script
             {
                 // 强行移动导弹的位置
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                CoordStruct targetPos = pBlackHole.Pointer.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
+                CoordStruct targetPos = pBlackHole.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
                 CoordStruct nextPos = targetPos;
                 double dist = targetPos.DistanceFrom(sourcePos);
                 // 获取捕获速度
@@ -151,12 +163,12 @@ namespace Extension.Script
             }
         }
 
-        public void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData blackHoleData)
+        public void SetBlackHole(IExtension blackHoleExt, BlackHoleData blackHoleData)
         {
             if (!this.CaptureByBlackHole || null == this.blackHoleData || this.blackHoleData.Weight < blackHoleData.Weight || ((this.blackHoleData.Weight == blackHoleData.Weight || blackHoleData.Weight <= 0) && blackHoleData.CaptureFromSameWeight))
             {
                 this.CaptureByBlackHole = true;
-                this.pBlackHole.Pointer = pBlackHole;
+                this.blackHoleExt = blackHoleExt;
                 this.blackHoleData = blackHoleData;
             }
         }
@@ -178,7 +190,7 @@ namespace Extension.Script
             }
             this.CaptureByBlackHole = false;
             this.blackHoleData = null;
-            this.pBlackHole.Pointer = IntPtr.Zero;
+            this.blackHoleExt = null;
         }
 
         private bool OutOfBlackHole(BlackHoleState blackHoleState)

@@ -12,12 +12,15 @@ namespace Extension.Ext
 {
     public interface IBlackHoleVictim
     {
-        void SetBlackHole(Pointer<ObjectClass> pBlackHole, BlackHoleData data);
+        void SetBlackHole(IExtension blackHoleExt, BlackHoleData data);
     }
 
     [Serializable]
     public class BlackHoleState : State<BlackHoleData>
     {
+
+        public IExtension Owner;
+
         private bool isElite;
 
         private int count;
@@ -27,6 +30,10 @@ namespace Extension.Ext
         public override void OnEnable()
         {
             this.count = 0;
+            if (null != AE)
+            {
+                Owner = AE.AEManager.Owner;
+            }
         }
 
         private void Reload(int delay)
@@ -67,8 +74,10 @@ namespace Extension.Ext
             return Data.Data;
         }
 
-        public void StartCapture(Pointer<ObjectClass> pBlackHole, Pointer<HouseClass> pHouse)
+        public void StartCapture(IExtension blackHoleExt, Pointer<HouseClass> pHouse)
         {
+            this.Owner = blackHoleExt;
+            Pointer<ObjectClass> pBlackHole = blackHoleExt.OwnerObject;
             this.isElite = pBlackHole.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Veterancy.IsElite();
             BlackHoleEntity data = GetData();
             if (!Data.DontScan && null != data && data.Range > 0)
@@ -90,7 +99,7 @@ namespace Extension.Ext
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获抛射体 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
-                            bulletStatus.SetBlackHole(pBlackHole, Data);
+                            bulletStatus.SetBlackHole(blackHoleExt, Data);
                         }
                         return false;
                     }, location, data.Range, 0, pHouse, Data, pBlackHole);
@@ -106,7 +115,7 @@ namespace Extension.Ext
                         )
                         {
                             // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
-                            targetStatus.SetBlackHole(pBlackHole, Data);
+                            targetStatus.SetBlackHole(blackHoleExt, Data);
                         }
                         return false;
                     }, location, data.Range, 0, pHouse, Data, pBlackHole);
