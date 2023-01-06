@@ -373,40 +373,6 @@ namespace Extension.Utilities
             return new DirStruct(d);
         }
 
-        public static int IncludedAngle360(this DirStruct bodyDir, DirStruct targetDir)
-        {
-            return bodyDir.IncludedAngle360(targetDir, out int bodyDirIndex, out int targetDirIndex);
-        }
-
-        /// <summary>
-        /// 计算targetDir相对于bodyDir之间的夹角
-        /// 以360度划分圆，以bodyDir为0点，顺时针旋转，targetDir在哪一度
-        /// </summary>
-        /// <param name="bodyDir"></param>
-        /// <param name="targetDir"></param>
-        /// <returns></returns>
-        public static int IncludedAngle360(this DirStruct bodyDir, DirStruct targetDir, out int bodyDirIndex, out int targetDirIndex)
-        {
-            // 游戏限制只能划180份，Index * 2
-            targetDirIndex = targetDir.Dir2FacingIndex(180) * 2;
-            // 车体朝向方向
-            bodyDirIndex = bodyDir.Dir2FacingIndex(180) * 2;
-            // 两个方向的差值即为旋转角度，正差顺时针，负差逆时针
-            int delta = 0;
-            if (bodyDirIndex > 180 && targetDirIndex < bodyDirIndex)
-            {
-                delta = 360 - bodyDirIndex + targetDirIndex;
-            }
-            else
-            {
-                delta = targetDirIndex - bodyDirIndex;
-            }
-            if (delta < 0)
-            {
-                delta = 360 + delta;
-            }
-            return delta;
-        }
         #endregion
     }
 }

@@ -47,6 +47,8 @@ namespace Extension.Ext
 
         public bool Enable;
 
+        public int DefaultAngle;
+
         public bool AngleLimit;
         public Point2D Angle;
         public DeathZoneAction Action;
@@ -59,6 +61,8 @@ namespace Extension.Ext
         {
             this.Enable = false;
 
+            this.DefaultAngle = 0;
+
             this.AngleLimit = false;
             this.Angle = default;
             this.Action = DeathZoneAction.CLEAR;
@@ -70,6 +74,16 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            this.DefaultAngle = reader.Get(TITLE + "DefaultAngle", this.DefaultAngle);
+            if (DefaultAngle < 0)
+            {
+                DefaultAngle = -DefaultAngle;
+            }
+            if (DefaultAngle >= 360)
+            {
+                DefaultAngle = 0;
+            }
+
             this.Angle = reader.Get(TITLE + "Angle", this.Angle);
             // 计算死区
             if (default != Angle)
@@ -122,7 +136,7 @@ namespace Extension.Ext
             }
             this.AutoTurn = (default != SideboardAngleL && (SideboardAngleL.X > 180 || SideboardAngleL.Y < 360)) || (default != SideboardAngleR && (SideboardAngleR.X > 0 || SideboardAngleR.Y < 180));
 
-            this.Enable = AngleLimit || AutoTurn;
+            this.Enable = DefaultAngle > 0 || AngleLimit || AutoTurn;
         }
 
         private void FormatAngle180(ref Point2D angle)

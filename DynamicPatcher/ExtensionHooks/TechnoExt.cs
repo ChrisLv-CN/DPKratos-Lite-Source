@@ -696,6 +696,32 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x736BCA, Size = 0x5)]
+        public static unsafe UInt32 UnitClass_Rotation_SetTurretFacing_NoTargetAndStanding(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.ChangeDefaultDir)
+            {
+                // 炮塔转到指定角度，非车体前方
+                pTechno.Ref.TurretFacing.turn(status.LockTurretDir);
+                return 0x736BE2;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x736BBB, Size = 0x5)]
+        public static unsafe UInt32 UnitClass_Rotation_SetTurretFacing_NoTargetAndMoving(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.LockTurret)
+            {
+                // 炮塔转到指定角度，非车体前方
+                pTechno.Ref.TurretFacing.turn(status.LockTurretDir);
+                return 0x736BE2;
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x736B7E, Size = 0xA)]
         public static unsafe UInt32 UnitClass_Rotation_SetTurretFacing_Skip(REGISTERS* R)
         {
