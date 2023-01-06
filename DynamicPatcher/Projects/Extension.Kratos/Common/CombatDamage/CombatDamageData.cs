@@ -18,6 +18,8 @@ namespace Extension.Ext
 
         // 替身
         public bool AllowAutoPickStandAsTarget = true;
+        public bool AllowUnitAsBaseNormal = false;
+        public bool AllowJumpjetAsBaseNormarl = false;
         public bool AllowStandAsBaseNormal = false;
 
         // AI

@@ -459,77 +459,69 @@ namespace ExtensionHooks
             }
             else if (!pCell.IsNull)
             {
-                int houseIndex = R->Stack<int>(0x38);
-                bool found = false;
-                // 检查单位
-                FinderHelper.FindTechnoInCell(pCell, (pTarget) =>
+                if (CombatDamage.Data.AllowUnitAsBaseNormal)
                 {
-                    Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                    if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                    int houseIndex = R->Stack<int>(0x38);
+                    bool found = false;
+                    // 检查单位
+                    FinderHelper.FindTechnoInCell(pCell, (pTarget) =>
                     {
-                        found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
-                    }
-                    return found;
-                });
-                // 检查JJ，移动中的JJ不在这里
-                if (!found && !pCell.Ref.Jumpjet.IsNull)
-                {
-                    Pointer<TechnoClass> pTarget = pCell.Ref.Jumpjet.Convert<TechnoClass>();
-                    Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                    if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
-                    {
-                        found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
-                    }
-                }
-                /*
-                // 检查飞天的载具
-                if (!found)
-                {
-                    UnitClass.Array.FindObject((pUnit) =>
-                    {
-                        Pointer<TechnoClass> pTarget = pUnit.Convert<TechnoClass>();
-                        found = pTarget.CanBeBase(houseIndex, pCell);
-                        return found;
-                    });
-                }
-                // 检查飞天的步兵
-                if (!found)
-                {
-                    InfantryClass.Array.FindObject((pInf) =>
-                    {
-                        Pointer<TechnoClass> pTarget = pInf.Convert<TechnoClass>();
-                        found = pTarget.CanBeBase(houseIndex, pCell);
-                        return found;
-                    });
-                }
-                // 检查飞天的飞机
-                if (!found)
-                {
-                    AircraftClass.Array.FindObject((pAircraft) =>
-                    {
-                        Pointer<TechnoClass> pTarget = pAircraft.Convert<TechnoClass>();
-                        found = pTarget.CanBeBase(houseIndex, pCell);
-                        return found;
-                    });
-                }
-                */
-                // 检查替身
-                if (!found && CombatDamage.Data.AllowStandAsBaseNormal)
-                {
-                    foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
-                    {
-                        if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                        if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
                         {
-                            Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
-                            if (found = pTarget.CanBeBase(houseIndex, pCell))
+                            found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
+                        }
+                        return found;
+                    });
+                    if (!found && CombatDamage.Data.AllowJumpjetAsBaseNormarl)
+                    {
+                        // 检查JJ，移动中的JJ不在这里
+                        if (!pCell.Ref.Jumpjet.IsNull)
+                        {
+                            Pointer<TechnoClass> pTarget = pCell.Ref.Jumpjet.Convert<TechnoClass>();
+                            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                            if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
                             {
-                                break;
+                                found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
                             }
                         }
                     }
+                    /*
+                    // 检查飞天的载具
                     if (!found)
                     {
-                        foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.ImmuneStandArray)
+                        UnitClass.Array.FindObject((pUnit) =>
+                        {
+                            Pointer<TechnoClass> pTarget = pUnit.Convert<TechnoClass>();
+                            found = pTarget.CanBeBase(houseIndex, pCell);
+                            return found;
+                        });
+                    }
+                    // 检查飞天的步兵
+                    if (!found)
+                    {
+                        InfantryClass.Array.FindObject((pInf) =>
+                        {
+                            Pointer<TechnoClass> pTarget = pInf.Convert<TechnoClass>();
+                            found = pTarget.CanBeBase(houseIndex, pCell);
+                            return found;
+                        });
+                    }
+                    // 检查飞天的飞机
+                    if (!found)
+                    {
+                        AircraftClass.Array.FindObject((pAircraft) =>
+                        {
+                            Pointer<TechnoClass> pTarget = pAircraft.Convert<TechnoClass>();
+                            found = pTarget.CanBeBase(houseIndex, pCell);
+                            return found;
+                        });
+                    }
+                    */
+                    // 检查替身
+                    if (!found && CombatDamage.Data.AllowStandAsBaseNormal)
+                    {
+                        foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
                         {
                             if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
                             {
@@ -540,12 +532,27 @@ namespace ExtensionHooks
                                 }
                             }
                         }
+                        if (!found)
+                        {
+                            foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.ImmuneStandArray)
+                            {
+                                if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                                {
+                                    Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
+                                    if (found = pTarget.CanBeBase(houseIndex, pCell))
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (found)
+                    {
+                        return 0x4A9027; // 可建造
                     }
                 }
-                if (found)
-                {
-                    return 0x4A9027; // 可建造
-                }
+
             }
             return 0x4A902C;
         }

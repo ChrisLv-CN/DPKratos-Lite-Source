@@ -17,6 +17,8 @@ namespace GeneralHooks
         static General()
         {
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, MathExHandler);
+            // Kartos event
+            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, CombatDamage.Reload);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, TechnoStatusScript.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, BulletStatusScript.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, PrintTextManager.Clear);
