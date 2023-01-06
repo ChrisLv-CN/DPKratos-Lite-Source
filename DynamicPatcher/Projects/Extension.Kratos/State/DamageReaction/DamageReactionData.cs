@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
@@ -101,6 +103,8 @@ namespace Extension.Ext
         public string[] TriggeredAttachEffects; // 触发后附加AE
         public bool TriggeredAttachEffectsFromAttacker; // 触发后附加的AE来源是攻击者
 
+        public string[] OnlyReactionWarheads; // 只响应某些弹头
+
         public string Anim;
         public CoordStruct AnimFLH;
         public int AnimDelay;
@@ -128,6 +132,8 @@ namespace Extension.Ext
             this.TriggeredAttachEffects = null;
             this.TriggeredAttachEffectsFromAttacker = false;
 
+            this.OnlyReactionWarheads = null;
+
             this.Anim = null;
             this.AnimFLH = default;
             this.AnimDelay = 0;
@@ -152,6 +158,11 @@ namespace Extension.Ext
             data.ActiveOnce = this.ActiveOnce;
             data.TriggeredTimes = this.TriggeredTimes;
             data.ResetTimes = this.ResetTimes;
+
+            data.TriggeredAttachEffects = null != this.TriggeredAttachEffects ? (string[])this.TriggeredAttachEffects.Clone() : null;
+            data.TriggeredAttachEffectsFromAttacker = this.TriggeredAttachEffectsFromAttacker;
+
+            data.OnlyReactionWarheads = null != this.OnlyReactionWarheads ? (string[])this.OnlyReactionWarheads.Clone() : null;
 
             data.Anim = this.Anim;
             data.AnimFLH = this.AnimFLH;
@@ -199,6 +210,12 @@ namespace Extension.Ext
             this.TriggeredAttachEffects = reader.GetList(title + "TriggeredAttachEffects", this.TriggeredAttachEffects);
             this.TriggeredAttachEffectsFromAttacker = reader.Get(title + "TriggeredAttachEffectsFromAttacker", this.TriggeredAttachEffectsFromAttacker);
 
+            this.OnlyReactionWarheads = reader.GetList(title + "OnlyReactionWarheads", this.OnlyReactionWarheads);
+            if (null != OnlyReactionWarheads && OnlyReactionWarheads.Count() == 1 && OnlyReactionWarheads[0].IsNullOrEmptyOrNone())
+            {
+                OnlyReactionWarheads = null;
+            }
+
             this.Anim = reader.Get(title + "Anim", this.Anim);
             this.AnimFLH = reader.Get(title + "AnimFLH", this.AnimFLH);
             this.AnimDelay = reader.Get(title + "AnimDelay", this.AnimDelay);
@@ -225,6 +242,16 @@ namespace Extension.Ext
             this.CustomText = reader.Get(title + "ActionTextCustom", this.CustomText);
             this.CustomSHP = reader.Get(title + "ActionTextSHP", this.CustomSHP);
             this.CustomSHPIndex = reader.Get(title + "ActionTextSHPIndex", this.CustomSHPIndex);
+        }
+
+        public bool IsOnMark(Pointer<WarheadTypeClass> pWH)
+        {
+            return IsOnMark(pWH.Ref.Base.ID);
+        }
+
+        public bool IsOnMark(string warheadId)
+        {
+            return null == OnlyReactionWarheads || OnlyReactionWarheads.Contains(warheadId);
         }
 
     }

@@ -39,7 +39,7 @@ namespace Extension.Script
             // 无视防御的真实伤害不做任何响应
             if (!ignoreDefenses)
             {
-                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && pWH.CanReaction(out DamageReactionMode[] ignoreModes))
+                if (DamageReactionState.Reaction(out DamageReactionEntity reactionData) && reactionData.IsOnMark(pWH) && pWH.CanReaction(out DamageReactionMode[] ignoreModes))
                 {
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 收到伤害 [{(ignoreModes == null ? "null" : string.Join(",", ignoreModes))}]");
                     int damage = pDamage.Data;

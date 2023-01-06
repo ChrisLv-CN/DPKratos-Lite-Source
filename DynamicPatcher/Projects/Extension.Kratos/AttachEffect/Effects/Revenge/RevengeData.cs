@@ -42,6 +42,8 @@ namespace Extension.Ext
         public bool ActiveOnce;
         public int TriggeredTimes;
 
+        public string[] OnlyReactionWarheads;
+
         static RevengeData()
         {
             new WreckOwnerParser().Register();
@@ -59,6 +61,8 @@ namespace Extension.Ext
 
             this.ActiveOnce = false;
             this.TriggeredTimes = -1;
+
+            this.OnlyReactionWarheads = null;
         }
 
         public override void Read(IConfigReader reader)
@@ -79,6 +83,22 @@ namespace Extension.Ext
 
             this.ActiveOnce = reader.Get(TITLE + "ActiveOnce", this.ActiveOnce);
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
+
+            this.OnlyReactionWarheads = reader.GetList(TITLE + "OnlyReactionWarheads", this.OnlyReactionWarheads);
+            if (null != OnlyReactionWarheads && OnlyReactionWarheads.Count() == 1 && OnlyReactionWarheads[0].IsNullOrEmptyOrNone())
+            {
+                OnlyReactionWarheads = null;
+            }
+        }
+
+        public bool IsOnMark(Pointer<WarheadTypeClass> pWH)
+        {
+            return IsOnMark(pWH.Ref.Base.ID);
+        }
+
+        public bool IsOnMark(string warheadId)
+        {
+            return null == OnlyReactionWarheads || OnlyReactionWarheads.Contains(warheadId);
         }
 
     }

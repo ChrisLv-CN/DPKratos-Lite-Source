@@ -38,6 +38,7 @@ namespace Extension.Script
             if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead)
                 && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno)
                 && !pAttacker.IsDeadOrInvisible()
+                && Data.IsOnMark(pWH)
                 && pWH.CanRevenge())
             {
                 // 过滤平民
