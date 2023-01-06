@@ -96,7 +96,10 @@ namespace Extension.Script
                             }
                             else
                             {
-                                FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH);
+                                if (!FireCustomWeapon(pTechno, delayFire.pTarget, pTechno.Ref.Owner, delayFire.pWeapon, delayFire.weaponTypeData, delayFire.FLH))
+                                {
+                                    delayFire.Done();
+                                }
                             }
                             delayFire.ReduceOnce();
                         }
@@ -132,6 +135,7 @@ namespace Extension.Script
                                 && !pTarget.IsNull // 目标存在
                                 && (!pTarget.CastToTechno(out Pointer<TechnoClass> pTemp) || (!pTemp.IsDeadOrInvisible() && !pTemp.Ref.Base.IsFallingDown)) // 如果是单位检查是否存活
                                 && (!burst.WeaponTypeData.CheckRange || InRange(pTarget, burst)) // 射程之内
+                                && (!burst.WeaponTypeData.CheckAA || !pTarget.Ref.IsInAir() || pWeaponType.Ref.Projectile.Ref.AA) // 检查AA
                             )
                             {
                                 // 发射
@@ -150,7 +154,7 @@ namespace Extension.Script
             }
         }
 
-        private bool InRange(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeaponType)
+        private bool InRange(Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pWeaponType, int minRange, int maxRange)
         {
             CoordStruct location = pObject.Ref.Base.GetCoords();
             switch (pObject.Ref.Base.WhatAmI())
@@ -163,15 +167,13 @@ namespace Extension.Script
                 default:
                     CoordStruct targetPos = pTarget.Ref.GetCoords();
                     double distance = targetPos.DistanceFrom(location);
-                    double minRange = pWeaponType.Ref.MinimumRange;
-                    double maxRange = pWeaponType.Ref.Range;
                     return distance <= pWeaponType.Ref.Range && distance >= minRange;
             }
         }
 
         private bool InRange(Pointer<AbstractClass> pTarget, SimulateBurst burst)
         {
-            return InRange(pTarget, burst.pWeaponType);
+            return InRange(pTarget, burst.pWeaponType, burst.MinRange, burst.MaxRange);
         }
 
         public void FireOwnWeapon(int weaponIndex, Pointer<AbstractClass> pTarget, int delay = 0, int count = 1)
@@ -218,15 +220,33 @@ namespace Extension.Script
             Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh, FireBulletToTarget callback = null)
         {
             bool isFire = false;
+            // 检查护甲
+            if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
+                && pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Techno)
+                && pWeapon.Ref.Warhead.Ref.Versus[(int)pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor] != 0.0
+            )
+            {
+                // 护甲为零，终止发射
+                return isFire;
+            }
             int burst = pWeapon.Ref.Burst;
             int minRange = pWeapon.Ref.MinimumRange;
-            int range = pWeapon.Ref.Range;
-            if (pTarget.Ref.IsInAir() && pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+            int maxRange = pWeapon.Ref.Range;
+            if (pTarget.Ref.IsInAir())
             {
-                range += pTechno.Ref.Type.Ref.AirRangeBonus;
+                // 检查抛射体是否具有AA
+                if (weaponTypeData.CheckAA && !pWeapon.Ref.Projectile.Ref.AA)
+                {
+                    // 抛射体没有AA，终止发射
+                    return isFire;
+                }
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    maxRange += pTechno.Ref.Type.Ref.AirRangeBonus;
+                }
             }
             // 检查射程
-            if (!weaponTypeData.CheckRange || InRange(pTarget, pWeapon))
+            if (!weaponTypeData.CheckRange || InRange(pTarget, pWeapon, minRange, maxRange))
             {
                 // 发射武器
                 if (burst > 1 && weaponTypeData.SimulateBurst)
@@ -245,7 +265,7 @@ namespace Extension.Script
                     // 模拟burst发射武器
                     TechnoExt attackerExt = !pAttacker.IsNull ? TechnoExt.ExtMap.Find(pAttacker) : null;
                     HouseExt attackingExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
-                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, attackingExt, pWeapon, flh, burst, minRange, range, weaponTypeData, flipY, callback);
+                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, attackingExt, pWeapon, flh, burst, minRange, maxRange, weaponTypeData, flipY, callback);
                     // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     // 发射武器
                     SimulateBurstFire(newBurst);

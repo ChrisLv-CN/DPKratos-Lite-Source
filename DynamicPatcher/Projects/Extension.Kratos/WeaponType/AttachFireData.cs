@@ -17,6 +17,12 @@ namespace Extension.Ext
         [INIField(Key = "AttachFire.CheckRange")]
         public bool CheckRange = false;
 
+        [INIField(Key = "AttachFire.CheckAA")]
+        public bool CheckAA = false;
+
+        [INIField(Key = "AttachFire.CheckVersus")]
+        public bool CheckVersus = true;
+
         [INIField(Key = "AttachFire.RadialFire")]
         public bool RadialFire = false;
 

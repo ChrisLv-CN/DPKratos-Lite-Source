@@ -62,6 +62,11 @@ namespace Extension.Ext
             timer.Start(delay);
         }
 
+        public void Done()
+        {
+            count = -1;
+        }
+
         public bool NotDone()
         {
             return count > 0;

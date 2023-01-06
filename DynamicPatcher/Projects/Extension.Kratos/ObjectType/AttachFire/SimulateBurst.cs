@@ -29,7 +29,7 @@ namespace Extension.Ext
         // Burst控制参数
         public int Burst; // 总数
         public int MinRange; // 最近射程
-        public int Range; // 射程
+        public int MaxRange; // 最远射程
 
         public WeaponTypeData WeaponTypeData; // 武器控制
 
@@ -41,7 +41,7 @@ namespace Extension.Ext
 
         public SimulateBurst(TechnoExt attackerExt, Pointer<AbstractClass> pTarget, HouseExt attackingHouse,
             Pointer<WeaponTypeClass> pWeaponType, CoordStruct flh,
-            int burst, int minRange, int range, WeaponTypeData weaponTypeData, int flipY, FireBulletToTarget callback)
+            int burst, int minRange, int maxRange, WeaponTypeData weaponTypeData, int flipY, FireBulletToTarget callback)
         {
             this.AttackerExt = attackerExt;
             this.AttackingHouseExt = attackingHouse;
@@ -52,7 +52,7 @@ namespace Extension.Ext
 
             this.Burst = burst;
             this.MinRange = minRange;
-            this.Range = range;
+            this.MaxRange = maxRange;
 
             this.WeaponTypeData = weaponTypeData;
 
@@ -68,7 +68,7 @@ namespace Extension.Ext
 
         public SimulateBurst Clone()
         {
-            SimulateBurst newObj = new SimulateBurst(AttackerExt, pTarget, AttackingHouseExt, pWeaponType, FLH, Burst, MinRange, Range, WeaponTypeData, FlipY, Callback);
+            SimulateBurst newObj = new SimulateBurst(AttackerExt, pTarget, AttackingHouseExt, pWeaponType, FLH, Burst, MinRange, MaxRange, WeaponTypeData, FlipY, Callback);
             newObj.Index = Index;
             return newObj;
         }
