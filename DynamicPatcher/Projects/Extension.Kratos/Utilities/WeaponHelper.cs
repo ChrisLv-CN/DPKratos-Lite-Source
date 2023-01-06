@@ -347,15 +347,15 @@ namespace Extension.Utilities
                 int index = 0;
                 if (facing % 8 == 0)
                 {
-                    index = FLHHelper.Dir2FacingIndex(FLHHelper.Point2Dir(sourcePos, targetPos), facing);
-                    index = (int)(facing / 8) + index;
-                    if (index >= facing)
-                    {
-                        index = 0;
-                    }
+                    CoordStruct tempSourcePos = sourcePos;
+                    tempSourcePos.Z = 0;
+                    CoordStruct tempTargetPos = targetPos;
+                    tempTargetPos.Z = 0;
+                    DirStruct dir = FLHHelper.Point2Dir(tempSourcePos, tempTargetPos);
+                    index = dir.Dir2FrameIndex(facing);
                 }
                 Pointer<AnimTypeClass> pAnimType = pWeapon.Ref.Anim.Get(index);
-                // Logger.Log("获取到动画{0}", pAnimType.IsNull ? "不存在" : pAnimType.Convert<AbstractTypeClass>().Ref.ID);
+                // Logger.Log($"{Game.CurrentFrame} 获取第{index}个动画[{(pAnimType.IsNull ? "不存在" : pAnimType.Convert<AbstractTypeClass>().Ref.ID)}]");
                 if (!pAnimType.IsNull)
                 {
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, sourcePos);

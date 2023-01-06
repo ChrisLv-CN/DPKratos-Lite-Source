@@ -353,7 +353,7 @@ namespace Extension.Utilities
             index = (int)(facing / 8) + index;
             if (index >= facing)
             {
-                index = 0;
+                index -= facing;
             }
             return index;
         }
