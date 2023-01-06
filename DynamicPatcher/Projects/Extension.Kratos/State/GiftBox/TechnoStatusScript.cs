@@ -294,7 +294,7 @@ namespace Extension.Script
                             // 继承AE
                             AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
                             AttachEffectScript boxAEM = pTechno.GetComponent<AttachEffectScript>();
-                            boxAEM.InheritedTo(giftAEM);
+                            boxAEM.InheritedTo(giftAEM, true);
                             // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
                             // 移除指定的AE
                             giftAEM.Disable(data.RemoveEffects);

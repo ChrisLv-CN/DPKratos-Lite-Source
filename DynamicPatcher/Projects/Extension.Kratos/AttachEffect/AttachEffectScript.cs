@@ -77,7 +77,6 @@ namespace Extension.Script
             }
         }
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
-        private bool renderFlag = false; // Render比Update先执行，在附着对象Render时先调整替身位置，Update就不用调整
         private bool isDead = false;
 
         private int locationSpace; // 替身火车的车厢间距
@@ -85,7 +84,7 @@ namespace Extension.Script
         private bool initEffectFlag;
 
         // 将AE转移给其他对象
-        public void InheritedTo(AttachEffectScript heir)
+        public void InheritedTo(AttachEffectScript heir, bool heirIsNew)
         {
             // 转移给继任者
             heir.AttachEffects = this.AttachEffects;
@@ -122,7 +121,8 @@ namespace Extension.Script
             heir.locationMarkDistance = this.locationMarkDistance;
             heir.totleMileage = this.totleMileage;
 
-            heir.attachEffectOnceFlag = this.attachEffectOnceFlag;
+            // 继承后应允许添加新Type的AE，所以Flag应该为false，而不是继承过去
+            heir.attachEffectOnceFlag = !heirIsNew ? this.attachEffectOnceFlag : false;
 
             heir.locationSpace = this.locationSpace;
 
@@ -151,6 +151,8 @@ namespace Extension.Script
             this.locationMarks = new List<LocationMark>();
             this.locationMarkDistance = 16;
             this.totleMileage = 0;
+
+            this.attachEffectOnceFlag = false;
 
             this.locationSpace = 512;
         }
