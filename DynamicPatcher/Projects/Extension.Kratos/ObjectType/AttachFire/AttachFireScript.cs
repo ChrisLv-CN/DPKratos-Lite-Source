@@ -223,7 +223,7 @@ namespace Extension.Script
             // 检查护甲
             if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
                 && pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Techno)
-                && pWeapon.Ref.Warhead.Ref.Versus[(int)pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor] != 0.0
+                && pWeapon.Ref.Warhead.Ref.Versus[(int)pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor] == 0.0
             )
             {
                 // 护甲为零，终止发射
