@@ -35,26 +35,50 @@ namespace Extension.Script
 
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (!pAttacker.IsNull && (Data.Realtime || damageState == DamageState.NowDead)
-                && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno)
-                && !pAttacker.IsDeadOrInvisible()
+            // 过滤平民
+            Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
+            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+            if (Data.DeactiveWhenCivilian && !pHouse.IsNull && pHouse.IsCivilian())
+            {
+                return;
+            }
+            // 检查复仇者
+            Pointer<TechnoClass> pRevenger = pTechno; // 复仇者
+            Pointer<HouseClass> pRevengerHouse = pHouse; // 复仇者的阵营
+            if (Data.FromSource)
+            {
+                pRevenger = AE.pSource;
+                pRevengerHouse = AE.pSourceHouse;
+            }
+            if (pRevenger.IsDeadOrInvisible())
+            {
+                // 复仇者不存在，复个屁
+                Disable(default);
+                return;
+            }
+            // 检查报复对象
+            Pointer<TechnoClass> pRevengeTargetTechno = IntPtr.Zero; // 报复对象
+            // 向AE的来源复仇
+            if (Data.ToSource)
+            {
+                pRevengeTargetTechno = AE.pSource;
+            }
+            else if (pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno))
+            {
+                pRevengeTargetTechno = pAttackerTechno;
+            }
+            // 准备报复
+            if (!pRevengeTargetTechno.IsDeadOrInvisible() && (Data.Realtime || damageState == DamageState.NowDead)
                 && Data.IsOnMark(pWH)
                 && pWH.CanRevenge())
             {
-                // 过滤平民
-                Pointer<TechnoClass> pTechno = pOwner.Convert<TechnoClass>();
-                Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                if (Data.DeactiveWhenCivilian && !pHouse.IsNull && pHouse.IsCivilian())
-                {
-                    return;
-                }
                 // 过滤浮空
-                if (!Data.AffectInAir && pAttackerTechno.InAir())
+                if (!Data.AffectInAir && pRevengeTargetTechno.InAir())
                 {
                     return;
                 }
                 // 发射武器复仇
-                if (Data.CanAffectHouse(pHouse, pAttackingHouse) && Data.CanAffectType(pAttackerTechno) && Data.IsOnMark(pAttackerTechno))
+                if (Data.CanAffectHouse(pRevengerHouse, pAttackingHouse) && Data.CanAffectType(pRevengeTargetTechno) && Data.IsOnMark(pRevengeTargetTechno))
                 {
                     // 检查持续帧内触发
                     if (Data.ActiveOnce)
@@ -70,18 +94,7 @@ namespace Extension.Script
                             return;
                         }
                     }
-                    Pointer<TechnoClass> pRevenger = pTechno; // 复仇者
-                    Pointer<HouseClass> pRevengerHouse = pHouse;
-                    Pointer<TechnoClass> pRevengeTargetTechno = pAttackerTechno; // 报复对象
-                    if (Data.ToSource)
-                    {
-                        pRevengeTargetTechno = AE.pSource;
-                    }
-                    if (Data.FromSource)
-                    {
-                        pRevenger = AE.pSource;
-                        pRevengerHouse = AE.pSourceHouse;
-                    }
+
                     if (!pRevenger.IsNull && !pRevengeTargetTechno.IsDeadOrInvisible())
                     {
                         // 使用武器复仇
