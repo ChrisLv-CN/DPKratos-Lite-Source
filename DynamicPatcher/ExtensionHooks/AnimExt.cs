@@ -190,10 +190,10 @@ namespace ExtensionHooks
                 Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
                 if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.BounceAnim.IsNull)
                 {
-                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.Spawns, pAnim.Ref.Base.Base.GetCoords());
+                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.BounceAnim, pAnim.Ref.Base.Base.GetCoords());
                     pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                    return 0x4239D3;
                 }
-                return 0x4239D3;
             }
             catch (Exception e)
             {
