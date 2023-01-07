@@ -34,6 +34,8 @@ namespace Extension.Script
 
         private Pointer<ObjectClass> pMaster => AE.pOwner;
 
+        private bool masterIsBullet;
+
         private bool masterIsRocket = false;
         private bool masterIsSpawned = false;
         private bool standIsBuilding = false;
@@ -47,7 +49,8 @@ namespace Extension.Script
 
         public override bool IsAlive()
         {
-            if (pStand.IsNull || pStand.IsDead())
+            // 下沉和坠毁不算死亡
+            if (pStand.Convert<ObjectClass>().IsDead())
             {
                 return false;
             }
@@ -57,6 +60,7 @@ namespace Extension.Script
         // 激活
         public override void OnEnable()
         {
+            this.masterIsBullet = AE.AEManager.IsBullet;
             CreateAndPutStand();
         }
 
@@ -317,26 +321,26 @@ namespace Extension.Script
         public override void OnUpdate(CoordStruct location, bool isDead)
         {
             // 只同步状态，位置和朝向由StandManager控制
-            if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
+            if (masterIsBullet)
             {
-                UpdateState(pTechno, isDead);
+                UpdateState(pMaster.Convert<BulletClass>());
             }
-            else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
+            else
             {
-                UpdateState(pBullet);
+                UpdateState(pMaster.Convert<TechnoClass>(), isDead);
             }
         }
 
         public override void OnWarpUpdate(CoordStruct location, bool isDead)
         {
             // 只同步状态，位置和朝向由StandManager控制
-            if (pMaster.CastToTechno(out Pointer<TechnoClass> pTechno))
+            if (masterIsBullet)
             {
-                UpdateState(pTechno, isDead);
+                UpdateState(pMaster.Convert<BulletClass>());
             }
-            else if (pMaster.CastToBullet(out Pointer<BulletClass> pBullet))
+            else
             {
-                UpdateState(pBullet);
+                UpdateState(pMaster.Convert<TechnoClass>(), isDead);
             }
         }
 
@@ -394,14 +398,14 @@ namespace Extension.Script
 
         public void UpdateState(Pointer<TechnoClass> pMaster, bool masterIsDead)
         {
-            if (pStand.IsNull)
+            if (pStand.IsNull || pMaster.IsNull)
             {
                 return;
             }
-            // Logger.Log($"{Game.CurrentFrame} 单位上的 {AEType.Name} 替身 {Type.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
+            // Logger.Log($"{Game.CurrentFrame} 单位上的 {AE.AEData.Name} 替身 {Data.Type} {(pStand.Ref.Base.IsAlive ? "存活" : "死亡")}");
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
             {
-                // Logger.Log("{0} 船沉了，自爆吧！", Type.Type);
+                // Logger.Log($"{Game.CurrentFrame} 船沉了，自爆吧！");
                 ExplodesOrDisappear(true);
                 return;
             }
