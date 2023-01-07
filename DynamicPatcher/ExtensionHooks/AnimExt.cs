@@ -171,7 +171,6 @@ namespace ExtensionHooks
             return 0;
         }
 
-
         [Hook(HookType.AresHook, Address = 0x423E75, Size = 6)]
         public static unsafe UInt32 AnimClass_Extras_Remap(REGISTERS* R)
         {
@@ -179,6 +178,27 @@ namespace ExtensionHooks
             Pointer<AnimClass> pNewAnim = (IntPtr)R->EDI;
             pNewAnim.Ref.Owner = pAnim.Ref.Owner;
             // Logger.Log($"{Game.CurrentFrame} - {pAnim} [{pAnim.Ref.Type.Ref.Base.Base.ID}] Extras ECX = {R->ECX} EDI = {R->EDI} 所属 {pAnim.Ref.Owner}");
+            return 0;
+        }
+
+        // Take over to Create Bounce Anim
+        [Hook(HookType.AresHook, Address = 0x423991, Size = 5)]
+        public static unsafe UInt32 AnimClass_Bounce_Remap(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<AnimClass> pAnim = (IntPtr)R->EBP;
+                if (!pAnim.Ref.Type.IsNull && !pAnim.Ref.Type.Ref.BounceAnim.IsNull)
+                {
+                    Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnim.Ref.Type.Ref.Spawns, pAnim.Ref.Base.Base.GetCoords());
+                    pNewAnim.Ref.Owner = pAnim.Ref.Owner;
+                }
+                return 0x4239D3;
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
             return 0;
         }
 

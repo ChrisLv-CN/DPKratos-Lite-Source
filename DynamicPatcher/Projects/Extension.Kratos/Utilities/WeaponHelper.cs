@@ -198,25 +198,26 @@ namespace Extension.Utilities
                 // check Abilities FIREPOWER
                 fireMult = pAttacker.GetDamageMult(); //GetDamageMult(pAttacker);
             }
+
+            Pointer<BulletClass> pBullet = FireBullet(pWeapon, fireMult, pTarget, pAttacker, pAttackingHouse, sourcePos, targetPos, bulletVelocity);
+            // Logger.Log("{0}发射武器{1}，创建抛射体，目标类型{2}", pAttacker, pWeapon.Ref.Base.ID, pTarget.Ref.WhatAmI());
+            return pBullet;
+        }
+
+        public static Pointer<BulletClass> FireBullet(Pointer<WeaponTypeClass> pWeapon, double fireMult,
+            Pointer<AbstractClass> pTarget, Pointer<TechnoClass> pAttacker, Pointer<HouseClass> pAttackingHouse,
+            CoordStruct sourcePos, CoordStruct targetPos,
+            BulletVelocity bulletVelocity = default)
+        {
+            Pointer<BulletTypeClass> pBulletType = pWeapon.Ref.Projectile;
             int damage = (int)(pWeapon.Ref.Damage * fireMult);
             Pointer<WarheadTypeClass> pWH = pWeapon.Ref.Warhead;
             int speed = pWeapon.Ref.GetSpeed(sourcePos, targetPos);
             bool bright = pWeapon.Ref.Bright; // 原游戏中弹头上的bright是无效的
 
-            Pointer<BulletClass> pBullet = FireBullet(pWeapon.Ref.Projectile, damage, pWH, speed, bright, pTarget, pAttacker, pAttackingHouse, sourcePos, targetPos, bulletVelocity);
-            pBullet.Ref.WeaponType = pWeapon;
-            // Logger.Log("{0}发射武器{1}，创建抛射体，目标类型{2}", pAttacker, pWeapon.Ref.Base.ID, pTarget.Ref.WhatAmI());
-            return pBullet;
-        }
-
-        public static Pointer<BulletClass> FireBullet(Pointer<BulletTypeClass> pBulletType,
-            int damage, Pointer<WarheadTypeClass> pWH, int speed, bool bright,
-            Pointer<AbstractClass> pTarget, Pointer<TechnoClass> pAttacker, Pointer<HouseClass> pAttackingHouse,
-            CoordStruct sourcePos, CoordStruct targetPos,
-            BulletVelocity bulletVelocity = default)
-        {
             Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pTarget, pAttacker, damage, pWH, speed, bright);
             // Logger.Log($"{Game.CurrentFrame} {pAttacker}发射武器，创建抛射体，目标类型{(!pTarget.IsNull ? pTarget.Ref.WhatAmI() : "UNKNOW")} {pTarget}");
+            pBullet.Ref.WeaponType = pWeapon;
             // 设置所属
             pBullet.SetSourceHouse(pAttackingHouse);
             if (default == bulletVelocity)
@@ -229,11 +230,11 @@ namespace Extension.Utilities
             {
                 pBullet.Ref.TargetCoords = targetPos;
             }
-            if (pBulletType.Ref.Inviso && !pBulletType.Ref.Airburst)
-            {
-                pBullet.Ref.Detonate(targetPos);
-                pBullet.Ref.Base.UnInit();
-            }
+            // if (pBulletType.Ref.Inviso && !pBulletType.Ref.Airburst)
+            // {
+            //     pBullet.Ref.Detonate(targetPos);
+            //     pBullet.Ref.Base.UnInit();
+            // }
             return pBullet;
         }
 
