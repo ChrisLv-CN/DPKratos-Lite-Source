@@ -144,9 +144,6 @@ namespace Extension.Script
         {
             CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
 
-            string id = pSourceHouse.Ref.Type.Ref.Base.ID;
-            Surface.Primary.Ref.DrawText(id, location, ColorStruct.Green);
-
             OnUpdate_Bounce();
             OnUpdate_DestroySelf();
             // 是否需要检查潜地
