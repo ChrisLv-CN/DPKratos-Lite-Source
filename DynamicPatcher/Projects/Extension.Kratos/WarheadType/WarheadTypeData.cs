@@ -31,6 +31,8 @@ namespace Extension.Ext
         public string PreImpactAnim;
 
         // Kratos
+        public double[] Versus; // YRPP获取的比例全是1，只能自己维护
+
         public bool AffectInAir;
 
         public bool ClearTarget;
@@ -61,6 +63,7 @@ namespace Extension.Ext
             this.PreImpactAnim = null;
 
             // Kratos
+            this.Versus = new Double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
             this.AffectInAir = true;
 
             this.ClearTarget = false;
@@ -87,6 +90,8 @@ namespace Extension.Ext
             this.PreImpactAnim = reader.Get("PreImpactAnim", this.PreImpactAnim);
 
             // Kratos
+            this.Versus = reader.GetPercentList("Verses", this.Versus);
+
             this.AffectInAir = reader.Get("AffectInAir", this.AffectInAir);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
@@ -102,6 +107,16 @@ namespace Extension.Ext
                 this.IgnoreDamageReaction = true;
             }
             this.IgnoreStandShareDamage = reader.Get("IgnoreStandShareDamage", this.IgnoreStandShareDamage);
+        }
+
+        public double GetVersus(Armor armor)
+        {
+            int index = (int)armor;
+            if (index >=0 && index < 11)
+            {
+                return Versus[index];
+            }
+            return 1d;
         }
 
     }

@@ -43,7 +43,7 @@ namespace Extension.Script
             AnnounceExpiredPointerEventArgs args = (AnnounceExpiredPointerEventArgs)e;
             Pointer<AbstractClass> pAbstract = args.ExpiredPointer;
 
-            foreach(DelayFireWeapon delayFireWeapon in delayFires)
+            foreach (DelayFireWeapon delayFireWeapon in delayFires)
             {
                 if (delayFireWeapon.pTarget == pAbstract)
                 {
@@ -52,7 +52,7 @@ namespace Extension.Script
                 }
             }
 
-            foreach(SimulateBurst simulateBurst in simulateBurstQueue)
+            foreach (SimulateBurst simulateBurst in simulateBurstQueue)
             {
                 if (simulateBurst.pTarget == pAbstract)
                 {
@@ -223,12 +223,14 @@ namespace Extension.Script
             // 检查护甲
             if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
                 && pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Techno)
-                && pWeapon.Ref.Warhead.Ref.Versus[(int)pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor] == 0.0
+                && pWeapon.Ref.Warhead.GetVersus(pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor) == 0.0
             )
             {
+                // Logger.Log($"{Game.CurrentFrame} 弹头对试图攻击的目标比例为0，终止发射");
                 // 护甲为零，终止发射
                 return isFire;
             }
+
             int burst = pWeapon.Ref.Burst;
             int minRange = pWeapon.Ref.MinimumRange;
             int maxRange = pWeapon.Ref.Range;

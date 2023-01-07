@@ -88,6 +88,22 @@ namespace Extension.Utilities
             return false;
         }
 
+        public static double GetVersus(this Pointer<WarheadTypeClass> pWH, Armor armor)
+        {
+            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            if (null != whExt)
+            {
+                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
+                if (null == whData)
+                {
+                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
+                    whExt.WarheadTypeData = (INIComponent)whData;
+                }
+                return whData.Data.GetVersus(armor);
+            }
+            return 1d;
+        }
+
         public static bool IsTeleporter(this Pointer<WarheadTypeClass> pWH)
         {
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
