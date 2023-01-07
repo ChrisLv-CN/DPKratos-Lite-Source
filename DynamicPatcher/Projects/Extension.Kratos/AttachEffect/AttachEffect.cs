@@ -214,16 +214,20 @@ namespace Extension.Script
             return !immortal && lifeTimer.Expired();
         }
 
-        private void ForceStartLifeTimer(int timeLeft)
-        {
-            this.immortal = false;
-            this.lifeTimer.Start(timeLeft);
-            // Logger.Log("启动{0}生命计时器，生命{1}，计时{2}", Name, duration, timeLeft);
-        }
 
         public bool IsSameGroup(AttachEffectData otherType)
         {
             return this.AEData.Group > -1 && otherType.Group > -1 && this.AEData.Group == otherType.Group;
+        }
+
+        public int GetDuration()
+        {
+            int duration = immortal ? -1 : AEData.GetDuration();
+            if (duration > -1 && TryGetDurationTimeLeft(out int timeLeft))
+            {
+                duration = timeLeft;
+            }
+            return duration;
         }
 
         public bool TryGetInitDelayTimeLeft(out int timeLeft)
@@ -293,6 +297,22 @@ namespace Extension.Script
                     timeLeft += otherDuration;
                     ForceStartLifeTimer(timeLeft);
                 }
+            }
+        }
+
+        /// <summary>
+        /// 强制启动计时器
+        /// </summary>
+        /// <param name="timeLeft"></param>
+        private void ForceStartLifeTimer(int timeLeft)
+        {
+            this.immortal = false;
+            this.lifeTimer.Start(timeLeft);
+            // Logger.Log("启动{0}生命计时器，生命{1}，计时{2}", Name, duration, timeLeft);
+
+            foreach (IEffect effect in effects)
+            {
+                effect?.ResetDuration();
             }
         }
 

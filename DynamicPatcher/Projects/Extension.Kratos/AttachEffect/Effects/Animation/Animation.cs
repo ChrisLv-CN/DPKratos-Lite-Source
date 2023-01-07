@@ -28,7 +28,18 @@ namespace Extension.Script
     [Serializable]
     public class Animation : Effect<AnimationData>
     {
-        private SwizzleablePointer<AnimClass> pAnim;
+        private AnimExt animExt;
+        private Pointer<AnimClass> pAnim
+        {
+            get
+            {
+                if (null == animExt)
+                {
+                    return IntPtr.Zero;
+                }
+                return animExt.OwnerObject;
+            }
+        }
         private BlitterFlags animFlags;
 
         private bool OnwerIsDead;
@@ -36,7 +47,6 @@ namespace Extension.Script
 
         public Animation() : base()
         {
-            this.pAnim = new SwizzleablePointer<AnimClass>(IntPtr.Zero);
             this.OnwerIsDead = false;
         }
 
@@ -82,8 +92,12 @@ namespace Extension.Script
                 // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Data.IdleAnim, 0xFF);
                 pAnim.SetAnimOwner(pOwner);
                 pAnim.Show(Data.Visibility);
-                this.pAnim.Pointer = pAnim;
-                this.animFlags = pAnim.Ref.AnimFlags;
+                this.animFlags = pAnim.Ref.AnimFlags; // 记录下动画的渲染参数
+
+                this.animExt = AnimExt.ExtMap.Find(pAnim);
+                // 设置动画的附着对象，由动画自身去位移
+                AnimStatusScript status = animExt.GameObject.GetComponent<AnimStatusScript>();
+                status.AttachOwner = AE.AEManager.Owner;
                 // Logger.Log(" - 缓存动画{0}的实例对象指针", Data.IdleAnim);
             }
         }
@@ -96,7 +110,7 @@ namespace Extension.Script
                 pAnim.Ref.TimeToDie = true;
                 pAnim.Ref.Base.UnInit(); // 包含了SetOwnerObject(0) 0x4255B0
                 // Logger.Log("{0} - 已销毁动画{1}实例", Game.CurrentFrame, Data.IdleAnim);
-                pAnim.Pointer = IntPtr.Zero;
+                animExt = null;
                 // Logger.Log("{0} - 成功移除持续动画{1}", Game.CurrentFrame, Data.IdleAnim);
             }
         }
@@ -124,18 +138,12 @@ namespace Extension.Script
             CreateIdleAnim();
         }
 
-        public override void OnGScreenRender(CoordStruct location)
-        {
-            // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]持续动画 {pAnim.Pointer}[{Data.IdleAnim}], 透明度 {pAnim.Ref.UnderTemporal}, 类型透明度 {pAnim.Ref.Data.Ref.Translucency}");
-            UpdateLocation(location);
-        }
-
         public override void OnUpdate(CoordStruct location, bool isDead)
         {
             this.OnwerIsDead = isDead;
             if (!isDead && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
-                // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]附着单位 {pOwner} [{pOwner.Ref.Data.Ref.Base.ID}] 隐形 = {pTechno.Ref.Cloakable}，隐形状态 {pTechno.Ref.CloakStates}");
+                // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]附着单位 [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}  隐形 = {pTechno.Ref.Cloakable}，隐形状态 {pTechno.Ref.CloakStates}");
                 switch (pTechno.Ref.CloakStates)
                 {
                     case CloakStates.UnCloaked:
@@ -171,15 +179,6 @@ namespace Extension.Script
                         }
                         break;
                 }
-            }
-        }
-
-        private void UpdateLocation(CoordStruct location)
-        {
-            if (!pAnim.IsNull)
-            {
-                // 没有附着在单位上，需要手动同步动画的位置
-                pAnim.Ref.Base.SetLocation(location);
             }
         }
 

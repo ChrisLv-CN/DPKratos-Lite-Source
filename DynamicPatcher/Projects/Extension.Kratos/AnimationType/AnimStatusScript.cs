@@ -17,14 +17,28 @@ namespace Extension.Script
     {
         public AnimStatusScript(AnimExt owner) : base(owner) { }
 
-
-        public override void Awake()
+        // 动画的附着对象
+        public IExtension AttachOwner;
+        private Pointer<ObjectClass> pAttachOwner
         {
-
+            get
+            {
+                if (null == AttachOwner)
+                {
+                    return IntPtr.Zero;
+                }
+                return AttachOwner.OwnerObject;
+            }
         }
 
         public override void OnUpdate()
         {
+            // 如果有附着对象的话，移动动画的位置
+            if (!pAttachOwner.IsDead())
+            {
+                CoordStruct location = pAttachOwner.Ref.Base.GetCoords();
+                pAnim.Ref.Base.SetLocation(location);
+            }
             OnUpdate_Visibility();
             OnUpdate_Damage();
         }

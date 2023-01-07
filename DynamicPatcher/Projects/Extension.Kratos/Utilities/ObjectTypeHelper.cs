@@ -105,6 +105,12 @@ namespace Extension.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsDead(this Pointer<BulletClass> pBullet)
+        {
+            return pBullet.IsNull || pBullet.Convert<ObjectClass>().IsDead() || (pBullet.TryGetStatus(out BulletStatusScript status) && status.LifeData.IsDetonate);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDead(this Pointer<ObjectClass> pObject)
         {
             return pObject.IsNull || pObject.Ref.Type.IsNull || pObject.Ref.Health <= 0 || !pObject.Ref.IsAlive;
@@ -129,16 +135,15 @@ namespace Extension.Utilities
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsDeadOrInvisible(this Pointer<TechnoClass> pTarget)
+        public static bool IsDeadOrInvisible(this Pointer<TechnoClass> pTechno)
         {
-            return pTarget.IsDead() || pTarget.IsInvisible();
+            return pTechno.IsDead() || pTechno.IsInvisible();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsDeadOrInvisible(this Pointer<BulletClass> pBullet)
         {
-            Pointer<ObjectClass> pObject = pBullet.Convert<ObjectClass>();
-            return pObject.IsDead() || pObject.IsInvisible() || (pBullet.TryGetStatus(out BulletStatusScript status) && status.LifeData.IsDetonate);
+            return pBullet.IsDead() || pBullet.Convert<ObjectClass>().IsInvisible();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

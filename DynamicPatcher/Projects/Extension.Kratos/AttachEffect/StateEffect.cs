@@ -29,7 +29,23 @@ namespace Extension.Ext
             {
                 state = GetState(pBullet.GetStatus());
             }
-            ResetDuration();
+            if (null != state)
+            {
+                IStateData data = GetData();
+                switch (Data.AffectWho)
+                {
+                    case AffectWho.MASTER:
+                        state.EnableAndReplace(this);
+                        break;
+                    case AffectWho.STAND:
+                        EnableAEStatsToStand(data, false);
+                        break;
+                    default:
+                        state.EnableAndReplace(this);
+                        EnableAEStatsToStand(data, false);
+                        break;
+                }
+            }
         }
 
         public abstract State<EData> GetState(TechnoStatusScript statusScript);
@@ -45,28 +61,30 @@ namespace Extension.Ext
         {
             if (null != state)
             {
+                int duration = AE.GetDuration();
                 IStateData data = GetData();
                 switch (Data.AffectWho)
                 {
                     case AffectWho.MASTER:
-                        state.EnableAndReplace(this);
+                        state.ResetDuration(Token, duration);
                         break;
                     case AffectWho.STAND:
-                        EnableAEStatsToStand(data);
+                        EnableAEStatsToStand(data, true);
                         break;
                     default:
-                        state.EnableAndReplace(this);
-                        EnableAEStatsToStand(data);
+                        state.ResetDuration(Token, duration);
+                        EnableAEStatsToStand(data, true);
                         break;
                 }
             }
         }
 
-        private void EnableAEStatsToStand(IStateData data)
+        private void EnableAEStatsToStand(IStateData data, bool resetDuration)
         {
+            int duration = AE.GetDuration();
             if (!pOwner.IsNull && pOwner.TryGetAEManager(out AttachEffectScript aeManager))
             {
-                aeManager.EnableAEStatsToStand(AE.AEData.GetDuration(), Token, data);
+                aeManager.EnableAEStatsToStand(duration, Token, data, resetDuration);
             }
         }
 

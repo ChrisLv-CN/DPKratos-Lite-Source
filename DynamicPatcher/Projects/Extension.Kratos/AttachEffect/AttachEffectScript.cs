@@ -86,11 +86,11 @@ namespace Extension.Script
                 {
                     if (IsBullet)
                     {
-                        _isDead = pObject.Convert<BulletClass>().IsDeadOrInvisible();
+                        _isDead = pObject.Convert<BulletClass>().IsDead();
                     }
                     else
                     {
-                        _isDead = pObject.Convert<TechnoClass>().IsDeadOrInvisible();
+                        _isDead = pObject.Convert<TechnoClass>().IsDead();
                     }
                 }
                 return _isDead;
@@ -655,7 +655,7 @@ namespace Extension.Script
             return false;
         }
 
-        public void EnableAEStatsToStand(int duration, string token, IStateData data)
+        public void EnableAEStatsToStand(int duration, string token, IStateData data, bool resetDuration)
         {
             foreach (AttachEffect ae in AttachEffects)
             {
@@ -665,36 +665,49 @@ namespace Extension.Script
                     Pointer<TechnoClass> pStand = stand.pStand;
                     if (!pStand.IsDead() && pStand.TryGetStatus(out TechnoStatusScript status))
                     {
+                        IState state = null;
                         // Logger.Log($"{Game.CurrentFrame} - 同步开启AE {ae.Name} 的替身状态 {data.GetType().Name} token {token}");
                         if (data is DestroySelfData)
                         {
                             // 自毁
-                            status.DestroySelfState.Enable(duration, token, data);
+                            state = status.DestroyAnimState;
                         }
                         else if (data is GiftBoxData)
                         {
                             // 同步礼盒
-                            status.GiftBoxState.Enable(duration, token, data);
+                            state = status.GiftBoxState;
                         }
                         else if (data is DisableWeaponData)
                         {
                             // 同步禁武
-                            status.DisableWeaponState.Enable(duration, token, data);
+                            state = status.DisableWeaponState;
                         }
                         else if (data is OverrideWeaponData)
                         {
                             // 同步替武
-                            status.OverrideWeaponState.Enable(duration, token, data);
+                            state = status.OverrideWeaponState;
                         }
                         else if (data is FireSuperData)
                         {
                             // 同步发射超武
-                            status.FireSuperState.Enable(duration, token, data);
+                            state = status.FireSuperState;
                         }
                         else if (data is DeselectData)
                         {
                             // 同步禁止选择
-                            status.DeselectState.Enable(duration, token, data);
+                            state = status.DeselectState;
+                        }
+
+                        if (null != state)
+                        {
+                            if (resetDuration)
+                            {
+                                state.ResetDuration(token, duration);
+                            }
+                            else
+                            {
+                                state.EnableAndReplace(duration, token, data);
+                            }
                         }
                     }
                 }

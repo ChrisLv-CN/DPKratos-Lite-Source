@@ -10,6 +10,10 @@ namespace Extension.Ext
 {
     public interface IState
     {
+        public void EnableAndReplace(int duration, string token, IStateData data);
+
+        public void ResetDuration(string token, int duration);
+
         public void Enable(int duration, string token, IStateData data);
 
         public void Disable(string token);
@@ -39,17 +43,26 @@ namespace Extension.Ext
             this.timer.Start(0);
         }
 
+        // 由AE亲自开启
         public void EnableAndReplace<TT>(Effect<TT> effect) where TT : EffectData, IStateData, new()
         {
-            // 激活新的效果，关闭旧的效果
-            if (!string.IsNullOrEmpty(Token) && Token != effect.Token && null != AE && AE.IsActive())
-            {
-                AE.Disable(AE.Location);
-            }
+            // 强制关闭原有的
+            Disable();
+            // 附加新的
             this.AE = effect.AE;
-            Enable(AE.AEData.GetDuration(), effect.Token, effect.Data);
+            Enable(AE.GetDuration(), effect.Token, effect.Data);
         }
 
+        // 由AE给替身开启
+        public void EnableAndReplace(int duration, string token, IStateData data)
+        {
+            // 强制关闭原有的
+            Disable();
+            // 附加新的
+            Enable(duration, token, data);
+        }
+
+        // 不管来源直接开启
         public void Enable(IStateData data)
         {
             this.AE = null;
@@ -61,6 +74,22 @@ namespace Extension.Ext
             this.Token = token;
             this.Data = (T)data;
             this.active = duration != 0;
+            ResetDuration(duration);
+            this.frame = Game.CurrentFrame;
+            // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
+            OnEnable();
+        }
+
+        public void ResetDuration(string token, int duration)
+        {
+            if (Token == token)
+            {
+                ResetDuration(duration);
+            }
+        }
+
+        public void ResetDuration(int duration)
+        {
             if (duration < 0)
             {
                 infinite = true;
@@ -71,9 +100,6 @@ namespace Extension.Ext
                 infinite = false;
                 StartTimer(duration);
             }
-            this.frame = Game.CurrentFrame;
-            // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
-            OnEnable();
         }
 
         public virtual void StartTimer(int duration)
@@ -99,6 +125,7 @@ namespace Extension.Ext
                 if (null != AE && AE.IsActive())
                 {
                     AE.Disable(AE.Location);
+                    this.AE = null;
                 }
                 // Logger.Log($"{Game.CurrentFrame} Disable State {(null != Data ? Data.GetType().Name : "Null")}, token {Token}");
                 OnDisable();
