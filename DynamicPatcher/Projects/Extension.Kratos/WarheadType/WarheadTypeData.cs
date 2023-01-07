@@ -56,19 +56,17 @@ namespace Extension.Ext
                         if (count > 0)
                         {
                             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);
-                            // Logger.Log($"{Game.CurrentFrame} 自定义护甲有 {count} 行");
+                            // Logger.Log($"Try to read Ares's [ArmorTypes], get {count} types.");
                             for (int i = 0; i < count; i++)
                             {
                                 string keyName = pINI.Ref.GetKeyName(section, i);
                                 string value = reader.Get<string>(keyName, null);
                                 if (value.IsNullOrEmpty())
                                 {
-                                    Logger.LogWarning($"{Game.CurrentFrame} ArmorType {keyName} is {value}");
+                                    Logger.LogWarning($"Try to read Ares's [ArmorTypes], ArmorType {keyName} is {value}");
+                                    value = "0%";
                                 }
-                                else
-                                {
-                                    _aresArmorArray.Add(keyName, value);
-                                }
+                                _aresArmorArray.Add(keyName, value);
                             }
                         }
                         Dictionary<string, string> temp = new Dictionary<string, string>(_aresArmorArray);
@@ -79,6 +77,12 @@ namespace Extension.Ext
                             string val = GetArmorValue(key, _aresArmorArray);
                             _aresArmorArray[key] = val;
                         }
+                        // int ii = 11;
+                        // foreach (KeyValuePair<string, string> armor in _aresArmorArray)
+                        // {
+                        //     Logger.Log($"{Game.CurrentFrame} Armor {ii} - {armor.Key} = {armor.Value}");
+                        //     ii++;
+                        // }
                     }
                 }
                 return _aresArmorArray;
@@ -239,9 +243,14 @@ namespace Extension.Ext
                 {
                     return value;
                 }
-                return GetArmorValue(value, array);
+                // 跳出死循环
+                if (value != key)
+                {
+                    return GetArmorValue(value, array);
+                }
             }
-            return null;
+            Logger.LogWarning($"Try to read Ares's [ArmorTypes] but type [{key}] value is wrong.");
+            return "0%";
         }
 
         public double GetVersus(Armor armor, out bool forceFire, out bool retaliate, out bool passiveAcquire)
