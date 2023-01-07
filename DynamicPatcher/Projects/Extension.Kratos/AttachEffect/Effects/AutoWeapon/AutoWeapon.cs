@@ -209,7 +209,7 @@ namespace Extension.Script
                                 {
                                     // 需要创建假目标
                                     pTarget = MakeFakeTarget(pReceiverHouse, fakeTargetPos);
-                                    callback = FireBulletToTarget;
+                                    callback = FireBulletToTargetCallback;
                                 }
                                 if (!pTarget.IsNull)
                                 {
@@ -346,7 +346,7 @@ namespace Extension.Script
 
 
         // 将假想敌设置在抛射体扩展上，以便在抛射体注销时销毁假想敌
-        private bool FireBulletToTarget(int index, int burst, Pointer<BulletClass> pBullet, Pointer<AbstractClass> pTarget)
+        private bool FireBulletToTargetCallback(int index, int burst, Pointer<BulletClass> pBullet, Pointer<AbstractClass> pTarget)
         {
             if (pBullet.TryGetStatus(out BulletStatusScript bulletStatus))
             {
