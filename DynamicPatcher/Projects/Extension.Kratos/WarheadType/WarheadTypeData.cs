@@ -61,8 +61,14 @@ namespace Extension.Ext
                             {
                                 string keyName = pINI.Ref.GetKeyName(section, i);
                                 string value = reader.Get<string>(keyName, null);
-                                // Logger.Log($"{Game.CurrentFrame} 自定义护甲 {keyName} = {value}");
-                                _aresArmorArray.Add(keyName, value);
+                                if (value.IsNullOrEmpty())
+                                {
+                                    Logger.LogWarning($"{Game.CurrentFrame} ArmorType {keyName} is {value}");
+                                }
+                                else
+                                {
+                                    _aresArmorArray.Add(keyName, value);
+                                }
                             }
                         }
                         Dictionary<string, string> temp = new Dictionary<string, string>(_aresArmorArray);
@@ -179,17 +185,21 @@ namespace Extension.Ext
                 {
                     // 获得所有自定义护甲的信息
                     string name = armor.Key;
-                    string value = armor.Value;
                     double defaultVersus = 1d;
-                    // 含百分号
-                    if (value.IndexOf("%") > -1)
+
+                    string value = armor.Value;
+                    if (!value.IsNullOrEmpty())
                     {
-                        string temp = value.Substring(0, value.IndexOf("%"));
-                        defaultVersus = Convert.ToDouble(temp) / 100;
-                    }
-                    else if (isDefaultArmor(value, out int index) && index < 11)
-                    {
-                        defaultVersus = this.Versus[index];
+                        // 含百分号
+                        if (value.IndexOf("%") > -1)
+                        {
+                            string temp = value.Substring(0, value.IndexOf("%"));
+                            defaultVersus = Convert.ToDouble(temp) / 100;
+                        }
+                        else if (isDefaultArmor(value, out int index) && index < 11)
+                        {
+                            defaultVersus = this.Versus[index];
+                        }
                     }
                     // 读取弹头设置
                     string key = title + name;
