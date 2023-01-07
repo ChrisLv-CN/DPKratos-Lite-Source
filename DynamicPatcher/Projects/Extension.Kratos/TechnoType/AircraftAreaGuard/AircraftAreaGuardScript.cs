@@ -417,7 +417,7 @@ namespace Extension.Script
                 if (!pWeaponStruct.IsNull && !(pWeapon = pWeaponStruct.Ref.WeaponType).IsNull)
                 {
                     // 判断护甲
-                    pick = pWeapon.Ref.Warhead.GetVersus(pTarget.Ref.Type.Ref.Base.Armor) > 0.2;
+                    pick = (pWeapon.Ref.Warhead.GetVersus(pTarget.Ref.Type.Ref.Base.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) > 0.2 || passiveAcquire);
                     if (pick)
                     {
                         FireError fireError = pTechno.Ref.GetFireError(pTargetAbs, weaponIdx, true);

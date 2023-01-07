@@ -11,6 +11,26 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+
+    [Serializable]
+    public class AresVersus
+    {
+        public double Versus = 1.0;
+
+        public bool ForceFire = true;
+        public bool Retaliate = true;
+        public bool PassiveAcquire = true;
+
+        public AresVersus(double versus, bool forceFire, bool retaliate, bool passiveAcquire)
+        {
+            this.Versus = versus;
+            this.ForceFire = forceFire;
+            this.Retaliate = retaliate;
+            this.PassiveAcquire = passiveAcquire;
+        }
+    }
+
+
     [Serializable]
     public class WarheadTypeData : INIConfig
     {
@@ -20,8 +40,50 @@ namespace Extension.Ext
             new DamageReactionModeParser().Register();
         }
 
+        private static Dictionary<string, string> _aresArmorArray;
+        public static Dictionary<string, string> AresArmorArray
+        {
+            get
+            {
+                if (null == _aresArmorArray)
+                {
+                    _aresArmorArray = new Dictionary<string, string>();
+                    AnsiString section = "ArmorTypes";
+                    if (Ini.HasSection(Ini.RulesDependency, section))
+                    {
+                        Pointer<CCINIClass> pINI = CCINIClass.INI_Rules;
+                        int count = pINI.Ref.GetKeyCount(section);
+                        if (count > 0)
+                        {
+                            ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);
+                            // Logger.Log($"{Game.CurrentFrame} 自定义护甲有 {count} 行");
+                            for (int i = 0; i < count; i++)
+                            {
+                                string keyName = pINI.Ref.GetKeyName(section, i);
+                                string value = reader.Get<string>(keyName, null);
+                                // Logger.Log($"{Game.CurrentFrame} 自定义护甲 {keyName} = {value}");
+                                _aresArmorArray.Add(keyName, value);
+                            }
+                        }
+                        Dictionary<string, string> temp = new Dictionary<string, string>(_aresArmorArray);
+                        // 格式化所有的自定义护甲，包含嵌套护甲，获取实际的护甲信息
+                        foreach (KeyValuePair<string, string> armor in temp)
+                        {
+                            string key = armor.Key;
+                            string val = GetArmorValue(key, _aresArmorArray);
+                            _aresArmorArray[key] = val;
+                        }
+                    }
+                }
+                return _aresArmorArray;
+            }
+        }
+
         // YR
+        public double[] Versus; // YRPP获取的比例全是1，只能自己维护
         // Ares
+        public List<AresVersus> AresVersus; // Ares自定义护甲的参数
+
         public bool AffectsOwner;
         public bool AffectsAllies;
         public bool AffectsEnemies;
@@ -31,8 +93,6 @@ namespace Extension.Ext
         public string PreImpactAnim;
 
         // Kratos
-        public double[] Versus; // YRPP获取的比例全是1，只能自己维护
-
         public bool AffectInAir;
 
         public bool ClearTarget;
@@ -53,7 +113,9 @@ namespace Extension.Ext
 
         public WarheadTypeData()
         {
+            this.Versus = new double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
             // Ares
+            this.AresVersus = null;
             this.AffectsOwner = true;
             this.AffectsAllies = true;
             this.AffectsEnemies = true;
@@ -63,7 +125,6 @@ namespace Extension.Ext
             this.PreImpactAnim = null;
 
             // Kratos
-            this.Versus = new Double[] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
             this.AffectInAir = true;
 
             this.ClearTarget = false;
@@ -79,7 +140,9 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
+            this.Versus = reader.GetPercentList("Verses", this.Versus);
             // Ares
+            ReadAresVersus(reader);
             this.AffectsAllies = reader.Get("AffectsAllies", this.AffectsAllies);
             this.AffectsOwner = reader.Get("AffectsOwner", this.AffectsAllies);
 
@@ -90,8 +153,6 @@ namespace Extension.Ext
             this.PreImpactAnim = reader.Get("PreImpactAnim", this.PreImpactAnim);
 
             // Kratos
-            this.Versus = reader.GetPercentList("Verses", this.Versus);
-
             this.AffectInAir = reader.Get("AffectInAir", this.AffectInAir);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
@@ -109,14 +170,101 @@ namespace Extension.Ext
             this.IgnoreStandShareDamage = reader.Get("IgnoreStandShareDamage", this.IgnoreStandShareDamage);
         }
 
-        public double GetVersus(Armor armor)
+        private void ReadAresVersus(IConfigReader reader)
         {
-            int index = (int)armor;
-            if (index >=0 && index < 11)
+            if (null != AresArmorArray && AresArmorArray.Any())
             {
-                return Versus[index];
+                string title = "Versus.";
+                foreach (KeyValuePair<string, string> armor in AresArmorArray)
+                {
+                    // 获得所有自定义护甲的信息
+                    string name = armor.Key;
+                    string value = armor.Value;
+                    double defaultVersus = 1d;
+                    // 含百分号
+                    if (value.IndexOf("%") > -1)
+                    {
+                        string temp = value.Substring(0, value.IndexOf("%"));
+                        defaultVersus = Convert.ToDouble(temp) / 100;
+                    }
+                    else if (isDefaultArmor(value, out int index) && index < 11)
+                    {
+                        defaultVersus = this.Versus[index];
+                    }
+                    // 读取弹头设置
+                    string key = title + name;
+                    double versus = reader.GetPercent(key, defaultVersus, true);
+                    key = title + name + ".ForceFire";
+                    bool forceFire = reader.Get(key, true);
+                    key = title + name + ".Retaliate";
+                    bool retaliate = reader.Get(key, true);
+                    key = title + name + ".PassiveAcquire";
+                    bool passiveAcquire = reader.Get(key, true);
+                    if (null == AresVersus)
+                    {
+                        AresVersus = new List<AresVersus>();
+                    }
+                    AresVersus.Add(new AresVersus(versus, forceFire, retaliate, passiveAcquire));
+                }
             }
-            return 1d;
+        }
+
+        private bool isDefaultArmor(string armor, out int index)
+        {
+            index = 0;
+            if (Enum.TryParse<Armor>(armor, true, out Armor result))
+            {
+                index = (int)result;
+                return true;
+            }
+            return false;
+        }
+
+        private static string GetArmorValue(string key, Dictionary<string, string> array)
+        {
+            if (array.ContainsKey(key))
+            {
+                string value = array[key];
+                if (value.IndexOf("%") > -1 || Enum.TryParse<Armor>(value, true, out Armor armor))
+                {
+                    return value;
+                }
+                return GetArmorValue(value, array);
+            }
+            return null;
+        }
+
+        public double GetVersus(Armor armor, out bool forceFire, out bool retaliate, out bool passiveAcquire)
+        {
+            double versus = 1d;
+            forceFire = true;
+            retaliate = true;
+            passiveAcquire = true;
+
+            int index = (int)armor;
+            if (index >= 0)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 检查是否可攻击，护甲 {armor}，序号 {index}");
+                if (index < 11)
+                {
+                    // 原始护甲
+                    versus = Versus[index];
+                    forceFire = versus > 0.0;
+                    retaliate = versus > 0.1;
+                    passiveAcquire = versus > 0.2;
+                }
+                else if (null != AresVersus && index < AresVersus.Count())
+                {
+                    index -= 11;
+                    // 扩展护甲
+                    AresVersus aresVersus = AresVersus[index];
+                    versus = aresVersus.Versus;
+                    forceFire = aresVersus.ForceFire;
+                    retaliate = aresVersus.Retaliate;
+                    passiveAcquire = aresVersus.PassiveAcquire;
+                }
+            }
+            return versus;
         }
 
     }

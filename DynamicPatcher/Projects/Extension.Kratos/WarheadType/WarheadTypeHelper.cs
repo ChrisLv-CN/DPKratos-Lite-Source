@@ -88,8 +88,12 @@ namespace Extension.Utilities
             return false;
         }
 
-        public static double GetVersus(this Pointer<WarheadTypeClass> pWH, Armor armor)
+        public static double GetVersus(this Pointer<WarheadTypeClass> pWH, Armor armor, out bool forceFire, out bool retaliate, out bool passiveAcquire)
         {
+            forceFire = true;
+            retaliate = true;
+            passiveAcquire = true;
+
             WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
             if (null != whExt)
             {
@@ -99,7 +103,7 @@ namespace Extension.Utilities
                     whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
                     whExt.WarheadTypeData = (INIComponent)whData;
                 }
-                return whData.Data.GetVersus(armor);
+                return whData.Data.GetVersus(armor, out forceFire, out retaliate, out passiveAcquire);
             }
             return 1d;
         }
