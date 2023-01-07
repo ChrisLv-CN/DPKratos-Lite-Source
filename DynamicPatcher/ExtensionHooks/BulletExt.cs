@@ -110,6 +110,20 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // 抛射体爆炸时读取发射者的阵营所属，当发射者死亡时，变中立弹头
+        [Hook(HookType.AresHook, Address = 0x469A75, Size = 7)]
+        public static unsafe UInt32 BulletClass_Detonate_GetHouse(REGISTERS* R)
+        {
+            Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+            Pointer<HouseClass> pHouse = (IntPtr)R->ECX;
+            if (pHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status) && !status.pSourceHouse.IsNull)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 抛射体的发射者死了");
+                R->ECX = (uint)status.pSourceHouse;
+            }
+            return 0;
+        }
+
         // Take over to create Warhead Anim
         [Hook(HookType.AresHook, Address = 0x469C4E, Size = 5)]
         public static unsafe UInt32 BulletClass_Detonate_WHAnim_Remap(REGISTERS* R)

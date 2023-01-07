@@ -218,10 +218,7 @@ namespace Extension.Utilities
             Pointer<BulletClass> pBullet = pBulletType.Ref.CreateBullet(pTarget, pAttacker, damage, pWH, speed, bright);
             // Logger.Log($"{Game.CurrentFrame} {pAttacker}发射武器，创建抛射体，目标类型{(!pTarget.IsNull ? pTarget.Ref.WhatAmI() : "UNKNOW")} {pTarget}");
             // 设置所属
-            if (!pAttackingHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status))
-            {
-                status.pSourceHouse = pAttackingHouse;
-            }
+            pBullet.SetSourceHouse(pAttackingHouse);
             if (default == bulletVelocity)
             {
                 bulletVelocity = GetBulletVelocity(sourcePos, targetPos);

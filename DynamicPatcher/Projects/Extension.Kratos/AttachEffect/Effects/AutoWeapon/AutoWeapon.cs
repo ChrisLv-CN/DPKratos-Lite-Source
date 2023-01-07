@@ -350,7 +350,7 @@ namespace Extension.Script
         {
             if (pBullet.TryGetStatus(out BulletStatusScript bulletStatus))
             {
-                bulletStatus.pFakeTarget.Pointer = pTarget.Convert<ObjectClass>();
+                bulletStatus.SetFakeTarget(pTarget.Convert<ObjectClass>());
             }
             return false;
         }

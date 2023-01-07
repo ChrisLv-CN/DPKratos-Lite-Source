@@ -138,7 +138,7 @@ namespace Extension.Utilities
         public static bool IsDeadOrInvisible(this Pointer<BulletClass> pBullet)
         {
             Pointer<ObjectClass> pObject = pBullet.Convert<ObjectClass>();
-            return pObject.IsDead() || pObject.IsInvisible();
+            return pObject.IsDead() || pObject.IsInvisible() || (pBullet.TryGetStatus(out BulletStatusScript status) && status.LifeData.IsDetonate);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

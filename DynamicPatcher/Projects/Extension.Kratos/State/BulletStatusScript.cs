@@ -5,6 +5,7 @@ using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
+using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
 
@@ -21,14 +22,33 @@ namespace Extension.Script
 
         public BulletStatusScript(BulletExt owner) : base(owner) { }
 
-        public SwizzleablePointer<HouseClass> pSourceHouse = new SwizzleablePointer<HouseClass>(HouseClass.FindSpecial());
+        private HouseExt _sourceHouse;
+        public Pointer<HouseClass> pSourceHouse
+        {
+            set
+            {
+                if (!value.IsNull)
+                {
+                    _sourceHouse = HouseExt.ExtMap.Find(value);
+                }
+            }
+            get
+            {
+                if (null != _sourceHouse)
+                {
+                    return _sourceHouse.OwnerObject;
+                }
+                return HouseClass.FindSpecial();
+            }
+        }
 
         public BulletLifeData LifeData;
         public BulletDamageData DamageData;
 
         public bool SubjectToGround;
 
-        public SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
+        private bool hasFakeTarget;
+        private SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
 
         private bool initStateFlag = false;
 
@@ -37,13 +57,33 @@ namespace Extension.Script
             TargetAircraftBullets.Clear();
         }
 
+        public void SetFakeTarget(Pointer<ObjectClass> pFakeTarget)
+        {
+            hasFakeTarget = true;
+            EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearFakeTargetHandler);
+        }
+
+        private void ClearFakeTargetHandler(object sender, EventArgs e)
+        {
+            if (hasFakeTarget)
+            {
+                AnnounceExpiredPointerEventArgs args = (AnnounceExpiredPointerEventArgs)e;
+                Pointer<AbstractClass> pAbstract = args.ExpiredPointer;
+                if (pAbstract == pFakeTarget.Pointer.Convert<AbstractClass>())
+                {
+                    pFakeTarget.Pointer = IntPtr.Zero;
+                }
+            }
+        }
+
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
             Pointer<TechnoClass> pShooter = pBullet.Ref.Owner;
-            if (!pShooter.IsNull && !pShooter.Ref.Owner.IsNull)
+            Pointer<HouseClass> pShooterHouse = IntPtr.Zero;
+            if (!pShooter.IsNull && !(pShooterHouse = pShooter.Ref.Owner).IsNull)
             {
-                pSourceHouse.Pointer = pShooter.Ref.Owner;
+                pSourceHouse = pShooterHouse;
             }
 
             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);
@@ -94,11 +134,19 @@ namespace Extension.Script
         public override void OnUnInit()
         {
             TargetAircraftBullets.Remove(Owner);
+            if (hasFakeTarget)
+            {
+                EventSystem.PointerExpire.RemoveTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearFakeTargetHandler);
+            }
         }
 
         public override void OnUpdate()
         {
             CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+
+            string id = pSourceHouse.Ref.Type.Ref.Base.ID;
+            Surface.Primary.Ref.DrawText(id, location, ColorStruct.Green);
+
             OnUpdate_Bounce();
             OnUpdate_DestroySelf();
             // 是否需要检查潜地

@@ -81,7 +81,7 @@ namespace Extension.Utilities
         {
             if (!pHouse.IsNull && pBullet.TryGetStatus(out BulletStatusScript status))
             {
-                status.pSourceHouse.Pointer = pHouse;
+                status.pSourceHouse = pHouse;
             }
         }
 

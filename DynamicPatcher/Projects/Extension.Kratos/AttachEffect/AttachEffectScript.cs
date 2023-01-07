@@ -77,7 +77,25 @@ namespace Extension.Script
             }
         }
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
-        private bool isDead = false;
+        private bool _isDead = false;
+        private bool isDead
+        {
+            get
+            {
+                if (!_isDead)
+                {
+                    if (IsBullet)
+                    {
+                        _isDead = pObject.Convert<BulletClass>().IsDeadOrInvisible();
+                    }
+                    else
+                    {
+                        _isDead = pObject.Convert<TechnoClass>().IsDeadOrInvisible();
+                    }
+                }
+                return _isDead;
+            }
+        }
 
         private int locationSpace; // 替身火车的车厢间距
 
@@ -805,7 +823,10 @@ namespace Extension.Script
         {
             if (((GScreenEventArgs)args).IsBeginRender)
             {
-                location = MarkLocation();
+                if (!isDead)
+                {
+                    location = MarkLocation();
+                }
                 // 专门执行替身的定位工作
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
@@ -856,10 +877,10 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            isDead = pOwner.IsDead();
             // 添加Section上记录的AE
-            if (!isDead && !pOwner.IsInvisible())
+            if (!isDead)
             {
+                location = pOwner.Ref.Base.GetCoords();
                 // 添加无分组的
                 Attach(AETypeData, pOwner);
                 // 检查乘客并附加乘客带来的AE
@@ -937,7 +958,7 @@ namespace Extension.Script
                     ReduceStackCount(ae);
                     // 如果有Next，则赋予新的AE
                     string nextAE = data.Next;
-                    if (!string.IsNullOrEmpty(nextAE))
+                    if (!string.IsNullOrEmpty(nextAE) && !isDead && !pOwner.IsInvisible())
                     {
                         // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
                         Attach(nextAE, ae.pOwner, ae.pSourceHouse, false);
@@ -948,8 +969,10 @@ namespace Extension.Script
 
         public override void OnWarpUpdate()
         {
-            isDead = pObject.IsDead();
-            location = pOwner.Ref.Base.GetCoords();
+            if (!isDead)
+            {
+                location = pOwner.Ref.Base.GetCoords();
+            }
             for (int i = Count() - 1; i >= 0; i--)
             {
                 AttachEffect ae = AttachEffects[i];
