@@ -41,6 +41,7 @@ namespace Extension.Script
             }
             OnUpdate_Visibility();
             OnUpdate_Damage();
+            OnUpdate_SpawnAnims();
         }
 
         public override void OnLoop()

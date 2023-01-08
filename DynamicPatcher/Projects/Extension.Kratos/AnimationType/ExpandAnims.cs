@@ -75,7 +75,9 @@ namespace Extension.Ext
                         Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(animType);
                         if (!pAnimType.IsNull)
                         {
-                            Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnimType, location);
+                            // 位置偏移
+                            CoordStruct offset = data.GetOffset();
+                            Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnimType, location + offset);
                             pNewAnim.Ref.Owner = pHouse;
                         }
                     }
