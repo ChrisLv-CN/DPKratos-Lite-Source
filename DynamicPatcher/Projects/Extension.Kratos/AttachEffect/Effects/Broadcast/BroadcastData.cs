@@ -30,8 +30,9 @@ namespace Extension.Ext
     {
         public string[] Types;
         public int Rate;
-        public int RangeMin;
-        public int RangeMax;
+        public float RangeMin;
+        public float RangeMax;
+        public bool FullAirspace;
 
         public BroadcastEntity()
         {
@@ -48,6 +49,7 @@ namespace Extension.Ext
             data.Rate = this.Rate;
             data.RangeMin = this.RangeMin;
             data.RangeMax = this.RangeMax;
+            data.FullAirspace = this.FullAirspace;
             return data;
         }
 
@@ -57,6 +59,7 @@ namespace Extension.Ext
             this.Rate = reader.Get(title + "Rate", this.Rate);
             this.RangeMin = reader.Get(title + "RangeMin", this.RangeMin);
             this.RangeMax = reader.Get(title + "RangeMax", this.RangeMax);
+            this.FullAirspace = reader.Get(title + "FullAirspace", this.FullAirspace);
         }
     }
 

@@ -90,7 +90,7 @@ namespace Extension.Script
                         // 赋予AE
                         aeManager.Attach(data.Types, pOwner);
                         return false;
-                    }, location, data.RangeMax, data.RangeMin, pHouse, Data, pOwner);
+                    }, location, data.RangeMax, data.RangeMin, data.FullAirspace, pHouse, Data, pOwner);
                 }
                 // 搜索抛射体
                 if (Data.AffectBullet)
@@ -100,7 +100,7 @@ namespace Extension.Script
                         // 赋予AE
                         aeManager.Attach(data.Types, pOwner);
                         return false;
-                    }, location, data.RangeMax, data.RangeMin, pHouse, Data, pOwner);
+                    }, location, data.RangeMax, data.RangeMin, data.FullAirspace, pHouse, Data, pOwner);
                 }
             }
         }

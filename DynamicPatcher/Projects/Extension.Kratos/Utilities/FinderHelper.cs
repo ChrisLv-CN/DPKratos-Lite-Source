@@ -21,7 +21,7 @@ namespace Extension.Utilities
         public static void FindBulletTargetMe(this Pointer<TechnoClass> pTechno, Found<BulletClass> func)
         {
             Pointer<AbstractClass> pSelf = pTechno.Convert<AbstractClass>();
-            foreach(BulletExt bulletExt in BulletStatusScript.TargetAircraftBullets)
+            foreach (BulletExt bulletExt in BulletStatusScript.TargetAircraftBullets)
             {
                 if (null != bulletExt && !bulletExt.OwnerObject.IsDeadOrInvisible())
                 {
@@ -40,7 +40,7 @@ namespace Extension.Utilities
 
         public static void FindOwnerTechno(Pointer<HouseClass> pHouse, Found<TechnoClass> func, bool allied = false, bool enemies = false)
         {
-            TechnoClass.Array.FindObject(func, default, 0, pHouse, true, allied, enemies, false);
+            TechnoClass.Array.FindObject(func, pHouse, true, allied, enemies, false);
         }
 
         public static void FindIndex<T>(this DynamicVectorClass<Pointer<T>> array, FoundIndex<T> func)
@@ -59,15 +59,16 @@ namespace Extension.Utilities
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true) where T : struct
         {
-            FindObject(array, func, default, 0, pHouse, owner, allied, enemies, civilian);
+            FindObject(array, func, default, 0, 0, false, pHouse, owner, allied, enemies, civilian);
         }
 
         public static void FindObject<T>(this DynamicVectorClass<Pointer<T>> array, Found<T> func,
-            CoordStruct location, double spread,
+            CoordStruct location, double maxSpread, double minSpread = 0, bool fullAirspace = false,
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true) where T : struct
         {
-            double dist = (spread <= 0 ? 1 : spread) * 256;
+            double maxRange = (maxSpread <= 0 ? 1 : maxSpread) * 256;
+            double minRange = (minSpread <= 0 ? 0 : minSpread) * 256;
             for (int i = array.Count - 1; i >= 0; i--)
             {
                 Pointer<T> pT = array.Get(i);
@@ -75,8 +76,18 @@ namespace Extension.Utilities
                 Pointer<ObjectClass> pObject = pT.Convert<ObjectClass>();
                 if (!pObject.IsNull)
                 {
-                    CoordStruct targetLocation = pObject.Ref.Base.GetCoords();
-                    if (spread == 0 || location == default || targetLocation.DistanceFrom(location) <= dist)
+                    bool inRange = maxSpread == 0 || default == location;
+                    if (!inRange)
+                    {
+                        CoordStruct targetLocation = pObject.Ref.Base.GetCoords();
+                        double distance = location.DistanceFrom(targetLocation, fullAirspace);
+                        if (!fullAirspace && pObject.Ref.Base.IsInAir() && pObject.Ref.Base.WhatAmI() == AbstractType.Aircraft)
+                        {
+                            distance *= 0.5;
+                        }
+                        inRange = distance >= minRange && distance <= maxRange;
+                    }
+                    if (inRange)
                     {
                         if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
                         {
@@ -117,16 +128,17 @@ namespace Extension.Utilities
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
-            FindFoot(func, default, 0, pHouse, owner, allied, enemies, civilian);
+            FindFoot(func, default, 0, 0, false, pHouse, owner, allied, enemies, civilian);
         }
 
-        public static void FindFoot(Found<FootClass> func, CoordStruct location, double spread,
+        public static void FindFoot(Found<FootClass> func,
+            CoordStruct location, double maxSpread, double minSpread, bool fullAirspace,
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
-            InfantryClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, spread, pHouse, owner, allied, enemies, civilian);
-            UnitClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, spread, pHouse, owner, allied, enemies, civilian);
-            AircraftClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, spread, pHouse, owner, allied, enemies, civilian);
+            InfantryClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, maxSpread, minSpread, fullAirspace, pHouse, owner, allied, enemies, civilian);
+            UnitClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, maxSpread, minSpread, fullAirspace, pHouse, owner, allied, enemies, civilian);
+            AircraftClass.Array.FindObject((pTarget) => { return func(pTarget.Convert<FootClass>()); }, location, maxSpread, minSpread, fullAirspace, pHouse, owner, allied, enemies, civilian);
         }
 
         public static void FindTechnoInCell(this Pointer<CellClass> pCell, Found<TechnoClass> found)
@@ -207,7 +219,7 @@ namespace Extension.Utilities
                         pTechnoSet.Add(pTechno.Convert<TechnoClass>());
                     }
                     return false;
-                }, location, spread, pHouse, owner, allied, enemies, civilian);
+                }, location, spread, 0, false, pHouse, owner, allied, enemies, civilian);
             }
             // Logger.Log("includeAir = {0}, pTechnoSet.Count = {1}", includeInAir, pTechnoSet.Count);
             // 筛选并去掉不可用项目
@@ -264,11 +276,12 @@ namespace Extension.Utilities
         }
 
         // 搜索单位
-        public static void FindTechnoOnMark(FoundAEM<TechnoClass> func, CoordStruct location, double spreadMax, double spreadMin,
+        public static void FindTechnoOnMark(FoundAEM<TechnoClass> func,
+            CoordStruct location, double maxSpread, double minSpread, bool fullAirspace,
             Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
         {
             List<Pointer<TechnoClass>> pTechnoList = null;
-            if (spreadMax <= 0)
+            if (maxSpread <= 0)
             {
                 // 搜索全部单位
                 HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
@@ -324,7 +337,7 @@ namespace Extension.Utilities
             else
             {
                 // 小范围搜索
-                pTechnoList = FinderHelper.GetCellSpreadTechnos(location, spreadMax, data.AffectInAir, false, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                pTechnoList = FinderHelper.GetCellSpreadTechnos(location, maxSpread, data.AffectInAir, false, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
             }
             if (null != pTechnoList)
             {
@@ -341,14 +354,14 @@ namespace Extension.Utilities
                         continue;
                     }
                     // 检查最小距离
-                    if (spreadMin > 0)
+                    if (minSpread > 0)
                     {
-                        double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
-                        if (pTarget.InAir() && pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
+                        double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords(), fullAirspace);
+                        if (!fullAirspace && pTarget.InAir() && pTarget.Ref.Base.Base.WhatAmI() == AbstractType.Aircraft)
                         {
                             distance *= 0.5;
                         }
-                        if (distance < spreadMin * 256)
+                        if (distance < minSpread * 256)
                         {
                             continue;
                         }
@@ -367,7 +380,8 @@ namespace Extension.Utilities
         }
 
         // 搜索抛射体
-        public static void FindBulletOnMark(FoundAEM<BulletClass> func, CoordStruct location, double spreadMax, double spreadMin,
+        public static void FindBulletOnMark(FoundAEM<BulletClass> func, CoordStruct location,
+            double maxSpread, double minSpread, bool fullAirspace,
             Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
         {
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
@@ -375,14 +389,6 @@ namespace Extension.Utilities
             {
                 if (!pTarget.IsDeadOrInvisible() && pTarget.Convert<ObjectClass>() != exclude)
                 {
-                    if (spreadMin > 0)
-                    {
-                        double distance = location.DistanceFrom(pTarget.Ref.Base.Base.GetCoords());
-                        if (distance < spreadMin * 256)
-                        {
-                            return false;
-                        }
-                    }
                     // 可影响
                     if (data.CanAffectType(pTarget))
                     {
@@ -390,7 +396,7 @@ namespace Extension.Utilities
                     }
                 }
                 return false;
-            }, location, spreadMax, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+            }, location, maxSpread, minSpread, fullAirspace, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
             foreach (Pointer<BulletClass> pBullet in pBulletSet)
             {
                 if (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager, data))

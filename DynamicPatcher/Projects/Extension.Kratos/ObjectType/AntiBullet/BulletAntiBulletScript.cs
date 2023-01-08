@@ -56,7 +56,7 @@ namespace Extension.Script
                 BulletClass.Array.FindObject((pTarget) => {
                     CanAffectAndDamageBullet(pTarget, pWH);
                     return false;
-                }, location.Data, pWH.Ref.CellSpread, bulletStatus.pSourceHouse);
+                }, location.Data, pWH.Ref.CellSpread, 0, false, bulletStatus.pSourceHouse);
             }
             else
             {

@@ -24,6 +24,19 @@ namespace Extension.Utilities
             return new CoordStruct(vector3D.X, vector3D.Y, vector3D.Z);
         }
 
+        public static double DistanceFrom(this CoordStruct sourcePos, CoordStruct targetPos, bool fullAirspace)
+        {
+            if (fullAirspace)
+            {
+                CoordStruct tempSource = sourcePos;
+                CoordStruct tempTarget = targetPos;
+                tempSource.Z = 0;
+                tempTarget.Z = 0;
+                return tempSource.DistanceFrom(targetPos);
+            }
+            return sourcePos.DistanceFrom(targetPos);
+        }
+
         public static BulletVelocity ToBulletVelocity(this CoordStruct coord)
         {
             return new BulletVelocity(coord.X, coord.Y, coord.Z);

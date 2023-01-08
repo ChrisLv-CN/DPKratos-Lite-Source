@@ -128,7 +128,7 @@ namespace Extension.Script
                     count++;
                 }
                 return false;
-            }, default, 0, pTechno.Ref.Owner);
+            }, pTechno.Ref.Owner, true, false, false, false);
             return count;
         }
 

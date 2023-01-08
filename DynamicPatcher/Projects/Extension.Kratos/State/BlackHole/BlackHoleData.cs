@@ -31,11 +31,15 @@ namespace Extension.Ext
     public class BlackHoleEntity
     {
         public float Range;
+        public bool FullAirspace;
+
         public int Rate;
 
         public BlackHoleEntity()
         {
             this.Range = 0;
+            this.FullAirspace = false;
+
             this.Rate = 0;
         }
 
@@ -43,6 +47,8 @@ namespace Extension.Ext
         {
             BlackHoleEntity data = new BlackHoleEntity();
             data.Range = this.Range;
+            data.FullAirspace = this.FullAirspace;
+
             data.Rate = this.Rate;
             return data;
         }
@@ -50,6 +56,8 @@ namespace Extension.Ext
         public void Read(ISectionReader reader, string title)
         {
             this.Range = reader.Get(title + "Range", this.Range);
+            this.FullAirspace = reader.Get(title + "FullAirspace", this.FullAirspace);
+
             this.Rate = reader.Get(title + "Rate", this.Rate);
         }
     }

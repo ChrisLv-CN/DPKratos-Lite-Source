@@ -102,7 +102,7 @@ namespace Extension.Ext
                             bulletStatus.SetBlackHole(blackHoleExt, Data);
                         }
                         return false;
-                    }, location, data.Range, 0, pHouse, Data, pBlackHole);
+                    }, location, data.Range, 0, data.FullAirspace, pHouse, Data, pBlackHole);
                 }
                 if (Data.AffectTechno)
                 {
@@ -118,7 +118,7 @@ namespace Extension.Ext
                             targetStatus.SetBlackHole(blackHoleExt, Data);
                         }
                         return false;
-                    }, location, data.Range, 0, pHouse, Data, pBlackHole);
+                    }, location, data.Range, 0, data.FullAirspace, pHouse, Data, pBlackHole);
                 }
             }
         }
