@@ -1304,9 +1304,36 @@ namespace Extension.Script
                 WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
                 if (findTechno)
                 {
+                    double cellSpread = pWH.Ref.CellSpread;
+                    bool affectInAir = warheadTypeData.AffectInAir;
                     // 检索爆炸范围内的单位类型
-                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, pWH.Ref.CellSpread, warheadTypeData.AffectInAir, false);
-
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, cellSpread, affectInAir, false);
+                    // 检索爆炸范围内的替身
+                    if (warheadTypeData.AffectStand)
+                    {
+                        // 检索爆炸范围内的替身
+                        List<Pointer<TechnoClass>> pStandArray = new List<Pointer<TechnoClass>>();
+                        foreach(TechnoExt standExt in TechnoStatusScript.StandArray.Keys)
+                        {
+                            pStandArray.Add(standExt.OwnerObject);
+                        }
+                        // foreach(TechnoExt standExt in TechnoStatusScript.ImmuneStandArray.Keys)
+                        // {
+                        //     pStandArray.Add(standExt.OwnerObject);
+                        // }
+                        HashSet<Pointer<TechnoClass>> pStandList = new HashSet<Pointer<TechnoClass>>();
+                        // 过滤掉不在范围内的
+                        pStandArray.FindTechno((pTarget) =>
+                        {
+                            if (affectInAir || !pTarget.Ref.Base.Base.IsInAir())
+                            {
+                                pStandList.Add(pTarget);
+                            }
+                            return false;
+                        }, location, pWH.Ref.CellSpread);
+                        // 合并搜索到的单位和替身清单并去重
+                        pTechnoList = pTechnoList.Union(pStandList).ToList<Pointer<TechnoClass>>();
+                    }
                     // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                     foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                     {
@@ -1316,7 +1343,7 @@ namespace Extension.Script
                             continue;
                         }
                         // 过滤替身和虚单位
-                        if (pTarget.TryGetStatus(out var status) && (status.AmIStand() || status.VirtualUnit))
+                        if (!warheadTypeData.AffectStand && pTarget.TryGetStatus(out var status) && (status.AmIStand() || status.VirtualUnit))
                         {
                             continue;
                         }

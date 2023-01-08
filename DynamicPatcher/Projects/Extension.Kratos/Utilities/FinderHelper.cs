@@ -67,61 +67,128 @@ namespace Extension.Utilities
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true) where T : struct
         {
-            double maxRange = (maxSpread <= 0 ? 1 : maxSpread) * 256;
+            // 最大范围小于0，搜索全部，等于0，搜索1格范围
+            double maxRange = (maxSpread > 0 ? maxSpread : maxSpread == 0 ? 1 : 0) * 256;
             double minRange = (minSpread <= 0 ? 0 : minSpread) * 256;
             for (int i = array.Count - 1; i >= 0; i--)
             {
                 Pointer<T> pT = array.Get(i);
                 // 分离类型
                 Pointer<ObjectClass> pObject = pT.Convert<ObjectClass>();
-                if (!pObject.IsNull)
+                if (!pObject.IsNull && Hit(pObject, location, maxRange, minRange, fullAirspace, pHouse, owner, allied, enemies, civilian))
                 {
-                    bool inRange = maxSpread == 0 || default == location;
-                    if (!inRange)
+                    if (func(pT))
                     {
-                        CoordStruct targetLocation = pObject.Ref.Base.GetCoords();
-                        double distance = location.DistanceFrom(targetLocation, fullAirspace);
-                        if (!fullAirspace && pObject.Ref.Base.IsInAir() && pObject.Ref.Base.WhatAmI() == AbstractType.Aircraft)
-                        {
-                            distance *= 0.5;
-                        }
-                        inRange = distance >= minRange && distance <= maxRange;
-                    }
-                    if (inRange)
-                    {
-                        if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
-                        {
-                            Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
-                            if (!pHouse.IsNull && !pTargetHouse.IsNull
-                                && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
-                            {
-                                continue;
-                            }
-                        }
-                        else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet) && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate)
-                        {
-                            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                            if (!pHouse.IsNull && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
-                            {
-                                // 检查原始所属
-                                if ((pTargetHouse.IsCivilian() && !civilian)
-                                    || (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
-                                {
-                                    continue;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                        if (func(pT))
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
             }
+        }
+
+        private static bool Hit(Pointer<ObjectClass> pObject,
+            CoordStruct location, double maxRange, double minRange, bool fullAirspace,
+            Pointer<HouseClass> pHouse,
+            bool owner, bool allied, bool enemies, bool civilian)
+        {
+            bool inRange = maxRange == 0 || default == location;
+            CoordStruct targetLocation = inRange ? default : pObject.Ref.Base.GetCoords(); // 不检查距离就不用算
+            bool isInAir = false; // 全空域就不用算
+            AbstractType abstractType = default; // 全空域就不用算
+            if (!fullAirspace)
+            {
+                isInAir = pObject.Ref.Base.IsInAir();
+                abstractType = pObject.Ref.Base.WhatAmI();
+            }
+            if (inRange || InRange(location, targetLocation, maxRange, minRange, fullAirspace, isInAir, abstractType))
+            {
+                if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
+                    if (!pHouse.IsNull && !pTargetHouse.IsNull
+                        && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    {
+                        return false;
+                    }
+                }
+                else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet) && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate)
+                {
+                    Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
+                    if (!pHouse.IsNull && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
+                    {
+                        // 检查原始所属
+                        if ((pTargetHouse.IsCivilian() && !civilian)
+                            || (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        private static bool InRange(CoordStruct location, CoordStruct targetLocation, double maxRange, double minRange, bool fullAirspace, bool isInAir, AbstractType abstractType)
+        {
+            double distance = location.DistanceFrom(targetLocation, fullAirspace);
+            if (!fullAirspace && isInAir && abstractType == AbstractType.Aircraft)
+            {
+                distance *= 0.5;
+            }
+            return distance >= minRange && distance <= maxRange;
+        }
+
+        public static void FindTechno(this List<Pointer<TechnoClass>> array, Found<TechnoClass> func,
+            CoordStruct location, double maxSpread, double minSpread = 0, bool fullAirspace = false,
+            Pointer<HouseClass> pHouse = default,
+            bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
+        {
+            // 最大范围小于0，搜索全部，等于0，搜索1格范围
+            double maxRange = (maxSpread > 0 ? maxSpread : maxSpread == 0 ? 1 : 0) * 256;
+            double minRange = (minSpread <= 0 ? 0 : minSpread) * 256;
+            for (int i = array.Count - 1; i >= 0; i--)
+            {
+                Pointer<TechnoClass> pTarget = array[i];
+                // 分离类型
+                if (!pTarget.IsDeadOrInvisible() && Hit(pTarget, location, maxRange, minRange, fullAirspace, pHouse, owner, allied, enemies, civilian))
+                {
+                    if (func(pTarget))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        private static bool Hit(Pointer<TechnoClass> pTechno,
+            CoordStruct location, double maxRange, double minRange, bool fullAirspace,
+            Pointer<HouseClass> pHouse,
+            bool owner, bool allied, bool enemies, bool civilian)
+        {
+            bool inRange = maxRange == 0 || default == location;
+            CoordStruct targetLocation = inRange ? default : pTechno.Ref.Base.Base.GetCoords(); // 不检查距离就不用算
+            bool isInAir = false; // 全空域就不用算
+            AbstractType abstractType = default; // 全空域就不用算
+            if (!fullAirspace)
+            {
+                isInAir = pTechno.Ref.Base.Base.IsInAir();
+                abstractType = pTechno.Ref.Base.Base.WhatAmI();
+            }
+            if (inRange || InRange(location, targetLocation, maxRange, minRange, fullAirspace, isInAir, abstractType))
+            {
+                Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
+                if (!pHouse.IsNull && !pTargetHouse.IsNull
+                    && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
         }
 
         public static void FindFoot(Found<FootClass> func,
