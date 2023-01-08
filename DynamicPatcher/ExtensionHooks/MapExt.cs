@@ -473,7 +473,7 @@ namespace ExtensionHooks
                         }
                         return found;
                     });
-                    if (!found && CombatDamage.Data.AllowJumpjetAsBaseNormarl)
+                    if (!found && CombatDamage.Data.AllowJumpjetAsBaseNormal)
                     {
                         // 检查JJ，移动中的JJ不在这里
                         if (!pCell.Ref.Jumpjet.IsNull)
