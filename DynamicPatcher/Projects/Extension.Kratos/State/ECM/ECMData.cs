@@ -32,49 +32,29 @@ namespace Extension.Ext
     {
         public const string TITLE = "ECM.";
 
-        public double Chance; // 发生弹跳的概率
+        public double Range; // 搜索新目标的范围
+        public double Chance; // 发生的概率
 
-        public double Elasticity; // 弹性衰减系数
-        public int Limit; // 衰减后，可以跳的距离
-        public int Times; // 跳几次
-        public bool ExplodeOnHit; // 命中时是否爆炸
-        public string ExpireAnim; // 命中时播放动画
+        public bool AroundSelf; // 围绕自己搜索
 
-        public string Weapon; // 跳弹发生时使用自定义武器
+        public double ToTechnoChance; // 新目标是单位的概率
+        public bool ForceRetarget; // 一定重置目标
 
-        public bool OnWater; // 打水漂
-        public LandType[] OnLands;
-        public TileType[] OnTiles;
-
-        public bool StopOnBuilding;
-        public bool ReboundOnBuilding;
-        public bool StopOnInfantry;
-        public bool ReboundOnInfantry;
-        public bool StopOnUnit;
-        public bool ReboundOnUnit;
+        public int Rate;
+        public int TriggeredTimes;
 
         public ECMData()
         {
-            this.Chance = 0;
+            this.Range = 0;
+            this.Chance = 1;
 
-            this.Elasticity = 0.5;
-            this.Limit = 128;
-            this.Times = -1;
-            this.ExplodeOnHit = true;
-            this.ExpireAnim = null;
+            this.AroundSelf = false;
 
-            this.Weapon = null;
+            this.ToTechnoChance = 0;
+            this.ForceRetarget = false;
 
-            this.OnWater = false;
-            this.OnLands = null;
-            this.OnTiles = null;
-
-            this.StopOnBuilding = true;
-            this.ReboundOnBuilding = true;
-            this.StopOnInfantry = false;
-            this.ReboundOnInfantry = false;
-            this.StopOnUnit = true;
-            this.ReboundOnUnit = false;
+            this.Rate = 15;
+            this.TriggeredTimes = 1;
 
             this.AffectTechno = false;
         }
@@ -83,82 +63,18 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
+            this.Range = reader.Get(TITLE + "Range", this.Range);
             this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
-            this.Elasticity = reader.GetPercent(TITLE + "Elasticity", this.Elasticity);
-            this.Enable = Chance > 0 && Elasticity > 0;
-            if (Enable)
-            {
-                Enable = AffectBullet && AffectCannon;
-            }
 
-            this.Limit = reader.Get(TITLE + "Limit", this.Limit);
-            this.Times = reader.Get(TITLE + "Times", this.Times);
-            this.ExplodeOnHit = reader.Get(TITLE + "ExplodeOnHit", this.ExplodeOnHit);
-            this.ExpireAnim = reader.Get(TITLE + "ExpireAnim", this.ExpireAnim);
-            this.ExpireAnim = reader.Get(TITLE + "ExpireAnim", this.ExpireAnim);
+            this.AroundSelf = reader.Get(TITLE + "AroundSelf", this.AroundSelf);
 
-            this.Weapon = reader.Get(TITLE + "Weapon", this.Weapon);
+            this.ToTechnoChance = reader.GetChance(TITLE + "ToTechnoChance", this.ToTechnoChance);
+            this.ForceRetarget = reader.Get(TITLE + "ForceRetarget", this.ForceRetarget);
 
-            this.OnWater = reader.Get(TITLE + "OnWater", this.OnWater);
-            this.OnLands = reader.GetList<LandType>(TITLE + "OnLands", this.OnLands);
-            this.OnTiles = reader.GetList<TileType>(TITLE + "OnTiles", this.OnTiles);
+            this.Rate = reader.Get(TITLE + "Rate", this.Rate);
+            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
 
-            this.StopOnBuilding = reader.Get(TITLE + "StopOnBuilding", this.StopOnBuilding);
-            this.ReboundOnBuilding = reader.Get(TITLE + "ReboundOnBuilding", this.ReboundOnBuilding);
-            this.StopOnInfantry = reader.Get(TITLE + "StopOnInfantry", this.StopOnInfantry);
-            this.ReboundOnInfantry = reader.Get(TITLE + "ReboundOnInfantry", this.ReboundOnInfantry);
-            this.StopOnUnit = reader.Get(TITLE + "StopOnUnit", this.StopOnUnit);
-            this.ReboundOnUnit = reader.Get(TITLE + "ReboundOnUnit", this.ReboundOnUnit);
-        }
-
-        public bool IsOnLandType(Pointer<CellClass> pCell, out LandType landType)
-        {
-            landType = pCell.Ref.LandType;
-            if (null != OnLands && OnLands.Any())
-            {
-                return OnLands.Contains(landType);
-            }
-            return OnWater || landType != LandType.Water;
-        }
-
-        public bool IsOnTileType(Pointer<CellClass> pCell, out TileType tileType)
-        {
-            tileType = pCell.Ref.GetTileType();
-            if (null != OnTiles && OnTiles.Any())
-            {
-                return OnTiles.Contains(tileType);
-            }
-            return OnWater || tileType != TileType.Water;
-        }
-
-        public bool Stop(Pointer<CellClass> pCell, out bool rebound)
-        {
-            bool stop = false;
-            rebound = false;
-            Pointer<ObjectClass> pObject = pCell.Ref.GetContent();
-            do
-            {
-                if (!pObject.IsNull && pObject.CastToTechno(out Pointer<TechnoClass> pTarget))
-                {
-                    switch(pTarget.Ref.Base.Base.WhatAmI())
-                    {
-                        case AbstractType.Building:
-                            stop = StopOnBuilding;
-                            rebound = ReboundOnBuilding;
-                            break;
-                        case AbstractType.Infantry:
-                            stop = StopOnInfantry;
-                            rebound = ReboundOnInfantry;
-                            break;
-                        case AbstractType.Unit:
-                            stop = StopOnUnit;
-                            rebound = ReboundOnUnit;
-                            break;
-                    }
-                }
-            }
-            while (!stop && !pObject.IsNull && !(pObject = pObject.Ref.NextObject).IsNull);
-            return stop;
+            this.Enable = Range > 0 && Chance > 0 && TriggeredTimes != 0;
         }
 
     }

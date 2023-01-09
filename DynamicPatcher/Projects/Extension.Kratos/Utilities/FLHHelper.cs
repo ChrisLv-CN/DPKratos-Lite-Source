@@ -317,6 +317,32 @@ namespace Extension.Utilities
         }
         #endregion
 
+        #region 范围内的随机坐标偏移
+        /// <summary>
+        /// 最小1格范围内的随机偏移坐标
+        /// </summary>
+        /// <param name="cellSpread"></param>
+        /// <returns></returns>
+        public static CoordStruct RandomOffset(double cellSpread)
+        {
+            int min = 0;
+            int max = (int)((cellSpread > 0 ? cellSpread : 1) * 256);
+            return RandomOffset(min, max);
+        }
+
+        public static CoordStruct RandomOffset(int min, int max)
+        {
+            double r = MathEx.Random.Next(min, max);
+            if (r > 0)
+            {
+                double theta = MathEx.Random.NextDouble() * 2 * Math.PI;
+                CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
+                return offset;
+            }
+            return default;
+        }
+        #endregion
+
         #region 计算朝向
         public static DirStruct DirNormalized(int index, int facing)
         {

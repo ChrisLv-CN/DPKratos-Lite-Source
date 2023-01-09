@@ -101,11 +101,8 @@ namespace Extension.Utilities
                 min = max;
                 max = temp;
             }
-            // 随机
-            double r = MathEx.Random.Next(min, max);
-            var theta = MathEx.Random.NextDouble() * 2 * Math.PI;
-            CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
-            return offset;
+            // 随机偏移
+            return FLHHelper.RandomOffset(min, max);
         }
 
         public static unsafe void FireWeaponTo(Pointer<TechnoClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
