@@ -55,8 +55,6 @@ namespace Extension.Ext
 
             this.Rate = 15;
             this.TriggeredTimes = 1;
-
-            this.AffectTechno = false;
         }
 
         public override void Read(IConfigReader reader)
