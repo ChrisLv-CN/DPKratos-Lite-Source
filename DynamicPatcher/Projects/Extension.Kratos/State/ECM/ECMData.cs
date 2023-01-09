@@ -41,8 +41,8 @@ namespace Extension.Ext
         public int LockDuration; // 锁定时间
         public bool Feedback; // 反噬
 
-        public bool AroundSelf; // 围绕自己搜索
         public bool AroundSource; // 围绕来源搜索
+        public bool AroundSelf; // 围绕自己搜索
 
         public double ToTechnoChance; // 新目标是单位的概率
         public bool ForceRetarget; // 一定重置目标
@@ -62,8 +62,8 @@ namespace Extension.Ext
             this.LockDuration = 0;
             this.Feedback = false;
 
-            this.AroundSelf = true;
             this.AroundSource = true;
+            this.AroundSelf = true;
 
             this.ToTechnoChance = 0;
             this.ForceRetarget = false;
@@ -90,8 +90,8 @@ namespace Extension.Ext
             this.LockDuration = reader.Get(TITLE + "LockDuration", this.LockDuration);
             this.Feedback = reader.Get(TITLE + "Feedback", this.Feedback);
 
-            this.AroundSelf = reader.Get(TITLE + "AroundSelf", this.AroundSelf);
             this.AroundSource = reader.Get(TITLE + "AroundSource", this.AroundSource);
+            this.AroundSelf = reader.Get(TITLE + "AroundSelf", this.AroundSelf);
 
             this.ToTechnoChance = reader.GetChance(TITLE + "ToTechnoChance", this.ToTechnoChance);
             this.ForceRetarget = reader.Get(TITLE + "ForceRetarget", this.ForceRetarget);

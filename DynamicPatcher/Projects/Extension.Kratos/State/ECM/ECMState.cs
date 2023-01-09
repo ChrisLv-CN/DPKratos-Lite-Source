@@ -24,16 +24,19 @@ namespace Extension.Ext
         public override void OnEnable()
         {
             this.count = 0;
-            if (null != AE && !AE.pSource.IsNull)
+            this.SourceLocation = default;
+            if (null != AE)
             {
-                SourceLocation = AE.pSource.Ref.Base.Base.GetCoords();
-                this.HasSourceLocation = true;
+                if (AE.FromWarhead)
+                {
+                    this.SourceLocation = AE.WarheadLocation;
+                }
+                else if (!AE.pSource.IsNull)
+                {
+                    this.SourceLocation = AE.pSource.Ref.Base.Base.GetCoords();
+                }
             }
-            else
-            {
-                SourceLocation = default;
-                this.HasSourceLocation = false;
-            }
+            this.HasSourceLocation = default != SourceLocation;
         }
 
         public void Reload()
