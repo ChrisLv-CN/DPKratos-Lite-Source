@@ -22,6 +22,26 @@ namespace Extension.Script
 
         public BulletStatusScript(BulletExt owner) : base(owner) { }
 
+        private TechnoExt _sourceExt;
+        public Pointer<TechnoClass> pSource
+        {
+            set
+            {
+                if (!value.IsNull)
+                {
+                    _sourceExt = TechnoExt.ExtMap.Find(value);
+                }
+            }
+            get
+            {
+                if (null != _sourceExt)
+                {
+                    return _sourceExt.OwnerObject;
+                }
+                return pBullet.Ref.Owner;
+            }
+        }
+
         private HouseExt _sourceHouse;
         public Pointer<HouseClass> pSourceHouse
         {
@@ -127,10 +147,15 @@ namespace Extension.Script
         {
             // Logger.Log($"{Game.CurrentFrame} + Bullet 全局主程，记录下抛射体的所属");
             Pointer<TechnoClass> pShooter = pBullet.Ref.Owner;
-            Pointer<HouseClass> pShooterHouse = IntPtr.Zero;
-            if (!pShooter.IsNull && !(pShooterHouse = pShooter.Ref.Owner).IsNull)
+            if (!pShooter.IsNull)
             {
-                pSourceHouse = pShooterHouse;
+                pSource = pShooter;
+
+                Pointer<HouseClass> pShooterHouse = IntPtr.Zero;
+                if (!(pShooterHouse = pShooter.Ref.Owner).IsNull)
+                {
+                    pSourceHouse = pShooterHouse;
+                }
             }
 
             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);

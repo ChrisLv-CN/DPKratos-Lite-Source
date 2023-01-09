@@ -38,6 +38,9 @@ namespace Extension.Ext
 
         public double Chance; // 发生的概率
 
+        public int LockDuration; // 锁定时间
+        public bool Feedback; // 反噬
+
         public bool AroundSelf; // 围绕自己搜索
         public bool AroundSource; // 围绕来源搜索
 
@@ -55,6 +58,9 @@ namespace Extension.Ext
             this.FullAirspace = false;
 
             this.Chance = 1;
+
+            this.LockDuration = 0;
+            this.Feedback = false;
 
             this.AroundSelf = true;
             this.AroundSource = true;
@@ -80,6 +86,9 @@ namespace Extension.Ext
             this.FullAirspace = reader.Get(TITLE + "FullAirspace", this.FullAirspace);
 
             this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
+
+            this.LockDuration = reader.Get(TITLE + "LockDuration", this.LockDuration);
+            this.Feedback = reader.Get(TITLE + "Feedback", this.Feedback);
 
             this.AroundSelf = reader.Get(TITLE + "AroundSelf", this.AroundSelf);
             this.AroundSource = reader.Get(TITLE + "AroundSource", this.AroundSource);
