@@ -321,20 +321,23 @@ namespace Extension.Utilities
         /// <summary>
         /// 最小1格范围内的随机偏移坐标
         /// </summary>
-        /// <param name="cellSpread"></param>
+        /// <param name="maxSpread"></param>
+        /// <param name="minSpread"></param>
         /// <returns></returns>
-        public static CoordStruct RandomOffset(double cellSpread)
+        public static CoordStruct RandomOffset(double maxSpread, double minSpread = 0)
         {
-            int min = 0;
-            int max = (int)((cellSpread > 0 ? cellSpread : 1) * 256);
+            int min = (int)((minSpread <= 0 ? 0 : minSpread) * 256);
+            int max = (int)((maxSpread > 0 ? maxSpread : 1) * 256);
             return RandomOffset(min, max);
         }
 
         public static CoordStruct RandomOffset(int min, int max)
         {
+            // 随机半径
             double r = MathEx.Random.Next(min, max);
             if (r > 0)
             {
+                // 随机角度
                 double theta = MathEx.Random.NextDouble() * 2 * Math.PI;
                 CoordStruct offset = new CoordStruct((int)(r * Math.Cos(theta)), (int)(r * Math.Sin(theta)), 0);
                 return offset;

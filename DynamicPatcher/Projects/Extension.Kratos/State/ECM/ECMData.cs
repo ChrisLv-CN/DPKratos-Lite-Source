@@ -32,10 +32,14 @@ namespace Extension.Ext
     {
         public const string TITLE = "ECM.";
 
-        public double Range; // 搜索新目标的范围
+        public double RangeMin; // 搜索新目标的范围
+        public double RangeMax; // 搜索新目标的范围
+        public bool FullAirspace; // 圆柱形搜索
+
         public double Chance; // 发生的概率
 
         public bool AroundSelf; // 围绕自己搜索
+        public bool AroundSource; // 围绕来源搜索
 
         public double ToTechnoChance; // 新目标是单位的概率
         public bool ForceRetarget; // 一定重置目标
@@ -46,10 +50,14 @@ namespace Extension.Ext
 
         public ECMData()
         {
-            this.Range = 0;
+            this.RangeMin = 0;
+            this.RangeMax = 0;
+            this.FullAirspace = false;
+
             this.Chance = 1;
 
-            this.AroundSelf = false;
+            this.AroundSelf = true;
+            this.AroundSource = true;
 
             this.ToTechnoChance = 0;
             this.ForceRetarget = false;
@@ -63,10 +71,18 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            this.Range = reader.Get(TITLE + "Range", this.Range);
+            this.RangeMin = reader.Get(TITLE + "RangeMin", this.RangeMin);
+            this.RangeMax = reader.Get(TITLE + "RangeMax", this.RangeMax);
+            if (RangeMin > RangeMax)
+            {
+                this.RangeMin = 0;
+            }
+            this.FullAirspace = reader.Get(TITLE + "FullAirspace", this.FullAirspace);
+
             this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
 
             this.AroundSelf = reader.Get(TITLE + "AroundSelf", this.AroundSelf);
+            this.AroundSource = reader.Get(TITLE + "AroundSource", this.AroundSource);
 
             this.ToTechnoChance = reader.GetChance(TITLE + "ToTechnoChance", this.ToTechnoChance);
             this.ForceRetarget = reader.Get(TITLE + "ForceRetarget", this.ForceRetarget);
@@ -75,7 +91,7 @@ namespace Extension.Ext
             this.Rate = reader.Get(TITLE + "Rate", this.Rate);
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
 
-            this.Enable = Range > 0 && Chance > 0 && TriggeredTimes != 0;
+            this.Enable = RangeMax > 0 && Chance > 0 && TriggeredTimes != 0;
         }
 
     }

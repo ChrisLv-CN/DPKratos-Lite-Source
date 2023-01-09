@@ -44,12 +44,19 @@ namespace Extension.Script
                     Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
                     // 确定搜索的圆心
                     CoordStruct location = default;
-                    if (data.AroundSelf)
+                    if (data.AroundSource && ECMState.HasSourceLocation)
                     {
+                        // 以来源为圆心
+                        location = ECMState.SourceLocation;
+                    }
+                    else if (data.AroundSelf)
+                    {
+                        // 以自己为圆心
                         location = pBullet.Ref.Base.Base.GetCoords();
                     }
                     else
                     {
+                        // 以原始目标为圆心
                         if (!pTarget.IsNull)
                         {
                             location = pTarget.Ref.GetCoords();
@@ -73,7 +80,7 @@ namespace Extension.Script
                         FinderHelper.FindTechnoOnMark((pTarget, AEManger) => {
                             targetList.Add(pTarget);
                             return false;
-                        }, location, data.Range, 0, false, pSourceHouse, data, pExclude);
+                        }, location, data.RangeMax, data.RangeMin, data.FullAirspace, pSourceHouse, data, pExclude);
                         int count = targetList.Count();
                         if (count > 0)
                         {
@@ -99,7 +106,7 @@ namespace Extension.Script
                     {
                         // 随机搜索附近的一个地面作为新目标
                         CoordStruct targetPos = location;
-                        targetPos += FLHHelper.RandomOffset(data.Range);
+                        targetPos += FLHHelper.RandomOffset(data.RangeMax, data.RangeMin);
                         // 将偏移后的坐标对应的格子，设置为新的目标
                         if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell))
                         {

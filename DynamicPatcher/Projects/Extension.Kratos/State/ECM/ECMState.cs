@@ -14,6 +14,8 @@ namespace Extension.Ext
     [Serializable]
     public class ECMState : State<ECMData>
     {
+        public bool HasSourceLocation;
+        public CoordStruct SourceLocation;
 
         private int count;
         private int delay;
@@ -22,6 +24,16 @@ namespace Extension.Ext
         public override void OnEnable()
         {
             this.count = 0;
+            if (null != AE && !AE.pSource.IsNull)
+            {
+                SourceLocation = AE.pSource.Ref.Base.Base.GetCoords();
+                this.HasSourceLocation = true;
+            }
+            else
+            {
+                SourceLocation = default;
+                this.HasSourceLocation = false;
+            }
         }
 
         public void Reload()
