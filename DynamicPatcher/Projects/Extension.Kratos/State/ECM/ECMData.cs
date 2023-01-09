@@ -39,6 +39,7 @@ namespace Extension.Ext
 
         public double ToTechnoChance; // 新目标是单位的概率
         public bool ForceRetarget; // 一定重置目标
+        public bool NoOwner; // 清除抛射体的发射者
 
         public int Rate;
         public int TriggeredTimes;
@@ -52,6 +53,7 @@ namespace Extension.Ext
 
             this.ToTechnoChance = 0;
             this.ForceRetarget = false;
+            this.NoOwner = false;
 
             this.Rate = 15;
             this.TriggeredTimes = 1;
@@ -68,6 +70,7 @@ namespace Extension.Ext
 
             this.ToTechnoChance = reader.GetChance(TITLE + "ToTechnoChance", this.ToTechnoChance);
             this.ForceRetarget = reader.Get(TITLE + "ForceRetarget", this.ForceRetarget);
+            this.NoOwner = reader.Get(TITLE + "NoOwner", this.NoOwner);
 
             this.Rate = reader.Get(TITLE + "Rate", this.Rate);
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);

@@ -79,6 +79,7 @@ namespace Extension.Script
             InitDeselect(); // state AffectWho
             InitDestroyAnim();
             InitDisableWeapon(); // state AffectWho
+            InitECM();
             InitExtraFire(); // state AffectWho
             InitFreeze(); // state AffecctWho
             InitFireSuper(); // state AffectWho

@@ -139,6 +139,7 @@ namespace Extension.Ext
             ReadDestroySelfData(reader);
             ReadDeselectData(reader);
             ReadDisableWeaponData(reader);
+            ReadECMData(reader);
             ReadExtraFireData(reader);
             ReadFireSuperData(reader);
             ReadFreezeData(reader);

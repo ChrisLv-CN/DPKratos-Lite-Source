@@ -83,6 +83,10 @@ namespace Extension.Script
                             Pointer<AbstractClass> pNewTarget = targetList[i].Convert<AbstractClass>();
                             pBullet.Ref.SetTarget(pNewTarget);
                             pBullet.Ref.TargetCoords = pNewTarget.Ref.GetCoords();
+                            if (data.NoOwner)
+                            {
+                                pBullet.Ref.Owner = IntPtr.Zero;
+                            }
                         }
                         else
                         {
@@ -101,6 +105,10 @@ namespace Extension.Script
                         {
                             pBullet.Ref.SetTarget(pCell.Convert<AbstractClass>());
                             pBullet.Ref.TargetCoords = pCell.Ref.GetCoordsWithBridge();
+                            if (data.NoOwner)
+                            {
+                                pBullet.Ref.Owner = IntPtr.Zero;
+                            }
                         }
                     }
                 }
