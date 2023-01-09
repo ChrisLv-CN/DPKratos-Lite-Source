@@ -100,14 +100,16 @@ namespace Extension.Ext
 
             BroadcastEntity data = new BroadcastEntity();
             data.Read(reader, title);
-            if (null != data.Types && data.Types.Length > 0)
+            // 0时关闭，-1全地图
+            if (null != data.Types && data.Types.Length > 0 && data.RangeMax != 0)
             {
                 this.Data = data;
             }
 
             BroadcastEntity elite = null != this.Data ? Data.Clone() : new BroadcastEntity();
             elite.Read(reader, title + "Elite");
-            if (null != elite.Types && elite.Types.Length > 0)
+            // 0时关闭，-1全地图
+            if (null != elite.Types && elite.Types.Length > 0 && elite.RangeMax != 0)
             {
                 this.EliteData = elite;
             }

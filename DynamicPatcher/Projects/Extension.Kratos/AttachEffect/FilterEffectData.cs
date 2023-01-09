@@ -99,8 +99,12 @@ namespace Extension.Ext
             this.AffectInAir = reader.Get(title + "AffectInAir", this.AffectInAir);
             this.OnlyAffectMarks = reader.GetList(title + "OnlyAffectMarks", this.OnlyAffectMarks);
 
-            this.AffectsOwner = reader.Get(title + "AffectsOwner", this.AffectsOwner);
             this.AffectsAllies = reader.Get(title + "AffectsAllies", this.AffectsAllies);
+            if (AffectsAllies)
+            {
+                this.AffectsOwner = true;
+            }
+            this.AffectsOwner = reader.Get(title + "AffectsOwner", this.AffectsOwner);
             this.AffectsEnemies = reader.Get(title + "AffectsEnemies", this.AffectsEnemies);
             this.AffectsCivilian = reader.Get(title + "AffectsCivilian", this.AffectsCivilian);
         }

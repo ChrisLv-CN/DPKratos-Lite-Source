@@ -80,7 +80,7 @@ namespace Extension.Ext
             Pointer<ObjectClass> pBlackHole = blackHoleExt.OwnerObject;
             this.isElite = pBlackHole.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.Ref.Veterancy.IsElite();
             BlackHoleEntity data = GetData();
-            if (!Data.DontScan && null != data && data.Range > 0)
+            if (!Data.DontScan && null != data && data.Range != 0)
             {
                 Reload(data.Rate);
                 // 检查平民
@@ -126,7 +126,7 @@ namespace Extension.Ext
         public bool IsOutOfRange(double distance)
         {
             BlackHoleEntity data = GetData();
-            return null == data || data.Range <= 0 || distance > data.Range * 256;
+            return null == data || data.Range == 0 || (data.Range > 0 && distance > data.Range * 256);
         }
 
         public bool IsOnMark(Pointer<BulletClass> pTarget)

@@ -284,7 +284,7 @@ namespace Extension.Script
                 && state.Data.CaptureFromWarhead && state.Data.CanAffectType(pTechno) && state.IsOnMark(pTechno))
             {
                 BlackHoleEntity data = state.GetData();
-                if (null != data && data.Range > 0)
+                if (null != data && data.Range != 0)
                 {
                     CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                     CoordStruct targetPos = pAttacker.Ref.Base.GetCoords();

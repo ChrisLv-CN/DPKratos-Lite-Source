@@ -147,14 +147,16 @@ namespace Extension.Ext
 
             BlackHoleEntity data = new BlackHoleEntity();
             data.Read(reader, TITLE);
-            if (data.Range > 0)
+            // 0时关闭，-1全地图
+            if (data.Range != 0)
             {
                 this.Data = data;
             }
 
             BlackHoleEntity elite = null != this.Data ? Data.Clone() : new BlackHoleEntity();
             elite.Read(reader, TITLE + "Elite");
-            if (elite.Range > 0)
+            // 0时关闭，-1全地图
+            if (elite.Range != 0)
             {
                 this.EliteData = elite;
             }
