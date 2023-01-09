@@ -1380,7 +1380,7 @@ namespace Extension.Script
                                 // 赋予AE
                                 if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                                 {
-                                    aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true);
+                                    aeManager.Attach(aeTypeData, pAttacker, pAttackingHouse, true, location);
                                 }
                             }
                         }
