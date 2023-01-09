@@ -23,7 +23,7 @@ namespace Extension.Script
 
         public void ResetArcingVelocity(float speedMultiple = 1f)
         {
-            if (!arcingTrajectoryInitFlag)
+            if (!arcingTrajectoryInitFlag && trajectoryData.AdvancedBallistics)
             {
                 arcingTrajectoryInitFlag = true;
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
@@ -44,6 +44,10 @@ namespace Extension.Script
                 }
                 int speed = (int)(pBullet.Ref.Speed * speedMultiple);
                 int gravity = RulesClass.Global().Gravity;
+                if (trajectoryData.Gravity > 0)
+                {
+                    gravity = trajectoryData.Gravity;
+                }
                 bool lobber = !pBullet.Ref.WeaponType.IsNull ? pBullet.Ref.WeaponType.Ref.Lobber : false;
                 bool inaccurate = trajectoryData.Inaccurate;
                 float min = trajectoryData.BallisticScatterMin;

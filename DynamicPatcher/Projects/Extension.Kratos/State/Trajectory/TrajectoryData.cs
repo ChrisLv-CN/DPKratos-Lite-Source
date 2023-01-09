@@ -55,6 +55,7 @@ namespace Extension.Ext
         public float BallisticScatterMin = 0;
         [INIField(Key = "BallisticScatter.Max")]
         public float BallisticScatterMax = 0;
+        public int Gravity = RulesClass.Global().Gravity;
 
         // Straight
         public bool Straight = false;
