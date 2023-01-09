@@ -179,8 +179,15 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_Proximity();
                 // 弹道初始化
-                InitState_Trajectory_Missile();
-                InitState_Trajectory_Straight();
+                if (isMissile)
+                {
+                    InitState_Trajectory_Missile();
+                }
+                else if (isRocket)
+                {
+                    InitState_Trajectory_Straight();
+                }
+                Logger.Log($"{Game.CurrentFrame} 发射抛射体[{section}]{pBullet} 类型是 {bulletType}");
             }
             Pointer<AbstractClass> pTarget = IntPtr.Zero;
             if (isMissile && !(pTarget = pBullet.Ref.Target).IsNull && pTarget.Ref.WhatAmI() == AbstractType.Aircraft)
@@ -206,7 +213,7 @@ namespace Extension.Script
                 OnUpdate_Trajectory_Arcing();
                 OnUpdate_Trajectory_Bounce();
             }
-            else
+            else if (isRocket)
             {
                 OnUpdate_Trajectory_Straight();
             }

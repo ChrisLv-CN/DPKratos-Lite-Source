@@ -40,10 +40,23 @@ namespace Extension.Script
             }
         }
 
-        private bool isBuilding;
-        private bool isInfantry;
-        private bool isUnit;
-        private bool isAircraft;
+        private AbstractType _absType;
+        private AbstractType absType
+        {
+            get
+            {
+                if (default == _absType)
+                {
+                    _absType = pTechno.Ref.Base.Base.WhatAmI();
+                }
+                return _absType;
+            }
+        }
+
+        private bool isBuilding => absType == AbstractType.Building;
+        private bool isInfantry => absType == AbstractType.Infantry;
+        private bool isUnit => absType == AbstractType.Unit;
+        private bool isAircraft => absType == AbstractType.Aircraft;
 
         private bool isVoxel;
         private bool isFearless;
@@ -105,22 +118,9 @@ namespace Extension.Script
             Awake_Transform();
 
             this.VoxelShadowScaleInAir = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual).Get("VoxelShadowScaleInAir", 2f);
-            this.isBuilding = pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building;
-            switch (pTechno.Ref.Base.Base.WhatAmI())
+            if (isInfantry)
             {
-                case AbstractType.Building:
-                    isBuilding = true;
-                    break;
-                case AbstractType.Infantry:
-                    isInfantry = true;
-                    isFearless = pTechno.Convert<InfantryClass>().Ref.Type.Ref.Fearless;
-                    break;
-                case AbstractType.Unit:
-                    isUnit = true;
-                    break;
-                case AbstractType.Aircraft:
-                    isAircraft = true;
-                    break;
+                isFearless = pTechno.Convert<InfantryClass>().Ref.Type.Ref.Fearless;
             }
             isVoxel = pTechno.Ref.IsVoxel();
         }

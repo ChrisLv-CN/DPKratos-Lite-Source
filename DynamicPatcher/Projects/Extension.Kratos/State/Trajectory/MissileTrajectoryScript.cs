@@ -33,40 +33,37 @@ namespace Extension.Script
 
         public void InitState_Trajectory_Missile()
         {
-            if (isMissile)
+            // 高抛导弹
+            if (!pBullet.Ref.WeaponType.IsNull && pBullet.Ref.WeaponType.Ref.Lobber)
             {
-                // 高抛导弹
-                if (!pBullet.Ref.WeaponType.IsNull && pBullet.Ref.WeaponType.Ref.Lobber)
+                if (pBullet.Ref.Velocity.Z < 0)
                 {
-                    if (pBullet.Ref.Velocity.Z < 0)
-                    {
-                        pBullet.Ref.Velocity.Z *= -1;
-                    }
-                    pBullet.Ref.Velocity.Z += RulesClass.Global().Gravity;
+                    pBullet.Ref.Velocity.Z *= -1;
                 }
+                pBullet.Ref.Velocity.Z += RulesClass.Global().Gravity;
+            }
 
-                // 翻转发射方向
-                if (trajectoryData.ReverseVelocity)
+            // 翻转发射方向
+            if (trajectoryData.ReverseVelocity)
+            {
+                BulletVelocity velocity = pBullet.Ref.Velocity;
+                pBullet.Ref.Velocity *= -1;
+                if (!trajectoryData.ReverseVelocityZ)
                 {
-                    BulletVelocity velocity = pBullet.Ref.Velocity;
-                    pBullet.Ref.Velocity *= -1;
-                    if (!trajectoryData.ReverseVelocityZ)
-                    {
-                        pBullet.Ref.Velocity.Z = velocity.Z;
-                    }
+                    pBullet.Ref.Velocity.Z = velocity.Z;
                 }
+            }
 
-                // 晃动的出膛方向
-                if (trajectoryData.ShakeVelocity != 0)
-                {
-                    BulletVelocity velocity = pBullet.Ref.Velocity;
-                    double shakeX = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
-                    double shakeY = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
-                    double shakeZ = MathEx.Random.NextDouble();
-                    pBullet.Ref.Velocity.X *= shakeX;
-                    pBullet.Ref.Velocity.Y *= shakeY;
-                    pBullet.Ref.Velocity.Z *= shakeZ;
-                }
+            // 晃动的出膛方向
+            if (trajectoryData.ShakeVelocity != 0)
+            {
+                BulletVelocity velocity = pBullet.Ref.Velocity;
+                double shakeX = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
+                double shakeY = MathEx.Random.NextDouble() * trajectoryData.ShakeVelocity;
+                double shakeZ = MathEx.Random.NextDouble();
+                pBullet.Ref.Velocity.X *= shakeX;
+                pBullet.Ref.Velocity.Y *= shakeY;
+                pBullet.Ref.Velocity.Z *= shakeZ;
             }
         }
 
