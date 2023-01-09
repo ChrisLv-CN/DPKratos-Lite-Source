@@ -140,17 +140,23 @@ namespace Extension.Ext
         {
             if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
             {
-                if (pBullet.AmIArcing())
+                BulletType bulletType = pBullet.WhatTypeAmI();
+                switch(bulletType)
                 {
-                    return AffectCannon;
-                }
-                else
-                {
-                    if (pBullet.Ref.Type.Ref.Level)
-                    {
-                        return AffectTorpedo;
-                    }
-                    return AffectMissile;
+                    case BulletType.INVISO:
+                        return true;
+                    case BulletType.ARCING:
+                        return AffectCannon;
+                    case BulletType.BOMB:
+                        return AffectBomb;
+                    case BulletType.ROCKET:
+                    case BulletType.MISSILE:
+                        // 导弹和直线导弹都算Missile
+                        if (pBullet.Ref.Type.Ref.Level)
+                        {
+                            return AffectTorpedo;
+                        }
+                        return AffectMissile;
                 }
             }
             return false;

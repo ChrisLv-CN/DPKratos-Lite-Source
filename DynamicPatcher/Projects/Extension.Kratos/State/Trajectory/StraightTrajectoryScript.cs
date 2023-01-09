@@ -31,67 +31,24 @@ namespace Extension.Script
         }
     }
 
-    [Serializable]
-    [GlobalScriptable(typeof(BulletExt))]
-    [UpdateAfter(typeof(ProximityScript))]
-    public class StraightTrajectoryScript : BulletScriptable
+
+    public partial class BulletStatusScript
     {
-        public StraightTrajectoryScript(BulletExt owner) : base(owner) { }
-
-        private BulletStatusScript bulletStatus => GameObject.GetComponent<BulletStatusScript>();
-        private ProximityScript proximity => GameObject.GetComponent<ProximityScript>();
-
-        private IConfigWrapper<TrajectoryData> _data;
-        private TrajectoryData data
-        {
-            get
-            {
-                if (null == _data)
-                {
-                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section);
-                }
-                return _data.Data;
-            }
-        }
 
         private StraightBullet straightBullet;
         private bool resetTargetFlag;
 
-        public override void Awake()
-        {
-            switch (data.SubjectToGround)
-            {
-                case SubjectToGround.YES:
-                    bulletStatus.SubjectToGround = true;
-                    break;
-                case SubjectToGround.NO:
-                    bulletStatus.SubjectToGround = false;
-                    break;
-                default:
-                    bulletStatus.SubjectToGround = pBullet.Ref.Type.Ref.ROT > 1 && !pBullet.Ref.Type.Ref.Inviso && !data.IsStraight();
-                    break;
-            }
 
-            // 非直线导弹不执行本脚本
-            if (pBullet.Ref.Type.Ref.Inviso || pBullet.AmIArcing() || (pBullet.Ref.Type.Ref.ROT != 1 && !data.IsStraight()))
-            {
-                GameObject.RemoveComponent(this);
-                return;
-            }
-            // Logger.Log($"{Game.CurrentFrame} 抛射体 [{section}]{pBullet} 是直线类型的导弹 {pBullet.Ref.Type.Ref.ROT}, 初始位置 {pBullet.Ref.SourceCoords}, 目标位置 {pBullet.Ref.TargetCoords}, 速度向量 {pBullet.Ref.Velocity}");
-            // BulletEffectHelper.RedLine(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, 1, 90);
-        }
-
-        public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
+        public void InitState_Trajectory_Straight()
         {
-            if (null == straightBullet)
+            if (isRocket || trajectoryData.IsStraight())
             {
                 // 直线弹道
                 CoordStruct sourcePos = pBullet.Ref.SourceCoords;
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
                 // 绝对直线，重设目标坐标
-                if (data.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
+                if (trajectoryData.AbsolutelyStraight && !pBullet.Ref.Owner.IsNull)
                 {
                     // Logger.Log("{0} 绝对直线弹道", pBullet.Ref.Type.Ref.Base.Base.ID);
                     double distance = targetPos.DistanceFrom(sourcePos);
@@ -132,50 +89,53 @@ namespace Extension.Script
                 // 设置触碰引信
                 if (pBullet.Ref.Type.Ref.Proximity)
                 {
-                    proximity.ActiveProximity();
+                    ActiveProximity();
                 }
             }
         }
 
-        public override void OnUpdate()
+        public void OnUpdate_Trajectory_Straight()
         {
-            if (null != straightBullet && !bulletStatus.CaptureByBlackHole)
+            if (isRocket || trajectoryData.IsStraight())
             {
-                // 强制修正速度
-                pBullet.Ref.Velocity = straightBullet.Velocity;
-            }
-            // 看不懂西木的做法，自己来
-            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
-            if (!pTarget.IsNull && !resetTargetFlag)
-            {
-                CoordStruct targetCoord = pBullet.Ref.TargetCoords;
-                CoordStruct targetPos = pTarget.Ref.GetCoords();
-                if (pTarget.Ref.IsInAir())
+                if (null != straightBullet && !CaptureByBlackHole)
                 {
-                    // 目标在空中，目标当前的距离和目标位置相差一个格子，则取消目标
-                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
+                    // 强制修正速度
+                    pBullet.Ref.Velocity = straightBullet.Velocity;
+                }
+                // 看不懂西木的做法，自己来
+                Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+                if (!pTarget.IsNull && !resetTargetFlag)
+                {
+                    CoordStruct targetCoord = pBullet.Ref.TargetCoords;
+                    CoordStruct targetPos = pTarget.Ref.GetCoords();
+                    if (pTarget.Ref.IsInAir())
                     {
-                        if (pCell != pTargetCell)
+                        // 目标在空中，目标当前的距离和目标位置相差一个格子，则取消目标
+                        if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
+                        {
+                            if (pCell != pTargetCell)
+                            {
+                                pBullet.Ref.SetTarget(IntPtr.Zero);
+                                resetTargetFlag = true;
+                            }
+                        }
+                        else if (targetCoord.DistanceFrom(targetPos) >= 128)
                         {
                             pBullet.Ref.SetTarget(IntPtr.Zero);
                             resetTargetFlag = true;
                         }
                     }
-                    else if (targetCoord.DistanceFrom(targetPos) >= 128)
+                    else
                     {
-                        pBullet.Ref.SetTarget(IntPtr.Zero);
-                        resetTargetFlag = true;
-                    }
-                }
-                else
-                {
-                    // 目标离开所在的格子，就设定目标位置的格子为目标
-                    if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
-                    {
-                        if (pCell != pTargetCell)
+                        // 目标离开所在的格子，就设定目标位置的格子为目标
+                        if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && MapClass.Instance.TryGetCellAt(targetCoord, out Pointer<CellClass> pTargetCell))
                         {
-                            pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
-                            resetTargetFlag = true;
+                            if (pCell != pTargetCell)
+                            {
+                                pBullet.Ref.SetTarget(pTargetCell.Convert<AbstractClass>());
+                                resetTargetFlag = true;
+                            }
                         }
                     }
                 }
@@ -187,7 +147,7 @@ namespace Extension.Script
             return null != straightBullet;
         }
 
-        public void ResetVelocity()
+        public void ResetStraightMissileVelocity()
         {
             if (null != straightBullet)
             {

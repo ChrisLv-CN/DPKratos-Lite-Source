@@ -27,7 +27,7 @@ namespace Extension.Script
         public void InitState_Bounce()
         {
             // 初始化状态机
-            if (!isBounceSplit && pBullet.AmIArcing())
+            if (!isBounceSplit && isArcing)
             {
                 // 初始化状态机
                 BounceData data = Ini.GetConfig<BounceData>(Ini.RulesDependency, section).Data;
@@ -39,21 +39,15 @@ namespace Extension.Script
             }
         }
 
-        public void OnUpdate_Bounce()
+        public void OnUpdate_Trajectory_Bounce()
         {
             if (BounceState.IsActive() && !isBounceSplit)
             {
                 this.bounceData = BounceState.Data;
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} Bounce IsActive {bounceData.Chance} {bounceData.Elasticity}");
             }
-            if ((isBounceSplit || BounceState.IsActive()) && pBullet.AmIArcing())
+            if (isBounceSplit || BounceState.IsActive())
             {
-                if (default != bounceTargetPos && pBullet.TryGetComponent<ArcingTrajectoryScript>(out ArcingTrajectoryScript arcingTrajectoryScript) && !arcingTrajectoryScript.InitFlag)
-                {
-                    pBullet.Ref.TargetCoords = bounceTargetPos;
-                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 没有来得及初始化，重设目标位置 {bounceTargetPos}");
-                    arcingTrajectoryScript.ResetVelocity();
-                }
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
                 if (pBullet.Ref.Base.GetHeight() > 0)
                 {
@@ -212,12 +206,9 @@ namespace Extension.Script
                                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 跳弹已发射 {pNewBullet}，发射位置 {nextSourcePos}，目标位置 {nextTargetPos}, 两点距离 {nextTargetPos.DistanceFrom(nextSourcePos)}");
                                             if (!pNewBullet.IsNull)
                                             {
-                                                if (pNewBullet.TryGetComponent<ArcingTrajectoryScript>(out ArcingTrajectoryScript arcingTrajectoryScript))
-                                                {
-                                                    arcingTrajectoryScript.ResetVelocity(speedMultiple);
-                                                }
                                                 if (pNewBullet.TryGetStatus(out BulletStatusScript status))
                                                 {
+                                                    status.ResetArcingVelocity(speedMultiple);
                                                     status.SetBounceData(bounceData);
                                                     status.isBounceSplit = true;
                                                     status.bounceIndex = bounceIndex + 1;

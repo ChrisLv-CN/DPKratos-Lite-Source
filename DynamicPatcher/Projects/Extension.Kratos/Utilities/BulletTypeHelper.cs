@@ -12,6 +12,16 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
+    public enum BulletType
+    {
+        UNKNOWN = 0,
+        INVISO = 1,
+        ARCING = 2,
+        MISSILE = 3,
+        ROCKET = 4,
+        BOMB = 5
+    }
+
     public static class BulletTypeHelper
     {
         public static unsafe BulletVelocity GetVelocity(this Pointer<BulletClass> pBullet)
@@ -85,20 +95,70 @@ namespace Extension.Utilities
             }
         }
 
+        // Inviso优先级最高
+        // Arcing 和 ROT>0 一起写，无法发射
+        // Arcing 和 ROT=0 一起写，是抛物线
+        // Arcing 和 Vertical 一起写，无法发射
+        // ROT>0 和 Vertical 一起写，是导弹
+        // ROT=0 和 Vertical 一起写，是垂直，SHP会变直线导弹，VXL会垂直下掉
+        public static BulletType WhatTypeAmI(this Pointer<BulletClass> pBullet)
+        {
+            Pointer<BulletTypeClass> pType;
+            if (!pBullet.IsNull && !(pType = pBullet.Ref.Type).IsNull)
+            {
+                if (pType.Ref.Inviso)
+                {
+                    // Inviso优先级最高
+                    return BulletType.INVISO;
+                }
+                else if (pType.Ref.ROT > 0)
+                {
+                    // 检查导弹类型
+                    if (pType.Ref.ROT == 1)
+                    {
+                        return BulletType.ROCKET;
+                    }
+                    return BulletType.MISSILE;
+                }
+                else if (pType.Ref.Vertical)
+                {
+                    // 检查垂直
+                    return BulletType.BOMB;
+                }
+                else
+                {
+                    // 最后是Arcing
+                    return BulletType.ARCING;
+                }
+            }
+            return default;
+        }
+
+        // public static unsafe bool AmIInviso(this Pointer<BulletClass> pBullet)
+        // {
+        //     return pBullet.Ref.Type.Ref.Inviso;
+        // }
+
         public static unsafe bool AmIArcing(this Pointer<BulletClass> pBullet)
         {
-            return pBullet.Ref.Type.Ref.Arcing || (pBullet.Ref.Type.Ref.ROT <= 0 && !pBullet.Ref.Type.Ref.Inviso);
+            return pBullet.WhatTypeAmI() == BulletType.ARCING;
         }
 
-        public static unsafe bool AmIMissile(this Pointer<BulletClass> pBullet)
-        {
-            return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT > 1;
-        }
+        // public static unsafe bool AmIMissile(this Pointer<BulletClass> pBullet)
+        // {
+        //     return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT > 1;
+        // }
 
-        public static unsafe bool AmIRocket(this Pointer<BulletClass> pBullet)
-        {
-            return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT == 1;
-        }
+        // public static unsafe bool AmIRocket(this Pointer<BulletClass> pBullet)
+        // {
+        //     return !pBullet.AmIArcing() && !pBullet.Ref.Type.Ref.Inviso && pBullet.Ref.Type.Ref.ROT == 1;
+        // }
+
+        // public static unsafe bool AmIBomb(this Pointer<BulletClass> pBullet)
+        // {
+        //     Pointer<BulletTypeClass> pType = pBullet.Ref.Type;
+        //     return !pBullet.AmIInviso() && !pBullet.AmIArcing() && pBullet.Ref.Type.Ref.ROT <= 0 && pBullet.Ref.Type.Ref.Vertical;
+        // }
 
     }
 }

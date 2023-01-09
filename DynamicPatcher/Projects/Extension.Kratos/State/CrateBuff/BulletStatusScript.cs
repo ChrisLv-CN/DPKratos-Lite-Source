@@ -53,10 +53,10 @@ namespace Extension.Script
                     SpeedChanged = false;
                     LocationLocked = false;
                     pBullet.Ref.Speed = RecordBulletStatus.Speed;
-                    if (IsStraight(out StraightTrajectoryScript straight))
+                    if (pBullet.TryGetStatus(out BulletStatusScript status) && status.IsStraight())
                     {
                         // 恢复直线弹道的向量
-                        straight.ResetVelocity();
+                        status.ResetStraightMissileVelocity();
                     }
                     else if (pBullet.Ref.Type.Ref.Arcing)
                     {
@@ -89,7 +89,7 @@ namespace Extension.Script
                         multiplier = 1E-19;
                     }
                     // 导弹类需要每帧更改一次运动向量
-                    if (IsStraight(out StraightTrajectoryScript straight))
+                    if (pBullet.TryGetStatus(out BulletStatusScript status) && status.IsStraight())
                     {
                         // 直线导弹用保存的向量覆盖，每次都要重新计算
                         pBullet.Ref.Velocity *= multiplier;
@@ -110,16 +110,6 @@ namespace Extension.Script
                     // Logger.Log(" - 方向向量{0}，速度系数{1}，记录向量{2}", pBullet.Ref.Velocity, aeMultiplier.SpeedMultiplier, RecordBulletStatus.Velocity);
                 }
             }
-        }
-
-        private bool IsStraight(out StraightTrajectoryScript straight)
-        {
-            straight = null;
-            if (pBullet.TryGetComponent<StraightTrajectoryScript>(out straight))
-            {
-                return straight.IsStraight();
-            }
-            return false;
         }
 
     }

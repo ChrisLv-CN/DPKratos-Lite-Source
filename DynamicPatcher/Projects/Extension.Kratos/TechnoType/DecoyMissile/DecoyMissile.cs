@@ -105,18 +105,13 @@ namespace Extension.Ext
             {
                 Decoys = new List<BulletExt>();
             }
-            BulletExt decoy = BulletExt.ExtMap.Find(pDecoy);
-            if (null != decoy)
+            if (pDecoy.TryGetStatus(out BulletStatusScript status, out BulletExt ext))
             {
-                MissileTrajectoryScript script = decoy.GameObject.GetComponent<MissileTrajectoryScript>();
-                if (null != script)
-                {
-                    script.IsDecoy = true;
-                    script.LaunchPos = launchPos;
-                    script.LifeTimer.Start(life);
+                status.IsDecoy = true;
+                status.LaunchPos = launchPos;
+                status.LifeTimer.Start(life);
 
-                    Decoys.Add(decoy);
-                }
+                Decoys.Add(ext);
             }
         }
 

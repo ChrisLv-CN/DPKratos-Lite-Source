@@ -109,17 +109,23 @@ namespace Extension.Utilities
 
         public static bool TryGetStatus(this Pointer<TechnoClass> pTechno, out TechnoStatusScript technoStatus)
         {
+            return pTechno.TryGetStatus(out technoStatus, out TechnoExt technoExt);
+        }
+
+        public static bool TryGetStatus(this Pointer<TechnoClass> pTechno, out TechnoStatusScript technoStatus, out TechnoExt technoExt)
+        {
             technoStatus = null;
+            technoExt = null;
             if (!pTechno.IsNull)
             {
-                TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
-                if (null != ext)
+                technoExt = TechnoExt.ExtMap.Find(pTechno);
+                if (null != technoExt)
                 {
-                    if (null == ext.Status)
+                    if (null == technoExt.Status)
                     {
-                        ext.Status = ext.GameObject.GetComponent<TechnoStatusScript>();
+                        technoExt.Status = technoExt.GameObject.GetComponent<TechnoStatusScript>();
                     }
-                    technoStatus = (TechnoStatusScript)ext.Status;
+                    technoStatus = (TechnoStatusScript)technoExt.Status;
                 }
             }
             return null != technoStatus;
@@ -190,17 +196,23 @@ namespace Extension.Utilities
 
         public static bool TryGetStatus(this Pointer<BulletClass> pBullet, out BulletStatusScript bulletStatus)
         {
+            return pBullet.TryGetStatus(out bulletStatus, out BulletExt bulletExt);
+        }
+
+        public static bool TryGetStatus(this Pointer<BulletClass> pBullet, out BulletStatusScript bulletStatus, out BulletExt bulletExt)
+        {
             bulletStatus = null;
+            bulletExt = null;
             if (!pBullet.IsNull)
             {
-                BulletExt ext = BulletExt.ExtMap.Find(pBullet);
-                if (null != ext)
+                bulletExt = BulletExt.ExtMap.Find(pBullet);
+                if (null != bulletExt)
                 {
-                    if (null == ext.Status)
+                    if (null == bulletExt.Status)
                     {
-                        ext.Status = ext.GameObject.GetComponent<BulletStatusScript>();
+                        bulletExt.Status = bulletExt.GameObject.GetComponent<BulletStatusScript>();
                     }
-                    bulletStatus = (BulletStatusScript)ext.Status;
+                    bulletStatus = (BulletStatusScript)bulletExt.Status;
                 }
             }
             return null != bulletStatus;

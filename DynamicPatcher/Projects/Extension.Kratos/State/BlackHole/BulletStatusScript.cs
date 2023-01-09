@@ -75,7 +75,7 @@ namespace Extension.Script
                     // 加上偏移值
                     blackHolePos += blackHoleData.Offset;
                     // 获取一个从黑洞位置朝向预设目标位置的向量，该向量控制导弹的弹体朝向
-                    if (pBullet.AmIArcing())
+                    if (isArcing || isBomb)
                     {
                         // 从当前位置朝向黑洞
                         CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
@@ -100,12 +100,11 @@ namespace Extension.Script
             }
         }
 
-        public void OnLateUpdate_BlackHole()
+        public void OnLateUpdate_BlackHole(ref CoordStruct sourcePos)
         {
             if (CaptureByBlackHole)
             {
                 // 强行移动导弹的位置
-                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
                 CoordStruct targetPos = pBlackHole.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
                 CoordStruct nextPos = targetPos;
                 double dist = targetPos.DistanceFrom(sourcePos);
@@ -159,6 +158,8 @@ namespace Extension.Script
                 {
                     // 被黑洞吸走
                     pBullet.Ref.Base.SetLocation(nextPos);
+                    // 修改了位置所以更新位置
+                    sourcePos = nextPos;
                 }
             }
         }
@@ -179,7 +180,7 @@ namespace Extension.Script
             {
                 pBullet.Ref.SourceCoords = pBullet.Ref.Base.Base.GetCoords();
                 // Arcing摔地上，导弹不管
-                if (pBullet.AmIArcing())
+                if (isArcing || isBomb)
                 {
                     pBullet.Ref.Velocity = default;
                 }

@@ -47,8 +47,55 @@ namespace Extension.Script
 
         public bool SubjectToGround;
 
+        private IConfigWrapper<TrajectoryData> _trajectoryData;
+        private TrajectoryData trajectoryData
+        {
+            get
+            {
+                if (null == _trajectoryData)
+                {
+                    _trajectoryData = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section);
+                }
+                return _trajectoryData.Data;
+            }
+        }
+
         private bool hasFakeTarget;
         private SwizzleablePointer<ObjectClass> pFakeTarget = new SwizzleablePointer<ObjectClass>(IntPtr.Zero);
+
+        private bool isInvisible;
+        public bool IsInvisible
+        {
+            get
+            {
+                if (initStateFlag)
+                {
+                    return isInvisible;
+                }
+                return isInvisible = pBullet.Ref.Type.Ref.Inviso;
+            }
+        }
+        private BulletType _bulletType;
+        private BulletType bulletType
+        {
+            get
+            {
+                if (default == _bulletType)
+                {
+                    _bulletType = pBullet.WhatTypeAmI();
+                    if (_bulletType != BulletType.ROCKET && trajectoryData.IsStraight())
+                    {
+                        _bulletType = BulletType.ROCKET;
+                    }
+                }
+                return _bulletType;
+            }
+        }
+        private bool isArcing => bulletType == BulletType.ARCING;
+        private bool isMissile => bulletType == BulletType.MISSILE;
+        private bool isRocket => bulletType == BulletType.ROCKET;
+        private bool isBomb => bulletType == BulletType.BOMB;
+
 
         private bool initStateFlag = false;
 
@@ -105,6 +152,20 @@ namespace Extension.Script
             // 初始化抛射体的伤害信息
             DamageData = new BulletDamageData(health);
             // Logger.Log($"{Game.CurrentFrame} 初始化抛射体 [{section}]{pBullet} 伤害属性 {DamageData}");
+            // 初始化碰撞地面设置
+            switch (trajectoryData.SubjectToGround)
+            {
+                case SubjectToGroundType.YES:
+                    SubjectToGround = true;
+                    break;
+                case SubjectToGroundType.NO:
+                    SubjectToGround = false;
+                    break;
+                default:
+                    // Arcing和直线导弹可以穿透地面
+                    SubjectToGround = !isArcing && !isRocket && !trajectoryData.IsStraight();
+                    break;
+            }
         }
 
         public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
@@ -112,20 +173,17 @@ namespace Extension.Script
             if (!initStateFlag)
             {
                 initStateFlag = true;
-                // InitState_AttackBeacon();
                 InitState_BlackHole();
                 InitState_Bounce();
-                // InitState_DamageReaction();
-                // InitState_Deselect();
                 InitState_DestroySelf();
-                // InitState_ExtraFire();
-                // InitState_FireSuper();
                 InitState_GiftBox();
-                // InitState_OverrideWeapon();
-                // InitState_Paintball();
+                InitState_Proximity();
+                // 弹道初始化
+                InitState_Trajectory_Missile();
+                InitState_Trajectory_Straight();
             }
             Pointer<AbstractClass> pTarget = IntPtr.Zero;
-            if (pBullet.AmIMissile() && !(pTarget = pBullet.Ref.Target).IsNull && pTarget.Ref.WhatAmI() == AbstractType.Aircraft)
+            if (isMissile && !(pTarget = pBullet.Ref.Target).IsNull && pTarget.Ref.WhatAmI() == AbstractType.Aircraft)
             {
                 TargetAircraftBullets.Add(Owner);
             }
@@ -142,10 +200,21 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+            // 弹道相关逻辑
+            if (isArcing)
+            {
+                OnUpdate_Trajectory_Arcing();
+                OnUpdate_Trajectory_Bounce();
+            }
+            else
+            {
+                OnUpdate_Trajectory_Straight();
+            }
+            OnUpdate_Trajectory_Decroy();
 
-            OnUpdate_Bounce();
             OnUpdate_DestroySelf();
+
+            CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
             // 是否需要检查潜地
             if (!LifeData.IsDetonate && !pBullet.Ref.WH.HasPreImpactAnim())
             {
@@ -162,7 +231,7 @@ namespace Extension.Script
                     pBullet.Ref.TargetCoords = targetPos;
                     LifeData.Detonate();
                 }
-                if (!LifeData.IsDetonate && pBullet.AmIArcing() && pBullet.Ref.Base.GetHeight() <= 8)
+                if (!LifeData.IsDetonate && isArcing && pBullet.Ref.Base.GetHeight() <= 8)
                 {
                     // Arcing 近炸
                     CoordStruct tempSoucePos = location;
@@ -211,7 +280,9 @@ namespace Extension.Script
         {
             if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
-                OnLateUpdate_BlackHole();
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                OnLateUpdate_BlackHole(ref sourcePos); // 黑洞会更新位置，要第一个执行
+                OnLateUpdate_Proximity(ref sourcePos);
             }
         }
 

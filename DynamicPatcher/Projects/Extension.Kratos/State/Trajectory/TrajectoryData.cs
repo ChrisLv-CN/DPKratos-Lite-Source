@@ -10,26 +10,26 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public enum SubjectToGround
+    public enum SubjectToGroundType
     {
         AUTO = 0, YES = 1, NO = 2
     }
 
-    public class SubjectToGroundParser : KEnumParser<SubjectToGround>
+    public class SubjectToGroundTypeParser : KEnumParser<SubjectToGroundType>
     {
-        public override bool ParseInitials(string t, ref SubjectToGround buffer)
+        public override bool ParseInitials(string t, ref SubjectToGroundType buffer)
         {
             switch (t)
             {
                 case "Y":
                 case "T":
                 case "1":
-                    buffer = SubjectToGround.YES;
+                    buffer = SubjectToGroundType.YES;
                     return true;
                 case "N":
                 case "F":
                 case "0":
-                    buffer = SubjectToGround.NO;
+                    buffer = SubjectToGroundType.NO;
                     return true;
             }
             return false;
@@ -42,7 +42,7 @@ namespace Extension.Ext
 
         static TrajectoryData()
         {
-            new SubjectToGroundParser().Register();
+            new SubjectToGroundTypeParser().Register();
         }
 
         public bool AdvancedBallistics = true;
@@ -69,7 +69,7 @@ namespace Extension.Ext
         public float ShakeVelocity = 0;
 
         // Status
-        public SubjectToGround SubjectToGround = SubjectToGround.AUTO;
+        public SubjectToGroundType SubjectToGround = SubjectToGroundType.AUTO;
 
         public bool IsStraight()
         {

@@ -12,66 +12,30 @@ using Extension.Utilities;
 namespace Extension.Script
 {
 
-    [Serializable]
-    [GlobalScriptable(typeof(BulletExt))]
-    [UpdateAfter(typeof(BulletStatusScript))]
-    public class ArcingTrajectoryScript : BulletScriptable
+    public partial class BulletStatusScript
     {
-        public ArcingTrajectoryScript(BulletExt owner) : base(owner) { }
+        private bool arcingTrajectoryInitFlag;
 
-        public bool InitFlag;
-
-        private IConfigWrapper<TrajectoryData> _data;
-        private TrajectoryData data
+        public void OnUpdate_Trajectory_Arcing()
         {
-            get
-            {
-                if (null == _data)
-                {
-                    _data = Ini.GetConfig<TrajectoryData>(Ini.RulesDependency, section);
-                }
-                return _data.Data;
-            }
+            ResetArcingVelocity();
         }
 
-        public override void Awake()
+        public void ResetArcingVelocity(float speedMultiple = 1f)
         {
-            if (!pBullet.Ref.Type.Ref.Arcing
-                || pBullet.Ref.Type.Ref.ROT > 0
-                || !data.AdvancedBallistics)
+            if (!arcingTrajectoryInitFlag)
             {
-                GameObject.RemoveComponent(this);
-                return;
-            }
-        }
-
-        // public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
-        // {
-        //     // ResetVelocity();
-
-        //     Logger.Log($"{Game.CurrentFrame} 炮弹 [{section}]{pBullet} 出膛初速度 {pBullet.Ref.Velocity}");
-        // }
-
-        public override void OnUpdate()
-        {
-            ResetVelocity();
-        }
-
-        public void ResetVelocity(float speedMultiple = 1f)
-        {
-            if (!InitFlag)
-            {
-                InitFlag = true;
+                arcingTrajectoryInitFlag = true;
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
                 CoordStruct targetPos = pBullet.Ref.TargetCoords;
 
                 // Logger.Log($"{Game.CurrentFrame} 炮弹 [{section}]{pBullet} 出膛初速度 {pBullet.Ref.Velocity}");
 
                 // 速度控制
-                if (data.ArcingFixedSpeed > 0)
+                if (trajectoryData.ArcingFixedSpeed > 0)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 原抛射体[{section}]{pBullet} 速度{pBullet.Ref.Speed}, 高级弹道学, 改使用恒定速度{trajectoryData.ArcingFixedSpeed}");
-                    pBullet.Ref.Speed = data.ArcingFixedSpeed;
+                    pBullet.Ref.Speed = trajectoryData.ArcingFixedSpeed;
                 }
                 else
                 {
@@ -81,9 +45,9 @@ namespace Extension.Script
                 int speed = (int)(pBullet.Ref.Speed * speedMultiple);
                 int gravity = RulesClass.Global().Gravity;
                 bool lobber = !pBullet.Ref.WeaponType.IsNull ? pBullet.Ref.WeaponType.Ref.Lobber : false;
-                bool inaccurate = data.Inaccurate;
-                float min = data.BallisticScatterMin;
-                float max = data.BallisticScatterMax;
+                bool inaccurate = trajectoryData.Inaccurate;
+                float min = trajectoryData.BallisticScatterMin;
+                float max = trajectoryData.BallisticScatterMax;
 
                 BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, speed, gravity, lobber, inaccurate, min, max, pBullet.Ref.Velocity.ToCoordStruct().Z, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
                 pBullet.Ref.Speed = (int)realSpeed;
