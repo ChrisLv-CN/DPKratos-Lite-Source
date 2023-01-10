@@ -45,6 +45,8 @@ namespace Extension.Script
         private List<CoordStruct> destList = new List<CoordStruct>(); // 巡航的下一个实际坐标点
         private int destIndex = 0; // 巡航点序号
 
+        private bool onStopCommand;
+
         public override void Awake()
         {
             ILocomotion locomotion = null;
@@ -90,6 +92,61 @@ namespace Extension.Script
 
             switch (State)
             {
+                case AircraftGuardState.READY:
+                    // 停在机场等待起飞
+
+                    bool inAir = pTechno.InAir();
+                    if (inAir)
+                    {
+                        // 移动设定巡航点
+                        if (data.AutoGuard)
+                        {
+                            switch (pMission.Ref.CurrentMission)
+                            {
+                                case Mission.Attack:
+                                case Mission.Enter:
+                                    // 攻击或返航途中，什么都不做
+                                case Mission.Guard:
+                                case Mission.Area_Guard:
+                                case Mission.Move:
+                                    // 返航途中有新的移动指令
+                                    // Logger.Log($"{Game.CurrentFrame} 返航中，设置巡航点 {pMission.Ref.CurrentMission}");
+                                    if (SetupDestination())
+                                    {
+                                        if (onStopCommand)
+                                        {
+                                            // 按下S，跳过一次目的地更改
+                                            onStopCommand = false;
+                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 跳过巡航");
+                                        }
+                                        else
+                                        {
+                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始巡航");
+                                            this.State = AircraftGuardState.GUARD;
+                                        }
+                                    }
+                                    return;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        onStopCommand = false;
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 在地面待机中");
+                        // 弹药充足，自动起飞
+                        if (data.DefaultToGuard && pTechno.Ref.Ammo >= data.MaxAmmo)
+                        {
+                            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                            if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
+                            {
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 在地面待机中，设置当前格子为新巡航点");
+                                SetupDestination(pCell.Ref.GetCoordsWithBridge());
+                                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始警戒巡航");
+                                this.State = AircraftGuardState.GUARD;
+                            }
+                        }
+                    }
+                    break;
                 case AircraftGuardState.STOP:
                     // 什么都不做，等待飞机降落
                     if (pTechno.Ref.Base.GetHeight() <= 0)
@@ -102,6 +159,7 @@ namespace Extension.Script
                         case Mission.Attack:
                         case Mission.Enter:
                         case Mission.Move: // 鼠标指令前往别处
+                            // Logger.Log($"{Game.CurrentFrame} 按下了S，返航中 {pMission.Ref.CurrentMission}");
                             State = AircraftGuardState.READY;
                             return;
                     }
@@ -156,7 +214,25 @@ namespace Extension.Script
                         case Mission.Area_Guard: // 正常巡航
                             break;
                         case Mission.Move: // 鼠标指令前往别处
+                            if (data.AutoGuard)
+                            {
+                                // 巡航中，获得移动指令，会重设航点
+                                // Logger.Log($"{Game.CurrentFrame} 巡航中，设置巡航点");
+                                if (SetupDestination())
+                                {
+                                    State = AircraftGuardState.GUARD;
+                                }
+                                break;
+                            }
                             CancelAreaGuard();
+                            return;
+                        case Mission.Enter:
+                            // Logger.Log($"{Game.CurrentFrame} 从巡航中切换返航");
+                            if (onStopCommand && data.DefaultToGuard && pTechno.Ref.Ammo >= data.MaxAmmo)
+                            {
+                                // 还有蛋，不返航，回基地巡逻
+                                pMission.Ref.ForceMission(Mission.Area_Guard);
+                            }
                             return;
                         default:
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 暂停巡航");
@@ -220,7 +296,10 @@ namespace Extension.Script
 
         public override void OnStopCommand()
         {
+            onStopCommand = true;
             CancelAreaGuard();
+            // 任务改成返航
+            pTechno.Ref.BaseMission.ForceMission(Mission.Enter);
         }
 
         public bool IsAreaGuardRolling()
@@ -235,10 +314,11 @@ namespace Extension.Script
         }
 
         /// <summary>
-        /// 进入警戒巡航状态
+        /// 获取移动目的地，设定航点，进入警戒巡航状态
         /// </summary>
         public void StartAreaGuard()
         {
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 按下Ctrl+Alt");
             switch (State)
             {
                 case AircraftGuardState.READY:
@@ -246,57 +326,96 @@ namespace Extension.Script
                 case AircraftGuardState.ROLLING:
                     // 设定新的航点
                     CoordStruct dest = default;
-                    pTechno.Convert<FootClass>().Ref.Locomotor.Destination(dest.GetThisPointer());
-                    if (dest != destCenter && !destList.Contains(dest))
+                    Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                    Pointer<AbstractClass> pDest = pFoot.Ref.Destination;
+                    if (!pDest.IsNull)
                     {
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始巡航");
+                        dest = pDest.Ref.GetCoords();
+                    }
+                    else
+                    {
+                        pFoot.Ref.Locomotor.Destination(dest.GetThisPointer());
+                    }
+                    // CoordStruct pos = pTechno.Ref.Base.Base.GetCoords();
+                    // BulletEffectHelper.RedLine(pos, dest);
+                    // BulletEffectHelper.RedCrosshair(dest, 1024);
+                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获取到单位的目的地 {dest}");
+                    if (SetupDestination(dest))
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 开始警戒巡航");
                         this.State = AircraftGuardState.GUARD;
-                        this.destCenter = dest;
-                        // 新建巡航点，以飞机所在的位置和目标的位置的朝向为参考方向，画16个点
-                        CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                        // BulletEffectHelper.GreenLine(dest, location, 1, 450);
-                        DirStruct sourceDir = FLHHelper.Point2Dir(location, dest);
-                        double sourceRad = sourceDir.radians();
-                        CoordStruct flh = new CoordStruct(data.GuardRadius * 256, 0, 0);
-                        this.destList.Clear();
-                        bool clockwise = data.Clockwise;
-                        if (data.Randomwise)
-                        {
-                            clockwise = MathEx.Random.Next(2) == 0;
-                        }
-                        this.Clockwise = clockwise; // 顺时针还是逆时针巡航
-                        for (int i = 0; i < 16; i++)
-                        {
-                            DirStruct targetDir = FLHHelper.DirNormalized(i, 16);
-                            double targetRad = targetDir.radians();
-                            float angle = (float)(sourceRad - targetRad);
-                            targetDir = FLHHelper.Radians2Dir(angle);
-                            CoordStruct newDest = FLHHelper.GetFLHAbsoluteCoords(dest, flh, targetDir);
-                            if (i == 0)
-                            {
-                                // 第一个肯定是队列头，位于飞机前进方向正前方
-                                this.destList.Add(newDest);
-                                // BulletEffectHelper.BlueCrosshair(newDest, 128, 1, 450);
-                                // BulletEffectHelper.BlueLine(dest, newDest, 1, 450);
-                            }
-                            else
-                            {
-                                // 顺序添加为逆时针，插入第二位为顺时针
-                                if (clockwise)
-                                {
-                                    this.destList.Insert(1, newDest);
-                                }
-                                else
-                                {
-                                    this.destList.Add(newDest);
-                                }
-                                // BulletEffectHelper.RedCrosshair(newDest, 128, 1, 450);
-                            }
-                        }
-                        this.destIndex = 0;
                     }
                     break;
             }
+        }
+
+        /// <summary>
+        /// 设定新的巡航点
+        /// </summary>
+        /// <returns></returns>
+        private bool SetupDestination()
+        {
+            CoordStruct dest = default;
+            pTechno.Convert<FootClass>().Ref.Locomotor.Destination(dest.GetThisPointer());
+            return SetupDestination(dest);
+        }
+
+        /// <summary>
+        /// 设定新的巡航点
+        /// </summary>
+        /// <param name="dest"></param>
+        /// <returns></returns>
+        private bool SetupDestination(CoordStruct dest)
+        {
+            if (default != dest && dest != destCenter && !destList.Contains(dest))
+            {
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设定巡航点，目的地{dest}, 巡航中心点 {destCenter}");
+                this.destCenter = dest;
+                // 新建巡航点，以飞机所在的位置和目标的位置的朝向为参考方向，画16个点
+                CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                // BulletEffectHelper.GreenLine(dest, location, 1, 450);
+                DirStruct sourceDir = FLHHelper.Point2Dir(location, dest);
+                double sourceRad = sourceDir.radians();
+                CoordStruct flh = new CoordStruct(data.GuardRadius * 256, 0, 0);
+                this.destList.Clear();
+                bool clockwise = data.Clockwise;
+                if (data.Randomwise)
+                {
+                    clockwise = MathEx.Random.Next(2) == 0;
+                }
+                this.Clockwise = clockwise; // 顺时针还是逆时针巡航
+                for (int i = 0; i < 16; i++)
+                {
+                    DirStruct targetDir = FLHHelper.DirNormalized(i, 16);
+                    double targetRad = targetDir.radians();
+                    float angle = (float)(sourceRad - targetRad);
+                    targetDir = FLHHelper.Radians2Dir(angle);
+                    CoordStruct newDest = FLHHelper.GetFLHAbsoluteCoords(dest, flh, targetDir);
+                    if (i == 0)
+                    {
+                        // 第一个肯定是队列头，位于飞机前进方向正前方
+                        this.destList.Add(newDest);
+                        // BulletEffectHelper.BlueCrosshair(newDest, 128, 1, 450);
+                        // BulletEffectHelper.BlueLine(dest, newDest, 1, 450);
+                    }
+                    else
+                    {
+                        // 顺序添加为逆时针，插入第二位为顺时针
+                        if (clockwise)
+                        {
+                            this.destList.Insert(1, newDest);
+                        }
+                        else
+                        {
+                            this.destList.Add(newDest);
+                        }
+                        // BulletEffectHelper.RedCrosshair(newDest, 128, 1, 450);
+                    }
+                }
+                this.destIndex = 0;
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
