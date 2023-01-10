@@ -1390,14 +1390,17 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                if (pTechno.TryGetStatus(out TechnoStatusScript technoStatus)
-                    && !technoStatus.MyMaster.IsNull
-                    && null != technoStatus.StandData
-                    && technoStatus.StandData.UseMasterAmmo)
+                if (pTechno.AmIStand(out TechnoStatusScript status, out StandData data)
+                    && !status.MyMaster.IsNull
+                    && data.UseMasterAmmo)
                 {
-                    technoStatus.MyMaster.Ref.DecreaseAmmo();
-                    technoStatus.MyMaster.Ref.ReloadNow();
-
+                    int ammo = status.MyMaster.Ref.Ammo;
+                    if (ammo > 0)
+                    {
+                        // status.MyMaster.Ref.DecreaseAmmo();
+                        status.MyMaster.Ref.Ammo--;
+                        status.MyMaster.Ref.ReloadNow();
+                    }
                 }
             }
             catch (Exception e)

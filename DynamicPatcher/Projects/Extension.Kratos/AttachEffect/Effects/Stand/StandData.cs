@@ -34,6 +34,31 @@ namespace Extension.Ext
         }
     }
 
+    [Serializable]
+    public enum StandTargeting
+    {
+        BOTH = 0, LAND = 1, AIR = 2
+    }
+
+    public class StandTargetingParser : KEnumParser<StandTargeting>
+    {
+        public override bool ParseInitials(string t, ref StandTargeting buffer)
+        {
+            switch (t)
+            {
+                case "L":
+                    buffer = StandTargeting.LAND;
+                    return true;
+                case "A":
+                    buffer = StandTargeting.AIR;
+                    return true;
+                default:
+                    buffer = StandTargeting.BOTH;
+                    return true;
+            }
+        }
+    }
+
 
     public partial class AttachEffectData
     {
@@ -56,6 +81,7 @@ namespace Extension.Ext
         static StandData()
         {
             new LayerParser().Register();
+            new StandTargetingParser().Register();
         }
 
         public const string TITLE = "Stand.";
@@ -84,6 +110,7 @@ namespace Extension.Ext
         public bool UseMasterAmmo; // 消耗使者的弹药
         public bool SamePassengers; // 相同的乘客管理器
 
+        public StandTargeting Targeting; // 在什么位置可攻击
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
         public bool Powered; // 是否需要电力支持
@@ -139,6 +166,7 @@ namespace Extension.Ext
             this.UseMasterAmmo = false;
             this.SamePassengers = false;
 
+            this.Targeting = StandTargeting.BOTH;
             this.ForceAttackMaster = false;
             this.MobileFire = true;
             this.Powered = false;
@@ -205,9 +233,14 @@ namespace Extension.Ext
                 this.SameTarget = reader.Get(TITLE + "SameTarget", this.SameTarget);
                 this.SameLoseTarget = reader.Get(TITLE + "SameLoseTarget", this.SameLoseTarget);
                 this.SameAmmo = reader.Get(TITLE + "SameAmmo", this.SameAmmo);
+                if (SameAmmo)
+                {
+                    this.UseMasterAmmo = true;
+                }
                 this.UseMasterAmmo = reader.Get(TITLE + "UseMasterAmmo", this.UseMasterAmmo);
                 this.SamePassengers = reader.Get(TITLE + "SamePassengers", this.SamePassengers);
 
+                this.Targeting = reader.Get(TITLE + "Targeting", this.Targeting);
                 this.ForceAttackMaster = reader.Get(TITLE + "ForceAttackMaster", this.ForceAttackMaster);
                 this.MobileFire = reader.Get(TITLE + "MobileFire", this.MobileFire);
                 this.Powered = reader.Get(TITLE + "Powered", this.Powered);

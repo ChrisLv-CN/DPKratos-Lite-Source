@@ -394,6 +394,21 @@ namespace Extension.Script
                     pStand.Ref.SetTarget(target);
                 }
             }
+            switch (Data.Targeting)
+            {
+                case StandTargeting.LAND:
+                    if (pStand.InAir())
+                    {
+                        pStand.ClearAllTarget();
+                    }
+                    break;
+                case StandTargeting.AIR:
+                    if (!pStand.InAir())
+                    {
+                        pStand.ClearAllTarget();
+                    }
+                    break;
+            }
         }
 
         public void UpdateState(Pointer<TechnoClass> pMaster, bool masterIsDead)
@@ -619,6 +634,21 @@ namespace Extension.Script
                 {
                     onStopCommand = false;
                 }
+            }
+            switch (Data.Targeting)
+            {
+                case StandTargeting.LAND:
+                    if (pStand.InAir())
+                    {
+                        pStand.ClearAllTarget();
+                    }
+                    break;
+                case StandTargeting.AIR:
+                    if (!pStand.InAir())
+                    {
+                        pStand.ClearAllTarget();
+                    }
+                    break;
             }
 
             // synch Moving anim
