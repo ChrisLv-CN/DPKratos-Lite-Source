@@ -86,6 +86,11 @@ namespace GeneralHooks
             Commands.MakeCommand<AttachEffect2Command>();
             Commands.MakeCommand<AttachEffect3Command>();
             Commands.MakeCommand<AttachEffect4Command>();
+            Commands.MakeCommand<AttachEffect5Command>();
+            Commands.MakeCommand<AttachEffect6Command>();
+            Commands.MakeCommand<AttachEffect7Command>();
+            Commands.MakeCommand<AttachEffect8Command>();
+            Commands.MakeCommand<AttachEffect9Command>();
             return 0;
         }
     }
