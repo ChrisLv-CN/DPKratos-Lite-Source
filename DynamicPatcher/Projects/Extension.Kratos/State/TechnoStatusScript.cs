@@ -258,16 +258,21 @@ namespace Extension.Script
         {
             if (!pTechno.IsDeadOrInvisible())
             {
+                WarheadTypeData warheadTypeData = pWH.GetData();
                 if (!pTechno.Ref.Target.IsNull)
                 {
-                    WarheadTypeData warheadTypeData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
                     if (warheadTypeData.ClearTarget)
                     {
                         pTechno.ClearAllTarget();
                     }
                 }
-                OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
-                OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse);
+                Mission forceMission = warheadTypeData.ForceMission;
+                if (forceMission != Mission.None)
+                {
+                    pTechno.Ref.BaseMission.ForceMission(forceMission);
+                }
+                OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, warheadTypeData);
+                OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, warheadTypeData);
             }
         }
 

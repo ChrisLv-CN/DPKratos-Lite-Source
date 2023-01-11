@@ -33,7 +33,7 @@ namespace Extension.Script
         }
 
         public void OnReceiveDamage_DamageReaction(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-                    Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+                    Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse, WarheadTypeData warheadTypeData)
         {
 
             // 无视防御的真实伤害不做任何响应

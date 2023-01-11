@@ -70,7 +70,7 @@ namespace Extension.Script
             // 准备报复
             if (!pRevengeTargetTechno.IsDeadOrInvisible() && (Data.Realtime || damageState == DamageState.NowDead)
                 && Data.IsOnMark(pWH)
-                && pWH.CanRevenge())
+                && !pWH.GetData().IgnoreRevenge)
             {
                 // 过滤浮空
                 if (!Data.AffectInAir && pRevengeTargetTechno.InAir())

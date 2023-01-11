@@ -240,7 +240,7 @@ namespace Extension.Script
         {
             bool canFire = false;
             string weaponId = pWeapon.Ref.Base.ID;
-            WeaponTypeData weaponData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.Base.ID).Data;
+            WeaponTypeData weaponData = pWeapon.GetData();
             // 进行ROF检查
             canFire = !weaponData.UseROF;
             if (!canFire)

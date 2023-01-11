@@ -183,7 +183,7 @@ namespace ComponentHooks
 
                 TechnoExt ext = TechnoExt.ExtMap.Find(pTechno);
                 ext.GameObject.Foreach(c => (c as IObjectScriptable)?.OnReceiveDamage(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse));
-                if (pWH.IsToy())
+                if (pWH.GetData().IsToy)
                 {
                     pDamage.Ref = 0;
                     DamageByToyWH = true;

@@ -199,7 +199,7 @@ namespace Extension.Script
             Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
             if (!pWeapon.IsNull)
             {
-                WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, weaponId).Data;
+                WeaponTypeData weaponTypeData = pWeapon.GetData();
                 isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, callback);
             }
             return isFire;
@@ -223,7 +223,7 @@ namespace Extension.Script
             // 检查护甲
             if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
                 && pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Techno)
-                && (pWeapon.Ref.Warhead.GetVersus(pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) == 0.0 || !forceFire)
+                && (pWeapon.Ref.Warhead.GetData().GetVersus(pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) == 0.0 || !forceFire)
             )
             {
                 // Logger.Log($"{Game.CurrentFrame} 弹头对试图攻击的目标比例为0，终止发射");

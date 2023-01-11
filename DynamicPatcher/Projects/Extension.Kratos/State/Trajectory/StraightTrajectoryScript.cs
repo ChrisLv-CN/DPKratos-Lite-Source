@@ -62,7 +62,7 @@ namespace Extension.Script
             bool reset = true;
             if (!pBullet.Ref.WeaponType.IsNull)
             {
-                WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pBullet.Ref.WeaponType.Ref.Base.ID).Data;
+                WeaponTypeData weaponTypeData = pBullet.Ref.WeaponType.GetData();
                 if (weaponTypeData.RadialFire)
                 {
                     SingleVector3D sourceV = sourcePos.ToSingleVector3D();

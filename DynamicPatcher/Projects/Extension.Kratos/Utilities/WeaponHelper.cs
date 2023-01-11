@@ -260,13 +260,14 @@ namespace Extension.Utilities
                 laserType.IsHouseColor = pWeapon.Ref.IsHouseColor;
                 laserType.Duration = pWeapon.Ref.LaserDuration;
                 // get thickness and fade
-                WeaponTypeData ext = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.Base.ID).Data;
-                if (ext.LaserThickness > 0)
+                // WeaponTypeData ext = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.Base.ID).Data;
+                WeaponTypeData weaponTypeData = pWeapon.GetData();
+                if (weaponTypeData.LaserThickness > 0)
                 {
-                    laserType.Thickness = ext.LaserThickness;
+                    laserType.Thickness = weaponTypeData.LaserThickness;
                 }
-                laserType.Fade = ext.LaserFade;
-                laserType.IsSupported = ext.IsSupported;
+                laserType.Fade = weaponTypeData.LaserFade;
+                laserType.IsSupported = weaponTypeData.IsSupported;
                 BulletEffectHelper.DrawLine(sourcePos, targetPos, laserType, houseColor);
             }
             // IsRadBeam

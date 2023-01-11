@@ -22,7 +22,7 @@ namespace Extension.Script
                 Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
                 if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
                 {
-                    WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.WeaponType.Ref.Base.ID).Data;
+                    WeaponTypeData weaponTypeData = pWeapon.Ref.WeaponType.GetData();
                     if (null != weaponTypeData && weaponTypeData.RockerPitch > 0)
                     {
                         double halfPI = Math.PI / 2;

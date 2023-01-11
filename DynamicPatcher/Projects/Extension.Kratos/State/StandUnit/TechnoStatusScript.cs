@@ -94,11 +94,11 @@ namespace Extension.Script
         }
 
         public unsafe void OnReceiveDamage_Stand(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
-                    Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
+                    Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse, WarheadTypeData warheadTypeData)
         {
             // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pTechno} 收到伤害, Damage = {pDamage.Ref}, ignoreDefenses = {ignoreDefenses}, VirtualUnit = {VirtualUnit}, MyMasterIsAnim = {MyMasterIsAnim}");
             // 无视防御的真实伤害不做任何分摊
-            if (!ignoreDefenses && !MyMasterIsAnim && pWH.CanShareDamage())
+            if (!ignoreDefenses && !MyMasterIsAnim && !pWH.GetData().IgnoreStandShareDamage)
             {
                 if (null != StandData)
                 {

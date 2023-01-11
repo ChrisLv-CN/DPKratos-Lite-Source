@@ -279,7 +279,7 @@ namespace Extension.Script
         public unsafe void OnReceiveDamage2_BlackHole(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             if (!pTechno.IsDeadOrInvisible() && damageState != DamageState.NowDead
-                && pWH.IsCapturer()
+                && pWH.GetData().Capturer
                 && pAttacker.TryGetBlackHoleState(out BlackHoleState state) && state.IsActive()
                 && state.Data.CaptureFromWarhead && state.Data.CanAffectType(pTechno) && state.IsOnMark(pTechno))
             {

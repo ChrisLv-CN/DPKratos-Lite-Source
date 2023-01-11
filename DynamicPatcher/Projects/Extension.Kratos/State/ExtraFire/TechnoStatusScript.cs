@@ -100,7 +100,7 @@ namespace Extension.Script
                         Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
                         if (!pWeapon.IsNull)
                         {
-                            WeaponTypeData weaponTypeData = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, weaponId).Data;
+                            WeaponTypeData weaponTypeData = pWeapon.GetData();
 
                             bool canFire = !weaponTypeData.UseROF;
                             if (!canFire)

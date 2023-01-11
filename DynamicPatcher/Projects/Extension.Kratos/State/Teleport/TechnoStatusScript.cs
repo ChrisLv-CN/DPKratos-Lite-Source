@@ -315,7 +315,7 @@ namespace Extension.Script
                 CoordStruct location = pLocation.Ref;
                 if (default != location)
                 {
-                    if (pWH.IsTeleporter())
+                    if (pWH.GetData().Teleporter)
                     {
                         this.warpTo = location;
                     }

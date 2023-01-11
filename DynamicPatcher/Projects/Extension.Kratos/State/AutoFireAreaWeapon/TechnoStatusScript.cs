@@ -52,7 +52,7 @@ namespace Extension.Script
                 {
                     // 检查弹药消耗
                     int technoAmmo = pTechno.Ref.Ammo;
-                    int weaponAmmo = Ini.GetConfig<WeaponTypeData>(Ini.RulesDependency, pWeapon.Ref.WeaponType.Ref.Base.ID).Data.Ammo;
+                    int weaponAmmo = pWeapon.Ref.WeaponType.GetData().Ammo;
                     if (technoAmmo >= 0)
                     {
                         int leftAmmo = technoAmmo - weaponAmmo;

@@ -72,29 +72,14 @@ namespace Extension.Utilities
             return true;
         }
 
-        public static bool IsToy(this Pointer<WarheadTypeClass> pWH)
+        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH)
         {
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return whData.Data.IsToy;
-            }
-            return false;
+            return pWH.GetData(out WarheadTypeExt ext);
         }
 
-        public static double GetVersus(this Pointer<WarheadTypeClass> pWH, Armor armor, out bool forceFire, out bool retaliate, out bool passiveAcquire)
+        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
         {
-            forceFire = true;
-            retaliate = true;
-            passiveAcquire = true;
-
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            whExt = WarheadTypeExt.ExtMap.Find(pWH);
             if (null != whExt)
             {
                 IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
@@ -103,57 +88,9 @@ namespace Extension.Utilities
                     whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
                     whExt.WarheadTypeData = (INIComponent)whData;
                 }
-                return whData.Data.GetVersus(armor, out forceFire, out retaliate, out passiveAcquire);
+                return whData.Data;
             }
-            return 1d;
-        }
-
-        public static bool IsTeleporter(this Pointer<WarheadTypeClass> pWH)
-        {
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return whData.Data.Teleporter;
-            }
-            return false;
-        }
-
-        public static bool IsCapturer(this Pointer<WarheadTypeClass> pWH)
-        {
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return whData.Data.Capturer;
-            }
-            return false;
-        }
-
-        public static bool CanRevenge(this Pointer<WarheadTypeClass> pWH)
-        {
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return !whData.Data.IgnoreRevenge;
-            }
-            return false;
+            return new WarheadTypeData();
         }
 
         public static bool CanReaction(this Pointer<WarheadTypeClass> pWH, out DamageReactionMode[] ignoreModes)
@@ -162,35 +99,11 @@ namespace Extension.Utilities
             // ignoreModes = whData.IgnoreDamageReactionModes;
             // return !whData.IgnoreDamageReaction || (null != ignoreModes && ignoreModes.Any());
             ignoreModes = null;
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            WarheadTypeData data = pWH.GetData(out WarheadTypeExt whExt);
             if (null != whExt)
             {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                ignoreModes = whData.Data.IgnoreDamageReactionModes;
-                return !whData.Data.IgnoreDamageReaction || (null != ignoreModes && ignoreModes.Any());
-            }
-            return true;
-        }
-
-        public static bool CanShareDamage(this Pointer<WarheadTypeClass> pWH)
-        {
-            // WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-            // return !whData.IgnoreStandShareDamage;
-            WarheadTypeExt whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return !whData.Data.IgnoreStandShareDamage;
+                ignoreModes = data.IgnoreDamageReactionModes;
+                return !data.IgnoreDamageReaction || (null != ignoreModes && ignoreModes.Any());
             }
             return true;
         }

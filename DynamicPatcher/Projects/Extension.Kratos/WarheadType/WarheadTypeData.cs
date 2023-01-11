@@ -108,6 +108,8 @@ namespace Extension.Ext
 
         public bool ClearTarget;
 
+        public Mission ForceMission;
+
         // 玩具弹头
         public bool IsToy;
         // 弹头传送标记
@@ -141,6 +143,8 @@ namespace Extension.Ext
 
             this.ClearTarget = false;
 
+            this.ForceMission = Mission.None;
+
             this.IsToy = false;
             this.Teleporter = false;
             this.Capturer = false;
@@ -169,6 +173,8 @@ namespace Extension.Ext
             this.AffectStand = reader.Get("AffectStand", this.AffectStand);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
+
+            this.ForceMission = reader.Get("ForceMission", this.ForceMission);
 
             this.IsToy = reader.Get("IsToy", this.IsToy);
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
