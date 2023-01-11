@@ -351,6 +351,26 @@ namespace ExtensionHooks
             return 0;
         }
 
+
+        [Hook(HookType.AresHook, Address = 0x5194EF, Size = 5)]
+        public static unsafe UInt32 InfantryClass_DrawIt_InAir_Shadow_Skip(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<InfantryClass> pInf = (IntPtr)R->EBP;
+                // Logger.Log($"{Game.CurrentFrame} [{pInf.Ref.Type.Ref.Base.Base.Base.ID}]{pInf} 渲染圆点影子 {pInf.Ref.Type.Ref.Base.NoShadow}");
+                if (pInf.Ref.Type.Ref.Base.NoShadow)
+                {
+                    return 0x51958A;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         #region UnitClass Desguise
         [Hook(HookType.AresHook, Address = 0x6F422F, Size = 6)]
         public static unsafe UInt32 TechnoClass_Init_PermaDisguise(REGISTERS* R)
