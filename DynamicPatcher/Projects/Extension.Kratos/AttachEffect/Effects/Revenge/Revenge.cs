@@ -49,12 +49,13 @@ namespace Extension.Script
             {
                 pRevenger = AE.pSource;
                 pRevengerHouse = AE.pSourceHouse;
-            }
-            if (pRevenger.IsDeadOrInvisible())
-            {
-                // 复仇者不存在，复个屁
-                Disable(default);
-                return;
+
+                if (pRevenger.IsDeadOrInvisible())
+                {
+                    // 复仇者不存在，复个屁
+                    Disable(default);
+                    return;
+                }
             }
             // 检查报复对象
             Pointer<TechnoClass> pRevengeTargetTechno = IntPtr.Zero; // 报复对象
@@ -63,9 +64,14 @@ namespace Extension.Script
             {
                 pRevengeTargetTechno = AE.pSource;
             }
-            else if (pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno))
+            else if (!pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pAttackerTechno))
             {
                 pRevengeTargetTechno = pAttackerTechno;
+            }
+            if (pRevengeTargetTechno.IsNull)
+            {
+                // 报复对象不存在
+                return;
             }
             // 准备报复
             if (!pRevengeTargetTechno.IsDeadOrInvisible() && (Data.Realtime || damageState == DamageState.NowDead)
