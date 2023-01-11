@@ -21,9 +21,9 @@ namespace Extension.Script
             ResetArcingVelocity();
         }
 
-        public void ResetArcingVelocity(float speedMultiple = 1f)
+        public void ResetArcingVelocity(float speedMultiple = 1f, bool force = false)
         {
-            if (!arcingTrajectoryInitFlag && trajectoryData.AdvancedBallistics)
+            if (force || !arcingTrajectoryInitFlag && trajectoryData.AdvancedBallistics)
             {
                 arcingTrajectoryInitFlag = true;
                 CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();

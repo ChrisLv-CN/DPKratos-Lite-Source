@@ -304,10 +304,7 @@ namespace Extension.Script
             if (!pBullet.IsDeadOrInvisible() && !LifeData.IsDetonate)
             {
                 OnUpdate_BlackHole();
-                if (isMissile)
-                {
-                    OnUpdate_ECM();
-                }
+                OnUpdate_ECM();
                 OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
             }
@@ -370,6 +367,29 @@ namespace Extension.Script
                 {
                     return;
                 }
+            }
+        }
+
+        public void ResetTarget(Pointer<AbstractClass> pNewTarget, CoordStruct targetPos)
+        {
+            pBullet.Ref.SetTarget(pNewTarget);
+            if (default == targetPos && !pNewTarget.IsNull)
+            {
+                targetPos = pNewTarget.Ref.GetCoords();
+            }
+            pBullet.Ref.TargetCoords = targetPos;
+            // 重设弹道
+            if (isArcing)
+            {
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                pBullet.Ref.SourceCoords = sourcePos;
+                ResetArcingVelocity(1f, true);
+            }
+            else if (IsStraight())
+            {
+                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+                pBullet.Ref.SourceCoords = sourcePos;
+                InitState_Trajectory_Straight();
             }
         }
 

@@ -163,8 +163,7 @@ namespace Extension.Script
                                 }
                                 if (found)
                                 {
-                                    pBullet.Ref.SetTarget(pNewTarget);
-                                    pBullet.Ref.TargetCoords = pNewTarget.Ref.GetCoords();
+                                    ResetTarget(pNewTarget, default);
                                     if (data.NoOwner)
                                     {
                                         pBullet.Ref.Owner = IntPtr.Zero;
@@ -191,8 +190,7 @@ namespace Extension.Script
                             // 将偏移后的坐标对应的格子，设置为新的目标
                             if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell))
                             {
-                                pBullet.Ref.SetTarget(pCell.Convert<AbstractClass>());
-                                pBullet.Ref.TargetCoords = pCell.Ref.GetCoordsWithBridge();
+                                ResetTarget(pCell.Convert<AbstractClass>(), pCell.Ref.GetCoordsWithBridge());
                                 if (data.NoOwner)
                                 {
                                     pBullet.Ref.Owner = IntPtr.Zero;
