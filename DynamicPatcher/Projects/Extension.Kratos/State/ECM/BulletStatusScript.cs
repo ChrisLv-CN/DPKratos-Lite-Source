@@ -63,28 +63,47 @@ namespace Extension.Script
                         Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
                         // 确定搜索的圆心
                         CoordStruct location = default;
-                        if (data.AroundSource && ECMState.HasSourceLocation)
+                        bool pickFormArounds = false;
+                        // 根据设置取得圆心
+                        switch (data.Around)
                         {
-                            // 以来源为圆心
-                            location = ECMState.SourceLocation;
+                            case ECMAround.Source:
+                                // 获取来源，如果没有就跳过
+                                CoordStruct targetLocation = default;
+                                if (ECMState.TryGetSourceLocation(out targetLocation))
+                                {
+                                    location = targetLocation;
+                                    pickFormArounds = true;
+                                }
+                                break;
+                            case ECMAround.Target:
+                                // 获取当前目标的位置，没有就跳过
+                                if (!pTarget.IsNull)
+                                {
+                                    location = pTarget.Ref.GetCoords();
+                                    pickFormArounds = true;
+                                }
+                                break;
+                            case ECMAround.Self:
+                                // 获取抛射体自身的位置，肯定有
+                                location = pBullet.Ref.Base.Base.GetCoords();
+                                pickFormArounds = true;
+                                break;
+                            case ECMAround.Shooter:
+                                // 获取发射者的位置，没有就跳过
+                                if (!pSource.IsNull)
+                                {
+                                    location = pSource.Ref.Base.Base.GetCoords();
+                                    pickFormArounds = true;
+                                }
+                                break;
                         }
-                        else if (data.AroundSelf)
+                        if (!pickFormArounds)
                         {
-                            // 以自己为圆心
+                            // 没有从Arounds设置里获得，以自身为目标搜索
                             location = pBullet.Ref.Base.Base.GetCoords();
                         }
-                        else
-                        {
-                            // 以原始目标为圆心
-                            if (!pTarget.IsNull)
-                            {
-                                location = pTarget.Ref.GetCoords();
-                            }
-                            else
-                            {
-                                location = pBullet.Ref.TargetCoords;
-                            }
-                        }
+                        // 开始搜索新目标
                         bool pickTechno = false;
                         bool forceToGround = false;
                         // 一定概率选择一个单位做目标，而不是地面
@@ -104,15 +123,57 @@ namespace Extension.Script
                             int count = targetList.Count();
                             if (count > 0)
                             {
-                                // 至少会找到一个，可能是原目标，取一个随机数，就它了
-                                int i = MathEx.Random.Next(count);
-                                // Logger.Log($"{Game.CurrentFrame} 获得范围内搜索到的目标 {i + 1} / {count}");
-                                Pointer<AbstractClass> pNewTarget = targetList[i].Convert<AbstractClass>();
-                                pBullet.Ref.SetTarget(pNewTarget);
-                                pBullet.Ref.TargetCoords = pNewTarget.Ref.GetCoords();
-                                if (data.NoOwner)
+                                Pointer<AbstractClass> pNewTarget = IntPtr.Zero;
+                                bool found = false;
+                                int times = 0;
+                                if (times < count)
                                 {
-                                    pBullet.Ref.Owner = IntPtr.Zero;
+                                    // 循环一轮，随机查找目标
+                                    for (int i = 0; i < count; i++)
+                                    {
+                                        // 至少会找到一个，可能是原目标，取一个随机数，就它了
+                                        int index = MathEx.Random.Next(count);
+                                        // Logger.Log($"{Game.CurrentFrame} 获得范围内搜索到的目标 {i + 1} / {count}");
+                                        // 检查选择的新目标能不能打
+                                        Pointer<TechnoClass> pTryTarget = targetList[index];
+                                        if (pBullet.CanAttack(pTryTarget))
+                                        {
+                                            // 就是你了
+                                            pNewTarget = pTryTarget.Convert<AbstractClass>();
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found)
+                                    {
+                                        // 纳尼？随机居然没有找到，按顺序一个个找
+                                        for (int j = 0; j < count; j++)
+                                        {
+                                            // 检查选择的新目标能不能打
+                                            Pointer<TechnoClass> pTryTarget = targetList[j];
+                                            if (pBullet.CanAttack(pTryTarget))
+                                            {
+                                                // 就是你了
+                                                pNewTarget = pTryTarget.Convert<AbstractClass>();
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (found)
+                                {
+                                    pBullet.Ref.SetTarget(pNewTarget);
+                                    pBullet.Ref.TargetCoords = pNewTarget.Ref.GetCoords();
+                                    if (data.NoOwner)
+                                    {
+                                        pBullet.Ref.Owner = IntPtr.Zero;
+                                    }
+                                }
+                                else
+                                {
+                                    // 一个目标都没找到
+                                    forceToGround = true;
                                 }
                             }
                             else

@@ -131,5 +131,55 @@ namespace Extension.Utilities
             }
             return false;
         }
+
+        public static bool CanAttack(this Pointer<TechnoClass> pTechno, Pointer<AbstractClass> pTarget, bool isPassiveAcquire = false)
+        {
+            if (pTarget.CastToTechno(out Pointer<TechnoClass> pTargetTechno))
+            {
+                return pTechno.CanAttack(pTargetTechno, isPassiveAcquire);
+            }
+            return true;
+        }
+
+        public static bool CanAttack(this Pointer<TechnoClass> pTechno, Pointer<TechnoClass> pTarget, bool isPassiveAcquire = false)
+        {
+            bool canAttack = false;
+            Pointer<AbstractClass> pTargetAbs = pTarget.Convert<AbstractClass>();
+            int weaponIdx = pTechno.Ref.SelectWeapon(pTargetAbs);
+            Pointer<WeaponStruct> pWeaponStruct = pTechno.Ref.GetWeapon(weaponIdx);
+            Pointer<WeaponTypeClass> pWeapon = IntPtr.Zero;
+            if (!pWeaponStruct.IsNull && !(pWeapon = pWeaponStruct.Ref.WeaponType).IsNull)
+            {
+                // 判断护甲
+                double versus = pWeapon.Ref.Warhead.GetData().GetVersus(pTarget.Ref.Type.Ref.Base.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire);
+                if (isPassiveAcquire)
+                {
+                    // 是否可以主动攻击
+                    canAttack = versus > 0.2 || passiveAcquire;
+                }
+                else
+                {
+                    canAttack = versus != 0.0;
+                }
+                // 检查是否可以攻击
+                if (canAttack)
+                {
+                    FireError fireError = pTechno.Ref.GetFireError(pTargetAbs, weaponIdx, true);
+                    switch (fireError)
+                    {
+                        case FireError.ILLEGAL:
+                        case FireError.CANT:
+                            canAttack = false;
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                // 没有可以用的武器
+                canAttack = false;
+            }
+            return canAttack;
+        }
     }
 }

@@ -160,5 +160,31 @@ namespace Extension.Utilities
         //     return !pBullet.AmIInviso() && !pBullet.AmIArcing() && pBullet.Ref.Type.Ref.ROT <= 0 && pBullet.Ref.Type.Ref.Vertical;
         // }
 
+        public static bool CanAttack(this Pointer<BulletClass> pBullet, Pointer<TechnoClass> pTarget, bool isPassiveAcquire = false)
+        {
+            bool canAttack = false;
+            Pointer<WarheadTypeClass> pWH = pBullet.Ref.WH;
+            if (!pWH.IsNull)
+            {
+                // 判断护甲
+                double versus = pWH.GetData().GetVersus(pTarget.Ref.Type.Ref.Base.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire);
+                if (isPassiveAcquire)
+                {
+                    // 是否可以主动攻击
+                    canAttack = versus > 0.2 || passiveAcquire;
+                }
+                else
+                {
+                    canAttack = versus != 0.0;
+                }
+                // 能不能对空
+                if (canAttack && pTarget.InAir())
+                {
+                    canAttack = pBullet.Ref.Type.Ref.AA;
+                }
+            }
+            return canAttack;
+        }
+
     }
 }

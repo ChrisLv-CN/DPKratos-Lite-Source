@@ -529,30 +529,7 @@ namespace Extension.Script
             if (pick)
             {
                 // 能否对其进行攻击
-                Pointer<AbstractClass> pTargetAbs = pTarget.Convert<AbstractClass>();
-                int weaponIdx = pTechno.Ref.SelectWeapon(pTargetAbs);
-                Pointer<WeaponStruct> pWeaponStruct = pTechno.Ref.GetWeapon(weaponIdx);
-                Pointer<WeaponTypeClass> pWeapon = IntPtr.Zero;
-                if (!pWeaponStruct.IsNull && !(pWeapon = pWeaponStruct.Ref.WeaponType).IsNull)
-                {
-                    // 判断护甲
-                    pick = (pWeapon.Ref.Warhead.GetData().GetVersus(pTarget.Ref.Type.Ref.Base.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) > 0.2 || passiveAcquire);
-                    if (pick)
-                    {
-                        FireError fireError = pTechno.Ref.GetFireError(pTargetAbs, weaponIdx, true);
-                        switch (fireError)
-                        {
-                            case FireError.ILLEGAL:
-                            case FireError.CANT:
-                                pick = false;
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    pick = false;
-                }
+                pick = pTechno.CanAttack(pTarget, true);
             }
             return pick;
         }
