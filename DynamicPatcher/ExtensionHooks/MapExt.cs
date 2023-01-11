@@ -49,26 +49,6 @@ namespace ExtensionHooks
             return 0;
         }
 
-
-        [Hook(HookType.AresHook, Address = 0x69252D, Size = 6)]
-        public static unsafe UInt32 ScrollClass_ProcessClickCoords_VirtualUnit(REGISTERS* R)
-        {
-            try
-            {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
-                if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.VirtualUnit)
-                {
-                    // Logger.Log("ScrollClass_ClickCoords {0} is virtual unit", pTechno.Ref.Type.Ref.Base.Base.ID);
-                    return 0x6925E6;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
-            }
-            return 0;
-        }
-
         /*
             generic crate-handler file
             currently used only to shim crates into TechnoExt
@@ -299,6 +279,25 @@ namespace ExtensionHooks
                     status.CrateBuff.Cloakable = true;
                     status.RecalculateStatus();
                     return 0x482956;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6DA3FF, Size = 6)]
+        public static unsafe UInt32 TacticalClass_SelectAt_VirtualUnit(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+                if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.VirtualUnit)
+                {
+                    // 虚单位不纳入可选择的范围
+                    return 0x6DA440;
                 }
             }
             catch (Exception e)
