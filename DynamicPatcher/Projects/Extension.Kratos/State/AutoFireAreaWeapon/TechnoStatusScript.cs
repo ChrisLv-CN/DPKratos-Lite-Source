@@ -34,6 +34,15 @@ namespace Extension.Script
         private TimerStruct reloadTimer;
         private TimerStruct initialDelayTimer;
 
+        public void InitState_AutoFireAreaWeapon()
+        {
+            int initDelay = 0;
+            if (autoFireAreaWeaponData.Enable && (initDelay = autoFireAreaWeaponData.InitialDelay) > 0)
+            {
+                initialDelayTimer.Start(initDelay);
+            }
+        }
+
         public void OnUpdate_AutoFireAreaWeapon()
         {
             Pointer<WeaponStruct> pWeapon = IntPtr.Zero;

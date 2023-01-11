@@ -129,6 +129,7 @@ namespace Extension.Script
         {
             // TODO 初始化状态机
             InitState_AttackBeacon();
+            InitState_AutoFireAreaWeapon();
             InitState_BlackHole();
             InitState_DamageReaction();
             InitState_Deselect();
