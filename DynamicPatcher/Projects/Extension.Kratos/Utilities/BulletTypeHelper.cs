@@ -19,7 +19,8 @@ namespace Extension.Utilities
         ARCING = 2,
         MISSILE = 3,
         ROCKET = 4,
-        BOMB = 5
+        NOROT = 5,
+        BOMB = 6
     }
 
     public static class BulletTypeHelper
@@ -125,10 +126,15 @@ namespace Extension.Utilities
                     // 检查垂直
                     return BulletType.BOMB;
                 }
-                else
+                else if (pType.Ref.Arcing)
                 {
                     // 最后是Arcing
                     return BulletType.ARCING;
+                }
+                else if (pType.Ref.ROT == 0)
+                {
+                    // 再然后还有一个ROT=0的抛物线，但不是Arcing
+                    return BulletType.NOROT;
                 }
             }
             return default;
