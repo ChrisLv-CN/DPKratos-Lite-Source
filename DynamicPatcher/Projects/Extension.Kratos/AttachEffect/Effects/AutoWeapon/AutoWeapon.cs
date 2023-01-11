@@ -41,6 +41,11 @@ namespace Extension.Script
                 Disable(AE.Location);
                 return;
             }
+            if (Data.Powered && AE.AEManager.PowerOff)
+            {
+                // 需要电力，但是建筑没电了
+                return;
+            }
 
             AutoWeaponEntity data = Data.Data;
 

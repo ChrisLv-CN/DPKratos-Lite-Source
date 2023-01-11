@@ -70,6 +70,11 @@ namespace Extension.Script
                 Disable(location);
                 return;
             }
+            if (Data.Powered && AE.AEManager.PowerOff)
+            {
+                // 需要电力，但是没电
+                return;
+            }
             if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 if (ROFTimer.Expired())

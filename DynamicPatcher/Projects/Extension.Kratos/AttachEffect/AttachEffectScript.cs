@@ -53,7 +53,23 @@ namespace Extension.Script
         public Dictionary<string, TimerStruct> DisableDelayTimers; // 同名AE失效后再赋予的计时器
         public Dictionary<string, int> AEStacks; // 同名AE的叠加层数
 
-        public bool IsBullet;
+        private AbstractType _absType;
+        public AbstractType AbsType
+        {
+            get
+            {
+                if (default == _absType)
+                {
+                    _absType = pOwner.Ref.Base.WhatAmI();
+                }
+                return _absType;
+            }
+        }
+
+        public bool IsBullet => AbsType == AbstractType.Bullet;
+        public bool IsBuilding => AbsType == AbstractType.Building;
+
+        public bool PowerOff;
 
         public List<int> PassengerIds; // 乘客持有的ID
 
@@ -161,8 +177,6 @@ namespace Extension.Script
             this.AttachEffects = new List<AttachEffect>();
             this.DisableDelayTimers = new Dictionary<string, TimerStruct>();
             this.AEStacks = new Dictionary<string, int>();
-
-            this.IsBullet = pObject.Ref.Base.WhatAmI() == AbstractType.Bullet;
 
             this.location = pOwner.Ref.Base.GetCoords();
 
@@ -893,7 +907,18 @@ namespace Extension.Script
             // 添加Section上记录的AE
             if (!isDead)
             {
+                // 记录位置
                 location = pOwner.Ref.Base.GetCoords();
+                // 检查电力
+                if (!IsBullet)
+                {
+                    PowerOff = pOwner.Convert<TechnoClass>().Ref.Owner.Ref.NoPower;
+                    if (!PowerOff && IsBuilding)
+                    {
+                        // 关闭当前建筑电源
+                        PowerOff = !pOwner.Convert<BuildingClass>().Ref.HasPower;
+                    }
+                }
                 // 添加无分组的
                 Attach(AETypeData, pOwner);
                 // 检查乘客并附加乘客带来的AE

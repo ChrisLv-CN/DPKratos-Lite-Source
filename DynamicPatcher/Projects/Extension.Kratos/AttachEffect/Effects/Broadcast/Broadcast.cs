@@ -35,6 +35,11 @@ namespace Extension.Script
         {
             if (!isDead)
             {
+                if (Data.Powered && AE.AEManager.PowerOff)
+                {
+                    // 需要电力，但是没电
+                    return;
+                }
                 BroadcastEntity data = Data.Data;
                 Pointer<HouseClass> pHouse = IntPtr.Zero;
                 if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))

@@ -44,6 +44,8 @@ namespace Extension.Ext
     {
         public bool Enable;
 
+        public bool Powered; // 建筑需要使用电力
+
         public AffectWho AffectWho;
 
         public bool DeactiveWhenCivilian;
@@ -56,6 +58,7 @@ namespace Extension.Ext
         public EffectData()
         {
             this.Enable = false;
+            this.Powered = false;
             this.AffectWho = AffectWho.MASTER;
             this.DeactiveWhenCivilian = false;
         }
@@ -65,6 +68,7 @@ namespace Extension.Ext
         public virtual void Read(ISectionReader reader, string title)
         {
             this.Enable = reader.Get(title + "Enable", this.Enable);
+            this.Powered = reader.Get(title + "Powered", this.Powered);
             this.AffectWho = reader.Get(title + "AffectWho", this.AffectWho);
             this.DeactiveWhenCivilian = reader.Get(title + "DeactiveWhenCivilian", this.DeactiveWhenCivilian);
         }

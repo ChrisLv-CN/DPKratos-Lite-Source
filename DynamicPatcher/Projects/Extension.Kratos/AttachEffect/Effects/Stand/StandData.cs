@@ -113,7 +113,6 @@ namespace Extension.Ext
         public StandTargeting Targeting; // 在什么位置可攻击
         public bool ForceAttackMaster; // 强制选择使者为目标
         public bool MobileFire; // 移动攻击
-        public bool Powered; // 是否需要电力支持
 
         public bool Immune; // 无敌
         public double DamageFromMaster; // 分摊JOJO的伤害
@@ -169,7 +168,6 @@ namespace Extension.Ext
             this.Targeting = StandTargeting.BOTH;
             this.ForceAttackMaster = false;
             this.MobileFire = true;
-            this.Powered = false;
 
             this.Immune = true;
             this.DamageFromMaster = 0.0;
@@ -243,7 +241,6 @@ namespace Extension.Ext
                 this.Targeting = reader.Get(TITLE + "Targeting", this.Targeting);
                 this.ForceAttackMaster = reader.Get(TITLE + "ForceAttackMaster", this.ForceAttackMaster);
                 this.MobileFire = reader.Get(TITLE + "MobileFire", this.MobileFire);
-                this.Powered = reader.Get(TITLE + "Powered", this.Powered);
 
                 this.Immune = reader.Get(TITLE + "Immune", this.Immune);
                 this.DamageFromMaster = reader.GetPercent(TITLE + "DamageFromMaster", this.DamageFromMaster);
