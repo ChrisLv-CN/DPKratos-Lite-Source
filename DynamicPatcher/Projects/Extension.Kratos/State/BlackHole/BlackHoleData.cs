@@ -145,6 +145,9 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
+            // 强制不允许影响自己
+            this.AffectSelf = false;
+
             BlackHoleEntity data = new BlackHoleEntity();
             data.Read(reader, TITLE);
             // 0时关闭，-1全地图

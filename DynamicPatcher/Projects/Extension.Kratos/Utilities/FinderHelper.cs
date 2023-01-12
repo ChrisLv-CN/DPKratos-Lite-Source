@@ -411,7 +411,7 @@ namespace Extension.Utilities
                 foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                 {
                     // 检查死亡
-                    if (pTarget.IsDeadOrInvisible() || pTarget.Convert<ObjectClass>() == exclude)
+                    if (pTarget.IsDeadOrInvisible() || (data.AffectSelf && pTarget.Convert<ObjectClass>() == exclude))
                     {
                         continue;
                     }
@@ -454,7 +454,7 @@ namespace Extension.Utilities
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
             BulletClass.Array.FindObject((pTarget) =>
             {
-                if (!pTarget.IsDeadOrInvisible() && pTarget.Convert<ObjectClass>() != exclude)
+                if (!pTarget.IsDeadOrInvisible() && (data.AffectSelf || pTarget.Convert<ObjectClass>() != exclude))
                 {
                     // 可影响
                     if (data.CanAffectType(pTarget))

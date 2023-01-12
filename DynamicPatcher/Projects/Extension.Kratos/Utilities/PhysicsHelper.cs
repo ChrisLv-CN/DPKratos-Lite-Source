@@ -14,20 +14,21 @@ namespace Extension.Utilities
     [Serializable]
     public enum PassError
     {
-        PASS = 0, UNDERGROUND = 1, HITWALL = 2, HITBUILDING = 3,
+        PASS = 0, UNDERGROUND = 1, HITWALL = 2, HITBUILDING = 3, DOWNBRIDGE = 4, UPBRIDEG = 5
     }
 
     public static class PhysicsHelper
     {
 
-        public static unsafe PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding)
+        public static unsafe PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding, out CoordStruct cellPos)
         {
             PassError canPass = PassError.PASS;
+            cellPos = sourcePos;
             int deltaZ = sourcePos.Z - nextPos.Z;
             // 检查地面
             if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
             {
-                CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
+                cellPos = pTargetCell.Ref.GetCoordsWithBridge();
                 if (cellPos.Z >= nextPos.Z)
                 {
                     // 沉入地面
@@ -45,6 +46,24 @@ namespace Extension.Utilities
                             }
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
                             break;
+                    }
+                }
+                // 检查桥
+                if (canPass == PassError.PASS && pTargetCell.Ref.ContainsBridge())
+                {
+                    Logger.Log($"{Game.CurrentFrame} 检查桥梁 {canPass} {sourcePos.Z} {nextPos.Z} {cellPos.Z}");
+                    int bridgeHeight = cellPos.Z;
+                    if (sourcePos.Z > bridgeHeight && nextPos.Z <= bridgeHeight)
+                    {
+                        // 桥上砸桥下
+                        Logger.Log($"{Game.CurrentFrame} 桥上砸桥下 {canPass}");
+                        canPass = PassError.DOWNBRIDGE;
+                    }
+                    else if (sourcePos.Z < bridgeHeight && nextPos.Z >= bridgeHeight)
+                    {
+                        // 桥下穿桥上
+                        Logger.Log($"{Game.CurrentFrame} 桥下穿桥上 {canPass}");
+                        canPass = PassError.UPBRIDEG;
                     }
                 }
                 // 检查建筑

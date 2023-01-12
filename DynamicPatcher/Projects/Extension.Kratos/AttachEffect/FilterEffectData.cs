@@ -30,6 +30,7 @@ namespace Extension.Ext
         public bool AffectBomb;
 
         public bool AffectStand;
+        public bool AffectSelf;
         public bool AffectInAir;
         public string[] OnlyAffectMarks;
 
@@ -57,6 +58,7 @@ namespace Extension.Ext
             this.AffectBomb = true;
 
             this.AffectStand = false;
+            this.AffectSelf = false;
             this.AffectInAir = true;
             this.OnlyAffectMarks = null;
 
@@ -96,6 +98,7 @@ namespace Extension.Ext
 
 
             this.AffectStand = reader.Get(title + "AffectStand", this.AffectStand);
+            this.AffectSelf = reader.Get(title + "AffectSelf", this.AffectSelf);
             this.AffectInAir = reader.Get(title + "AffectInAir", this.AffectInAir);
             this.OnlyAffectMarks = reader.GetList(title + "OnlyAffectMarks", this.OnlyAffectMarks);
 
