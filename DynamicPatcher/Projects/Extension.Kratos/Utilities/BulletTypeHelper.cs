@@ -96,6 +96,16 @@ namespace Extension.Utilities
             }
         }
 
+        public static unsafe CoordStruct GetTargetCoords(this Pointer<BulletClass> pBullet)
+        {
+            Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+            if (!pTarget.IsNull)
+            {
+                return pTarget.Ref.GetCoords();
+            }
+            return pBullet.Ref.TargetCoords;
+        }
+
         // Inviso优先级最高
         // Arcing 和 ROT>0 一起写，无法发射
         // Arcing 和 ROT=0 一起写，是抛物线

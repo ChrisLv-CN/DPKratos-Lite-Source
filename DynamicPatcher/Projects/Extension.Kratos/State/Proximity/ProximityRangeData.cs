@@ -11,41 +11,57 @@ namespace Extension.Ext
 
     public class ProximityRangeData : INIConfig
     {
-        public int Range;
+        public int Range; // *256
+
         public bool Random;
-        public int MaxRange;
-        public int MinRange;
+        public Point2D RandomRange;
 
         public ProximityRangeData()
         {
-            this.Range = -1;
+            this.Range = 0;
             this.Random = false;
-            this.MinRange = 0;
-            this.MaxRange = 0;
+            this.RandomRange = default;
         }
 
         public override void Read(IConfigReader reader)
         {
-            this.Range = reader.Get("ProximityRange", -1);
-            if (Range > 0)
+            double range = reader.Get("ProximityRange", -1d);
+            if (range > 0)
             {
-                this.Range *= 256;
+                this.Range = (int)(range * 256);
             }
-            this.MaxRange = Range;
-            Point2D randomRange = reader.Get<Point2D>("ProximityRange.Random", default);
-            if (default != randomRange)
+
+            SingleVector2D randomRange = reader.Get<SingleVector2D>("ProximityRange.Random", default);
+            if (0 != randomRange.X && 0 != randomRange.Y)
             {
-                this.Range = 0;
-                this.Random = true;
-                this.MinRange = randomRange.X * 256;
-                this.MaxRange = randomRange.Y * 256;
-                if (MinRange > MaxRange)
+                int x = (int)(randomRange.X * 256);
+                int y = (int)(randomRange.Y * 256);
+                if (x < 0)
                 {
-                    int temp = MaxRange;
-                    MaxRange = MinRange;
-                    MinRange = temp;
+                    x = -x;
                 }
+                if (y < 0)
+                {
+                    y = -x;
+                }
+                if (x > y)
+                {
+                    int t = x;
+                    x = y;
+                    y = t;
+                }
+                this.RandomRange = new Point2D(x, y);
+                this.Random = 0 != RandomRange.X && 0 != RandomRange.Y;
             }
+        }
+
+        public int GetRange()
+        {
+            if (Random && default != RandomRange)
+            {
+                return RandomRange.GetRandomValue(0);
+            }
+            return Range;
         }
     }
 

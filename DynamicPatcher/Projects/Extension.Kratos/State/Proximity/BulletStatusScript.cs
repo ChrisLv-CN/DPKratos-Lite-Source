@@ -106,12 +106,8 @@ namespace Extension.Script
             {
                 string weaponId = pWeapon.Ref.Base.ID;
                 ProximityRangeData tempData = Ini.GetConfig<ProximityRangeData>(Ini.RulesDependency, weaponId).Data;
-                int range = tempData.Range;
-                if (tempData.Random)
-                {
-                    range = MathEx.Random.Next(tempData.MinRange, tempData.MaxRange);
-                }
-                if (range >= 0)
+                int range = tempData.GetRange();
+                if (range > 0)
                 {
                     this.proximityRange = range;
                 }
@@ -132,9 +128,9 @@ namespace Extension.Script
         {
 
             // 提前引爆抛射体
-            if (proximityRange >= 0)
+            if (proximityRange > 0)
             {
-                if (sourcePos.DistanceFrom(pBullet.Ref.TargetCoords) <= proximityRange)
+                if (sourcePos.DistanceFrom(pBullet.GetTargetCoords()) <= proximityRange)
                 {
                     ManualDetonation(sourcePos);
                 }

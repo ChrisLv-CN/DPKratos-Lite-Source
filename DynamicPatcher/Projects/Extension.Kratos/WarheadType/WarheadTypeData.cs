@@ -104,6 +104,7 @@ namespace Extension.Ext
 
         // Kratos
         public bool AffectInAir;
+        public bool AffectShooter;
         public bool AffectStand;
 
         public bool ClearTarget;
@@ -139,6 +140,7 @@ namespace Extension.Ext
 
             // Kratos
             this.AffectInAir = true;
+            this.AffectShooter = true;
             this.AffectStand = false;
 
             this.ClearTarget = false;
@@ -170,6 +172,7 @@ namespace Extension.Ext
 
             // Kratos
             this.AffectInAir = reader.Get("AffectInAir", this.AffectInAir);
+            this.AffectShooter = reader.Get("AffectShooter", this.AffectShooter);
             this.AffectStand = reader.Get("AffectStand", this.AffectStand);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);

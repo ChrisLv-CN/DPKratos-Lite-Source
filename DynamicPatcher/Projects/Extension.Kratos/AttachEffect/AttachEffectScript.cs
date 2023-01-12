@@ -1311,7 +1311,7 @@ namespace Extension.Script
         /// <param name="pWH"></param>
         /// <param name="pAttackingHouse"></param>
         /// <param name="exclude"></param>
-        public static void FindAndAttach(CoordStruct location, int damage, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse, Pointer<ObjectClass> exclude = default)
+        public static void FindAndAttach(CoordStruct location, int damage, Pointer<WarheadTypeClass> pWH, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
             AttachEffectTypeData aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
             if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
@@ -1362,8 +1362,8 @@ namespace Extension.Script
                     // Logger.Log($"{Game.CurrentFrame} 弹头[{pWH.Ref.Base.ID}] {pWH} 爆炸半径{pWH.Ref.CellSpread}, 影响的单位{pTechnoList.Count()}个，附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}]");
                     foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                     {
-                        // 检查死亡
-                        if (pTarget.IsDeadOrInvisible() || pTarget.Convert<ObjectClass>() == exclude)
+                        // 检查死亡，过滤掉发射者
+                        if (pTarget.IsDeadOrInvisible() || (!warheadTypeData.AffectShooter && pTarget.Convert<ObjectClass>() == pAttacker))
                         {
                             continue;
                         }
@@ -1396,7 +1396,7 @@ namespace Extension.Script
                 {
                     BulletClass.Array.FindObject((pTarget) =>
                     {
-                        if (!pTarget.IsDeadOrInvisible() && pTarget.Convert<ObjectClass>() != exclude)
+                        if (!pTarget.IsDeadOrInvisible() && (warheadTypeData.AffectShooter || pTarget.Convert<ObjectClass>() != pAttacker))
                         {
                             // 可影响
                             Pointer<HouseClass> pTargetSourceHouse = pTarget.GetSourceHouse();
