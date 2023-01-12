@@ -68,6 +68,37 @@ namespace Extension.INI
             return false;
         }
     }
+    public class SingleVector3DParser : BasicStructureParser<SingleVector3D>
+    {
+        public override bool Parse(string val, ref SingleVector3D buffer)
+        {
+            var tmp = new float[3];
+            if (Parsers.GetParser<float>().ParseArray(val, ref tmp))
+            {
+                buffer.X = tmp[0];
+                buffer.Y = tmp[1];
+                buffer.Z = tmp[2];
+                return true;
+            }
+
+            return false;
+        }
+    }
+    public class SingleVector2DParser : BasicStructureParser<SingleVector2D>
+    {
+        public override bool Parse(string val, ref SingleVector2D buffer)
+        {
+            var tmp = new float[2];
+            if (Parsers.GetParser<float>().ParseArray(val, ref tmp))
+            {
+                buffer.X = tmp[0];
+                buffer.Y = tmp[1];
+                return true;
+            }
+
+            return false;
+        }
+    }
     public class Point2DParser : BasicStructureParser<Point2D>
     {
         public override bool Parse(string val, ref Point2D buffer)
@@ -124,6 +155,8 @@ namespace Extension.INI
             new ColorStructParser().Register();
             new CoordStructParser().Register();
             new CellStructParser().Register();
+            new SingleVector3DParser().Register();
+            new SingleVector2DParser().Register();
             new Point2DParser().Register();
             new RectangleStructParser().Register();
             new TintStructParser().Register();
