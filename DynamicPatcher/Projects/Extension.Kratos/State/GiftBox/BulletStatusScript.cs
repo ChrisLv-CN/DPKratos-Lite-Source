@@ -187,7 +187,7 @@ namespace Extension.Script
                         if (null != data.AttachEffects)
                         {
                             AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
-                            giftAEM.Attach(data.AttachEffects);
+                            giftAEM.Attach(data.AttachEffects, data.AttachChances);
                         }
 
                         if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)

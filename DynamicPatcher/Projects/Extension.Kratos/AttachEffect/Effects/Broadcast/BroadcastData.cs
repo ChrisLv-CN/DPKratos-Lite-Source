@@ -29,6 +29,7 @@ namespace Extension.Ext
     public class BroadcastEntity
     {
         public string[] Types;
+        public double[] AttachChances;
         public int Rate;
         public float RangeMin;
         public float RangeMax;
@@ -37,6 +38,7 @@ namespace Extension.Ext
         public BroadcastEntity()
         {
             this.Types = null;
+            this.AttachChances = null;
             this.Rate = 15;
             this.RangeMin = 0;
             this.RangeMax = -1;
@@ -46,6 +48,7 @@ namespace Extension.Ext
         {
             BroadcastEntity data = new BroadcastEntity();
             data.Types = null != this.Types ? (string[])this.Types.Clone() : null;
+            data.AttachChances = null != this.AttachChances ? (double[])this.AttachChances.Clone() : null;
             data.Rate = this.Rate;
             data.RangeMin = this.RangeMin;
             data.RangeMax = this.RangeMax;
@@ -56,11 +59,13 @@ namespace Extension.Ext
         public void Read(ISectionReader reader, string title)
         {
             this.Types = reader.GetList(title + "Types", this.Types);
+            this.AttachChances = reader.GetChanceList(title + "AttachChances", this.AttachChances);
             this.Rate = reader.Get(title + "Rate", this.Rate);
             this.RangeMin = reader.Get(title + "RangeMin", this.RangeMin);
             this.RangeMax = reader.Get(title + "RangeMax", this.RangeMax);
             this.FullAirspace = reader.Get(title + "FullAirspace", this.FullAirspace);
         }
+
     }
 
     [Serializable]

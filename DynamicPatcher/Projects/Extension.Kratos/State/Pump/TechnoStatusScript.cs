@@ -24,6 +24,7 @@ namespace Extension.Script
         private TimerStruct flyTimer; // 滞空时间
 
         private bool pumpLock; // 不再接受新的状态
+        private PassError passError = PassError.NONE; // 跳到了桥上
 
         public void InitState_Pump()
         {
@@ -49,6 +50,7 @@ namespace Extension.Script
                 }
                 if (Jumping)
                 {
+                    passError = PassError.NONE;
                     if (CaptureByBlackHole)
                     {
                         CancelPump();
@@ -72,14 +74,23 @@ namespace Extension.Script
                         return;
                     }
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得下一个坐标点 {nextPos}, 当前坐标点 {sourcePos}");
-                    PassError canMove = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false);
-                    if (canMove == PassError.HITWALL || canMove == PassError.HITBUILDING)
+                    passError = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false, out CoordStruct cellPos);
+                    switch (passError)
                     {
-                        // 反弹
-                        velocity.X *= -1;
-                        velocity.Y *= -1;
-                        nextPos = sourcePos + velocity.ToCoordStruct();
-                        canMove = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false);
+                        case PassError.HITWALL:
+                        case PassError.HITBUILDING:
+                        case PassError.UPBRIDEG:
+                            // 反弹
+                            velocity.X *= -1;
+                            velocity.Y *= -1;
+                            nextPos = sourcePos + velocity.ToCoordStruct();
+                            passError = PhysicsHelper.CanMoveTo(sourcePos, nextPos, false, out CoordStruct cellPos2);
+                            break;
+                        case PassError.DOWNBRIDGE:
+                            // 砸桥上
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 砸在桥上");
+                            nextPos = cellPos;
+                            break;
                     }
                     // 被黑洞吸走
                     pTechno.Ref.Base.Mark(MarkType.UP);
@@ -91,11 +102,12 @@ namespace Extension.Script
                     // 移除黑幕
                     MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
                     MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
-                    switch (canMove)
+                    switch (passError)
                     {
                         case PassError.UNDERGROUND:
                         case PassError.HITWALL:
                         case PassError.HITBUILDING:
+                        case PassError.DOWNBRIDGE:
                             // 反弹后仍然触底或者撞悬崖
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 下一个坐标点 {nextPos} 无法抵达，终止，当前坐标点 {sourcePos}");
                             // 掉落地面
@@ -195,6 +207,7 @@ namespace Extension.Script
             this.jumpTo = default;
             this.pumpData = null;
             this.flyTimer.Stop();
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 取消移动，passError = {passError}");
             if (!CaptureByBlackHole && !pTechno.IsDeadOrInvisible())
             {
                 // 摔死
@@ -206,6 +219,7 @@ namespace Extension.Script
                 if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                 {
                     targetPos = pCell.Ref.GetCoordsWithBridge();
+                    // onBridge = pCell.Ref.ContainsBridge();
                     if (pTechno.Ref.Base.GetHeight() < 0)
                     {
                         // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于地下 {pTechno.Ref.Base.GetHeight()}，调整回地表");
@@ -213,6 +227,7 @@ namespace Extension.Script
                     }
                     // 当前格子所在的位置不可通行，炸了它
                     canPass = pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true);
+                    // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  当前格子可通行 = {canPass}");
                     if (canPass && !pCell.Ref.GetBuilding().IsNull)
                     {
                         canPass = false;
@@ -224,9 +239,18 @@ namespace Extension.Script
                 }
                 if (canPass)
                 {
+                    // if (onBridge)
+                    // {
+                    //     Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 停在桥上");
+                    //     targetPos.Z += 1;
+                    //     pTechno.Ref.Base.SetLocation(targetPos);
+                    //     pTechno.Ref.Base.IsOnMap = true;
+                    //     pCell.Ref.AddContent(pTechno.Convert<ObjectClass>(), onBridge);
+                    // }
                     // 掉地上
                     if (pTechno.Ref.Base.GetHeight() > 0)
                     {
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 掉落");
                         pTechno.Ref.Base.IsFallingDown = true;
                     }
                 }

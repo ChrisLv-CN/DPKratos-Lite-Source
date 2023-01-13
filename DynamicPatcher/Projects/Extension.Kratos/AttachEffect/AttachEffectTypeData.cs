@@ -14,6 +14,7 @@ namespace Extension.Ext
     public partial class AttachEffectTypeData : INIConfig
     {
         public string[] AttachEffectTypes;
+        public double[] AttachEffectChances; // 附加成功率，应该只对弹头有用
 
         // 单条AE
         public int StandTrainCabinLength; // 火车替身间隔
@@ -27,6 +28,7 @@ namespace Extension.Ext
         public AttachEffectTypeData()
         {
             this.AttachEffectTypes = null;
+            this.AttachEffectChances = null;
             // 单条
             this.StandTrainCabinLength = 512;
             this.AEMode = -1;
@@ -39,6 +41,8 @@ namespace Extension.Ext
         public override void Read(IConfigReader reader)
         {
             this.AttachEffectTypes = reader.GetList("AttachEffectTypes", this.AttachEffectTypes);
+            this.AttachEffectChances = reader.GetChanceList("AttachEffectChances", this.AttachEffectChances);
+
             this.StandTrainCabinLength = reader.Get("StandTrainCabinLength", this.StandTrainCabinLength);
             // 乘客读取
             this.AEMode = reader.Get("AEMode", this.AEMode);
@@ -47,8 +51,11 @@ namespace Extension.Ext
         // 多组AE
         public void Read(ISectionReader reader, int index)
         {
-            this.AttachEffectTypes = reader.GetList("AttachEffectTypes" + index, this.AttachEffectTypes);
-            this.AttachByPassenger = reader.Get("AttachByPassenger" + index, this.AttachByPassenger); // 默认值为true
+            string title = "AttachEffectTypes" + index + ".";
+            this.AttachEffectTypes = reader.GetList(title, this.AttachEffectTypes);
+            this.AttachEffectChances = reader.GetChanceList(title + "Chances", this.AttachEffectChances);
+
+            this.AttachByPassenger = reader.Get(title + "AttachByPassenger", this.AttachByPassenger); // 默认值为true
             this.AEModeIndex = index;
         }
 

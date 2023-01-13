@@ -101,7 +101,7 @@ namespace Extension.Script
                         }
                     }
 
-                    if (!pRevenger.IsNull && !pRevengeTargetTechno.IsDeadOrInvisible())
+                    if (Data.Chance.Bingo() && !pRevenger.IsNull && !pRevengeTargetTechno.IsDeadOrInvisible())
                     {
                         // 使用武器复仇
                         if (null != Data.Types && Data.Types.Any())
@@ -122,7 +122,7 @@ namespace Extension.Script
                         // 使用AE复仇
                         if (null != Data.AttachEffects && Data.AttachEffects.Any() && pRevengeTargetTechno.TryGetAEManager(out AttachEffectScript aeManager))
                         {
-                            aeManager.Attach(Data.AttachEffects, pRevenger.Convert<ObjectClass>(), pRevengerHouse);
+                            aeManager.Attach(Data.AttachEffects, Data.AttachChances, pRevenger.Convert<ObjectClass>(), pRevengerHouse);
                         }
                     }
                     // 检查触发次数

@@ -14,5 +14,7 @@ namespace Extension.Ext
     public partial class WarheadTypeExt
     {
         public INIComponent WarheadTypeData;
+
+        public INIComponent WarheadAEData;
     }
 }

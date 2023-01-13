@@ -16,11 +16,13 @@ namespace Extension.Ext
     {
 
         public string[] AttachEffects;
+        public double[] AttachChances;
         public int[] Keys;
 
         public HotKeyAttachEffectData()
         {
             this.AttachEffects = null;
+            this.AttachChances = null;
             this.Keys = null;
 
             this.AffectsOwner = true;
@@ -32,7 +34,8 @@ namespace Extension.Ext
         public override void Read(ISectionReader reader, string title)
         {
             base.Read(reader, title);
-            this.AttachEffects = reader.GetList<string>(title + "AttachEffects", AttachEffects);
+            this.AttachEffects = reader.GetList(title + "AttachEffects", AttachEffects);
+            this.AttachChances = reader.GetChanceList(title + "AttachChances", AttachChances);
             this.Keys = reader.GetList<int>(title + "Keys", this.Keys);
 
             this.Enable = null != AttachEffects && AttachEffects.Any();

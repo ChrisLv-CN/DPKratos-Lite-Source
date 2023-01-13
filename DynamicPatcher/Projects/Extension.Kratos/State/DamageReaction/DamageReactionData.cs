@@ -101,6 +101,7 @@ namespace Extension.Ext
         public bool ResetTimes;
 
         public string[] TriggeredAttachEffects; // 触发后附加AE
+        public double[] TriggeredAttachEffectChances; // 附加效果的成功率
         public bool TriggeredAttachEffectsFromAttacker; // 触发后附加的AE来源是攻击者
 
         public string[] OnlyReactionWarheads; // 只响应某些弹头
@@ -130,6 +131,7 @@ namespace Extension.Ext
             this.ResetTimes = false;
 
             this.TriggeredAttachEffects = null;
+            this.TriggeredAttachEffectChances = null;
             this.TriggeredAttachEffectsFromAttacker = false;
 
             this.OnlyReactionWarheads = null;
@@ -160,6 +162,7 @@ namespace Extension.Ext
             data.ResetTimes = this.ResetTimes;
 
             data.TriggeredAttachEffects = null != this.TriggeredAttachEffects ? (string[])this.TriggeredAttachEffects.Clone() : null;
+            data.TriggeredAttachEffectChances = null != this.TriggeredAttachEffectChances ? (double[])this.TriggeredAttachEffectChances.Clone() : null;
             data.TriggeredAttachEffectsFromAttacker = this.TriggeredAttachEffectsFromAttacker;
 
             data.OnlyReactionWarheads = null != this.OnlyReactionWarheads ? (string[])this.OnlyReactionWarheads.Clone() : null;
@@ -208,6 +211,7 @@ namespace Extension.Ext
             this.ResetTimes = reader.Get(title + "ResetTimes", this.ResetTimes);
 
             this.TriggeredAttachEffects = reader.GetList(title + "TriggeredAttachEffects", this.TriggeredAttachEffects);
+            this.TriggeredAttachEffectChances = reader.GetChanceList(title + "TriggeredAttachEffectChances", this.TriggeredAttachEffectChances);
             this.TriggeredAttachEffectsFromAttacker = reader.Get(title + "TriggeredAttachEffectsFromAttacker", this.TriggeredAttachEffectsFromAttacker);
 
             this.OnlyReactionWarheads = reader.GetList(title + "OnlyReactionWarheads", this.OnlyReactionWarheads);

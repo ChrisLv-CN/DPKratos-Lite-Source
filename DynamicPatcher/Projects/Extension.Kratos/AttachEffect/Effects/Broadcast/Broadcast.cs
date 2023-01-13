@@ -93,7 +93,7 @@ namespace Extension.Script
                     FinderHelper.FindTechnoOnMark((pTarget, aeManager) =>
                     {
                         // 赋予AE
-                        aeManager.Attach(data.Types, pOwner);
+                        aeManager.Attach(data.Types, data.AttachChances, pOwner);
                         return false;
                     }, location, data.RangeMax, data.RangeMin, data.FullAirspace, pHouse, Data, pOwner);
                 }
@@ -103,11 +103,12 @@ namespace Extension.Script
                     FinderHelper.FindBulletOnMark((pTarget, aeManager) =>
                     {
                         // 赋予AE
-                        aeManager.Attach(data.Types, pOwner);
+                        aeManager.Attach(data.Types, data.AttachChances, pOwner);
                         return false;
                     }, location, data.RangeMax, data.RangeMin, data.FullAirspace, pHouse, Data, pOwner);
                 }
             }
         }
+
     }
 }

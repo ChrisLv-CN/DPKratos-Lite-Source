@@ -14,7 +14,14 @@ namespace Extension.Utilities
     [Serializable]
     public enum PassError
     {
-        PASS = 0, UNDERGROUND = 1, HITWALL = 2, HITBUILDING = 3, DOWNBRIDGE = 4, UPBRIDEG = 5
+        NONE = 0,
+        PASS = 1, // 可通行
+        UNDERGROUND = 2, // 潜地
+        ONWATER = 3, // 掉水上
+        HITWALL = 4, // 不可通行
+        HITBUILDING = 5, // 撞建筑
+        DOWNBRIDGE = 6, // 从上方撞桥
+        UPBRIDEG = 7 // 从下方撞桥
     }
 
     public static class PhysicsHelper
@@ -49,20 +56,20 @@ namespace Extension.Utilities
                     }
                 }
                 // 检查桥
-                if (canPass == PassError.PASS && pTargetCell.Ref.ContainsBridge())
+                if (canPass == PassError.UNDERGROUND && pTargetCell.Ref.ContainsBridge())
                 {
-                    Logger.Log($"{Game.CurrentFrame} 检查桥梁 {canPass} {sourcePos.Z} {nextPos.Z} {cellPos.Z}");
+                    // Logger.Log($"{Game.CurrentFrame} 检查桥梁 {canPass} {sourcePos.Z} {nextPos.Z} {cellPos.Z} {CellClass.BridgeHeight}");
                     int bridgeHeight = cellPos.Z;
                     if (sourcePos.Z > bridgeHeight && nextPos.Z <= bridgeHeight)
                     {
                         // 桥上砸桥下
-                        Logger.Log($"{Game.CurrentFrame} 桥上砸桥下 {canPass}");
+                        // Logger.Log($"{Game.CurrentFrame} 桥上砸桥下 {canPass}");
                         canPass = PassError.DOWNBRIDGE;
                     }
                     else if (sourcePos.Z < bridgeHeight && nextPos.Z >= bridgeHeight)
                     {
                         // 桥下穿桥上
-                        Logger.Log($"{Game.CurrentFrame} 桥下穿桥上 {canPass}");
+                        // Logger.Log($"{Game.CurrentFrame} 桥下穿桥上 {canPass}");
                         canPass = PassError.UPBRIDEG;
                     }
                 }

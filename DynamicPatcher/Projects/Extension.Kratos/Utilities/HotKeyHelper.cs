@@ -41,7 +41,7 @@ namespace Extension.Utilities
                                     {
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} attach AE [{string.Join(",", data.AttachEffectTypes)}]");
                                         // 执行动作
-                                        aeManager.Attach(data.AttachEffects, IntPtr.Zero, pPlayer);
+                                        aeManager.Attach(data.AttachEffects, data.AttachChances, IntPtr.Zero, pPlayer);
                                     }
                                 }
                             }

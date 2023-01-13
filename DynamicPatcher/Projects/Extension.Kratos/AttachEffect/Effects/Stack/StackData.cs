@@ -34,6 +34,7 @@ namespace Extension.Ext
         public string Watch;
         public int Level;
         public string[] AttachEffects;
+        public double[] AttachChances;
         public int TriggeredTimes;
         public bool RemoveAll;
 
@@ -43,6 +44,7 @@ namespace Extension.Ext
             this.Watch = null;
             this.Level = 0;
             this.AttachEffects = null;
+            this.AttachChances = null;
             this.TriggeredTimes = -1;
             this.RemoveAll = true;
         }
@@ -59,6 +61,7 @@ namespace Extension.Ext
             this.Watch = reader.Get(TITLE + "Watch", this.Watch);
             this.Level = reader.Get(TITLE + "Level", this.Level);
             this.AttachEffects = reader.GetList(TITLE + "AttachEffects", this.AttachEffects);
+            this.AttachChances = reader.GetChanceList(TITLE + "AttachChances", this.AttachChances);
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
             this.RemoveAll = reader.Get(TITLE + "RemoveAll", this.RemoveAll);
 

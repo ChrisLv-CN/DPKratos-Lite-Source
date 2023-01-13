@@ -102,11 +102,11 @@ namespace Extension.Script
                         {
                             if (reactionData.TriggeredAttachEffectsFromAttacker)
                             {
-                                aeManager.Attach(triggeredAttachEffects, pAttacker, pAttackingHouse);
+                                aeManager.Attach(triggeredAttachEffects, reactionData.TriggeredAttachEffectChances, pAttacker, pAttackingHouse);
                             }
                             else
                             {
-                                aeManager.Attach(triggeredAttachEffects);
+                                aeManager.Attach(triggeredAttachEffects, reactionData.TriggeredAttachEffectChances);
                             }
                         }
                         // 播放响应动画

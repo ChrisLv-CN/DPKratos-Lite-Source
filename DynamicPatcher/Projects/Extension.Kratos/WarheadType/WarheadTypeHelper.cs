@@ -72,6 +72,27 @@ namespace Extension.Utilities
             return true;
         }
 
+        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH)
+        {
+            return pWH.GetAEData(out WarheadTypeExt ext);
+        }
+
+        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
+        {
+            whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            if (null != whExt)
+            {
+                IConfigWrapper<AttachEffectTypeData> aeData = (IConfigWrapper<AttachEffectTypeData>)whExt.WarheadAEData;
+                if (null == aeData)
+                {
+                    aeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
+                    whExt.WarheadAEData = (INIComponent)aeData;
+                }
+                return aeData.Data;
+            }
+            return new AttachEffectTypeData();
+        }
+
         public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH)
         {
             return pWH.GetData(out WarheadTypeExt ext);

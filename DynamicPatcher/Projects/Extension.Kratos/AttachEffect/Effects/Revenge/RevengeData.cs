@@ -32,8 +32,11 @@ namespace Extension.Ext
     {
         public const string TITLE = "Revenge.";
 
+        public double Chance;
+
         public string[] Types;
         public string[] AttachEffects;
+        public double[] AttachChances;
         public CoordStruct FireFLH;
         public bool Realtime;
         public bool FromSource;
@@ -52,8 +55,11 @@ namespace Extension.Ext
 
         public RevengeData()
         {
+            this.Chance = 1;
+
             this.Types = null;
             this.AttachEffects = null;
+            this.AttachChances = null;
             this.FireFLH = default;
             this.Realtime = false;
             this.FromSource = false;
@@ -69,9 +75,12 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
+            this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
+
             this.Types = reader.GetList(TITLE + "Types", this.Types);
-            this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", null);
-            this.Enable = null != Types && Types.Any() || null != AttachEffects && AttachEffects.Any();
+            this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", this.AttachEffects);
+            this.AttachChances = reader.GetChanceList(TITLE + "AttachChances", this.AttachChances);
+            this.Enable = Chance > 0 && (null != Types && Types.Any() || null != AttachEffects && AttachEffects.Any());
             if (Enable)
             {
                 this.Enable = AffectTechno;

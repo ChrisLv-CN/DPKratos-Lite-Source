@@ -59,7 +59,7 @@ namespace Extension.Script
                 {
                     count++;
                     // 触发
-                    AE.AEManager.Attach(Data.AttachEffects, AE.pSource.Convert<ObjectClass>(), AE.pSourceHouse);
+                    AE.AEManager.Attach(Data.AttachEffects, Data.AttachChances, AE.pSource.Convert<ObjectClass>(), AE.pSourceHouse);
                     // 移除被监视者
                     if (Data.RemoveAll)
                     {

@@ -115,6 +115,7 @@ namespace Extension.Ext
 
         public string[] RemoveEffects;
         public string[] AttachEffects;
+        public double[] AttachChances;
 
         static GiftBoxData()
         {
@@ -147,6 +148,7 @@ namespace Extension.Ext
 
             this.RemoveEffects = null;
             this.AttachEffects = null;
+            this.AttachChances = null;
         }
 
         public GiftBoxData(string[] gifts) : this()
@@ -233,8 +235,9 @@ namespace Extension.Ext
             this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
             this.ForceMission = reader.Get(title + "ForceMission", Mission.None);
 
-            this.RemoveEffects = reader.GetList<string>(title + "RemoveEffects", null);
-            this.AttachEffects = reader.GetList<string>(title + "AttachEffects", null);
+            this.RemoveEffects = reader.GetList(title + "RemoveEffects", this.RemoveEffects);
+            this.AttachEffects = reader.GetList(title + "AttachEffects", this.AttachEffects);
+            this.AttachChances = reader.GetChanceList(title + "AttachChances", this.AttachChances);
         }
 
         public void ForTransform()
