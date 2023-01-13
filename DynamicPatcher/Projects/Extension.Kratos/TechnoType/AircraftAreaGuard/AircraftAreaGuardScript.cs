@@ -50,7 +50,7 @@ namespace Extension.Script
         public override void Awake()
         {
             ILocomotion locomotion = null;
-            if (!data.AreaGuard || pTechno.Ref.Type.Ref.MissileSpawn || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
+            if (!data.Enable || pTechno.Ref.Type.Ref.MissileSpawn || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || (locomotion = pAircraft.Convert<FootClass>().Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
                 GameObject.RemoveComponent(this);
@@ -76,6 +76,13 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
+            // AI不允许使用这个逻辑
+            Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+            if (pHouse.IsNull || !pHouse.Ref.ControlledByHuman())
+            {
+                return;
+            }
+
             Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
             Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
             ILocomotion locomotion = pFoot.Ref.Locomotor;
@@ -105,7 +112,9 @@ namespace Extension.Script
                             {
                                 case Mission.Attack:
                                 case Mission.Enter:
-                                    // 攻击或返航途中，什么都不做
+                                // 攻击或返航途中，什么都不做
+                                    CancelAreaGuard();
+                                    return;
                                 case Mission.Guard:
                                 case Mission.Area_Guard:
                                 case Mission.Move:
@@ -132,7 +141,8 @@ namespace Extension.Script
                     else
                     {
                         onStopCommand = false;
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 在地面待机中");
+                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 在地面待机中 DefaultToGuard = {data.DefaultToGuard}");
+                        CancelAreaGuard();
                         // 弹药充足，自动起飞
                         if (data.DefaultToGuard && pTechno.Ref.Ammo >= data.MaxAmmo)
                         {
@@ -225,6 +235,7 @@ namespace Extension.Script
                                 break;
                             }
                             CancelAreaGuard();
+                            this.State = AircraftGuardState.STOP;
                             return;
                         case Mission.Enter:
                             // Logger.Log($"{Game.CurrentFrame} 从巡航中切换返航");
@@ -232,6 +243,11 @@ namespace Extension.Script
                             {
                                 // 还有蛋，不返航，回基地巡逻
                                 pMission.Ref.ForceMission(Mission.Area_Guard);
+                            }
+                            else
+                            {
+                                // 命令返航
+                                this.State = AircraftGuardState.STOP;
                             }
                             return;
                         default:
@@ -298,6 +314,7 @@ namespace Extension.Script
         {
             onStopCommand = true;
             CancelAreaGuard();
+            this.State = AircraftGuardState.STOP;
             // 任务改成返航
             pTechno.Ref.BaseMission.ForceMission(Mission.Enter);
         }
@@ -424,7 +441,6 @@ namespace Extension.Script
         private void CancelAreaGuard()
         {
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 取消巡航");
-            this.State = AircraftGuardState.STOP;
             this.destCenter = default;
             this.destList.Clear();
             this.destIndex = 0;

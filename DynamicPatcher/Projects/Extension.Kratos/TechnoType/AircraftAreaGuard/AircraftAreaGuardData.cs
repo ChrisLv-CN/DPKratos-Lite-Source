@@ -14,6 +14,8 @@ namespace Extension.Ext
     {
         public const string TITLE = "Fighter.";
 
+        public bool Enable;
+
         public bool AreaGuard; // 按Ctrl+Alt巡航
         public bool AutoGuard; // 移动巡航
         public bool DefaultToGuard; // 自动起飞
@@ -28,6 +30,8 @@ namespace Extension.Ext
 
         public AircraftAreaGuardData()
         {
+            this.Enable = false;
+
             this.AreaGuard = false;
             this.AutoGuard = false;
             this.DefaultToGuard = false;
@@ -46,6 +50,8 @@ namespace Extension.Ext
             this.AreaGuard = reader.Get(TITLE + "AreaGuard", this.AreaGuard);
             this.AutoGuard = reader.Get(TITLE + "AutoGuard", this.AutoGuard);
             this.DefaultToGuard = reader.Get(TITLE + "DefaultToGuard", this.DefaultToGuard);
+
+            this.Enable = AreaGuard || AutoGuard || DefaultToGuard;
 
             this.GuardRange = reader.Get(TITLE + "GuardRange", this.GuardRange);
             this.AutoFire = reader.Get(TITLE + "AutoFire", this.AutoFire);
