@@ -410,8 +410,9 @@ namespace Extension.Utilities
             {
                 foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                 {
+                    // Logger.Log($"{Game.CurrentFrame} AffectSelf = {data.AffectSelf} && {pTarget} == {exclude} = {pTarget.Convert<ObjectClass>() == exclude}");
                     // 检查死亡
-                    if (pTarget.IsDeadOrInvisible() || (data.AffectSelf && pTarget.Convert<ObjectClass>() == exclude))
+                    if (pTarget.IsDeadOrInvisible() || (!data.AffectSelf && pTarget.Convert<ObjectClass>() == exclude))
                     {
                         continue;
                     }

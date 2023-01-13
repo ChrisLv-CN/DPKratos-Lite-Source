@@ -164,6 +164,32 @@ namespace Extension.Script
                                 nextPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, speed);
                             }
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自身速度 {pTechno.Ref.Type.Ref.Speed} 捕获速度 {speed} 质量{pTechno.Ref.Type.Ref.Weight} 黑洞捕获速度 {blackHoleData.CaptureSpeed}");
+                            PassError passError = PhysicsHelper.CanMoveTo(sourcePos, nextPos, blackHoleData.AllowPassBuilding, out CoordStruct nextCellPos, out bool onBridge);
+                            switch (passError)
+                            {
+                                case PassError.HITWALL:
+                                case PassError.HITBUILDING:
+                                case PassError.UPBRIDEG:
+                                    // 反弹回移动前的格子
+                                    if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pSourceCell))
+                                    {
+                                        CoordStruct cellPos = pSourceCell.Ref.GetCoordsWithBridge();
+                                        nextPos.X = cellPos.X;
+                                        nextPos.Y = cellPos.Y;
+                                        if (nextPos.Z < cellPos.Z)
+                                        {
+                                            nextPos.Z = cellPos.Z;
+                                        }
+                                    }
+                                    break;
+                                case PassError.UNDERGROUND:
+                                case PassError.DOWNBRIDGE:
+                                    // 卡在地表
+                                    // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 砸在桥上");
+                                    nextPos.Z = nextCellPos.Z;
+                                    break;
+                            }
+                            /*
                             int deltaZ = sourcePos.Z - targetPos.Z;
                             bool canMove = true;
                             // 检查地面
@@ -212,10 +238,12 @@ namespace Extension.Script
                                     }
                                 }
                             }
-
+                            */
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得新位置坐标 {nextPos} 原始位置 {sourcePos} {(!canMove ? "受到阻挡不能前进，返回" : "")}");
                             // 被黑洞吸走
                             pTechno.Ref.Base.Mark(MarkType.UP);
+                            // 是否在桥上
+                            pTechno.Ref.Base.OnBridge = onBridge;
                             pTechno.Ref.Base.SetLocation(nextPos);
                             // CoordStruct dest = loco.Destination();
                             // BulletEffectHelper.GreenCrosshair(nextPos, 128);
@@ -224,21 +252,20 @@ namespace Extension.Script
                             // 移除黑幕
                             MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 0);
                             MapClass.Instance.RevealArea2(nextPos, pTechno.Ref.LastSightRange, pTechno.Ref.Owner, false, false, false, true, 1);
-                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // 设置动作
-                            if (blackHoleData.AllowCrawl && pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Infantry)
+                            if (blackHoleData.AllowCrawl && isInfantry)
                             {
                                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置步兵匍匐动作");
-                                pFoot.Ref.Inf_PlayAnim(SequenceAnimType.CRAWL);
+                                pTechno.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.CRAWL);
                             }
                             // 设置翻滚
                             if (blackHoleData.AllowRotateUnit)
                             {
-                                if (pTechno.Ref.IsVoxel() && canMove)
-                                {
-                                    // pTechno.Ref.RockingForwardsPerFrame = 0.2f;
-                                    // pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
-                                }
+                                // if (pTechno.Ref.IsVoxel() && canMove)
+                                // {
+                                //     pTechno.Ref.RockingForwardsPerFrame = 0.2f;
+                                //     pTechno.Ref.RockingSidewaysPerFrame = 0.2f;
+                                // }
                                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 设置VXL翻滚动作");
                                 // 设置朝向
                                 if (lastMission == Mission.Move || lastMission == Mission.AttackMove || pTechno.Ref.Type.Ref.ConsideredAircraft || !pTechno.InAir())
@@ -251,15 +278,13 @@ namespace Extension.Script
                                     {
                                         DirStruct facingDir = FLHHelper.Point2Dir(targetPos, sourcePos);
                                         pTechno.Ref.Facing.turn(facingDir);
-                                        ILocomotion loco = pFoot.Ref.Locomotor;
-                                        Guid locoId = loco.ToLocomotionClass().Ref.GetClassID();
-                                        if (locoId == LocomotionClass.Jumpjet)
+                                        if (isJumpjet)
                                         {
                                             // JJ朝向是单独的Facing
-                                            Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
+                                            Pointer<JumpjetLocomotionClass> pLoco = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>();
                                             pLoco.Ref.LocomotionFacing.turn(facingDir);
                                         }
-                                        else if (locoId == LocomotionClass.Fly)
+                                        else if (isAircraft)
                                         {
                                             // 飞机使用的炮塔的Facing
                                             pTechno.Ref.TurretFacing.turn(facingDir);
@@ -347,18 +372,33 @@ namespace Extension.Script
                 }
                 // 检查是否在悬崖上摔死
                 bool canPass = true;
+                bool isWater = false;
                 CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
                 CoordStruct targetPos = location;
                 if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                 {
-                    targetPos = pCell.Ref.GetCoordsWithBridge();
-                    // 当前格子所在的位置不可通行，炸了它
-                    canPass = pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true);
-                    if (pTechno.Ref.Base.GetHeight() < 0)
+                    CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
+                    pTechno.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
+
+                    // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于桥上 {pCell.Ref.ContainsBridge()} {pTechno.Ref.Base.GetHeight()}， 桥高 {cellPos.Z}");
+                    if (cellPos.Z >= location.Z)
                     {
+                        targetPos.Z = cellPos.Z;
                         // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于地下 {pTechno.Ref.Base.GetHeight()}，调整回地表");
                         pTechno.Ref.Base.SetLocation(targetPos);
                     }
+                    // 当前格子所在的位置不可通行，炸了它
+                    canPass = pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true);
+                    // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  当前格子可通行 = {canPass}");
+                    if (canPass && !pCell.Ref.GetBuilding().IsNull)
+                    {
+                        canPass = false;
+                    }
+                    if (!canPass)
+                    {
+                        isWater = pCell.Ref.TileIs(TileType.Water);
+                    }
+
                 }
                 int height = pTechno.Ref.Base.GetHeight();
                 if (pTechno.Ref.Type.Ref.ConsideredAircraft && height > Game.LevelHeight * 2)
@@ -368,7 +408,14 @@ namespace Extension.Script
                     pTechno.Ref.SetDestination(pCell);
                     if (pTechno.Ref.Target.IsNull)
                     {
-                        pMission.Ref.QueueMission(Mission.Guard, false);
+                        if (isAircraft)
+                        {
+                            pMission.Ref.QueueMission(Mission.Enter, false);
+                        }
+                        else
+                        {
+                            pMission.Ref.QueueMission(Mission.Guard, false);
+                        }
                     }
                     else
                     {
@@ -378,6 +425,29 @@ namespace Extension.Script
                 else
                 {
                     bool drop = false;
+                    bool sinking = false;
+                    // 检查下方是不是水
+                    if (isWater)
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} [{section}] {pTechno} 下方是水 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
+                        switch (locoType)
+                        {
+                            case LocoType.Hover:
+                            case LocoType.Ship:
+                                // 船和悬浮不下沉
+                                canPass = true;
+                                break;
+                            case LocoType.Jumpjet:
+                                if (!pTechno.Ref.Type.Ref.BalloonHover)
+                                {
+                                    sinking = true;
+                                }
+                                break;
+                            default:
+                                sinking = true;
+                                break;
+                        }
+                    }
                     if (null != blackHoleData)
                     {
                         // 超过高度也摔死
@@ -403,13 +473,22 @@ namespace Extension.Script
                     else
                     {
                         // 摔死
-                        // Logger.Log($"{Game.CurrentFrame} {(IsBuilding ? "建筑" : "单位")} [{section}] {pTechno} 下方不可通行 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
-                        pTechno.Ref.Base.DropAsBomb();
-                        drop = true;
+                        if (height <= 0 && sinking)
+                        {
+                            // Logger.Log($"{Game.CurrentFrame} {(IsBuilding ? "建筑" : "单位")} [{section}] {pTechno} 下方不可通行 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
+                            pTechno.Ref.IsSinking = true;
+                        }
+                        else
+                        {
+
+                            // Logger.Log($"{Game.CurrentFrame} {(IsBuilding ? "建筑" : "单位")} [{section}] {pTechno} 下方不可通行 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
+                            pTechno.Ref.Base.DropAsBomb();
+                            drop = true;
+                        }
                     }
-                    if (drop && pTechno.CastToInfantry(out Pointer<InfantryClass> pInf))
+                    if (drop && isInfantry)
                     {
-                        pInf.Ref.Base.Inf_PlayAnim(SequenceAnimType.Paradrop);
+                        pTechno.Convert<FootClass>().Ref.Inf_PlayAnim(SequenceAnimType.Paradrop);
                     }
                 }
             }

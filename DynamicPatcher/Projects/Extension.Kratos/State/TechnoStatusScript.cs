@@ -58,8 +58,27 @@ namespace Extension.Script
         private bool isUnit => absType == AbstractType.Unit;
         private bool isAircraft => absType == AbstractType.Aircraft;
 
+        private bool isFoot => isInfantry || isUnit || isAircraft;
+
         private bool isVoxel;
         private bool isFearless;
+
+        private LocoType _locoType;
+        private LocoType locoType
+        {
+            get
+            {
+                if (default == _locoType)
+                {
+                    _locoType = pTechno.WhatLocoType();
+                }
+                return _locoType;
+            }
+        }
+
+        private bool isFly => locoType == LocoType.Fly;
+        private bool isJumpjet => locoType == LocoType.Jumpjet;
+        private bool isShip => locoType == LocoType.Ship;
 
         private bool initStateFlag = false;
 

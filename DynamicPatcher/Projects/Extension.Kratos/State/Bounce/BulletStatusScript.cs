@@ -54,7 +54,7 @@ namespace Extension.Script
                     // 检查撞悬崖反弹
                     CoordStruct nextPos = sourcePos + pBullet.Ref.Velocity.ToCoordStruct();
 
-                    switch (PhysicsHelper.CanMoveTo(sourcePos, nextPos, true, out CoordStruct cellPos))
+                    switch (PhysicsHelper.CanMoveTo(sourcePos, nextPos, true, out CoordStruct nextCellPos, out bool onBridge))
                     {
                         case PassError.HITWALL:
                             // 反弹

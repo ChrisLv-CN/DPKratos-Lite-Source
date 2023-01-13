@@ -12,6 +12,7 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
+    [Serializable]
     public enum BulletType
     {
         UNKNOWN = 0,

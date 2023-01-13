@@ -114,7 +114,7 @@ namespace Extension.Ext
                             && (Data.AffectBlackHole || !targetStatus.BlackHoleState.IsActive()) // 黑洞不能捕获另一个黑洞
                         )
                         {
-                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pObject.Ref.Type.Ref.Base.ID}]{pObject} 捕获单位 [{id}]{pTarget}");
+                            // Logger.Log($"{Game.CurrentFrame} 黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}]{pBlackHole} 捕获单位 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}");
                             targetStatus.SetBlackHole(blackHoleExt, Data);
                         }
                         return false;

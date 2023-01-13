@@ -12,6 +12,23 @@ using Extension.Utilities;
 namespace Extension.Utilities
 {
 
+    [Serializable]
+    public enum LocoType
+    {
+        None = 0,
+        Drive = 1,
+        Hover = 2,
+        Tunnel = 3,
+        Walk = 4,
+        Droppod = 5,
+        Fly = 6,
+        Teleport = 7,
+        Mech = 8,
+        Ship = 9,
+        Jumpjet = 10,
+        Rocket = 11
+    }
+
     public static class TechnoTypeHelper
     {
 
@@ -180,6 +197,66 @@ namespace Extension.Utilities
                 canAttack = false;
             }
             return canAttack;
+        }
+
+        public static LocoType WhatLocoType(this Pointer<TechnoClass> pTechno)
+        {
+            if (pTechno.CastToFoot(out Pointer<FootClass> pFoot))
+            {
+                return pFoot.WhatLocoType();
+            }
+            return LocoType.None;
+        }
+
+        public static LocoType WhatLocoType(this Pointer<FootClass> pFoot)
+        {
+            Pointer<LocomotionClass> pLoco = pFoot.Ref.Locomotor.ToLocomotionClass();
+            Guid locoId = pLoco.Ref.GUID;
+            if (locoId == LocomotionClass.Drive)
+            {
+                return LocoType.Drive;
+            }
+            else if (locoId == LocomotionClass.Hover)
+            {
+                return LocoType.Hover;
+            }
+            else if (locoId == LocomotionClass.Tunnel)
+            {
+                return LocoType.Tunnel;
+            }
+            else if (locoId == LocomotionClass.Walk)
+            {
+                return LocoType.Walk;
+            }
+            else if (locoId == LocomotionClass.Droppod)
+            {
+                return LocoType.Droppod;
+            }
+            else if (locoId == LocomotionClass.Fly)
+            {
+                return LocoType.Fly;
+            }
+            else if (locoId == LocomotionClass.Teleport)
+            {
+                return LocoType.Teleport;
+            }
+            else if (locoId == LocomotionClass.Mech)
+            {
+                return LocoType.Mech;
+            }
+            else if (locoId == LocomotionClass.Ship)
+            {
+                return LocoType.Ship;
+            }
+            else if (locoId == LocomotionClass.Jumpjet)
+            {
+                return LocoType.Jumpjet;
+            }
+            else if (locoId == LocomotionClass.Rocket)
+            {
+                return LocoType.Rocket;
+            }
+            return LocoType.None;
         }
     }
 }

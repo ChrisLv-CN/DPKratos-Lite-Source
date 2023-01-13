@@ -27,19 +27,21 @@ namespace Extension.Utilities
     public static class PhysicsHelper
     {
 
-        public static unsafe PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding, out CoordStruct cellPos)
+        public static unsafe PassError CanMoveTo(CoordStruct sourcePos, CoordStruct nextPos, bool passBuilding, out CoordStruct nextCellPos, out bool onBridge)
         {
             PassError canPass = PassError.PASS;
-            cellPos = sourcePos;
+            nextCellPos = sourcePos;
+            onBridge = false;
             int deltaZ = sourcePos.Z - nextPos.Z;
             // 检查地面
             if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
             {
-                cellPos = pTargetCell.Ref.GetCoordsWithBridge();
-                if (cellPos.Z >= nextPos.Z)
+                nextCellPos = pTargetCell.Ref.GetCoordsWithBridge();
+                onBridge = pTargetCell.Ref.ContainsBridge();
+                if (nextCellPos.Z >= nextPos.Z)
                 {
                     // 沉入地面
-                    nextPos.Z = cellPos.Z;
+                    nextPos.Z = nextCellPos.Z;
                     canPass = PassError.UNDERGROUND;
                     // 检查悬崖
                     switch (pTargetCell.Ref.GetTileType())
@@ -56,10 +58,10 @@ namespace Extension.Utilities
                     }
                 }
                 // 检查桥
-                if (canPass == PassError.UNDERGROUND && pTargetCell.Ref.ContainsBridge())
+                if (canPass == PassError.UNDERGROUND && onBridge)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 检查桥梁 {canPass} {sourcePos.Z} {nextPos.Z} {cellPos.Z} {CellClass.BridgeHeight}");
-                    int bridgeHeight = cellPos.Z;
+                    int bridgeHeight = nextCellPos.Z;
                     if (sourcePos.Z > bridgeHeight && nextPos.Z <= bridgeHeight)
                     {
                         // 桥上砸桥下
