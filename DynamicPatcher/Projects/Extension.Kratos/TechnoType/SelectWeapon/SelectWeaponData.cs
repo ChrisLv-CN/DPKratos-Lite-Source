@@ -26,13 +26,14 @@ namespace Extension.Ext
 
         public bool UseSecondary(Pointer<TechnoClass> pTechno, Pointer<AbstractClass> pTarget, Pointer<WeaponTypeClass> pPrimary, Pointer<WeaponTypeClass> pSecondary)
         {
-            if (UseRange)
+            if (UseRange && !pTechno.Ref.IsCloseEnough(pTarget, 0))
             {
-                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} {pPrimary.Ref.Base.ID} {pSecondary.Ref.Base.ID} select weapon index = {R->EAX}");
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} {pPrimary.Ref.Base.ID} {pSecondary.Ref.Base.ID} select weapon {pTechno.Ref.IsCloseEnough(pTarget, 0)} && {pTechno.Ref.IsCloseEnough(pTarget, 1)} || {pSecondary.Ref.Range} > {pPrimary.Ref.Range}");
                 // 检查副武器射程
-                if ((!pTechno.Ref.IsCloseEnough(pTarget, 0) && pTechno.Ref.IsCloseEnough(pTarget, 1))
+                if (pTechno.Ref.IsCloseEnough(pTarget, 1)
                     || (pSecondary.Ref.Range > pPrimary.Ref.Range))
                 {
+                    // Logger.Log($"{Game.CurrentFrame} 返回副武器");
                     return true; // 返回副武器
                 }
             }
