@@ -1393,7 +1393,7 @@ namespace Extension.Script
                             if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                             {
                                 // Logger.Log($"{Game.CurrentFrame} - 弹头[{pWH.Ref.Base.ID}] {pWH} 为 [{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget} 附加AE [{string.Join(", ", aeTypeData.AttachEffectTypes)}] Attacker {pAttacker} AttackingHouse {pAttackingHouse} ");
-                                aeManager.Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, true, location);
+                                aeManager.Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, false, location);
                             }
                         }
                     }
@@ -1413,7 +1413,7 @@ namespace Extension.Script
                                 // 赋予AE
                                 if (pTarget.TryGetAEManager(out AttachEffectScript aeManager))
                                 {
-                                    aeManager.Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, true, location);
+                                    aeManager.Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, false, location);
                                 }
                             }
                         }
