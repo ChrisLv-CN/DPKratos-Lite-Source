@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -16,7 +17,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateBefore(typeof(TechnoStatusScript))]
-    public class SpawnFireOnceScript : TechnoScriptable
+    public class SpawnFireOnceScript : TransformScriptable
     {
 
         public SpawnFireOnceScript(TechnoExt owner) : base(owner) { }
@@ -37,24 +38,17 @@ namespace Extension.Script
         private TimerStruct spawnFireOnceDelay;
         private bool spawnFireFlag;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             // I'm not a Spawn or Carrier
             if (pTechno.Ref.SpawnOwner.IsNull && pTechno.Ref.SpawnManager.IsNull)
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-        
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

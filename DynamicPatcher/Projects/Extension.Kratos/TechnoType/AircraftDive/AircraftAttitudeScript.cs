@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -16,7 +17,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateAfter(typeof(TechnoStatusScript))]
-    public class AircraftAttitudeScript : TechnoScriptable
+    public class AircraftAttitudeScript : TransformScriptable
     {
         public AircraftAttitudeScript(TechnoExt owner) : base(owner) { }
 
@@ -45,26 +46,20 @@ namespace Extension.Script
 
         private bool initFlag = false;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             ILocomotion locomotion = null;
             if (!pTechno.Ref.IsVoxel() || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || (locomotion = pAircraft.Ref.Base.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
 
             InitData();
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

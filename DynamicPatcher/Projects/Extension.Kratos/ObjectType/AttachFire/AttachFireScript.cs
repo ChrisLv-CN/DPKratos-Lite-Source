@@ -9,6 +9,7 @@ using Extension.EventSystems;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -30,6 +31,12 @@ namespace Extension.Script
         public override void Awake()
         {
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 附加开火，注册指针失效事件");
+            EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearInvalidMissionHandler);
+        }
+
+        public override void LoadFromStream(IStream stream)
+        {
+            base.LoadFromStream(stream);
             EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearInvalidMissionHandler);
         }
 

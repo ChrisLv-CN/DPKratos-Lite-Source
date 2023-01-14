@@ -39,6 +39,11 @@ namespace Extension.Script
             EventSystem.GScreen.RemoveTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
         }
 
+        public override void LoadFromStream(IStream stream)
+        {
+            EventSystem.GScreen.AddTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
+        }
+
         public void OnGScreenRender(object sender, EventArgs args)
         {
             if (((GScreenEventArgs)args).IsLateRender)

@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -22,7 +23,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateAfter(typeof(AircraftAttitudeScript))]
-    public class AircraftDiveScript : TechnoScriptable
+    public class AircraftDiveScript : TransformScriptable
     {
         public AircraftDiveScript(TechnoExt owner) : base(owner) { }
 
@@ -44,27 +45,20 @@ namespace Extension.Script
 
         private bool activeDive;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             ILocomotion locomotion = null;
             if (!data.Enable || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || (locomotion = pAircraft.Convert<FootClass>().Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
             // Pointer<FlyLocomotionClass> pFly = locomotion.ToLocomotionClass<FlyLocomotionClass>();
             // this.flightLevel = pFly.Ref.FlightLevel;
-        
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

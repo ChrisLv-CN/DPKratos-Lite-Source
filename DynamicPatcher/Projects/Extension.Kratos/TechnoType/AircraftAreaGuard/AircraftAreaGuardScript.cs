@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -21,7 +22,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateAfter(typeof(TechnoStatusScript))]
-    public class AircraftAreaGuardScript : TechnoScriptable
+    public class AircraftAreaGuardScript : TransformScriptable
     {
         public AircraftAreaGuardScript(TechnoExt owner) : base(owner) { }
 
@@ -47,24 +48,18 @@ namespace Extension.Script
 
         private bool onStopCommand;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             ILocomotion locomotion = null;
             if (!data.Enable || pTechno.Ref.Type.Ref.MissileSpawn || !pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || (locomotion = pAircraft.Convert<FootClass>().Ref.Locomotor).ToLocomotionClass().Ref.GetClassID() != LocomotionClass.Fly)
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

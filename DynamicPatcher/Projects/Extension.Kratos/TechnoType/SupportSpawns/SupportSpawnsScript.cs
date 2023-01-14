@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -53,6 +54,12 @@ namespace Extension.Script
             // SpwanOwner在这里拿不到，在put里检查
         }
 
+        public override void LoadFromStream(IStream stream)
+        {
+            base.LoadFromStream(stream);
+            initFlag = false;
+        }
+
         public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
         {
             if (pTechno.Ref.SpawnOwner.IsNull || !data.Enable)
@@ -60,14 +67,10 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
-            if (!initFlag)
-            {
-                initFlag = true;
-                EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-            }
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }
 
-        public override void OnUnInit()
+        public override void OnRemove()
         {
             EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }

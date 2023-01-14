@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -16,7 +17,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateAfter(typeof(TechnoStatusScript))]
-    public class AircraftPutScript : TechnoScriptable
+    public class AircraftPutScript : TransformScriptable
     {
         public AircraftPutScript(TechnoExt owner) : base(owner) { }
 
@@ -36,24 +37,17 @@ namespace Extension.Script
         private bool aircraftPutOffsetFlag = false;
         private bool aircraftPutOffset = false;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             if (!pTechno.CastIf<AircraftClass>(AbstractType.Aircraft, out Pointer<AircraftClass> pAircraft)
                 || null == data.PadAircraftTypes || !data.PadAircraftTypes.Contains(section))
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-        
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

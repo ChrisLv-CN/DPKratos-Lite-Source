@@ -8,6 +8,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -128,6 +129,15 @@ namespace Extension.Script
         {
             hasFakeTarget = true;
             EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearFakeTargetHandler);
+        }
+
+        public override void LoadFromStream(IStream stream)
+        {
+            base.LoadFromStream(stream);
+            if (hasFakeTarget)
+            {
+                EventSystem.PointerExpire.AddTemporaryHandler(EventSystem.PointerExpire.AnnounceExpiredPointerEvent, ClearFakeTargetHandler);
+            }
         }
 
         private void ClearFakeTargetHandler(object sender, EventArgs e)

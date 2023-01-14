@@ -24,6 +24,8 @@ namespace Extension.Ext
         // 重置计时器
         void ResetDuration();
 
+        // 读档
+        void LoadFromStream(IStream stream);
         // 渲染
         void OnGScreenRender(CoordStruct location);
         // 更新

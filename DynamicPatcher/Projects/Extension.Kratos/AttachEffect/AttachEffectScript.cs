@@ -8,6 +8,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -169,9 +170,27 @@ namespace Extension.Script
         public override void Awake()
         {
             OnAwake();
+            // Logger.Log($"{Game.CurrentFrame} 脚本激活时注册");
             // 注册Render事件
             EventSystem.GScreen.AddTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
             EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+        }
+
+        public override void LoadFromStream(IStream stream)
+        {
+            base.LoadFromStream(stream);
+            // Logger.Log($"{Game.CurrentFrame} 读入时重新注册");
+            // 注册Render事件
+            EventSystem.GScreen.AddTemporaryHandler(EventSystem.GScreen.GScreenRenderEvent, OnGScreenRender);
+            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            for (int i = Count() - 1; i >= 0; i--)
+            {
+                AttachEffect ae = AttachEffects[i];
+                if (ae.IsActive())
+                {
+                    ae.LoadFromStream(stream);
+                }
+            }
         }
 
         private void OnAwake()
@@ -1346,7 +1365,7 @@ namespace Extension.Script
                     {
                         // 检索爆炸范围内的替身
                         List<Pointer<TechnoClass>> pStandArray = new List<Pointer<TechnoClass>>();
-                        foreach(TechnoExt standExt in TechnoStatusScript.StandArray.Keys)
+                        foreach (TechnoExt standExt in TechnoStatusScript.StandArray.Keys)
                         {
                             pStandArray.Add(standExt.OwnerObject);
                         }

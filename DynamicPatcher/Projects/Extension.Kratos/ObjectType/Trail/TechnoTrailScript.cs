@@ -8,6 +8,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -21,29 +22,23 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     // [UpdateAfter(typeof(TechnoStatusScript))]
-    public class TechnoTrailScript : TechnoScriptable
+    public class TechnoTrailScript : TransformScriptable
     {
         public TechnoTrailScript(TechnoExt owner) : base(owner) { }
 
         private TechnoStatusScript technoStatus => GameObject.GetComponent<TechnoStatusScript>();
         private List<Trail> trails;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             if (!pTechno.Convert<AbstractClass>().Ref.AbstractFlags.HasFlag(AbstractFlags.Foot))
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

@@ -66,6 +66,8 @@ namespace Extension.Ext
         // 重置计时器
         public virtual void ResetDuration() { }
 
+        // 读档
+        public virtual void LoadFromStream(IStream stream) { }
         // 渲染
         public virtual void OnGScreenRender(CoordStruct location) { }
         // 更新

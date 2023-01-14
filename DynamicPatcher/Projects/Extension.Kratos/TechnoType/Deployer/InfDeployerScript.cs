@@ -9,6 +9,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -17,7 +18,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     [UpdateAfter(typeof(TechnoStatusScript))]
-    public class InfDeployerScript : TechnoScriptable
+    public class InfDeployerScript : TransformScriptable
     {
         public InfDeployerScript(TechnoExt owner) : base(owner) { }
 
@@ -34,22 +35,16 @@ namespace Extension.Script
             }
         }
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             if (!data.Enable || !pTechno.CastToInfantry(out Pointer<InfantryClass> pInf) || !pInf.Ref.Type.Ref.Deployer)
             {
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

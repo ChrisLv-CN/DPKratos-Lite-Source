@@ -8,6 +8,7 @@ using Extension.Ext;
 using Extension.EventSystems;
 using Extension.INI;
 using Extension.Utilities;
+using System.Runtime.InteropServices.ComTypes;
 
 namespace Extension.Script
 {
@@ -15,7 +16,7 @@ namespace Extension.Script
     [Serializable]
     [GlobalScriptable(typeof(TechnoExt))]
     // [UpdateAfter(typeof(TechnoStatusScript))]
-    public class TechnoAntiBulletScript : TechnoScriptable
+    public class TechnoAntiBulletScript : TransformScriptable
     {
         public TechnoAntiBulletScript(TechnoExt owner) : base(owner) { }
 
@@ -34,24 +35,18 @@ namespace Extension.Script
 
         private TimerStruct delayTimer;
 
-        public override void Awake()
+        public override bool OnAwake()
         {
             if (null == Data || !Data.Enable || NoPassengers() || WeaponNoAA())
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}] 关闭 AntiMissile. {NoPassengers()} {PrimaryWeaponNoAA()}");
                 Data.Enable = false;
-                GameObject.RemoveComponent(this);
-                return;
+                return false;
             }
-            EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            return true;
         }
 
-        public override void OnUnInit()
-        {
-            EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
-        }
-
-        public void OnTransform(object sender, EventArgs args)
+        public override void OnTransform(object sender, EventArgs args)
         {
             Pointer<TechnoClass> pTarget = ((TechnoTypeChangeEventArgs)args).pTechno;
             if (!pTarget.IsNull && pTarget == pTechno)

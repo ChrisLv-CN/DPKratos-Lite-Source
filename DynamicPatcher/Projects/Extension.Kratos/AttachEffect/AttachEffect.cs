@@ -327,6 +327,19 @@ namespace Extension.Script
             }
         }
 
+        public void LoadFromStream(IStream stream)
+        {
+            if (delayToEnable)
+            {
+                return;
+            }
+
+            foreach (IEffect effect in effects)
+            {
+                effect?.LoadFromStream(stream);
+            }
+        }
+
         public void OnGScreenRender(CoordStruct location)
         {
             if (delayToEnable)
