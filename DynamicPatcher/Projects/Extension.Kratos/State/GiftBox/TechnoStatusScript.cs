@@ -263,6 +263,23 @@ namespace Extension.Script
                             }
                         }
 
+                        // 转移乘客
+                        // if (data.InheritPassenger && pTechno.Ref.Passengers.NumPassengers > 0)
+                        // {
+                        //     // 检查乘员舱空间
+                        //     int technoSize = pTechno.Ref.Type.Ref.Passengers;
+                        //     int giftSize = pGift.Ref.Type.Ref.Passengers;
+                        //     Logger.Log($"{Game.CurrentFrame} 转移乘客，礼盒乘客容量{technoSize}，礼物乘客容量{giftSize}，乘客数量{pTechno.Ref.Passengers.NumPassengers}");
+                        //     PassengersClass pTechnoPC = pTechno.Ref.Passengers;
+                        //     PassengersClass pGiftPC = pGift.Ref.Passengers;
+                        //     for (int i = 0; i <= pTechnoPC.NumPassengers; i++)
+                        //     {
+                        //         Pointer<FootClass> pFoot = pTechnoPC.RemoveFirstPassenger();
+                        //         pGiftPC.AddPassenger(pFoot);
+                        //         Logger.Log($"{Game.CurrentFrame} 写入{i}个乘客 {pFoot}");
+                        //     }
+                        // }
+
                         // 继承等级
                         if (data.InheritExperience && pGiftType.Ref.Trainable)
                         {

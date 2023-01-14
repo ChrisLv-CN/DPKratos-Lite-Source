@@ -108,6 +108,7 @@ namespace Extension.Ext
         public bool InheritHealthNumber;
         public bool InheritTarget;
         public bool InheritExperience;
+        public bool InheritPassenger;
         public bool InheritROF;
         public bool InheritAmmo;
         public bool InheritAE;
@@ -141,6 +142,7 @@ namespace Extension.Ext
             this.HealthNumber = 0;
             this.InheritTarget = true;
             this.InheritExperience = true;
+            this.InheritPassenger = false;
             this.InheritROF = false;
             this.InheritAmmo = false;
             this.InheritAE = false;
@@ -230,6 +232,7 @@ namespace Extension.Ext
 
             this.InheritTarget = reader.Get(title + "InheritTarget", this.InheritTarget);
             this.InheritExperience = reader.Get(title + "InheritExp", this.InheritExperience);
+            this.InheritPassenger = reader.Get(title + "InheritPassenger", this.InheritPassenger);
             this.InheritROF = reader.Get(title + "InheritROF", this.InheritROF);
             this.InheritAmmo = reader.Get(title + "InheritAmmo", this.InheritAmmo);
             this.InheritAE = reader.Get(title + "InheritAE", this.InheritAE);
@@ -251,6 +254,7 @@ namespace Extension.Ext
             this.HealthPercent = 0;
             this.InheritTarget = true; // 继承目标
             this.InheritExperience = true; // 继承经验
+            this.InheritPassenger = true; // 继承乘客
             this.InheritROF = true; // 继承ROF计时器
             this.InheritAmmo = true; // 继承弹药
             this.InheritAE = true; // 继承AE

@@ -11,6 +11,36 @@ using Extension.Utilities;
 namespace Extension.Ext
 {
 
+    [Serializable]
+    public enum ExpLevel
+    {
+        None = 0, Rookie = 1, Veteran = 2, Elite = 3
+    }
+    public class ExpLevelParser : KEnumParser<ExpLevel>
+    {
+        public override bool ParseInitials(string t, ref ExpLevel buffer)
+        {
+            switch (t)
+            {
+                case "R":
+                    buffer = ExpLevel.Rookie;
+                    // this.DefaultText = LongText.HIT; // 击中
+                    return true;
+                case "V":
+                    buffer = ExpLevel.Veteran;
+                    // this.DefaultText = LongText.GLANCING; // 偏斜
+                    return true;
+                case "E":
+                    buffer = ExpLevel.Elite;
+                    // this.DefaultText = LongText.BLOCK; // 格挡
+                    return true;
+                default:
+                    buffer = ExpLevel.None;
+                    // this.DefaultText = LongText.MISS; // 未命中
+                    return true;
+            }
+        }
+    }
 
     [Serializable]
     public class AresVersus
@@ -38,6 +68,7 @@ namespace Extension.Ext
         static WarheadTypeData()
         {
             new DamageReactionModeParser().Register();
+            new ExpLevelParser().Register();
         }
 
         private static Dictionary<string, string> _aresArmorArray;
@@ -111,6 +142,9 @@ namespace Extension.Ext
 
         public Mission ForceMission;
 
+        public int ExpCost;
+        public ExpLevel ExpLevel;
+
         // 玩具弹头
         public bool IsToy;
         // 弹头传送标记
@@ -147,6 +181,9 @@ namespace Extension.Ext
 
             this.ForceMission = Mission.None;
 
+            this.ExpCost = 0;
+            this.ExpLevel = ExpLevel.None;
+
             this.IsToy = false;
             this.Teleporter = false;
             this.Capturer = false;
@@ -178,6 +215,9 @@ namespace Extension.Ext
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
 
             this.ForceMission = reader.Get("ForceMission", this.ForceMission);
+
+            this.ExpCost = reader.Get("ExpCost", this.ExpCost);
+            this.ExpLevel = reader.Get("ExpLevel", this.ExpLevel);
 
             this.IsToy = reader.Get("IsToy", this.IsToy);
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);

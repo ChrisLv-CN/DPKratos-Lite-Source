@@ -278,6 +278,7 @@ namespace Extension.Script
             if (!pTechno.IsDeadOrInvisible())
             {
                 WarheadTypeData warheadTypeData = pWH.GetData();
+                // 清理目标弹头
                 if (!pTechno.Ref.Target.IsNull)
                 {
                     if (warheadTypeData.ClearTarget)
@@ -285,10 +286,31 @@ namespace Extension.Script
                         pTechno.ClearAllTarget();
                     }
                 }
+                // 强制任务弹头
                 Mission forceMission = warheadTypeData.ForceMission;
                 if (forceMission != Mission.None)
                 {
                     pTechno.Ref.BaseMission.ForceMission(forceMission);
+                }
+                // 经验修改弹头
+                if ((warheadTypeData.ExpCost != 0 || warheadTypeData.ExpLevel != ExpLevel.None) && pTechno.Ref.Type.Ref.Trainable)
+                {
+                    switch(warheadTypeData.ExpLevel)
+                    {
+                        case ExpLevel.Rookie:
+                            pTechno.Ref.Veterancy.SetRookie();
+                            break;
+                        case ExpLevel.Veteran:
+                            pTechno.Ref.Veterancy.SetVeteran();
+                            break;
+                        case ExpLevel.Elite:
+                            pTechno.Ref.Veterancy.SetElite();
+                            break;
+                        default:
+                            int cost = pTechno.Ref.Type.Ref.Base.GetActualCost(pTechno.Ref.Owner);
+                            pTechno.Ref.Veterancy.Add(cost, warheadTypeData.ExpCost);
+                            break;
+                    }
                 }
                 OnReceiveDamage_DamageReaction(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, warheadTypeData);
                 OnReceiveDamage_Stand(pDamage, distanceFromEpicenter, pWH, pAttacker, ignoreDefenses, preventPassengerEscape, pAttackingHouse, warheadTypeData);
