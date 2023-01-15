@@ -239,7 +239,7 @@ namespace Extension.Script
             // 清单中有AE类型
             if (null != typeData.AttachEffectTypes && typeData.AttachEffectTypes.Any())
             {
-                Attach(typeData.AttachEffectTypes, null, pOwner);
+                Attach(typeData.AttachEffectTypes, null, pOwner, default, attachEffectOnceFlag);
             }
 
             if (typeData.StandTrainCabinLength > 0)
