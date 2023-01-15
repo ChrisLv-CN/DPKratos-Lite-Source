@@ -332,8 +332,7 @@ namespace ExtensionHooks
                     }
                     nPos.X -= 128;
                     nPos.Y -= 128;
-                    Point2D nA = nPos.ToClientPos();
-                    Point2D nB = nA;
+                    Point2D n = nPos.ToClientPos();
                     // 东
                     CellStruct eCell = new CellStruct(cellX + adjust + width - 1, cellY - adjust);
                     CoordStruct ePos = MapClass.Cell2Coord(eCell);
@@ -343,8 +342,7 @@ namespace ExtensionHooks
                     }
                     ePos.X += 128;
                     ePos.Y -= 128;
-                    Point2D eA = ePos.ToClientPos();
-                    Point2D eB = eA;
+                    Point2D e = ePos.ToClientPos();
                     // 南
                     CellStruct sCell = new CellStruct(cellX + adjust + width - 1, cellY + adjust + height - 1);
                     CoordStruct sPos = MapClass.Cell2Coord(sCell);
@@ -354,8 +352,7 @@ namespace ExtensionHooks
                     }
                     sPos.X += 128;
                     sPos.Y += 128;
-                    Point2D sA = sPos.ToClientPos();
-                    Point2D sB = sA;
+                    Point2D s = sPos.ToClientPos();
                     // 西
                     CellStruct wCell = new CellStruct(cellX - adjust, cellY + adjust + height - 1);
                     CoordStruct wPos = MapClass.Cell2Coord(wCell);
@@ -365,33 +362,15 @@ namespace ExtensionHooks
                     }
                     wPos.X -= 128;
                     wPos.Y += 128;
-                    Point2D wA = wPos.ToClientPos();
-                    Point2D wB = wA;
+                    Point2D w = wPos.ToClientPos();
                     // 处理四角越界
                     RectangleStruct rect = Surface.Current.Ref.GetRect();
                     rect.Height -= 34;
-                    // 北部越界不管，处理南部
-                    if (sA.Y > rect.Height)
-                    {
-                        // double x = sB.X - wB.X;
-                        // double y = sB.Y - wB.Y;
-                        // double tanA = x / y;
-                        double tanA = 2;
-                        double deltaY = sA.Y - rect.Height;
-                        int deltaX = (int)(deltaY * tanA);
-                        sA.Y = rect.Height;
-                        sB.Y = rect.Height;
-                        sA.X += deltaX;
-                        sB.X -= deltaX;
-                    }
                     int color = data.Color.RGB2DWORD();
-                    Surface.Current.Ref.DrawLine(nB, eB, color);
-                    if (wB.Y < rect.Height && eA.Y < rect.Height)
-                    {
-                        Surface.Current.Ref.DrawLine(eA, sA, color);
-                        Surface.Current.Ref.DrawLine(sB, wB, color);
-                    }
-                    Surface.Current.Ref.DrawLine(wA, nA, color);
+                    Surface.Current.DrawDashedLine(n, e, color, rect);
+                    Surface.Current.DrawDashedLine(e, s, color, rect);
+                    Surface.Current.DrawDashedLine(s, w, color, rect);
+                    Surface.Current.DrawDashedLine(w, n, color, rect);
                 }
                 DisplayClass.Display_PassedProximityCheck = DisplayClass.Global().Passes_Proximity_Check();
             }
