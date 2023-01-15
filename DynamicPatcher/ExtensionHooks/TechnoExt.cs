@@ -351,6 +351,12 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6FF96A, Size = 6)]
+        public static unsafe UInt32 TechnoClass_DrawTargetLaser_SupportBullet(REGISTERS* R)
+        {
+            
+            return 0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x5194EF, Size = 5)]
         public static unsafe UInt32 InfantryClass_DrawIt_InAir_Shadow_Skip(REGISTERS* R)

@@ -96,6 +96,8 @@ namespace Extension.Ext
             new SortTypeParser().Register();
         }
 
+        public string Watch;
+
         public InfoMode Mode;
         public bool ShowEnemy;
         public bool OnlySelected;
@@ -104,6 +106,8 @@ namespace Extension.Ext
 
         public InfoEntity() : base()
         {
+            this.Watch = null;
+
             this.Mode = InfoMode.NONE;
             this.ShowEnemy = true;
             this.OnlySelected = false;
@@ -116,7 +120,13 @@ namespace Extension.Ext
 
         public override void Read(ISectionReader reader, string title)
         {
+            Read(reader, title, Watch);
+        }
+
+        public void Read(ISectionReader reader, string title, string watch)
+        {
             base.Read(reader, title);
+            this.Watch = reader.Get(title + "Watch", watch); // 默认值由外部传入
             this.Mode = reader.Get(title + "Mode", Mode);
             switch (Mode)
             {
@@ -141,21 +151,23 @@ namespace Extension.Ext
 
         public const string TITLE = "Info.";
 
-        public string Watch;
-
         public InfoEntity Duration;
         public InfoEntity Delay;
         public InfoEntity InitDelay;
         public InfoEntity Stack;
-
+        public InfoEntity Mission;
+        public InfoEntity Target;
 
         public InfoData()
         {
-            this.Watch = null;
             this.Duration = new InfoEntity();
             this.Delay = new InfoEntity();
             this.InitDelay = new InfoEntity();
             this.Stack = new InfoEntity();
+            this.Mission = new InfoEntity();
+
+            this.Target = new InfoEntity();
+            this.Target.Color = new ColorStruct(252, 0, 0);
         }
 
         public InfoData(IConfigReader reader) : this()
@@ -167,17 +179,23 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            this.Watch = reader.Get(TITLE + "Watch", this.Watch);
+            string watch = reader.Get<string>(TITLE + "Watch", null);
 
-            this.Duration.Read(reader, TITLE + "Duration.");
-            this.Delay.Read(reader, TITLE + "Delay.");
-            this.InitDelay.Read(reader, TITLE + "InitDelay.");
-            this.Stack.Read(reader, TITLE + "Stack.");
+            this.Duration.Read(reader, TITLE + "Duration.", watch);
+            this.Delay.Read(reader, TITLE + "Delay.", watch);
+            this.InitDelay.Read(reader, TITLE + "InitDelay.", watch);
+            this.Stack.Read(reader, TITLE + "Stack.", watch);
+            this.Mission.Read(reader, TITLE + "Mission.", watch);
+
+            this.Target.Read(reader, TITLE + "Target.", watch);
 
             this.Enable = Duration.Mode != InfoMode.NONE
                         || Delay.Mode != InfoMode.NONE
                         || InitDelay.Mode != InfoMode.NONE
-                        || Stack.Mode != InfoMode.NONE;
+                        || Stack.Mode != InfoMode.NONE
+                        || Mission.Mode == InfoMode.TEXT
+                        || Target.Mode != InfoMode.NONE
+                        ;
         }
 
     }

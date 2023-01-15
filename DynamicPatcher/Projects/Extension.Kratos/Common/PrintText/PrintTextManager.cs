@@ -95,6 +95,13 @@ namespace Extension.Ext
             }
         }
 
+        public static void PrintOnlyText(string text, ColorStruct houseColor, PrintTextData data, Point2D pos, bool isBuilding = false)
+        {
+            Pointer<Surface> pSurface = Surface.Current;
+            RectangleStruct rect = pSurface.Ref.GetRect();
+            Print(text, houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
+        }
+
         public static void Print(string text, ColorStruct houseColor, PrintTextData data, Point2D pos, Pointer<RectangleStruct> pBound, Pointer<Surface> pSurface, bool isBuilding)
         {
 
