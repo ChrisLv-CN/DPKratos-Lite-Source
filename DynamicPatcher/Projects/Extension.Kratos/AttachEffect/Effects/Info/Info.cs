@@ -189,9 +189,22 @@ namespace Extension.Script
                 // 显示目标连线
                 if (Data.Target.Mode != InfoMode.NONE && (Data.Target.ShowEnemy || isPlayerControl) && (!Data.Target.OnlySelected || isSelected))
                 {
-                    if (!AE.AEManager.IsBullet)
+                    Pointer<AbstractClass> pTarget = IntPtr.Zero;
+                    if (AE.AEManager.IsBullet)
                     {
-                        pOwner.Convert<TechnoClass>().Ref.Draw_TargetLaser();
+                        pTarget = pOwner.Convert<BulletClass>().Ref.Target;
+                    }
+                    else
+                    {
+                        pTarget = pOwner.Convert<TechnoClass>().Ref.Target;
+                    }
+                    if (!pTarget.IsNull)
+                    {
+                        CoordStruct sourcePos = pOwner.Ref.Base.GetCoords();
+                        CoordStruct targetPos = pTarget.Ref.GetCoords();
+                        RectangleStruct bounds = Surface.Current.Ref.GetRect();
+                        bounds.Height -= 34;
+                        Surface.Current.DrawDashedLine(sourcePos.ToClientPos(), targetPos.ToClientPos(), Data.Target.Color, bounds, true);
                     }
                 }
             }

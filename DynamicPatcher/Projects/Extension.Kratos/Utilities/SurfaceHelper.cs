@@ -15,9 +15,9 @@ namespace Extension.Utilities
     public static class SurfaceHelper
     {
 
-        public static unsafe bool DrawDashedLine(this Pointer<Surface> surface, Point2D point1, Point2D point2, ColorStruct color, RectangleStruct bound, bool blink = false)
+        public static unsafe bool DrawDashedLine(this Pointer<Surface> surface, Point2D point1, Point2D point2, ColorStruct color, RectangleStruct bounds, bool blink = false)
         {
-            return surface.DrawDashedLine(point1, point2, color.RGB2DWORD(), bound, blink);
+            return surface.DrawDashedLine(point1, point2, color.RGB2DWORD(), bounds, blink);
         }
 
         /// <summary>

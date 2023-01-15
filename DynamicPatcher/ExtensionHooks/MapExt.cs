@@ -364,13 +364,14 @@ namespace ExtensionHooks
                     wPos.Y += 128;
                     Point2D w = wPos.ToClientPos();
                     // 处理四角越界
-                    RectangleStruct rect = Surface.Current.Ref.GetRect();
+                    Pointer<Surface> pSurface = Surface.Current;
+                    RectangleStruct rect = pSurface.Ref.GetRect();
                     rect.Height -= 34;
                     int color = data.Color.RGB2DWORD();
-                    Surface.Current.DrawDashedLine(n, e, color, rect);
-                    Surface.Current.DrawDashedLine(e, s, color, rect);
-                    Surface.Current.DrawDashedLine(s, w, color, rect);
-                    Surface.Current.DrawDashedLine(w, n, color, rect);
+                    pSurface.DrawDashedLine(n, e, color, rect);
+                    pSurface.DrawDashedLine(e, s, color, rect);
+                    pSurface.DrawDashedLine(s, w, color, rect);
+                    pSurface.DrawDashedLine(w, n, color, rect);
                 }
                 DisplayClass.Display_PassedProximityCheck = DisplayClass.Global().Passes_Proximity_Check();
             }
