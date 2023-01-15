@@ -35,6 +35,8 @@ namespace Extension.Ext
         public double Chance;
 
         public string[] Types;
+        public int WeaponIndex;
+
         public string[] AttachEffects;
         public double[] AttachChances;
         public CoordStruct FireFLH;
@@ -58,6 +60,8 @@ namespace Extension.Ext
             this.Chance = 1;
 
             this.Types = null;
+            this.WeaponIndex = -1;
+
             this.AttachEffects = null;
             this.AttachChances = null;
             this.FireFLH = default;
@@ -78,9 +82,15 @@ namespace Extension.Ext
             this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
 
             this.Types = reader.GetList(TITLE + "Types", this.Types);
+            this.WeaponIndex = reader.Get(TITLE + "WeaponIndex", this.WeaponIndex);
+            if (WeaponIndex > 1)
+            {
+                WeaponIndex = 1;
+            }
+
             this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", this.AttachEffects);
             this.AttachChances = reader.GetChanceList(TITLE + "AttachChances", this.AttachChances);
-            this.Enable = Chance > 0 && (null != Types && Types.Any() || null != AttachEffects && AttachEffects.Any());
+            this.Enable = Chance > 0 && (null != Types && Types.Any() || WeaponIndex > -1 || null != AttachEffects && AttachEffects.Any());
             if (Enable)
             {
                 this.Enable = AffectTechno;

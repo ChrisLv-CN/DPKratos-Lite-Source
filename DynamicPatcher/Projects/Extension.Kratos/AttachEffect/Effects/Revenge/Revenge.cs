@@ -119,6 +119,22 @@ namespace Extension.Script
                                 }
                             }
                         }
+                        // 使用自身武器复仇
+                        if (Data.WeaponIndex > -1)
+                        {
+                            Pointer<WeaponStruct> pWeaponStruct = pTechno.Ref.GetWeapon(Data.WeaponIndex);
+                            if (!pWeaponStruct.IsNull && !pWeaponStruct.Ref.WeaponType.IsNull)
+                            {
+                                AttachFireScript attachFire = pRevenger.FindOrAllocate<AttachFireScript>();
+                                if (null != attachFire)
+                                {
+                                    Pointer<WeaponTypeClass> pWeapon = pWeaponStruct.Ref.WeaponType;
+                                    WeaponTypeData weaponTypeData = pWeapon.GetData();
+                                    // 发射武器
+                                    attachFire.FireCustomWeapon(pRevenger, pRevengeTargetTechno.Convert<AbstractClass>(), pRevengerHouse, pWeapon, weaponTypeData, Data.FireFLH);
+                                }
+                            }
+                        }
                         // 使用AE复仇
                         if (null != Data.AttachEffects && Data.AttachEffects.Any() && pRevengeTargetTechno.TryGetAEManager(out AttachEffectScript aeManager))
                         {
