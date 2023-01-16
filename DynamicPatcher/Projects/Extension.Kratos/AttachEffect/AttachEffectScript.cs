@@ -711,7 +711,7 @@ namespace Extension.Script
                         if (data is DestroySelfData)
                         {
                             // 自毁
-                            state = status.DestroyAnimState;
+                            state = status.DestroySelfState;
                         }
                         else if (data is GiftBoxData)
                         {
@@ -737,6 +737,11 @@ namespace Extension.Script
                         {
                             // 同步禁止选择
                             state = status.DeselectState;
+                        }
+                        else if (data is DestroyAnimData)
+                        {
+                            // 死亡动画
+                            state = status.DestroyAnimState;
                         }
 
                         if (null != state)

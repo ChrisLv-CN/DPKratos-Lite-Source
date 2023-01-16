@@ -39,6 +39,7 @@ namespace Extension.Ext
                         break;
                     case AffectWho.STAND:
                         EnableAEStatsToStand(data, false);
+                        Disable(default);
                         break;
                     default:
                         state.EnableAndReplace(this);

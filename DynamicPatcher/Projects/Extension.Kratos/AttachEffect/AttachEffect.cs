@@ -77,7 +77,7 @@ namespace Extension.Script
             InitDamageReaction();
             InitDamageSelf(); // state AffectWho
             InitDeselect(); // state AffectWho
-            InitDestroyAnim();
+            InitDestroyAnim(); // state AffectWho
             InitDisableWeapon(); // state AffectWho
             InitECM();
             InitExtraFire(); // state AffectWho
