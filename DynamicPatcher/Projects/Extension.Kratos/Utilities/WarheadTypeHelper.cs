@@ -15,6 +15,47 @@ namespace Extension.Utilities
     public static class WarheadTypeHelper
     {
 
+        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH)
+        {
+            return pWH.GetData(out WarheadTypeExt ext);
+        }
+
+        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
+        {
+            whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            if (null != whExt)
+            {
+                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
+                if (null == whData)
+                {
+                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
+                    whExt.WarheadTypeData = (INIComponent)whData;
+                }
+                return whData.Data;
+            }
+            return new WarheadTypeData();
+        }
+
+        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH)
+        {
+            return pWH.GetAEData(out WarheadTypeExt ext);
+        }
+
+        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
+        {
+            whExt = WarheadTypeExt.ExtMap.Find(pWH);
+            if (null != whExt)
+            {
+                IConfigWrapper<AttachEffectTypeData> aeData = (IConfigWrapper<AttachEffectTypeData>)whExt.WarheadAEData;
+                if (null == aeData)
+                {
+                    aeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
+                    whExt.WarheadAEData = (INIComponent)aeData;
+                }
+                return aeData.Data;
+            }
+            return new AttachEffectTypeData();
+        }
 
         public static Pointer<AnimClass> PlayWarheadAnim(this Pointer<WarheadTypeClass> pWH, CoordStruct location, int damage = 1, LandType landType = LandType.Clear)
         {
@@ -70,48 +111,6 @@ namespace Extension.Utilities
                 }
             }
             return true;
-        }
-
-        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH)
-        {
-            return pWH.GetAEData(out WarheadTypeExt ext);
-        }
-
-        public static AttachEffectTypeData GetAEData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
-        {
-            whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<AttachEffectTypeData> aeData = (IConfigWrapper<AttachEffectTypeData>)whExt.WarheadAEData;
-                if (null == aeData)
-                {
-                    aeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadAEData = (INIComponent)aeData;
-                }
-                return aeData.Data;
-            }
-            return new AttachEffectTypeData();
-        }
-
-        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH)
-        {
-            return pWH.GetData(out WarheadTypeExt ext);
-        }
-
-        public static WarheadTypeData GetData(this Pointer<WarheadTypeClass> pWH, out WarheadTypeExt whExt)
-        {
-            whExt = WarheadTypeExt.ExtMap.Find(pWH);
-            if (null != whExt)
-            {
-                IConfigWrapper<WarheadTypeData> whData = (IConfigWrapper<WarheadTypeData>)whExt.WarheadTypeData;
-                if (null == whData)
-                {
-                    whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID);
-                    whExt.WarheadTypeData = (INIComponent)whData;
-                }
-                return whData.Data;
-            }
-            return new WarheadTypeData();
         }
 
         public static bool CanReaction(this Pointer<WarheadTypeClass> pWH, out DamageReactionMode[] ignoreModes)

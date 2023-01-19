@@ -28,7 +28,7 @@ namespace Extension.Script
 
         public bool VirtualUnit;
 
-        public static void Clear(object sender, EventArgs args)
+        public static void Clear_StandUnit()
         {
             StandArray.Clear();
             ImmuneStandArray.Clear();

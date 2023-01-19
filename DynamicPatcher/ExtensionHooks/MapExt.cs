@@ -314,8 +314,185 @@ namespace ExtensionHooks
             if (pBuildingType.Ref.Base.Base.Base.Base.WhatAmI() == AbstractType.BuildingType)
             {
                 BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, pBuildingType.Ref.Base.Base.Base.ID).Data;
-                if (data.Mode == BuildingRangeMode.LINE)
+                if (data.Mode != BuildingRangeMode.NONE)
                 {
+                    // 获取建筑的四个角
+                    int width = pBuildingType.Ref.GetFoundationWidth();
+                    int height = pBuildingType.Ref.GetFoundationHeight(false);
+                    CellStruct center = DisplayClass.Display_ZoneCell + DisplayClass.Display_ZoneOffset;
+                    int cellX = center.X;
+                    int cellY = center.Y;
+                    int adjust = pBuildingType.Ref.Adjacent + 1;
+                    // 北
+                    CellStruct nCell = new CellStruct(cellX - adjust, cellY - adjust);
+                    // 东
+                    CellStruct eCell = new CellStruct(cellX + adjust + width - 1, cellY - adjust);
+                    // 南
+                    CellStruct sCell = new CellStruct(cellX + adjust + width - 1, cellY + adjust + height - 1);
+                    // 西
+                    CellStruct wCell = new CellStruct(cellX - adjust, cellY + adjust + height - 1);
+                    // 可视范围
+                    Pointer<Surface> pSurface = Surface.Current;
+                    RectangleStruct rect = pSurface.Ref.GetRect();
+                    rect.Height -= 34;
+                    int color = data.Color.RGB2DWORD();
+                    // 开始渲染
+                    switch (data.Mode)
+                    {
+                        case BuildingRangeMode.LINE:
+                            // 北
+                            CoordStruct nPos = MapClass.Cell2Coord(nCell);
+                            if (MapClass.Instance.TryGetCellAt(nCell, out Pointer<CellClass> pNCell))
+                            {
+                                nPos = pNCell.Ref.GetCenterCoords();
+                            }
+                            nPos.X -= 128;
+                            nPos.Y -= 128;
+                            Point2D n = nPos.ToClientPos();
+                            // 东
+                            CoordStruct ePos = MapClass.Cell2Coord(eCell);
+                            if (MapClass.Instance.TryGetCellAt(eCell, out Pointer<CellClass> pECell))
+                            {
+                                ePos = pECell.Ref.GetCenterCoords();
+                            }
+                            ePos.X += 128;
+                            ePos.Y -= 128;
+                            Point2D e = ePos.ToClientPos();
+                            // 南
+                            CoordStruct sPos = MapClass.Cell2Coord(sCell);
+                            if (MapClass.Instance.TryGetCellAt(sCell, out Pointer<CellClass> pSCell))
+                            {
+                                sPos = pSCell.Ref.GetCenterCoords();
+                            }
+                            sPos.X += 128;
+                            sPos.Y += 128;
+                            Point2D s = sPos.ToClientPos();
+                            // 西
+                            CoordStruct wPos = MapClass.Cell2Coord(wCell);
+                            if (MapClass.Instance.TryGetCellAt(wCell, out Pointer<CellClass> pWCell))
+                            {
+                                wPos = pWCell.Ref.GetCenterCoords();
+                            }
+                            wPos.X -= 128;
+                            wPos.Y += 128;
+                            Point2D w = wPos.ToClientPos();
+                            if (data.Dashed)
+                            {
+                                // 处理四角越界并绘制
+                                pSurface.DrawDashedLine(n, e, color, rect);
+                                pSurface.DrawDashedLine(e, s, color, rect);
+                                pSurface.DrawDashedLine(s, w, color, rect);
+                                pSurface.DrawDashedLine(w, n, color, rect);
+                            }
+                            else
+                            {
+                                // 处理四角越界并绘制
+                                pSurface.DrawLine(n, e, color, rect);
+                                pSurface.DrawLine(e, s, color, rect);
+                                pSurface.DrawLine(s, w, color, rect);
+                                pSurface.DrawLine(w, n, color, rect);
+                            }
+                            break;
+                        default:
+                            // 有效范围
+                            int minX = nCell.X;
+                            int minY = nCell.Y;
+                            int maxX = eCell.X;
+                            int maxY = wCell.Y;
+                            // 可视范围
+                            int minVX = rect.X;
+                            int maxVX = rect.X + rect.Width;
+                            int minVY = rect.Y;
+                            int maxVY = rect.Y + rect.Height;
+                            // Logger.Log($"{Game.CurrentFrame} 可视范围 [{minVX} - {maxVX}], [{minVY} - {maxVY}]");
+                            // 获取所有的Cell，捡出在视野范围内的Cell
+                            HashSet<Pointer<CellClass>> cells = new HashSet<Pointer<CellClass>>();
+                            for (int y = minY; y <= maxY; y++)
+                            {
+                                for (int x = minX; x <= maxX; x++)
+                                {
+                                    CellStruct cellPos = new CellStruct(x, y);
+                                    Point2D point = MapClass.Cell2Coord(cellPos).ToClientPos();
+                                    // 在可视范围内
+                                    if (point.X >= minVX && point.X <= maxVX && point.Y >= minVY && point.Y <= maxVY)
+                                    {
+                                        if (MapClass.Instance.TryGetCellAt(cellPos, out Pointer<CellClass> pCell))
+                                        {
+                                            cells.Add(pCell);
+                                        }
+                                    }
+                                }
+                            }
+                            // Logger.Log($"{Game.CurrentFrame} 可视范围 [{minVX} - {maxVX}], [{minVY} - {maxVY}]内有格子 {cells.Count()}个");
+                            switch (data.Mode)
+                            {
+                                case BuildingRangeMode.CELL:
+                                    foreach (Pointer<CellClass> pCell in cells)
+                                    {
+                                        if (pCell.Ref.SlopeIndex == 0)
+                                        {
+                                            CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
+                                            Point2D pE = (cellPos + new CoordStruct(128, -128, 0)).ToClientPos();
+                                            Point2D pW = (cellPos + new CoordStruct(-128, 128, 0)).ToClientPos();
+                                            Point2D pN = (cellPos + new CoordStruct(-128, -128, 0)).ToClientPos();
+                                            Point2D pS = (cellPos + new CoordStruct(128, 128, 0)).ToClientPos();
+                                            if (data.Dashed)
+                                            {
+                                                // 处理四角越界并绘制
+                                                pSurface.DrawDashedLine(pN, pE, color, rect);
+                                                pSurface.DrawDashedLine(pE, pS, color, rect);
+                                                pSurface.DrawDashedLine(pS, pW, color, rect);
+                                                pSurface.DrawDashedLine(pW, pN, color, rect);
+                                            }
+                                            else
+                                            {
+                                                // 处理四角越界并绘制
+                                                pSurface.DrawLine(pN, pE, color, rect);
+                                                pSurface.DrawLine(pE, pS, color, rect);
+                                                pSurface.DrawLine(pS, pW, color, rect);
+                                                pSurface.DrawLine(pW, pN, color, rect);
+                                            }
+                                        }
+                                    }
+                                    break;
+                                case BuildingRangeMode.SHP:
+                                    if (!data.SHPFileName.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pSHP))
+                                    {
+                                        Pointer<ConvertClass> pPalette = FileSystem.PALETTE_PAL;
+                                        foreach (Pointer<CellClass> pCell in cells)
+                                        {
+                                            // WWSB
+                                            CellStruct cell = pCell.Ref.MapCoords;
+                                            CoordStruct newPos = new CoordStruct(((((cell.X << 8) + 128) / 256) << 8), ((((cell.Y << 8) + 128) / 256) << 8), 0);
+                                            Point2D postion = TacticalClass.Global().CoordsToScreen(newPos);
+                                            postion -= TacticalClass.Global().TacticalPos;
+                                            int zAdjust = 15 * pCell.Ref.Level;
+                                            postion.Y += -1 - zAdjust;
+                                            int frame = pCell.Ref.SlopeIndex + 2;
+                                            Surface.Current.Ref.DrawSHP(pPalette, pSHP, data.ZeroFrameIndex + frame, postion);
+                                        }
+                                    }
+                                    break;
+                            }
+                            break;
+                    }
+
+                    DisplayClass.Display_PassedProximityCheck = DisplayClass.Global().Passes_Proximity_Check();
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4A904E, Size = 5)]
+        public static unsafe UInt32 DisplayClass_Passes_Proximity_Check_MobileMCV(REGISTERS* R)
+        {
+            bool canBuild = R->Stack<Bool>(0x3C);
+            if (!canBuild && CombatDamage.Data.AllowUnitAsBaseNormal)
+            {
+                Pointer<BuildingTypeClass> pBuildingType = IntPtr.Zero;
+                if ((TechnoStatusScript.BaseUnitArray.Any() || TechnoStatusScript.BaseStandArray.Any()) && !(pBuildingType = DisplayClass.Display_PendingObject).IsNull)
+                {
+                    // 获取建筑建造范围四点坐标
                     // 显示建造范围
                     int width = pBuildingType.Ref.GetFoundationWidth();
                     int height = pBuildingType.Ref.GetFoundationHeight(false);
@@ -325,216 +502,51 @@ namespace ExtensionHooks
                     int adjust = pBuildingType.Ref.Adjacent + 1;
                     // 北
                     CellStruct nCell = new CellStruct(cellX - adjust, cellY - adjust);
-                    CoordStruct nPos = MapClass.Cell2Coord(nCell);
-                    if (MapClass.Instance.TryGetCellAt(nCell, out Pointer<CellClass> pNCell))
-                    {
-                        nPos = pNCell.Ref.GetCenterCoords();
-                    }
-                    nPos.X -= 128;
-                    nPos.Y -= 128;
-                    Point2D n = nPos.ToClientPos();
                     // 东
                     CellStruct eCell = new CellStruct(cellX + adjust + width - 1, cellY - adjust);
-                    CoordStruct ePos = MapClass.Cell2Coord(eCell);
-                    if (MapClass.Instance.TryGetCellAt(eCell, out Pointer<CellClass> pECell))
-                    {
-                        ePos = pECell.Ref.GetCenterCoords();
-                    }
-                    ePos.X += 128;
-                    ePos.Y -= 128;
-                    Point2D e = ePos.ToClientPos();
                     // 南
-                    CellStruct sCell = new CellStruct(cellX + adjust + width - 1, cellY + adjust + height - 1);
-                    CoordStruct sPos = MapClass.Cell2Coord(sCell);
-                    if (MapClass.Instance.TryGetCellAt(sCell, out Pointer<CellClass> pSCell))
-                    {
-                        sPos = pSCell.Ref.GetCenterCoords();
-                    }
-                    sPos.X += 128;
-                    sPos.Y += 128;
-                    Point2D s = sPos.ToClientPos();
+                    // CellStruct sCell = new CellStruct(cellX + adjust + width - 1, cellY + adjust + height - 1);
                     // 西
                     CellStruct wCell = new CellStruct(cellX - adjust, cellY + adjust + height - 1);
-                    CoordStruct wPos = MapClass.Cell2Coord(wCell);
-                    if (MapClass.Instance.TryGetCellAt(wCell, out Pointer<CellClass> pWCell))
-                    {
-                        wPos = pWCell.Ref.GetCenterCoords();
-                    }
-                    wPos.X -= 128;
-                    wPos.Y += 128;
-                    Point2D w = wPos.ToClientPos();
-                    // 处理四角越界
-                    Pointer<Surface> pSurface = Surface.Current;
-                    RectangleStruct rect = pSurface.Ref.GetRect();
-                    rect.Height -= 34;
-                    int color = data.Color.RGB2DWORD();
-                    pSurface.DrawDashedLine(n, e, color, rect);
-                    pSurface.DrawDashedLine(e, s, color, rect);
-                    pSurface.DrawDashedLine(s, w, color, rect);
-                    pSurface.DrawDashedLine(w, n, color, rect);
-                }
-                DisplayClass.Display_PassedProximityCheck = DisplayClass.Global().Passes_Proximity_Check();
-            }
-            return 0;
-        }
-
-        [Hook(HookType.AresHook, Address = 0x4A8FCA, Size = 7)]
-        public static unsafe UInt32 DisplayClass_Passes_Proximity_Check_MobileMCV(REGISTERS* R)
-        {
-            Pointer<CellClass> pCell = (IntPtr)R->EAX;
-            Pointer<BuildingTypeClass> pBuildingType = DisplayClass.Display_PendingObject;
-            if (!pBuildingType.IsNull)
-            {
-                BuildingRangeData data = Ini.GetConfig<BuildingRangeData>(Ini.RulesDependency, pBuildingType.Ref.Base.Base.Base.ID).Data;
-                switch (data.Mode)
-                {
-                    case BuildingRangeMode.CELL:
-                        if (pCell.Ref.SlopeIndex == 0)
-                        {
-                            CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
-                            CoordStruct pE = cellPos + new CoordStruct(128, -128, 0);
-                            Point2D E = pE.ToClientPos();
-                            CoordStruct pW = cellPos + new CoordStruct(-128, 128, 0);
-                            Point2D W = pW.ToClientPos();
-
-                            RectangleStruct rect = Surface.Current.Ref.GetRect();
-                            rect.Height -= 34;
-                            if (W.Y < rect.Height && E.Y < rect.Height)
-                            {
-                                CoordStruct pN = cellPos + new CoordStruct(-128, -128, 0);
-                                Point2D N = pN.ToClientPos();
-                                CoordStruct pS = cellPos + new CoordStruct(128, 128, 0);
-                                Point2D S = pS.ToClientPos();
-                                int color = data.Color.RGB2DWORD();
-                                Surface.Current.Ref.DrawLine(N, E, color);
-                                Surface.Current.Ref.DrawLine(E, S, color);
-                                Surface.Current.Ref.DrawLine(S, W, color);
-                                Surface.Current.Ref.DrawLine(W, N, color);
-                            }
-                        }
-                        break;
-                    case BuildingRangeMode.SHP:
-                        if (!data.SHPFileName.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(data.SHPFileName, out Pointer<SHPStruct> pSHP))
-                        {
-                            // WWSB
-                            CellStruct cell = pCell.Ref.MapCoords;
-                            CoordStruct newPos = new CoordStruct(((((cell.X << 8) + 128) / 256) << 8), ((((cell.Y << 8) + 128) / 256) << 8), 0);
-                            Point2D postion = TacticalClass.Global().CoordsToScreen(newPos);
-                            postion -= TacticalClass.Global().TacticalPos;
-                            int zAdjust = 15 * pCell.Ref.Level;
-                            postion.Y += -1 - zAdjust;
-                            int frame = pCell.Ref.SlopeIndex + 2;
-                            Surface.Current.Ref.DrawSHP(FileSystem.PALETTE_PAL, pSHP, data.ZeroFrameIndex + frame, postion);
-                        }
-                        break;
-                }
-            }
-            Pointer<BuildingClass> pBase = pCell.Ref.GetBuilding();
-            R->EAX = (uint)pBase;
-            R->ESI = R->EAX;
-            if (!pBase.IsNull)
-            {
-                return 0x4A8FD7;
-            }
-            else if (!pCell.IsNull)
-            {
-                if (CombatDamage.Data.AllowUnitAsBaseNormal)
-                {
-                    int houseIndex = R->Stack<int>(0x38);
+                    // 有效范围
+                    int minX = nCell.X;
+                    int minY = nCell.Y;
+                    int maxX = eCell.X;
+                    int maxY = wCell.Y;
+                    // 检查单位节点
                     bool found = false;
-                    // 检查单位
-                    FinderHelper.FindTechnoInCell(pCell, (pTarget) =>
+                    foreach (TechnoExt technoExt in TechnoStatusScript.BaseUnitArray)
                     {
-                        Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                        if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
+                        CoordStruct location = technoExt.OwnerObject.Ref.Base.Base.GetCoords();
+                        CellStruct targetCell = MapClass.Coord2Cell(location);
+                        found = targetCell.X >= minX && targetCell.X <= maxX && targetCell.Y >= minY && targetCell.Y <= maxY;
+                        if (found)
                         {
-                            found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
-                        }
-                        return found;
-                    });
-                    if (!found && CombatDamage.Data.AllowJumpjetAsBaseNormal)
-                    {
-                        // 检查JJ，移动中的JJ不在这里
-                        if (!pCell.Ref.Jumpjet.IsNull)
-                        {
-                            Pointer<TechnoClass> pTarget = pCell.Ref.Jumpjet.Convert<TechnoClass>();
-                            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-                            if (!pTarget.IsDeadOrInvisible() && BaseNormalData.CanBeBase(pTarget.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTarget.Ref.Owner).IsNull)
-                            {
-                                found = pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex));
-                            }
+                            break;
                         }
                     }
-                    /*
-                    // 检查飞天的载具
-                    if (!found)
-                    {
-                        UnitClass.Array.FindObject((pUnit) =>
-                        {
-                            Pointer<TechnoClass> pTarget = pUnit.Convert<TechnoClass>();
-                            found = pTarget.CanBeBase(houseIndex, pCell);
-                            return found;
-                        });
-                    }
-                    // 检查飞天的步兵
-                    if (!found)
-                    {
-                        InfantryClass.Array.FindObject((pInf) =>
-                        {
-                            Pointer<TechnoClass> pTarget = pInf.Convert<TechnoClass>();
-                            found = pTarget.CanBeBase(houseIndex, pCell);
-                            return found;
-                        });
-                    }
-                    // 检查飞天的飞机
-                    if (!found)
-                    {
-                        AircraftClass.Array.FindObject((pAircraft) =>
-                        {
-                            Pointer<TechnoClass> pTarget = pAircraft.Convert<TechnoClass>();
-                            found = pTarget.CanBeBase(houseIndex, pCell);
-                            return found;
-                        });
-                    }
-                    */
-                    // 检查替身
                     if (!found && CombatDamage.Data.AllowStandAsBaseNormal)
                     {
-                        foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.StandArray)
+                        foreach (TechnoExt technoExt in TechnoStatusScript.BaseStandArray)
                         {
-                            if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
+                            CoordStruct location = technoExt.OwnerObject.Ref.Base.Base.GetCoords();
+                            CellStruct targetCell = MapClass.Coord2Cell(location);
+                            found = targetCell.X >= minX && targetCell.X <= maxX && targetCell.Y >= minY && targetCell.Y <= maxY;
+                            if (found)
                             {
-                                Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
-                                if (found = pTarget.CanBeBase(houseIndex, pCell))
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        if (!found)
-                        {
-                            foreach (KeyValuePair<TechnoExt, StandData> stand in TechnoStatusScript.ImmuneStandArray)
-                            {
-                                if (!stand.Key.OwnerObject.IsNull && null != stand.Value)
-                                {
-                                    Pointer<TechnoClass> pTarget = stand.Key.OwnerObject;
-                                    if (found = pTarget.CanBeBase(houseIndex, pCell))
-                                    {
-                                        break;
-                                    }
-                                }
+                                break;
                             }
                         }
                     }
                     if (found)
                     {
-                        return 0x4A9027; // 可建造
+                        R->Stack<Bool>(0x3C, true);
                     }
                 }
-
             }
-            return 0x4A902C;
+            return 0;
         }
+
 
     }
 }

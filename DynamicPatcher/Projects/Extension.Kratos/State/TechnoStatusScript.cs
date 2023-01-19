@@ -58,8 +58,6 @@ namespace Extension.Script
         private bool isUnit => absType == AbstractType.Unit;
         private bool isAircraft => absType == AbstractType.Aircraft;
 
-        private bool isFoot => isInfantry || isUnit || isAircraft;
-
         private bool isVoxel;
         private bool isFearless;
 
@@ -84,6 +82,12 @@ namespace Extension.Script
 
         private CoordStruct location;
         private bool isMoving;
+
+        public static void Clear(object sender, EventArgs args)
+        {
+            Clear_StandUnit();
+            Clear_BaseNormal();
+        }
 
         /// <summary>
         /// 继承除了GiftBox之外的状态
@@ -167,6 +171,7 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> pCoord, ref DirType dirType)
         {
+            OnPut_BaseNormal(pCoord, dirType);
             OnPut_StandUnit(pCoord, dirType);
 
             if (!initStateFlag)
@@ -265,11 +270,13 @@ namespace Extension.Script
 
         public override void OnRemove()
         {
+            OnRemove_BaseNormal();
             OnRemove_StandUnit();
         }
 
         public override void OnUnInit()
         {
+            OnRemove_BaseNormal();
             OnRemove_StandUnit();
         }
 
@@ -327,6 +334,7 @@ namespace Extension.Script
 
         public override void OnReceiveDamageDestroy()
         {
+            OnReceiveDamageDestroy_BaseNormal();
             OnReceiveDamageDestroy_Transform();
             OnReceiveDamageDestroy_StandUnit();
 

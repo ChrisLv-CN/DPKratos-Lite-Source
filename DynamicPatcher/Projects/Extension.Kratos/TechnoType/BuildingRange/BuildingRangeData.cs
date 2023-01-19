@@ -51,6 +51,7 @@ namespace Extension.Ext
 
         public BuildingRangeMode Mode; // 用什么方式显示建造范围
         public ColorStruct Color; // 显示线条的颜色
+        public bool Dashed; // 虚线
         public string SHPFileName; // shp文件名
         public int ZeroFrameIndex; // 平面的起始帧序号
 
@@ -58,6 +59,7 @@ namespace Extension.Ext
         {
             this.Mode = BuildingRangeMode.NONE; // 不显示
             this.Color = ColorStruct.White;
+            this.Dashed = true;
             this.SHPFileName = "placerange.shp";
             this.ZeroFrameIndex = 0;
         }
@@ -68,12 +70,14 @@ namespace Extension.Ext
             ISectionReader sectionReader = Ini.GetSection(Ini.RulesDependency, RulesClass.SectionAudioVisual);
             this.Mode = sectionReader.Get(TITLE + "Mode", this.Mode);
             this.Color = sectionReader.Get(TITLE + "Color", this.Color);
+            this.Dashed = sectionReader.Get(TITLE + "Dashed", this.Dashed);
             this.SHPFileName = sectionReader.Get(TITLE + "SHP", this.SHPFileName);
             this.ZeroFrameIndex = sectionReader.Get(TITLE + "ZeroFrameIndex", this.ZeroFrameIndex);
 
             // 读个体
             this.Mode = reader.Get(TITLE + "Mode", this.Mode);
             this.Color = reader.Get(TITLE + "Color", this.Color);
+            this.Dashed = reader.Get(TITLE + "Dashed", this.Dashed);
             this.SHPFileName = reader.Get(TITLE + "SHP", this.SHPFileName);
             this.ZeroFrameIndex = reader.Get(TITLE + "ZeroFrameIndex", this.ZeroFrameIndex);
         }

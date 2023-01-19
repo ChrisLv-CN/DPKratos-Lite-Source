@@ -32,6 +32,27 @@ namespace Extension.Utilities
     public static class TechnoTypeHelper
     {
 
+        public static TechnoTypeData GetData(this Pointer<TechnoTypeClass> pTechnoType)
+        {
+            return pTechnoType.GetData(out TechnoTypeExt ext);
+        }
+
+        public static TechnoTypeData GetData(this Pointer<TechnoTypeClass> pTechnoType, out TechnoTypeExt typeExt)
+        {
+            typeExt = TechnoTypeExt.ExtMap.Find(pTechnoType);
+            if (null != typeExt)
+            {
+                IConfigWrapper<TechnoTypeData> data = (IConfigWrapper<TechnoTypeData>)typeExt.TechnoTypeData;
+                if (null == data)
+                {
+                    data = Ini.GetConfig<TechnoTypeData>(Ini.RulesDependency, pTechnoType.Ref.Base.Base.ID);
+                    typeExt.TechnoTypeData = (INIComponent)data;
+                }
+                return data.Data;
+            }
+            return new TechnoTypeData();
+        }
+
         public static double GetROFMult(this Pointer<TechnoClass> pTechno)
         {
             bool rofAbility = false;
