@@ -53,7 +53,9 @@ namespace Extension.Script
                 ColorStruct houseColor = !pHouse.IsNull ? pHouse.Ref.LaserColor : default;
                 bool isPlayerControl = !pHouse.IsNull && pHouse.Ref.PlayerControl;
                 bool isSelected = pOwner.Ref.IsSelected;
-                Point2D pos = pOwner.Ref.Base.GetCoords().ToClientPos();
+
+                CoordStruct sourcePos = pOwner.Ref.Base.GetCoords();
+                Point2D pos = sourcePos.ToClientPos();
 
                 // 需要遍历读取具体的AE状态的信息的部分统一读取
                 // 显示Duration和InitDelay
@@ -180,6 +182,8 @@ namespace Extension.Script
                 }
 
                 // 显示附着对象的信息
+                RectangleStruct bounds = Surface.Current.Ref.GetRect();
+                bounds.Height -= 34;
                 // 显示Mission
                 if (Data.Mission.Mode == InfoMode.TEXT && (Data.Mission.ShowEnemy || isPlayerControl) && (!Data.Mission.OnlySelected || isSelected))
                 {
@@ -200,11 +204,52 @@ namespace Extension.Script
                     }
                     if (!pTarget.IsNull)
                     {
-                        CoordStruct sourcePos = pOwner.Ref.Base.GetCoords();
                         CoordStruct targetPos = pTarget.Ref.GetCoords();
-                        RectangleStruct bounds = Surface.Current.Ref.GetRect();
-                        bounds.Height -= 34;
-                        Surface.Current.DrawDashedLine(sourcePos.ToClientPos(), targetPos.ToClientPos(), Data.Target.Color, bounds, true);
+                        Surface.Current.DrawDashedLine(pos, targetPos.ToClientPos(), Data.Target.Color, bounds, true);
+                    }
+                }
+                // 显示移动目标连线
+                if (Data.Dest.Mode != InfoMode.NONE && (Data.Dest.ShowEnemy || isPlayerControl) && (!Data.Dest.OnlySelected || isSelected))
+                {
+                    Pointer<AbstractClass> pDest = IntPtr.Zero;
+                    if (AE.AEManager.IsFoot && !(pDest = pOwner.Convert<FootClass>().Ref.Destination).IsNull)
+                    {
+                        CoordStruct targetPos = pDest.Ref.GetCoords();
+                        Surface.Current.DrawDashedLine(pos, targetPos.ToClientPos(), Data.Dest.Color, bounds, true);
+                    }
+                }
+                // 显示单位位置
+                if (Data.Location.Mode != InfoMode.NONE && (Data.Location.ShowEnemy || isPlayerControl) && (!Data.Location.OnlySelected || isSelected))
+                {
+                    Surface.Current.Crosshair(sourcePos, 256, Data.Location.Color, bounds, false);
+                }
+                // 显示单位所在的格子
+                if (Data.Cell.Mode != InfoMode.NONE && (Data.Cell.ShowEnemy || isPlayerControl) && (!Data.Cell.OnlySelected || isSelected))
+                {
+                    if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
+                    {
+                        CoordStruct targetPos = pCell.Ref.GetCoordsWithBridge();
+                        Surface.Current.Cell(targetPos, Data.Cell.Color, bounds, false);
+                    }
+                }
+                // 显示单位朝向
+                if (Data.BodyDir.Mode != InfoMode.NONE && (Data.BodyDir.ShowEnemy || isPlayerControl) && (!Data.BodyDir.OnlySelected || isSelected))
+                {
+                    if (!AE.AEManager.IsBullet)
+                    {
+                        DirStruct dir = pOwner.Convert<TechnoClass>().Ref.Facing.current();
+                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
+                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
+                    }
+                }
+                // 显示单位炮塔朝向
+                if (Data.TurretDir.Mode != InfoMode.NONE && (Data.TurretDir.ShowEnemy || isPlayerControl) && (!Data.TurretDir.OnlySelected || isSelected))
+                {
+                    if (!AE.AEManager.IsBullet)
+                    {
+                        DirStruct dir = pOwner.Convert<TechnoClass>().Ref.TurretFacing.current();
+                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
+                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
                     }
                 }
             }

@@ -14,6 +14,50 @@ namespace Extension.Utilities
 {
     public static class SurfaceHelper
     {
+        public static void Crosshair(this Pointer<Surface> surface, CoordStruct sourcePos, int length, ColorStruct color, RectangleStruct bounds, bool dashed = true, bool blink = false)
+        {
+            CoordStruct p1 = sourcePos + new CoordStruct(length, 0, 0);
+            CoordStruct p2 = sourcePos + new CoordStruct(-length, 0, 0);
+            CoordStruct p3 = sourcePos + new CoordStruct(0, -length, 0);
+            CoordStruct p4 = sourcePos + new CoordStruct(0, -length, 0);
+            if (dashed)
+            {
+                surface.DrawDashedLine(p1, p2, color, bounds, blink);
+                surface.DrawDashedLine(p3, p4, color, bounds, blink);
+            }
+            else
+            {
+                surface.DrawLine(p1, p2, color, bounds);
+                surface.DrawLine(p3, p4, color, bounds);
+            }
+        }
+
+        public static void Cell(this Pointer<Surface> surface, CoordStruct sourcePos, ColorStruct color, RectangleStruct bounds, bool dashed = true, bool blink = false, int length = 128)
+        {
+            CoordStruct p1 = sourcePos + new CoordStruct(length, length, 0);
+            CoordStruct p2 = sourcePos + new CoordStruct(-length, length, 0);
+            CoordStruct p3 = sourcePos + new CoordStruct(-length, -length, 0);
+            CoordStruct p4 = sourcePos + new CoordStruct(length, -length, 0);
+            if (dashed)
+            {
+                surface.DrawDashedLine(p1, p2, color, bounds);
+                surface.DrawDashedLine(p2, p3, color, bounds);
+                surface.DrawDashedLine(p3, p4, color, bounds);
+                surface.DrawDashedLine(p4, p1, color, bounds);
+            }
+            else
+            {
+                surface.DrawLine(p1, p2, color, bounds);
+                surface.DrawLine(p2, p3, color, bounds);
+                surface.DrawLine(p3, p4, color, bounds);
+                surface.DrawLine(p4, p1, color, bounds);
+            }
+        }
+
+        public static unsafe bool DrawDashedLine(this Pointer<Surface> surface, CoordStruct sourcePos, CoordStruct targetPos, ColorStruct color, RectangleStruct bounds, bool blink = false)
+        {
+            return surface.DrawDashedLine(sourcePos.ToClientPos(), targetPos.ToClientPos(), color.RGB2DWORD(), bounds, blink);
+        }
 
         public static unsafe bool DrawDashedLine(this Pointer<Surface> surface, Point2D point1, Point2D point2, ColorStruct color, RectangleStruct bounds, bool blink = false)
         {
@@ -50,6 +94,11 @@ namespace Extension.Utilities
                 return surface.Ref.DrawDashedLine(point1, point2, dwColor, offset);
             }
             return false;
+        }
+
+        public static unsafe bool DrawLine(this Pointer<Surface> surface, CoordStruct sourcePos, CoordStruct targetPos, ColorStruct color, RectangleStruct bound = default)
+        {
+            return surface.DrawLine(sourcePos.ToClientPos(), targetPos.ToClientPos(), color.RGB2DWORD(), bound);
         }
 
         public static unsafe bool DrawLine(this Pointer<Surface> surface, Point2D point1, Point2D point2, ColorStruct color, RectangleStruct bound = default)

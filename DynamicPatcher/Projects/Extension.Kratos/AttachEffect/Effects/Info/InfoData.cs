@@ -155,8 +155,15 @@ namespace Extension.Ext
         public InfoEntity Delay;
         public InfoEntity InitDelay;
         public InfoEntity Stack;
+
+
         public InfoEntity Mission;
         public InfoEntity Target;
+        public InfoEntity Dest;
+        public InfoEntity Location;
+        public InfoEntity Cell;
+        public InfoEntity BodyDir;
+        public InfoEntity TurretDir;
 
         public InfoData()
         {
@@ -164,10 +171,21 @@ namespace Extension.Ext
             this.Delay = new InfoEntity();
             this.InitDelay = new InfoEntity();
             this.Stack = new InfoEntity();
+
             this.Mission = new InfoEntity();
 
             this.Target = new InfoEntity();
             this.Target.Color = new ColorStruct(252, 0, 0);
+            this.Dest = new InfoEntity();
+            this.Dest.Color = new ColorStruct(252, 0, 0);
+            this.Location = new InfoEntity();
+            this.Location.Color = new ColorStruct(0, 252, 0);
+            this.Cell = new InfoEntity();
+            this.Cell.Color = new ColorStruct(0, 252, 0);
+            this.BodyDir = new InfoEntity();
+            this.BodyDir.Color = new ColorStruct(0, 252, 0);
+            this.TurretDir = new InfoEntity();
+            this.TurretDir.Color = new ColorStruct(0, 0, 252);
         }
 
         public InfoData(IConfigReader reader) : this()
@@ -185,9 +203,14 @@ namespace Extension.Ext
             this.Delay.Read(reader, TITLE + "Delay.", watch);
             this.InitDelay.Read(reader, TITLE + "InitDelay.", watch);
             this.Stack.Read(reader, TITLE + "Stack.", watch);
-            this.Mission.Read(reader, TITLE + "Mission.", watch);
 
+            this.Mission.Read(reader, TITLE + "Mission.", watch);
             this.Target.Read(reader, TITLE + "Target.", watch);
+            this.Dest.Read(reader, TITLE + "Dest.", watch);
+            this.Location.Read(reader, TITLE + "Location.", watch);
+            this.Cell.Read(reader, TITLE + "Cell.", watch);
+            this.BodyDir.Read(reader, TITLE + "BodyDir.", watch);
+            this.TurretDir.Read(reader, TITLE + "TurretDir.", watch);
 
             this.Enable = Duration.Mode != InfoMode.NONE
                         || Delay.Mode != InfoMode.NONE
@@ -195,6 +218,11 @@ namespace Extension.Ext
                         || Stack.Mode != InfoMode.NONE
                         || Mission.Mode == InfoMode.TEXT
                         || Target.Mode != InfoMode.NONE
+                        || Dest.Mode != InfoMode.NONE
+                        || Location.Mode != InfoMode.NONE
+                        || Cell.Mode != InfoMode.NONE
+                        || BodyDir.Mode != InfoMode.NONE
+                        || TurretDir.Mode != InfoMode.NONE
                         ;
         }
 

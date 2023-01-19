@@ -69,6 +69,7 @@ namespace Extension.Script
 
         public bool IsBullet => AbsType == AbstractType.Bullet;
         public bool IsBuilding => AbsType == AbstractType.Building;
+        public bool IsFoot => !IsBullet && !IsBuilding;
 
         public bool PowerOff;
 
