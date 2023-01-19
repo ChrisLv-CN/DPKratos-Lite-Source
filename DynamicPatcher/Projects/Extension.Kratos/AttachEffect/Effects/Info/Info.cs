@@ -231,6 +231,15 @@ namespace Extension.Script
                         CoordStruct targetPos = pCell.Ref.GetCoordsWithBridge();
                         Surface.Current.Cell(targetPos, Data.Cell.Color, bounds, false);
                         Surface.Current.DrawLine(sourcePos, targetPos, Data.Cell.Color, bounds);
+                        if (sourcePos.Z != targetPos.Z)
+                        {
+                            CoordStruct pos2 = sourcePos;
+                            pos2.Z = targetPos.Z;
+                            // 单位坐标和地面映射位置
+                            Surface.Current.DrawDashedLine(sourcePos, pos2, Data.Cell.Color, bounds);
+                            // 单位坐标地面映射和格子的差
+                            Surface.Current.DrawDashedLine(targetPos, pos2, Data.Cell.Color, bounds);
+                        }
                     }
                 }
                 // 显示单位朝向
