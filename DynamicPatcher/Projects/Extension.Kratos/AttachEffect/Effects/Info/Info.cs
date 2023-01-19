@@ -184,12 +184,29 @@ namespace Extension.Script
                 // 显示附着对象的信息
                 RectangleStruct bounds = Surface.Current.Ref.GetRect();
                 bounds.Height -= 34;
+
+                // 写字
+                // 显示ID
+                if (Data.ID.Mode != InfoMode.NONE && (Data.ID.ShowEnemy || isPlayerControl) && (!Data.ID.OnlySelected || isSelected))
+                {
+                    string id = pOwner.Ref.Type.Ref.Base.ID;
+                    PrintInfoText(id.ToString(), houseColor, pos, Data.ID);
+                }
+                // 显示Armor
+                if (Data.Armor.Mode != InfoMode.NONE && (Data.Armor.ShowEnemy || isPlayerControl) && (!Data.Armor.OnlySelected || isSelected))
+                {
+                    Armor armor = pOwner.Ref.Type.Ref.Armor;
+                    string armorName = WarheadTypeData.GetArmorName(armor);
+                    PrintInfoText(armorName, houseColor, pos, Data.Armor);
+                }
                 // 显示Mission
-                if (Data.Mission.Mode == InfoMode.TEXT && (Data.Mission.ShowEnemy || isPlayerControl) && (!Data.Mission.OnlySelected || isSelected))
+                if (Data.Mission.Mode != InfoMode.NONE && (Data.Mission.ShowEnemy || isPlayerControl) && (!Data.Mission.OnlySelected || isSelected))
                 {
                     Mission mission = pOwner.Ref.GetCurrentMission();
                     PrintInfoText(mission.ToString(), houseColor, pos, Data.Mission);
                 }
+
+                // 画线
                 // 显示目标连线
                 if (Data.Target.Mode != InfoMode.NONE && (Data.Target.ShowEnemy || isPlayerControl) && (!Data.Target.OnlySelected || isSelected))
                 {

@@ -157,7 +157,10 @@ namespace Extension.Ext
         public InfoEntity Stack;
 
 
+        public InfoEntity ID;
+        public InfoEntity Armor;
         public InfoEntity Mission;
+
         public InfoEntity Target;
         public InfoEntity Dest;
         public InfoEntity Location;
@@ -172,6 +175,8 @@ namespace Extension.Ext
             this.InitDelay = new InfoEntity();
             this.Stack = new InfoEntity();
 
+            this.ID = new InfoEntity();
+            this.Armor = new InfoEntity();
             this.Mission = new InfoEntity();
 
             this.Target = new InfoEntity();
@@ -204,7 +209,10 @@ namespace Extension.Ext
             this.InitDelay.Read(reader, TITLE + "InitDelay.", watch);
             this.Stack.Read(reader, TITLE + "Stack.", watch);
 
+            this.ID.Read(reader, TITLE + "ID.", watch);
+            this.Armor.Read(reader, TITLE + "Armor.", watch);
             this.Mission.Read(reader, TITLE + "Mission.", watch);
+
             this.Target.Read(reader, TITLE + "Target.", watch);
             this.Dest.Read(reader, TITLE + "Dest.", watch);
             this.Location.Read(reader, TITLE + "Location.", watch);
@@ -216,7 +224,11 @@ namespace Extension.Ext
                         || Delay.Mode != InfoMode.NONE
                         || InitDelay.Mode != InfoMode.NONE
                         || Stack.Mode != InfoMode.NONE
-                        || Mission.Mode == InfoMode.TEXT
+
+                        || ID.Mode != InfoMode.NONE
+                        || Armor.Mode != InfoMode.NONE
+                        || Mission.Mode != InfoMode.NONE
+
                         || Target.Mode != InfoMode.NONE
                         || Dest.Mode != InfoMode.NONE
                         || Location.Mode != InfoMode.NONE

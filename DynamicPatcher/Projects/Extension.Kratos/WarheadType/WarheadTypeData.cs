@@ -71,6 +71,7 @@ namespace Extension.Ext
             new ExpLevelParser().Register();
         }
 
+        // 储存ares护甲的注册表，护甲的对应关系
         private static Dictionary<string, string> _aresArmorArray;
         public static Dictionary<string, string> AresArmorArray
         {
@@ -87,7 +88,7 @@ namespace Extension.Ext
                         if (count > 0)
                         {
                             ISectionReader reader = Ini.GetSection(Ini.RulesDependency, section);
-                            // Logger.Log($"Try to read Ares's [ArmorTypes], get {count} types.");
+                            Logger.Log($"Try to read Ares's [ArmorTypes], get {count} custom types.");
                             for (int i = 0; i < count; i++)
                             {
                                 string keyName = pINI.Ref.GetKeyName(section, i);
@@ -97,26 +98,50 @@ namespace Extension.Ext
                                     Logger.LogWarning($"Try to read Ares's [ArmorTypes], ArmorType {keyName} is {value}");
                                     value = "0%";
                                 }
+                                // Logger.Log($"{keyName}={value}");
                                 _aresArmorArray.Add(keyName, value);
                             }
                         }
-                        Dictionary<string, string> temp = new Dictionary<string, string>(_aresArmorArray);
-                        // 格式化所有的自定义护甲，包含嵌套护甲，获取实际的护甲信息
-                        foreach (KeyValuePair<string, string> armor in temp)
-                        {
-                            string key = armor.Key;
-                            string val = GetArmorValue(key, _aresArmorArray);
-                            _aresArmorArray[key] = val;
-                        }
-                        // int ii = 11;
-                        // foreach (KeyValuePair<string, string> armor in _aresArmorArray)
-                        // {
-                        //     Logger.Log($"{Game.CurrentFrame} Armor {ii} - {armor.Key} = {armor.Value}");
-                        //     ii++;
-                        // }
                     }
                 }
                 return _aresArmorArray;
+            }
+        }
+
+        // 读取完所有嵌套护甲对应的百分比默认值
+        private static Dictionary<string, string> _aresArmorValueArray;
+        public static Dictionary<string, string> AresArmorValueArray
+        {
+            get
+            {
+                if (null == _aresArmorValueArray)
+                {
+                    // 格式化所有的自定义护甲，包含嵌套护甲，获取实际的护甲信息，作为默认值
+                    _aresArmorValueArray = new Dictionary<string, string>(AresArmorArray);
+                    foreach (KeyValuePair<string, string> armor in AresArmorArray)
+                    {
+                        string key = armor.Key;
+                        string val = GetArmorValue(key, _aresArmorValueArray);
+                        _aresArmorValueArray[key] = val;
+                    }
+                    Logger.Log($"[ArmorTypes]");
+                    int i = 11;
+                    foreach (KeyValuePair<string, string> armor in AresArmorArray)
+                    {
+                        string key = armor.Key;
+                        string value = armor.Value;
+                        if (value.IndexOf("%") > -1 || IsDefaultArmor(value, out int index))
+                        {
+                            Logger.Log($"Armor {i} - {key} = {value}");
+                        }
+                        else
+                        {
+                            Logger.Log($"Armor {i} - {key} = {value} = {_aresArmorValueArray[key]}");
+                        }
+                        i++;
+                    }
+                }
+                return _aresArmorValueArray;
             }
         }
 
@@ -234,16 +259,17 @@ namespace Extension.Ext
 
         private void ReadAresVersus(IConfigReader reader)
         {
-            if (null != AresArmorArray && AresArmorArray.Any())
+            if (null != AresArmorValueArray && AresArmorValueArray.Any())
             {
                 string title = "Versus.";
-                foreach (KeyValuePair<string, string> armor in AresArmorArray)
+                foreach (KeyValuePair<string, string> armor in AresArmorValueArray)
                 {
                     // 获得所有自定义护甲的信息
                     string name = armor.Key;
-                    double defaultVersus = 1d;
-
+                    // 通过嵌套读取护甲的默认值
                     string value = armor.Value;
+                    // 实际的比例
+                    double defaultVersus = 1d;
                     if (!value.IsNullOrEmpty())
                     {
                         // 含百分号
@@ -252,20 +278,33 @@ namespace Extension.Ext
                             string temp = value.Substring(0, value.IndexOf("%"));
                             defaultVersus = Convert.ToDouble(temp) / 100;
                         }
-                        else if (isDefaultArmor(value, out int index) && index < 11)
+                        else if (IsDefaultArmor(value, out int index) && index < 11)
                         {
                             defaultVersus = this.Versus[index];
                         }
                     }
                     // 读取弹头设置
-                    string key = title + name;
-                    double versus = reader.GetPercent(key, defaultVersus, true);
-                    key = title + name + ".ForceFire";
-                    bool forceFire = reader.Get(key, true);
-                    key = title + name + ".Retaliate";
-                    bool retaliate = reader.Get(key, true);
-                    key = title + name + ".PassiveAcquire";
-                    bool passiveAcquire = reader.Get(key, true);
+                    double versus = defaultVersus;
+                    bool forceFire = true;
+                    bool retaliate = true;
+                    bool passiveAcquire = true;
+                    // 如果是嵌套护甲，如果没有明写，那么就需要去读嵌套的
+                    Stack<string> armorNames = new Stack<string>();
+                    GetArmorKeys(name, AresArmorArray, ref armorNames);
+                    // Logger.Log($"{Game.CurrentFrame} 读取弹头 [{reader.Section}] 对护甲 [{name}]的比例，嵌套了 {armorNames.Count()} 层，逐层读取");
+                    foreach (string armorName in armorNames)
+                    {
+                        string key = title + armorName;
+                        // 从最上层开始读取
+                        versus = reader.GetPercent(key, versus, true);
+                        key = title + armorName + ".ForceFire";
+                        forceFire = reader.Get(key, forceFire);
+                        key = title + armorName + ".Retaliate";
+                        retaliate = reader.Get(key, retaliate);
+                        key = title + armorName + ".PassiveAcquire";
+                        passiveAcquire = reader.Get(key, passiveAcquire);
+                        // Logger.Log($"{Game.CurrentFrame} - 读取弹头 [{reader.Section}] 对护甲 [{armorName}]的比例 {key} = {versus}, forceFire = {forceFire}, retaliate = {retaliate}, passiveAcquire = {passiveAcquire}");
+                    }
                     if (null == AresVersus)
                     {
                         AresVersus = new List<AresVersus>();
@@ -275,10 +314,27 @@ namespace Extension.Ext
             }
         }
 
-        private bool isDefaultArmor(string armor, out int index)
+        public static string GetArmorName(Armor armor)
+        {
+            string name = armor.ToString();
+            if (!IsDefaultArmor(name, out int index))
+            {
+                int i = (int)armor;
+                name = i.ToString();
+                i -= 11;
+                // Logger.Log($"{Game.CurrentFrame} 读取护甲 [{name}] 的名字，{i} = {AresArmorArray.Count()}");
+                if (i >= 0 && i < AresArmorArray.Count())
+                {
+                    name = AresArmorArray.ElementAt(i).Key;
+                }
+            }
+            return name;
+        }
+
+        private static bool IsDefaultArmor(string armor, out int index)
         {
             index = 0;
-            if (Enum.TryParse<Armor>(armor, true, out Armor result))
+            if (Enum.TryParse<Armor>(armor, true, out Armor result) && Enum.IsDefined(typeof(Armor), result))
             {
                 index = (int)result;
                 return true;
@@ -286,16 +342,48 @@ namespace Extension.Ext
             return false;
         }
 
+        /// <summary>
+        /// 迭代获取嵌套护甲的名字堆栈
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="array"></param>
+        /// <param name="keys"></param>
+        private static void GetArmorKeys(string key, Dictionary<string, string> array, ref Stack<string> keys)
+        {
+            if (array.ContainsKey(key))
+            {
+                keys.Push(key);
+                // 查找是否嵌套
+                string value = array[key];
+                if (value.IndexOf("%") > -1 || IsDefaultArmor(value, out int index))
+                {
+                    return;
+                }
+                // 迭代查找
+                if (value != key)
+                {
+                    GetArmorKeys(value, array, ref keys);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 迭代读取嵌套护甲最底层的数值
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="array"></param>
+        /// <returns></returns>
         private static string GetArmorValue(string key, Dictionary<string, string> array)
         {
             if (array.ContainsKey(key))
             {
                 string value = array[key];
-                if (value.IndexOf("%") > -1 || Enum.TryParse<Armor>(value, true, out Armor armor))
+                // 如果是百分比则返回百分比，如果是游戏默认护甲，则返回默认护甲
+                if (value.IndexOf("%") > -1 || IsDefaultArmor(value, out int index))
                 {
                     return value;
                 }
-                // 跳出死循环
+                // 迭代查找
                 if (value != key)
                 {
                     return GetArmorValue(value, array);

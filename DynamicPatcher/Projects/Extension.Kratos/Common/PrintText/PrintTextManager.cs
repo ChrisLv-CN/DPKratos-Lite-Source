@@ -73,6 +73,7 @@ namespace Extension.Ext
         {
             Pointer<Surface> pSurface = Surface.Current;
             RectangleStruct rect = pSurface.Ref.GetRect();
+            rect.Height -= 34;
             if (data.UseSHP && data.SHPDrawStyle == SHPDrawStyle.PROGRESS)
             {
                 string file = data.SHPFileName;
