@@ -230,6 +230,7 @@ namespace Extension.Script
                     {
                         CoordStruct targetPos = pCell.Ref.GetCoordsWithBridge();
                         Surface.Current.Cell(targetPos, Data.Cell.Color, bounds, false);
+                        Surface.Current.DrawLine(sourcePos, targetPos, Data.Cell.Color, bounds);
                     }
                 }
                 // 显示单位朝向

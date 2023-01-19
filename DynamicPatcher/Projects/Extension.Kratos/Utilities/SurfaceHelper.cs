@@ -18,7 +18,7 @@ namespace Extension.Utilities
         {
             CoordStruct p1 = sourcePos + new CoordStruct(length, 0, 0);
             CoordStruct p2 = sourcePos + new CoordStruct(-length, 0, 0);
-            CoordStruct p3 = sourcePos + new CoordStruct(0, -length, 0);
+            CoordStruct p3 = sourcePos + new CoordStruct(0, length, 0);
             CoordStruct p4 = sourcePos + new CoordStruct(0, -length, 0);
             if (dashed)
             {
