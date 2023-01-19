@@ -238,7 +238,7 @@ namespace Extension.Script
                 // 显示单位位置
                 if (Data.Location.Mode != InfoMode.NONE && (Data.Location.ShowEnemy || isPlayerControl) && (!Data.Location.OnlySelected || isSelected))
                 {
-                    Surface.Current.Crosshair(sourcePos, 256, Data.Location.Color, bounds, false);
+                    Surface.Current.Crosshair(sourcePos, 128, Data.Location.Color, bounds, false);
                 }
                 // 显示单位所在的格子
                 if (Data.Cell.Mode != InfoMode.NONE && (Data.Cell.ShowEnemy || isPlayerControl) && (!Data.Cell.OnlySelected || isSelected))
