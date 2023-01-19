@@ -128,7 +128,7 @@ namespace Extension.Utilities
         {
             // 计算实际伤害
             realDamage = pTechno.GetRealDamage(damage, pWH, false, distanceFromEpicenter);
-            WarheadTypeData data = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            WarheadTypeData data = pWH.GetData();
             if (damage == 0)
             {
                 return data.AllowZeroDamage;

@@ -76,7 +76,7 @@ namespace Extension.Utilities
         {
             if (!pWH.IsNull)
             {
-                WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+                WarheadTypeData whData = pWH.GetData();
                 return !whData.PreImpactAnim.IsNullOrEmptyOrNone();
             }
             return false;
@@ -89,7 +89,7 @@ namespace Extension.Utilities
 
         public static bool CanAffectHouse(this Pointer<WarheadTypeClass> pWH, Pointer<HouseClass> pOwnerHouse, Pointer<HouseClass> pTargetHouse, out WarheadTypeData whData)
         {
-            whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            whData = pWH.GetData();
             return pWH.CanAffectHouse(pOwnerHouse, pTargetHouse, whData);
         }
 
@@ -115,9 +115,6 @@ namespace Extension.Utilities
 
         public static bool CanReaction(this Pointer<WarheadTypeClass> pWH, out DamageReactionMode[] ignoreModes)
         {
-            // WarheadTypeData whData = Ini.GetConfig<WarheadTypeData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-            // ignoreModes = whData.IgnoreDamageReactionModes;
-            // return !whData.IgnoreDamageReaction || (null != ignoreModes && ignoreModes.Any());
             ignoreModes = null;
             WarheadTypeData data = pWH.GetData(out WarheadTypeExt whExt);
             if (null != whExt)
