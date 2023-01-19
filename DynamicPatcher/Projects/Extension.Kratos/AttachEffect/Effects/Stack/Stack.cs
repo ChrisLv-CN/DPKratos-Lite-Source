@@ -55,11 +55,20 @@ namespace Extension.Script
             if (AE.AEManager.AEStacks.ContainsKey(watch) && (stacks = AE.AEManager.AEStacks[watch]) > 0)
             {
                 // Logger.Log($"{Game.CurrentFrame} 检查AE {watch} 的层数 {stacks}");
-                if (Data.Level < 0 || stacks > Data.Level)
+                if (CanActive(stacks))
                 {
                     count++;
                     // 触发
-                    AE.AEManager.Attach(Data.AttachEffects, Data.AttachChances, AE.pSource.Convert<ObjectClass>(), AE.pSourceHouse);
+                    // 添加AE
+                    if (Data.Attach)
+                    {
+                        AE.AEManager.Attach(Data.AttachEffects, Data.AttachChances, AE.pSource.Convert<ObjectClass>(), AE.pSourceHouse);
+                    }
+                    // 移除AE
+                    if (Data.Remove)
+                    {
+                        AE.AEManager.Disable(Data.RemoveEffects);
+                    }
                     // 移除被监视者
                     if (Data.RemoveAll)
                     {
@@ -72,6 +81,30 @@ namespace Extension.Script
                 // 触发次数够了，移除自身
                 Disable(default);
             }
+        }
+
+        private bool CanActive(int stacks)
+        {
+            int level = Data.Level;
+            if (level >= 0)
+            {
+                switch (Data.Condition)
+                {
+                    case Condition.EQ:
+                        return stacks == level;
+                    case Condition.NE:
+                        return stacks != level;
+                    case Condition.GT:
+                        return stacks > level;
+                    case Condition.LT:
+                        return stacks < level;
+                    case Condition.GE:
+                        return stacks >= level;
+                    case Condition.LE:
+                        return stacks <= level;
+                }
+            }
+            return true;
         }
     }
 }

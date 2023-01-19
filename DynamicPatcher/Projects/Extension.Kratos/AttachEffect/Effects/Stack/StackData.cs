@@ -26,15 +26,34 @@ namespace Extension.Ext
     }
 
     [Serializable]
+    public enum Condition
+    {
+        EQ = 0,
+        NE = 1,
+        GT = 2,
+        LT = 3,
+        GE = 4,
+        LE = 5
+    }
+
+    [Serializable]
     public class StackData : EffectData
     {
 
         public const string TITLE = "Stack.";
 
         public string Watch;
+
         public int Level;
+        public Condition Condition;
+
+        public bool Attach;
         public string[] AttachEffects;
         public double[] AttachChances;
+
+        public bool Remove;
+        public string[] RemoveEffects;
+
         public int TriggeredTimes;
         public bool RemoveAll;
 
@@ -42,9 +61,17 @@ namespace Extension.Ext
         public StackData()
         {
             this.Watch = null;
+
             this.Level = 0;
+            this.Condition = Condition.EQ;
+
+            this.Attach = false;
             this.AttachEffects = null;
             this.AttachChances = null;
+
+            this.Remove = false;
+            this.RemoveEffects = null;
+
             this.TriggeredTimes = -1;
             this.RemoveAll = true;
         }
@@ -59,13 +86,21 @@ namespace Extension.Ext
             base.Read(reader, TITLE);
 
             this.Watch = reader.Get(TITLE + "Watch", this.Watch);
+
             this.Level = reader.Get(TITLE + "Level", this.Level);
+            this.Condition = reader.Get(TITLE + "Condition", this.Condition);
+
             this.AttachEffects = reader.GetList(TITLE + "AttachEffects", this.AttachEffects);
             this.AttachChances = reader.GetChanceList(TITLE + "AttachChances", this.AttachChances);
+            this.Attach = null != AttachEffects && AttachEffects.Any();
+
+            this.RemoveEffects = reader.GetList(TITLE + "RemoveEffects", this.RemoveEffects);
+            this.Remove = null != RemoveEffects && RemoveEffects.Any();
+
             this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
             this.RemoveAll = reader.Get(TITLE + "RemoveAll", this.RemoveAll);
 
-            this.Enable = !Watch.IsNullOrEmptyOrNone() && null != AttachEffects && AttachEffects.Any();
+            this.Enable = !Watch.IsNullOrEmptyOrNone() && (Attach || Remove);
         }
 
     }
