@@ -515,24 +515,21 @@ namespace ExtensionHooks
                     int maxY = wCell.Y;
                     // 检查单位节点
                     bool found = false;
-                    foreach (TechnoExt technoExt in TechnoStatusScript.BaseUnitArray)
+                    int houseIndex = DisplayClass.Display_PendingHouse;
+                    foreach (KeyValuePair<TechnoExt, BaseNormalData> baseUnit in TechnoStatusScript.BaseUnitArray)
                     {
-                        CoordStruct location = technoExt.OwnerObject.Ref.Base.Base.GetCoords();
-                        CellStruct targetCell = MapClass.Coord2Cell(location);
-                        found = targetCell.X >= minX && targetCell.X <= maxX && targetCell.Y >= minY && targetCell.Y <= maxY;
-                        if (found)
+                        Pointer<TechnoClass> pTarget = baseUnit.Key.OwnerObject;
+                        if (found = pTarget.CanBeBase(baseUnit.Value, houseIndex, minX, maxX, minY, maxY))
                         {
                             break;
                         }
                     }
                     if (!found && CombatDamage.Data.AllowStandAsBaseNormal)
                     {
-                        foreach (TechnoExt technoExt in TechnoStatusScript.BaseStandArray)
+                        foreach (KeyValuePair<TechnoExt, BaseNormalData> baseUnit in TechnoStatusScript.BaseStandArray)
                         {
-                            CoordStruct location = technoExt.OwnerObject.Ref.Base.Base.GetCoords();
-                            CellStruct targetCell = MapClass.Coord2Cell(location);
-                            found = targetCell.X >= minX && targetCell.X <= maxX && targetCell.Y >= minY && targetCell.Y <= maxY;
-                            if (found)
+                            Pointer<TechnoClass> pTarget = baseUnit.Key.OwnerObject;
+                            if (found = pTarget.CanBeBase(baseUnit.Value, houseIndex, minX, maxX, minY, maxY))
                             {
                                 break;
                             }

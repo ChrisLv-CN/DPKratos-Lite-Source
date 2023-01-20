@@ -14,8 +14,8 @@ namespace Extension.Script
 
     public partial class TechnoStatusScript
     {
-        public static List<TechnoExt> BaseUnitArray = new List<TechnoExt>();
-        public static List<TechnoExt> BaseStandArray = new List<TechnoExt>();
+        public static Dictionary<TechnoExt, BaseNormalData> BaseUnitArray = new Dictionary<TechnoExt, BaseNormalData>();
+        public static Dictionary<TechnoExt, BaseNormalData> BaseStandArray = new Dictionary<TechnoExt, BaseNormalData>();
 
         private IConfigWrapper<BaseNormalData> _baseNormalData;
         public BaseNormalData BaseNormalData
@@ -42,11 +42,11 @@ namespace Extension.Script
             {
                 if (AmIStand())
                 {
-                    BaseStandArray.Add(Owner);
+                    BaseStandArray.Add(Owner, BaseNormalData);
                 }
                 else
                 {
-                    BaseUnitArray.Add(Owner);
+                    BaseUnitArray.Add(Owner, BaseNormalData);
                 }
             }
         }

@@ -154,18 +154,16 @@ namespace Extension.Utilities
             return true;
         }
 
-        public static bool CanBeBase(this Pointer<TechnoClass> pTechno, int houseIndex, Pointer<CellClass> pCell, bool checkInAir = false)
+        public static bool CanBeBase(this Pointer<TechnoClass> pTechno, BaseNormalData data, int houseIndex, int minX, int maxX, int minY, int maxY)
         {
-            Pointer<HouseClass> pTargetHouse = IntPtr.Zero;
-            if (!pTechno.IsDeadOrInvisible() && (!checkInAir || pTechno.InAir()) && BaseNormalData.CanBeBase(pTechno.Ref.Type.Ref.Base.Base.ID) && !(pTargetHouse = pTechno.Ref.Owner).IsNull)
+            // 检查位置在范围内
+            CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+            CellStruct cellPos = MapClass.Coord2Cell(location);
+            if (cellPos.X >= minX && cellPos.X <= maxX && cellPos.Y >= minY && cellPos.Y <= maxY)
             {
-                // 检查所属
-                if (pTargetHouse.Ref.ArrayIndex == houseIndex || (RulesClass.Global().BuildOffAlly && pTargetHouse.Ref.IsAlliedWith(houseIndex)))
-                {
-                    // 检查距离
-                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                    return MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pTargetCell) && pTargetCell == pCell;
-                }
+                // 判断所属
+                Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
+                return pTargetHouse.Ref.ArrayIndex == houseIndex || (data.EligibileForAllyBuilding && pTargetHouse.Ref.IsAlliedWith(houseIndex));
             }
             return false;
         }

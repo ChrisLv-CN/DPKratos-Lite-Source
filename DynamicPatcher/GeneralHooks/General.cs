@@ -22,7 +22,6 @@ namespace GeneralHooks
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, TechnoStatusScript.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, BulletStatusScript.Clear);
             EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, PrintTextManager.Clear);
-            EventSystem.General.AddPermanentHandler(EventSystem.General.ScenarioStartEvent, BaseNormalData.Clear);
         }
 
         private static void MathExHandler(object sender, EventArgs e)
