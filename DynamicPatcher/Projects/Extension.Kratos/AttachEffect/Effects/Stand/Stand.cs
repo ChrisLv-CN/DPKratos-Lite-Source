@@ -157,7 +157,8 @@ namespace Extension.Script
                     Pointer<TechnoClass> pSource = AE.pSource;
                     if (Data.AttackSource && !pSource.IsDeadOrInvisible() && pStand.CanAttack(pSource))
                     {
-                        pSource.Ref.SetTarget(pSource.Convert<AbstractClass>());
+                        // Logger.Log($"{Game.CurrentFrame} 替身[{Data.Type}]{pStand}强制设置来源[{pSource.Ref.Type.Ref.Base.Base.ID}]{pSource}为目标");
+                        pStand.Ref.SetTarget(pSource.Convert<AbstractClass>());
                     }
                 }
             }
@@ -584,7 +585,7 @@ namespace Extension.Script
                     if (pStand.Ref.BeingWarpedOut && !pStand.Ref.TemporalImUsing.IsNull)
                     {
                         pStand.Ref.BeingWarpedOut = false;
-                        if (StandCanAttackTarget(pTarget, false))
+                        if (pStand.CanAttack(pTarget))
                         {
                             // 检查ROF
                             if (pStand.Ref.ROFTimer.Expired())
@@ -607,7 +608,7 @@ namespace Extension.Script
                     }
                     else
                     {
-                        if (StandCanAttackTarget(pTarget, false))
+                        if (pStand.CanAttack(pTarget))
                         {
                             pStand.Ref.SetTarget(pTarget);
                         }
@@ -623,7 +624,7 @@ namespace Extension.Script
                     Pointer<AbstractClass> target = pMaster.Ref.Target;
                     if (!target.IsNull)
                     {
-                        if (Data.SameTarget && canFire && StandCanAttackTarget(target, true))
+                        if (Data.SameTarget && canFire && pStand.CanAttack(target))
                         {
                             pStand.Ref.SetTarget(target);
                         }
@@ -732,26 +733,26 @@ namespace Extension.Script
             }
         }
 
-        private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget, bool checkRange)
-        {
-            int i = pStand.Ref.SelectWeapon(pTarget);
-            FireError fireError = pStand.Ref.GetFireError(pTarget, i, checkRange);
-            // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand} checkRange = {checkRange}, {fireError}, WarpingOut = {pStand.Ref.WarpingOut}, BeingWarpedOut = {pStand.Ref.BeingWarpedOut}");
-            switch (fireError)
-            {
-                case FireError.ILLEGAL:
-                case FireError.CANT:
-                case FireError.MOVING:
-                case FireError.RANGE:
-                    return false;
-            }
-            return true;
-        }
+        // private bool StandCanAttackTarget(Pointer<AbstractClass> pTarget, bool checkRange)
+        // {
+        //     int i = pStand.Ref.SelectWeapon(pTarget);
+        //     FireError fireError = pStand.Ref.GetFireError(pTarget, i, checkRange);
+        //     // Logger.Log($"{Game.CurrentFrame} [{Data.Type}]{pStand} checkRange = {checkRange}, {fireError}, WarpingOut = {pStand.Ref.WarpingOut}, BeingWarpedOut = {pStand.Ref.BeingWarpedOut}");
+        //     switch (fireError)
+        //     {
+        //         case FireError.ILLEGAL:
+        //         case FireError.CANT:
+        //         case FireError.MOVING:
+        //         case FireError.RANGE:
+        //             return false;
+        //     }
+        //     return true;
+        // }
 
         private void RemoveStandIllegalTarget()
         {
             Pointer<AbstractClass> pStandTarget;
-            if (!(pStandTarget = pStand.Ref.Target).IsNull && !StandCanAttackTarget(pStandTarget, true))
+            if (!(pStandTarget = pStand.Ref.Target).IsNull && !pStand.CanAttack(pStandTarget))
             {
                 pStand.ClearAllTarget();
             }
