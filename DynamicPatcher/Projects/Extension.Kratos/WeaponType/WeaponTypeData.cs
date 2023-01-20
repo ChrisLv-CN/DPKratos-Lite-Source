@@ -19,8 +19,9 @@ namespace Extension.Ext
         public bool LaserFade = false;
         public bool IsSupported = false;
 
-        // RockerPitch
+        // Kratos
         public float RockerPitch = 0;
+        public bool SelfLaunch = false;
 
     }
 

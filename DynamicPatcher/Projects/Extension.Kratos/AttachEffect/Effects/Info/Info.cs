@@ -221,8 +221,13 @@ namespace Extension.Script
                     }
                     if (!pTarget.IsNull)
                     {
-                        CoordStruct targetPos = pTarget.Ref.GetCoords();
-                        Surface.Current.DrawDashedLine(pos, targetPos.ToClientPos(), Data.Target.Color, bounds, true);
+                        Point2D targetPos = pTarget.Ref.GetCoords().ToClientPos();
+                        Surface.Current.DrawDashedLine(pos, targetPos, Data.Target.Color, bounds, true);
+                        if (pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Object))
+                        {
+                            String id = pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID;
+                            PrintInfoText(id, Data.Target.Color, targetPos, Data.Target);
+                        }
                     }
                 }
                 // 显示移动目标连线

@@ -149,8 +149,9 @@ namespace Extension.Script
                             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                             // 从占据的格子中移除自己
                             pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
+                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                             // 停止移动
-                            StopMoving();
+                            pFoot.ForceStopMoving();
                             // 计算下一个坐标点
                             // 以偏移量为FLH获取目标点
                             CoordStruct targetPos = pBlackHole.GetFLHAbsoluteCoords(blackHoleData.Offset, blackHoleData.IsOnTurret);
@@ -189,56 +190,6 @@ namespace Extension.Script
                                     nextPos.Z = nextCellPos.Z;
                                     break;
                             }
-                            /*
-                            int deltaZ = sourcePos.Z - targetPos.Z;
-                            bool canMove = true;
-                            // 检查地面
-                            if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pTargetCell))
-                            {
-                                CoordStruct cellPos = pTargetCell.Ref.GetCoordsWithBridge();
-                                if (cellPos.Z > nextPos.Z)
-                                {
-                                    // 沉入地面
-                                    nextPos.Z = cellPos.Z;
-                                    // 检查悬崖
-                                    switch (pTargetCell.Ref.GetTileType())
-                                    {
-                                        case TileType.Cliff:
-                                        case TileType.DestroyableCliff:
-                                            // 悬崖上可以往悬崖下移动
-                                            canMove = deltaZ > 0;
-                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到悬崖 {(canMove ? "可通过" : "不可通过")} nextPos = {nextPos}");
-                                            break;
-                                    }
-                                }
-                                // 检查建筑
-                                // 会飞的单位不检查建筑
-                                if (!pTechno.Ref.Type.Ref.ConsideredAircraft && !blackHoleData.AllowPassBuilding)
-                                {
-                                    Pointer<BuildingClass> pBuilding = pTargetCell.Ref.GetBuilding();
-                                    if (!pBuilding.IsNull)
-                                    {
-                                        canMove = !pBuilding.CanHit(nextPos.Z);
-                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 行进路线遇到建筑 [{pBuilding.Ref.Type.Ref.Base.Base.Base.ID}] {pBuilding} {(canMove ? "可通过" : "不可通过")} nextPos {nextPos}");
-                                    }
-                                }
-
-                            }
-                            if (!canMove)
-                            {
-                                // 反弹回移动前的格子
-                                if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pSourceCell))
-                                {
-                                    CoordStruct cellPos = pSourceCell.Ref.GetCoordsWithBridge();
-                                    nextPos.X = cellPos.X;
-                                    nextPos.Y = cellPos.Y;
-                                    if (nextPos.Z < cellPos.Z)
-                                    {
-                                        nextPos.Z = cellPos.Z;
-                                    }
-                                }
-                            }
-                            */
                             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 获得新位置坐标 {nextPos} 原始位置 {sourcePos} {(!canMove ? "受到阻挡不能前进，返回" : "")}");
                             // 被黑洞吸走
                             pTechno.Ref.Base.Mark(MarkType.UP);

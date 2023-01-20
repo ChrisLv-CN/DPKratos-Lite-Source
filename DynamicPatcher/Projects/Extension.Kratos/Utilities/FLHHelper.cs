@@ -387,6 +387,31 @@ namespace Extension.Utilities
             return index;
         }
 
+        public static DirType ToDirType(this DirStruct dir)
+        {
+            int i = dir.Dir2FacingIndex(8);
+            switch (i)
+            {
+                case 0:
+                    return DirType.N;
+                case 1:
+                    return DirType.NE;
+                case 2:
+                    return DirType.E;
+                case 3:
+                    return DirType.SE;
+                case 4:
+                    return DirType.S;
+                case 5:
+                    return DirType.SW;
+                case 6:
+                    return DirType.W;
+                case 7:
+                    return DirType.NW;
+            }
+            return DirType.N;
+        }
+
         public static DirStruct Point2Dir(this CoordStruct sourcePos, CoordStruct targetPos)
         {
             // get angle

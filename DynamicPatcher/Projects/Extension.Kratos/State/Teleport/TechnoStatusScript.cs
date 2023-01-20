@@ -193,9 +193,9 @@ namespace Extension.Script
                                     else
                                     {
                                         // 普通跳
-                                        // 停止行动
-                                        StopMoving();
                                         Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                                        // 停止行动
+                                        pFoot.ForceStopMoving();
                                         // 切换Loco
                                         LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Teleport);
                                         loco = pTechno.Convert<FootClass>().Ref.Locomotor;

@@ -213,6 +213,7 @@ namespace Extension.Script
                 InitState_DestroySelf();
                 InitState_GiftBox();
                 InitState_Proximity();
+                InitState_SelfLaunch();
                 // 弹道初始化
                 if (isMissile)
                 {
@@ -374,6 +375,10 @@ namespace Extension.Script
                     return;
                 }
                 if (skip = OnDetonate_GiftBox(pCoords))
+                {
+                    return;
+                }
+                if (skip = OnDetonate_SelfLaunch(pCoords))
                 {
                     return;
                 }

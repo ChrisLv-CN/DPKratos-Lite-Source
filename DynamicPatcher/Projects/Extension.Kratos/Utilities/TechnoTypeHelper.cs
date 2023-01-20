@@ -170,7 +170,7 @@ namespace Extension.Utilities
 
         public static bool CanAttack(this Pointer<TechnoClass> pTechno, Pointer<AbstractClass> pTarget, bool isPassiveAcquire = false)
         {
-            if (pTarget.CastToTechno(out Pointer<TechnoClass> pTargetTechno))
+            if (!pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pTargetTechno))
             {
                 return pTechno.CanAttack(pTargetTechno, isPassiveAcquire);
             }

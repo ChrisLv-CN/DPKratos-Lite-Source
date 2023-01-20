@@ -58,9 +58,9 @@ namespace Extension.Script
                     CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                     // 从占据的格子中移除自己
                     pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
+                    Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
                     // 停止移动
-                    StopMoving();
-                    // Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                    pFoot.ForceStopMoving();
                     // ILocomotion loco = pFoot.Ref.Locomotor;
                     // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
                     // 计算下一个坐标点
