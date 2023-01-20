@@ -88,6 +88,7 @@ namespace Extension.Ext
 
         public string Type; // 替身类型
         public CoordStruct Offset; // 替身相对位置
+        public CoordStruct StackOffset; // 堆叠偏移
         // public Point2D OffsetRandomF; // 随机F
         // public Point2D OffsetRandomL; // 随机L
         // public Point2D OffsetRandomH; // 随机H
@@ -112,6 +113,7 @@ namespace Extension.Ext
 
         public StandTargeting Targeting; // 在什么位置可攻击
         public bool ForceAttackMaster; // 强制选择使者为目标
+        public bool AttackSource; // 生成时选定来源为目标
         public bool MobileFire; // 移动攻击
 
         public bool Immune; // 无敌
@@ -143,6 +145,7 @@ namespace Extension.Ext
         {
             this.Type = null;
             this.Offset = default;
+            this.StackOffset = default;
             // this.OffsetRandomF = default;
             // this.OffsetRandomL = default;
             // this.OffsetRandomH = default;
@@ -167,6 +170,7 @@ namespace Extension.Ext
 
             this.Targeting = StandTargeting.BOTH;
             this.ForceAttackMaster = false;
+            this.AttackSource = false;
             this.MobileFire = true;
 
             this.Immune = true;
@@ -212,6 +216,7 @@ namespace Extension.Ext
             if (this.Enable = !Type.IsNullOrEmptyOrNone())
             {
                 this.Offset = reader.Get(TITLE + "Offset", this.Offset);
+                this.StackOffset = reader.Get(TITLE + "StackOffset", this.StackOffset);
                 // this.OffsetRandomF = reader.Get(TITLE + "OffsetRandomF", this.OffsetRandomF);
                 // this.OffsetRandomL = reader.Get(TITLE + "OffsetRandomL", this.OffsetRandomL);
                 // this.OffsetRandomH = reader.Get(TITLE + "OffsetRandomH", this.OffsetRandomH);
@@ -240,6 +245,7 @@ namespace Extension.Ext
 
                 this.Targeting = reader.Get(TITLE + "Targeting", this.Targeting);
                 this.ForceAttackMaster = reader.Get(TITLE + "ForceAttackMaster", this.ForceAttackMaster);
+                this.AttackSource = reader.Get(TITLE + "AttackSource", this.AttackSource);
                 this.MobileFire = reader.Get(TITLE + "MobileFire", this.MobileFire);
 
                 this.Immune = reader.Get(TITLE + "Immune", this.Immune);

@@ -645,7 +645,13 @@ namespace Extension.Script
             return location;
         }
 
-        private void UpdateStandLocation(Stand stand, ref int markIndex)
+        /// <summary>
+        /// 更新火车替身的车厢位置
+        /// </summary>
+        /// <param name="stand"></param>
+        /// <param name="markIndex"></param>
+        /// <returns></returns>
+        private bool UpdateTrainStandLocation(Stand stand, ref int markIndex)
         {
             if (stand.Data.IsTrain)
             {
@@ -672,12 +678,10 @@ namespace Extension.Script
                 if (null != preMark)
                 {
                     stand.UpdateLocation(preMark);
-                    return;
+                    return true;
                 }
             }
-            // 获取挂载对象的位置和方向
-            LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
-            stand.UpdateLocation(locationMark);
+            return false;
         }
 
         public bool HasSpace()
@@ -888,15 +892,39 @@ namespace Extension.Script
                     location = MarkLocation();
                 }
                 // 专门执行替身的定位工作
+                Dictionary<string, CoordStruct> standPosMarks = new Dictionary<string, CoordStruct>();
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
                 {
                     AttachEffect ae = AttachEffects[i];
                     if (ae.IsActive())
                     {
-                        if (null != ae.Stand && ae.Stand.IsAlive())
+                        Stand stand = ae.Stand;
+                        if (null != stand && stand.IsAlive())
                         {
-                            UpdateStandLocation(ae.Stand, ref markIndex); // 调整位置
+                            // 调整位置
+                            if (!UpdateTrainStandLocation(stand, ref markIndex))
+                            {
+                                // 获取挂载对象当前的位置和方向
+                                LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
+                                // 堆叠偏移
+                                if (default != stand.Data.StackOffset)
+                                {
+                                    string aeName = ae.AEData.Name;
+                                    if (standPosMarks.ContainsKey(aeName))
+                                    {
+                                        CoordStruct location = standPosMarks[aeName];
+                                        location += stand.Data.StackOffset;
+                                        locationMark.Location = location;
+                                        standPosMarks[aeName] = location;
+                                    }
+                                    else
+                                    {
+                                        standPosMarks.Add(aeName, locationMark.Location);
+                                    }
+                                }
+                                stand.UpdateLocation(locationMark);
+                            }
                         }
                         ae.OnGScreenRender(location);
                     }

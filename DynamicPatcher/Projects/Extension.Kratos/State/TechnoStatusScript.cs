@@ -300,6 +300,7 @@ namespace Extension.Script
                     if (warheadTypeData.Lueluelue && !pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTargetTechno) && pTechno.CanAttack(pTargetTechno))
                     {
                         pTechno.Ref.SetTarget(pAttacker.Convert<AbstractClass>());
+                        pTechno.Ref.BaseMission.ForceMission(Mission.Attack);
                     }
                     // 强制任务弹头
                     Mission forceMission = warheadTypeData.ForceMission;

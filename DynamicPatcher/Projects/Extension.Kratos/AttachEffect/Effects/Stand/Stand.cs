@@ -153,6 +153,12 @@ namespace Extension.Script
                         ForceSetFacing(locationMark.Direction);
                     }
                     // Logger.Log($"{Game.CurrentFrame} - 创建替身 [{Data.Type}]{pStand}, 所属 {AE.pSourceHouse}, JOJO [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner}");
+
+                    Pointer<TechnoClass> pSource = AE.pSource;
+                    if (Data.AttackSource && !pSource.IsDeadOrInvisible() && pStand.CanAttack(pSource))
+                    {
+                        pSource.Ref.SetTarget(pSource.Convert<AbstractClass>());
+                    }
                 }
             }
 
@@ -762,7 +768,7 @@ namespace Extension.Script
             SetDirection(mark.Direction, false);
         }
 
-        public void SetLocation(CoordStruct location)
+        private void SetLocation(CoordStruct location)
         {
             // Logger.Log("{0} - 移动替身[{1}]{2}到位置{3}", Game.CurrentFrame, Type.Type, pStand, location);
             pStand.Ref.Base.SetLocation(location);
@@ -774,7 +780,7 @@ namespace Extension.Script
             pStand.Ref.SetFocus(IntPtr.Zero);
         }
 
-        public void SetDirection(DirStruct direction, bool forceSetTurret)
+        private void SetDirection(DirStruct direction, bool forceSetTurret)
         {
             if (!Data.FreeDirection)
             {
