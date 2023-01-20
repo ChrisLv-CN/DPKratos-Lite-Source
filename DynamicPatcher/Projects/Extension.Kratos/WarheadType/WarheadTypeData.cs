@@ -172,6 +172,10 @@ namespace Extension.Ext
 
         // 玩具弹头
         public bool IsToy;
+
+        // 欠揍
+        public bool Lueluelue;
+
         // 弹头传送标记
         public bool Teleporter;
         // 弹头捕获标记
@@ -210,6 +214,9 @@ namespace Extension.Ext
             this.ExpLevel = ExpLevel.None;
 
             this.IsToy = false;
+
+            this.Lueluelue = false;
+
             this.Teleporter = false;
             this.Capturer = false;
             this.IgnoreRevenge = false;
@@ -245,6 +252,9 @@ namespace Extension.Ext
             this.ExpLevel = reader.Get("ExpLevel", this.ExpLevel);
 
             this.IsToy = reader.Get("IsToy", this.IsToy);
+
+            this.Lueluelue = reader.Get("Lueluelue", this.Lueluelue);
+
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
             this.Capturer = reader.Get("Capturer", this.Capturer);
             this.IgnoreRevenge = reader.Get("IgnoreRevenge", this.IgnoreRevenge);

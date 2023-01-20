@@ -296,6 +296,11 @@ namespace Extension.Script
                             pTechno.ClearAllTarget();
                         }
                     }
+                    // 欠揍弹头
+                    if (warheadTypeData.Lueluelue && !pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTargetTechno) && pTechno.CanAttack(pTargetTechno))
+                    {
+                        pTechno.Ref.SetTarget(pAttacker.Convert<AbstractClass>());
+                    }
                     // 强制任务弹头
                     Mission forceMission = warheadTypeData.ForceMission;
                     if (forceMission != Mission.None)
