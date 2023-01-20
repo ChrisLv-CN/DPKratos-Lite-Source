@@ -924,7 +924,7 @@ namespace Extension.Script
                     for (int i = Count() - 1; i >= 0; i--)
                     {
                         AttachEffect ae = AttachEffects[i];
-                        if (ae.IsActive() && ae.AEData.DiscardOnTramsform)
+                        if (ae.IsActive() && ae.AEData.DiscardOnTransform)
                         {
                             ae.Disable(location);
                             AttachEffects.Remove(ae);

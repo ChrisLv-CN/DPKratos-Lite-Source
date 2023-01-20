@@ -1,14 +1,16 @@
-﻿using DynamicPatcher;
-using PatcherYRpp.Utilities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicPatcher;
+using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Components;
 using Extension.EventSystems;
 using Extension.Ext;
 using Extension.Script;
+using Extension.Utilities;
 
 namespace GeneralHooks
 {
@@ -59,6 +61,25 @@ namespace GeneralHooks
         public static unsafe UInt32 LogicClass_Update_Late(REGISTERS* R)
         {
             EventSystem.General.Broadcast(EventSystem.General.LogicClassUpdateEvent, new LogicClassUpdateEventArgs(false));
+            // foreach (Pointer<HouseClass> pHouse in HouseClass.Array)
+            // {
+            //     BaseClass baseClass = pHouse.Ref.Base;
+            //     foreach (CellStruct cellStruct in baseClass.Cells_24)
+            //     {
+            //         if (MapClass.Instance.TryGetCellAt(cellStruct, out var pCell))
+            //         {
+            //             BulletEffectHelper.GreenCell(pCell.Ref.GetCoordsWithBridge(), 128, 1, 1, true);
+            //         }
+            //     }
+            //     foreach (BaseNodeClass baseNode in baseClass.BaseNodes)
+            //     {
+            //         if (MapClass.Instance.TryGetCellAt(baseNode.MapCoords, out var pCell))
+            //         {
+            //             BulletEffectHelper.RedCell(pCell.Ref.GetCoordsWithBridge(), 128, 1, 1, true);
+            //             BulletEffectHelper.RedLineZ(pCell.Ref.GetCoordsWithBridge(), 2048, 1, 1);
+            //         }
+            //     }
+            // }
 
             return 0;
         }

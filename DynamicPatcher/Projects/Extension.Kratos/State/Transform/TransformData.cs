@@ -21,7 +21,7 @@ namespace Extension.Ext
             {
                 this.TransformData = data;
                 this.Enable = true;
-                this.DiscardOnTramsform = false;
+                this.DiscardOnTransform = false;
             }
         }
     }
