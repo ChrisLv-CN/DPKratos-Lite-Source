@@ -1218,6 +1218,15 @@ namespace Extension.Script
             DamageState damageState,
             Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
+            // 弹头爆炸事件不对已经死亡的单位附加AE，为了DestroyAnim和OverrideDeathWeapon，需要对刚好被弹头打死的单位附加AE
+            if (damageState == DamageState.NowDead)
+            {
+                AttachEffectTypeData aeTypeData = pWH.GetAEData();
+                if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Any())
+                {
+                    Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, true);
+                }
+            }
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.IsActive())
@@ -1439,7 +1448,7 @@ namespace Extension.Script
                         // 可影响可伤害
                         if (pWH.CanAffectHouse(pAttackingHouse, pTargetHouse, warheadTypeData)// 检查所属权限
                             && pTarget.CanDamageMe(damage, (int)distanceFromEpicenter, pWH, out int realDamage)// 检查护甲
-                            && (pTarget.Ref.Base.Health - realDamage) > 0 // 收到本次伤害后会死，就不再进行赋予
+                            && (pTarget.Ref.Base.Health - realDamage) > 0 // 不对已经死亡的单位附加AE
                         )
                         {
                             // 赋予AE

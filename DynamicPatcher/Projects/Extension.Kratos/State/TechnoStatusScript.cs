@@ -336,8 +336,12 @@ namespace Extension.Script
 
         public override void OnReceiveDamage2(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
+            if (damageState == DamageState.NowDead)
+            {
+                // 被打死时读取弹头设置
+                OnReceiveDamage2_DestroyAnim(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
+            }
             OnReceiveDamage2_BlackHole(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
-            OnReceiveDamage2_DestroyAnim(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_DamageText(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
             OnReceiveDamage2_GiftBox(pRealDamage, pWH, damageState, pAttacker, pAttackingHouse);
         }

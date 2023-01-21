@@ -34,23 +34,14 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamage2_DestroyAnim(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (damageState == DamageState.NowDead)
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID}，攻击者{pAttacker}，攻击者所属{pAttackingHouse}");
+            this.killerHouseExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
+            // 检查弹头上的状态，优先级最高
+            DestroyAnimData data = Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID} data.Enable = {data.Enable} {data.CanAffectType(pTechno)}");
+            if (null != data && data.Enable && data.CanAffectType(pTechno))
             {
-                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID}，攻击者{pAttacker}，攻击者所属{pAttackingHouse}");
-                this.killerHouseExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
-                // 检查弹头上的AE，被弹头击杀时，弹头事件不会赋予AE，因此要单独附加
-                AttachEffectTypeData aeTypeData = pWH.GetAEData();
-                if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0 && pTechno.TryGetAEManager(out AttachEffectScript aeManager))
-                {
-                    aeManager.Attach(aeTypeData.AttachEffectTypes, aeTypeData.AttachEffectChances, pAttacker, pAttackingHouse, true);
-                }
-                // 检查弹头上的状态，优先级最高
-                DestroyAnimData data = Ini.GetConfig<DestroyAnimData>(Ini.RulesDependency, pWH.Ref.Base.ID).Data;
-                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 被殴打致死，弹头{pWH.Ref.Base.ID} data.Enable = {data.Enable} {data.CanAffectType(pTechno)}");
-                if (null != data && data.Enable && data.CanAffectType(pTechno))
-                {
-                    DestroyAnimState.Enable(data);
-                }
+                DestroyAnimState.Enable(data);
             }
         }
 
