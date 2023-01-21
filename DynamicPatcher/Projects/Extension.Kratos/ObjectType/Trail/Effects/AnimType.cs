@@ -8,9 +8,9 @@ namespace Extension.Ext
 
     public partial class TrailType
     {
-        public string StartDrivingAnim;
-        public string WhileDrivingAnim;
-        public string StopDrivingAnim;
+        public string[] StartDrivingAnim;
+        public string[] WhileDrivingAnim;
+        public string[] StopDrivingAnim;
 
         private void InitAnimType()
         {
@@ -21,9 +21,9 @@ namespace Extension.Ext
 
         private void ReadAnimType(ISectionReader reader)
         {
-            this.StartDrivingAnim = reader.Get<string>("Anim.Start", StartDrivingAnim).NotNONE();
-            this.WhileDrivingAnim = reader.Get<string>("Anim.While", WhileDrivingAnim).NotNONE();
-            this.StopDrivingAnim = reader.Get<string>("Anim.Stop", StopDrivingAnim).NotNONE();
+            this.StartDrivingAnim = reader.GetList("Anim.Start", StartDrivingAnim);
+            this.WhileDrivingAnim = reader.GetList("Anim.While", WhileDrivingAnim);
+            this.StopDrivingAnim = reader.GetList("Anim.Stop", StopDrivingAnim);
         }
     }
 

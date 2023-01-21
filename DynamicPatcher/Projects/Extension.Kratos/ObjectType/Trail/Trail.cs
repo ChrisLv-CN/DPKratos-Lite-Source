@@ -112,37 +112,37 @@ namespace Extension.Ext
             return true;
         }
 
-        public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct sourcePos)
+        public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct currentPos)
         {
             // Logger.Log($"{Game.CurrentFrame} - 绘制尾巴 {sourcePos} {LastLocation}, {sourcePos.DistanceFrom(LastLocation)} > {Type.Distance}, CheckV {CheckVertical(sourcePos, LastLocation)}, IsOnLand {IsOnLand(sourcePos)}");
-            if (default != sourcePos)
+            if (default != currentPos)
             {
                 if (default != LastLocation)
                 {
-                    CoordStruct targetPos = LastLocation;
+                    CoordStruct behindPos = LastLocation;
                     int distance = Type.Distance;
-                    if (sourcePos.DistanceFrom(targetPos) > distance || this.forceDraw)
+                    if (currentPos.DistanceFrom(behindPos) > distance || this.forceDraw)
                     {
-                        if ((CanDraw() && CheckVertical(sourcePos, targetPos)) || this.forceDraw)
+                        if ((CanDraw() && CheckVertical(currentPos, behindPos)) || this.forceDraw)
                         {
                             forceDraw = false;
-                            if (IsOnLand(sourcePos))
+                            if (IsOnLand(currentPos))
                             {
-                                RealDrawTrail(sourcePos, targetPos, pHouse);
+                                RealDrawTrail(currentPos, behindPos, pHouse);
                             }
                             drivingState = DrivingState.Moving;
                         }
-                        LastLocation = sourcePos;
+                        LastLocation = currentPos;
                     }
                 }
                 else
                 {
-                    LastLocation = sourcePos;
+                    LastLocation = currentPos;
                 }
             }
         }
 
-        public void RealDrawTrail(CoordStruct sourcePos, CoordStruct targetPos, Pointer<HouseClass> pHouse)
+        private void RealDrawTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse)
         {
             // Logger.Log("{0} - Draw the Tail {1}", Game.CurrentFrame, Type);
             switch (Type.Mode)
@@ -167,47 +167,71 @@ namespace Extension.Ext
                             laserColorIndex = 0;
                         }
                         Type.LaserType.InnerColor = color;
-                        BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType);
+                        BulletEffectHelper.DrawLine(currentPos, behindPos, Type.LaserType);
                     }
                     else
                     {
-                        BulletEffectHelper.DrawLine(sourcePos, targetPos, Type.LaserType, Type.LaserType.IsHouseColor ? houseColor : default);
+                        BulletEffectHelper.DrawLine(currentPos, behindPos, Type.LaserType, Type.LaserType.IsHouseColor ? houseColor : default);
                     }
                     break;
                 case TrailMode.ELECTIRIC:
-                    BulletEffectHelper.DrawBolt(sourcePos, targetPos, Type.BoltType);
+                    BulletEffectHelper.DrawBolt(currentPos, behindPos, Type.BoltType);
                     break;
                 case TrailMode.BEAM:
-                    BulletEffectHelper.DrawBeam(sourcePos, targetPos, Type.BeamType);
+                    BulletEffectHelper.DrawBeam(currentPos, behindPos, Type.BeamType);
                     break;
                 case TrailMode.PARTICLE:
-                    BulletEffectHelper.DrawParticele(sourcePos, targetPos, Type.ParticleSystem);
+                    BulletEffectHelper.DrawParticele(currentPos, behindPos, Type.ParticleSystem);
                     break;
                 case TrailMode.ANIM:
-                    DrawAnimTrail(sourcePos, pHouse);
+                    DrawAnimTrail(currentPos, behindPos, pHouse);
                     break;
             }
         }
 
-        public void DrawAnimTrail(CoordStruct sourcePos, Pointer<HouseClass> pHouse)
+        public void DrawAnimTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse)
         {
             // Logger.Log("{0} - Draw the Anim Tail {1}", Game.CurrentFrame, Type);
-            string animType = Type.WhileDrivingAnim;
+            string[] animTypes = Type.WhileDrivingAnim;
             switch (drivingState)
             {
                 case DrivingState.Start:
-                    animType = Type.StartDrivingAnim;
+                    animTypes = Type.StartDrivingAnim;
                     break;
                 case DrivingState.Stop:
-                    animType = Type.StopDrivingAnim;
+                    animTypes = Type.StopDrivingAnim;
                     break;
+            }
+            string animType = null;
+            // 随机或者按方向获取
+            if (null != animTypes && animTypes.Any())
+            {
+                int facing = animTypes.Count();
+                int index = 0;
+                if (facing > 1)
+                {
+                    if (facing % 8 == 0)
+                    {
+                        CoordStruct tempCurrentPos = currentPos;
+                        tempCurrentPos.Z = 0;
+                        CoordStruct tempBehindPos = behindPos;
+                        tempBehindPos.Z = 0;
+                        DirStruct dir = FLHHelper.Point2Dir(tempBehindPos, tempCurrentPos);
+                        index = dir.Dir2FrameIndex(facing);
+                    }
+                    else
+                    {
+                        index = MathEx.Random.Next(0, facing);
+                    }
+                }
+                animType = animTypes[index];
             }
             if (!string.IsNullOrEmpty(animType))
             {
                 Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(animType);
                 if (!pAnimType.IsNull)
                 {
-                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, currentPos);
                     pAnim.Ref.Owner = pHouse;
                 }
             }
