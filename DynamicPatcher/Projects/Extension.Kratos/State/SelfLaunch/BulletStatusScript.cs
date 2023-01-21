@@ -118,6 +118,10 @@ namespace Extension.Script
                         pSource.Ref.Base.Select();
                     }
                 }
+                if (!pSource.Ref.Target.IsNull)
+                {
+                    pSource.Ref.BaseMission.QueueMission(Mission.Attack, false);
+                }
             }
             return false;
         }
