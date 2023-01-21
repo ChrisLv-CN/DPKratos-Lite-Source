@@ -69,8 +69,9 @@ namespace Extension.Script
                     if (delayTimer.Expired())
                     {
                         // 检查次数
-                        if (Data.TriggeredTimes > 0 && ++count > Data.TriggeredTimes)
+                        if (Data.TriggeredTimes > 0 && ++count >= Data.TriggeredTimes)
                         {
+                            // Logger.Log($"{Game.CurrentFrame} 广播了 {count}次 >= {Data.TriggeredTimes}，结束AE");
                             Disable(default);
                         }
                         delayTimer.Start(data.Rate);
@@ -86,7 +87,7 @@ namespace Extension.Script
             {
                 CoordStruct location = pOwner.Ref.Base.GetCoords();
                 double cellSpread = data.RangeMax;
-
+                // Logger.Log($"{Game.CurrentFrame} 搜索范围{cellSpread}内的单位，赋予效果[{string.Join(",", data.Types)}]");
                 // 搜索单位
                 if (Data.AffectTechno)
                 {

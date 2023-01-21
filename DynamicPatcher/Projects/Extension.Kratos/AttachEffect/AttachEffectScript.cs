@@ -1060,7 +1060,7 @@ namespace Extension.Script
                     if (!string.IsNullOrEmpty(nextAE) && !isDead && !pOwner.IsInvisible())
                     {
                         // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]的Next类型[{nextAE}]");
-                        Attach(nextAE, ae.pOwner, ae.pSourceHouse, false);
+                        Attach(nextAE, ae.pSource.Convert<ObjectClass>(), ae.pSourceHouse, false);
                     }
                 }
             }
