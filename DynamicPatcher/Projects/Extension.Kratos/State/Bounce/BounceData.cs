@@ -114,6 +114,11 @@ namespace Extension.Ext
         public bool IsOnLandType(Pointer<CellClass> pCell, out LandType landType)
         {
             landType = pCell.Ref.LandType;
+            if (landType == LandType.Water && pCell.Ref.Flags.HasFlag(CellFlags.Bridge))
+            {
+                // 将水面上的桥强制判定为路面
+                landType = LandType.Road;
+            }
             if (null != OnLands && OnLands.Any())
             {
                 return OnLands.Contains(landType);
@@ -140,7 +145,7 @@ namespace Extension.Ext
             {
                 if (!pObject.IsNull && pObject.CastToTechno(out Pointer<TechnoClass> pTarget))
                 {
-                    switch(pTarget.Ref.Base.Base.WhatAmI())
+                    switch (pTarget.Ref.Base.Base.WhatAmI())
                     {
                         case AbstractType.Building:
                             stop = StopOnBuilding;

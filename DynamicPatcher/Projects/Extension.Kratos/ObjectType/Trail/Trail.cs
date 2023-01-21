@@ -91,25 +91,31 @@ namespace Extension.Ext
 
         private bool IsOnLand(CoordStruct sourcePos)
         {
-            if (null != OnLandTypes && OnLandTypes.Length > 0)
+            bool canDraw = true;
+            if (CellLimit)
             {
+                canDraw = false;
                 if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell))
                 {
-                    LandType landType = pCell.Ref.LandType;
-
-                    // Logger.Log("当前格子的地形类型{0}, 瓷砖类型{1}", landType, pCell.Ref.GetTileType());
-                    if (OnLandTypes.Contains(landType))
+                    // Logger.Log($"{Game.CurrentFrame} 当前格子的地形类型{pCell.Ref.LandType}, 瓷砖类型{pCell.Ref.GetTileType()}, {pCell.Ref.Flags}, Water = {pCell.Ref.TileIs(TileType.Water)}, Bridge = {pCell.Ref.TileIs(TileType.Bridge)}, WoodBridge = {pCell.Ref.TileIs(TileType.WoodBridge)}");
+                    if (null != OnLandTypes)
                     {
-                        if (null != OnTileTypes && OnTileTypes.Length > 0)
+                        // 特殊过滤桥面
+                        LandType landType = pCell.Ref.LandType;
+                        if (landType == LandType.Water && pCell.Ref.Flags.HasFlag(CellFlags.Bridge))
                         {
-                            return OnTileTypes.Contains(pCell.Ref.GetTileType());
+                            // 将水面上的桥强制判定为路面
+                            landType = LandType.Road;
                         }
-                        return true;
+                        canDraw = OnLandTypes.Contains(landType);
+                    }
+                    if (!canDraw && null != OnTileTypes)
+                    {
+                        canDraw = OnTileTypes.Contains(pCell.Ref.GetTileType());
                     }
                 }
-                return false;
             }
-            return true;
+            return canDraw;
         }
 
         public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct currentPos)
