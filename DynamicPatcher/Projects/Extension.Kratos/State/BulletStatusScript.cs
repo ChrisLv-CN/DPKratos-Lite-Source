@@ -318,6 +318,7 @@ namespace Extension.Script
                 OnUpdate_ECM();
                 OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
+                OnUpdate_SelfLaunch();
             }
         }
 
