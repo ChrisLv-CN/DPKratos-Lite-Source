@@ -14,7 +14,7 @@ namespace Extension.Utilities
 {
     public static class SurfaceHelper
     {
-        public static void Crosshair(this Pointer<Surface> surface, CoordStruct sourcePos, int length, ColorStruct color, RectangleStruct bounds, bool dashed = true, bool blink = false)
+        public static void Crosshair(this Pointer<Surface> surface, CoordStruct sourcePos, int length, ColorStruct color, RectangleStruct bounds = default, bool dashed = true, bool blink = false)
         {
             CoordStruct p1 = sourcePos + new CoordStruct(length, 0, 0);
             CoordStruct p2 = sourcePos + new CoordStruct(-length, 0, 0);
@@ -32,7 +32,7 @@ namespace Extension.Utilities
             }
         }
 
-        public static void Cell(this Pointer<Surface> surface, CoordStruct sourcePos, ColorStruct color, RectangleStruct bounds, bool dashed = true, bool blink = false, int length = 128)
+        public static void Cell(this Pointer<Surface> surface, CoordStruct sourcePos, ColorStruct color, RectangleStruct bounds = default, bool dashed = true, bool blink = false, int length = 128)
         {
             CoordStruct p1 = sourcePos + new CoordStruct(length, length, 0);
             CoordStruct p2 = sourcePos + new CoordStruct(-length, length, 0);

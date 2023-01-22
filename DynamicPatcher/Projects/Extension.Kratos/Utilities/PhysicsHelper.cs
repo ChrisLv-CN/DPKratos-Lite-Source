@@ -92,5 +92,16 @@ namespace Extension.Utilities
             return canPass;
         }
 
+        public static bool CanHit(this Pointer<BuildingClass> pBuilding, int targetZ, bool blade = false, int zOffset = 0)
+        {
+            if (!blade)
+            {
+                int height = pBuilding.Ref.Type.Ref.Height;
+                int sourceZ = pBuilding.Ref.Base.Base.Base.GetCoords().Z;
+                // Logger.Log($"Building Height {height}, {sourceZ + height * Game.LevelHeight + zOffset}");
+                return targetZ <= (sourceZ + height * Game.LevelHeight + zOffset);
+            }
+            return blade;
+        }
     }
 }

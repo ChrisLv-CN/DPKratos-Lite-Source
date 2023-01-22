@@ -110,6 +110,13 @@ namespace Extension.Script
                 if (range > 0)
                 {
                     this.proximityRange = range;
+                    Pointer<AbstractClass> pTarget = pBullet.Ref.Target;
+                    if (!pTarget.IsNull && pTarget.Ref.WhatAmI() == AbstractType.Building)
+                    {
+                        Pointer<BuildingTypeClass> pTargetBuildingType = pTarget.Convert<BuildingClass>().Ref.Type;
+                        int distOffset = (pTargetBuildingType.Ref.GetFoundationWidth() + pTargetBuildingType.Ref.GetFoundationHeight(false)) << 6;
+                        this.proximityRange += distOffset;
+                    }
                 }
             }
             // 设置碰触引擎
@@ -128,12 +135,9 @@ namespace Extension.Script
         {
 
             // 提前引爆抛射体
-            if (proximityRange > 0)
+            if (proximityRange > 0 && sourcePos.DistanceFrom(pBullet.GetTargetCoords()) <= proximityRange)
             {
-                if (sourcePos.DistanceFrom(pBullet.GetTargetCoords()) <= proximityRange)
-                {
-                    ManualDetonation(sourcePos);
-                }
+                ManualDetonation(sourcePos);
             }
 
             // 计算碰触引信
