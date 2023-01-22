@@ -42,7 +42,7 @@ namespace Extension.Script
 
         public override State<PaintballData> GetState(BulletStatusScript statusScript)
         {
-            return null;
+            return statusScript.PaintballState;
         }
 
         public override IStateData GetData()
