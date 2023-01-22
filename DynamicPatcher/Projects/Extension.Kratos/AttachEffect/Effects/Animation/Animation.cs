@@ -189,7 +189,7 @@ namespace Extension.Script
 
         public override void OnRemove()
         {
-            Logger.Log($"{Game.CurrentFrame} 单位[{AE.pOwner.Ref.Type.Ref.Base.ID}]{AE.pOwner}隐藏，移除持续动画{Data.IdleAnim}");
+            // Logger.Log($"{Game.CurrentFrame} 单位[{AE.pOwner.Ref.Type.Ref.Base.ID}]{AE.pOwner}隐藏，移除持续动画{Data.IdleAnim}");
             KillIdleAnim();
         }
 
