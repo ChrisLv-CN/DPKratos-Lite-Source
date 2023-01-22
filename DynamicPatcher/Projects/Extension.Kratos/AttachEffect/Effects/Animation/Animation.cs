@@ -68,23 +68,28 @@ namespace Extension.Script
             CreateIdleAnim();
         }
 
-        private void CreateIdleAnim()
+        private void CreateIdleAnim(bool fource = false, CoordStruct location = default)
         {
             if (!pAnim.IsNull)
             {
-                // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]持续动画[{Data.IdleAnim}]已存在，清除再重新创建");
+                // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]持续动画[{Data.IdleAnim}]已存在，清除再重新创建");
                 KillIdleAnim();
             }
-            if (string.IsNullOrEmpty(Data.IdleAnim) || pOwner.IsInvisible() || (Data.RemoveInCloak && OnwerIsCloakable))
+            if (!fource && (string.IsNullOrEmpty(Data.IdleAnim) || pOwner.IsInvisible() || (Data.RemoveInCloak && OnwerIsCloakable)))
             {
+                // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]持续动画[{Data.IdleAnim}]无法创建");
                 return;
             }
             // 创建动画
-            // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]创建持续动画[{Data.IdleAnim}]");
+            // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]创建持续动画[{Data.IdleAnim}]");
             Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.IdleAnim);
             if (!pAnimType.IsNull)
             {
-                Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pOwner.Ref.Base.GetCoords());
+                if (default == location)
+                {
+                    location = pOwner.Ref.Base.GetCoords();
+                }
+                Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                 // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]成功创建持续动画[{Data.IdleAnim}], 指针 {pAnim}");
                 // pAnim.Ref.SetOwnerObject(pObject); // 当单位隐形时，附着在单位上的动画会被游戏注销
                 // Logger.Log(" - 将动画{0}赋予对象", Data.IdleAnim);
@@ -134,8 +139,8 @@ namespace Extension.Script
 
         public override void OnPut(Pointer<CoordStruct> pCoord, DirType dirType)
         {
-            // Logger.Log("单位显现，创建持续动画{0}", Data.IdleAnim);
-            CreateIdleAnim();
+            // Logger.Log($"{Game.CurrentFrame}，单位[{AE.pOwner.Ref.Type.Ref.Base.ID}]{AE.pOwner}显现，创建持续动画{Data.IdleAnim}");
+            CreateIdleAnim(true, pCoord.Ref);
         }
 
         public override void OnUpdate(CoordStruct location, bool isDead)
@@ -184,7 +189,7 @@ namespace Extension.Script
 
         public override void OnRemove()
         {
-            // Logger.Log("{0} 单位{1}隐藏，移除持续动画{2}", Game.CurrentFrame, pObject, Data.IdleAnim);
+            Logger.Log($"{Game.CurrentFrame} 单位[{AE.pOwner.Ref.Type.Ref.Base.ID}]{AE.pOwner}隐藏，移除持续动画{Data.IdleAnim}");
             KillIdleAnim();
         }
 
