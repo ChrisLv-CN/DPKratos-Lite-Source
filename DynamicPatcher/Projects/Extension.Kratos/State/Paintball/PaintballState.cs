@@ -34,25 +34,6 @@ namespace Extension.Ext
             return active;
         }
 
-        public uint GetColor()
-        {
-            ColorStruct colorAdd = Data.Color.ToColorAdd();
-            return colorAdd.Add2RGB565();
-        }
-
-        public uint GetBright(uint bright)
-        {
-            double b = bright * Data.BrightMultiplier;
-            if (b < 0)
-            {
-                b = 0;
-            }
-            else if (b > 2000)
-            {
-                b = 2000;
-            }
-            return (uint)b;
-        }
     }
 
 }

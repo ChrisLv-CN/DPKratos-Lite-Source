@@ -60,6 +60,25 @@ namespace Extension.Ext
             this.Enable = default != this.Color || this.BrightMultiplier != 1.0f;
         }
 
+        public uint GetColor()
+        {
+            ColorStruct colorAdd = Color.ToColorAdd();
+            return colorAdd.Add2RGB565();
+        }
+
+        public uint GetBright(uint bright)
+        {
+            double b = bright * BrightMultiplier;
+            if (b < 0)
+            {
+                b = 0;
+            }
+            else if (b > 2000)
+            {
+                b = 2000;
+            }
+            return (uint)b;
+        }
     }
 
 

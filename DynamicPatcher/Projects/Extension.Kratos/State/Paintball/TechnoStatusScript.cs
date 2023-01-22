@@ -125,12 +125,12 @@ namespace Extension.Script
             if (changeColor)
             {
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
-                R->EAX = PaintballState.GetColor();
+                R->EAX = PaintballState.Data.GetColor();
             }
             if (changeBright)
             {
                 // uint bright = R->EBP;
-                R->EBP = PaintballState.GetBright(R->EBP);
+                R->EBP = PaintballState.Data.GetBright(R->EBP);
             }
         }
 
@@ -210,11 +210,11 @@ namespace Extension.Script
             // Logger.Log($"{Game.CurrentFrame} - {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}");
             if (changeColor)
             {
-                R->EBP = PaintballState.GetColor();
+                R->EBP = PaintballState.Data.GetColor();
             }
             if (changeBright)
             {
-                R->Stack<uint>(0x38, PaintballState.GetBright(bright));
+                R->Stack<uint>(0x38, PaintballState.Data.GetBright(bright));
             }
         }
 
@@ -241,7 +241,7 @@ namespace Extension.Script
             }
             if (changeColor)
             {
-                uint color = PaintballState.GetColor();
+                uint color = PaintballState.Data.GetColor();
                 // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
                 if (isBuilding)
                 {
@@ -259,12 +259,12 @@ namespace Extension.Script
                 {
                     // Vxl turret
                     uint bright = R->Stack<uint>(0x20);
-                    R->Stack<uint>(0x20, PaintballState.GetBright(bright));
+                    R->Stack<uint>(0x20, PaintballState.Data.GetBright(bright));
                 }
                 else
                 {
                     uint bright = R->Stack<uint>(0x1E0);
-                    R->Stack<uint>(0x1E0, PaintballState.GetBright(bright));
+                    R->Stack<uint>(0x1E0, PaintballState.Data.GetBright(bright));
                 }
             }
         }

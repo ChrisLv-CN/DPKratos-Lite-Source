@@ -60,6 +60,7 @@ namespace Extension.Script
             _animDamageData = null;
             _expireAnimData = null;
             _spawnAnimsData = null;
+            _paintballData = null;
 
             OnNext_SpawnAnims(pNext);
         }

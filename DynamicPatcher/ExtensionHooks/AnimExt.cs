@@ -123,18 +123,27 @@ namespace ExtensionHooks
             // R->Stack<uint>(0x38, 500);
             // Logger.Log($"{Game.CurrentFrame} {R->Stack<uint>(0xFC)} {R->Stack<uint>(0x14 + 0x20 + 0x1C)} {R->Stack<uint>(0x14 - 0x20 - 0x1C)}");
             // Logger.Log($"{Game.CurrentFrame} - {pAnim.Ref.Type.Ref.Base.Base.ID} is Drawing. color = {R->EBP}, bright = {R->Stack<int>(0x38)}, pTechno= {R->Stack<uint>(0x14)}");
-            if (!pAnim.IsNull && pAnim.Ref.IsBuildingAnim)
+            if (!pAnim.IsNull)
             {
-                CoordStruct location = pAnim.Ref.Base.Base.GetCoords();
-                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                if (pAnim.Ref.IsBuildingAnim)
                 {
-                    Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
-                    if (!pBuilding.IsNull && pBuilding.Convert<TechnoClass>().TryGetStatus(out TechnoStatusScript status))
+                    BlitterFlags flags = (BlitterFlags)R->EBX;
+
+                    CoordStruct location = pAnim.Ref.Base.Base.GetCoords();
+                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                     {
-                        status.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
-                        // TechnoExt ext = TechnoExt.ExtMap.Find(pBuilding.Convert<TechnoClass>());
-                        // ext?.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
+                        Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
+                        if (!pBuilding.IsNull && pBuilding.Convert<TechnoClass>().TryGetStatus(out TechnoStatusScript status))
+                        {
+                            status.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
+                            // TechnoExt ext = TechnoExt.ExtMap.Find(pBuilding.Convert<TechnoClass>());
+                            // ext?.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
+                        }
                     }
+                }
+                else if (pAnim.TryGetStatus(out AnimStatusScript status))
+                {
+                    status.AnimClass_DrawSHP_Paintball(R);
                 }
             }
             return 0;
