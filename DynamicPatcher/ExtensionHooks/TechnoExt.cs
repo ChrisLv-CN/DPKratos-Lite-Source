@@ -974,7 +974,7 @@ namespace ExtensionHooks
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EBP;
                 // uint bright = R->Stack<uint>(0x1E0);
                 // uint tint = R->ESI;
-                // Logger.Log($"{Game.CurrentFrame} - Unit {pUnit.Ref.Type.Ref.Base.Base.Base.ID} vxl draw. Bright = {bright}, Tint = {tint}");
+                // Logger.Log($"{Game.CurrentFrame} - Unit [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} vxl draw. Bright = {R->Stack<uint>(0x1E0)}, Tint = {R->ESI}");
                 if (pTechno.TryGetStatus(out TechnoStatusScript status))
                 {
                     // ext?.DrawVXL_Colour(R, false);

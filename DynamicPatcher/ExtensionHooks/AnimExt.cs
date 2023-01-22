@@ -127,8 +127,6 @@ namespace ExtensionHooks
             {
                 if (pAnim.Ref.IsBuildingAnim)
                 {
-                    BlitterFlags flags = (BlitterFlags)R->EBX;
-
                     CoordStruct location = pAnim.Ref.Base.Base.GetCoords();
                     if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
                     {

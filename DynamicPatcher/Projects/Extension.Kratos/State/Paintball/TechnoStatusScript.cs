@@ -242,7 +242,7 @@ namespace Extension.Script
             if (changeColor)
             {
                 uint color = PaintballState.Data.GetColor();
-                // Logger.Log("RGB888 = {0}, RGB565 = {1}, RGB565 = {2}", Paintball.Color, colorAdd, ExHelper.ColorAdd2RGB565(colorAdd));
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} RGB888 = {PaintballState.Data.Color}, RGB565 = {PaintballState.Data.Color.ToColorAdd()}, RGB565 = {color}");
                 if (isBuilding)
                 {
                     // vxl turret

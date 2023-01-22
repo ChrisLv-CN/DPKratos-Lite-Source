@@ -212,6 +212,7 @@ namespace Extension.Script
                 InitState_Bounce();
                 InitState_DestroySelf();
                 InitState_GiftBox();
+                InitState_Paintball();
                 InitState_Proximity();
                 InitState_SelfLaunch();
                 // 弹道初始化

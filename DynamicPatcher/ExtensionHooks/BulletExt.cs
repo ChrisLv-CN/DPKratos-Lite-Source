@@ -193,5 +193,51 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x4683E2, Size = 5)]
+        public static unsafe UInt32 BulletClass_DrawSHP_Colour(REGISTERS* R)
+        {
+            Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+            if (pBullet.TryGetStatus(out BulletStatusScript status) && status.PaintballState.NeedPaint(out bool changeColor, out bool changeBright) && changeColor)
+            {
+                R->Stack(0, status.PaintballState.Data.GetColor());
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x4683E7, Size = 9)]
+        public static unsafe UInt32 BulletClass_DrawSHP_Bright(REGISTERS* R)
+        {
+            Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+            if (pBullet.TryGetStatus(out BulletStatusScript status) && status.PaintballState.NeedPaint(out bool changeColor, out bool changeBright) && changeBright)
+            {
+                R->Stack(0, status.PaintballState.Data.GetBright(1000));
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x46B201, Size = 7)]
+        public static unsafe UInt32 BulletClass_DrawVXL_Colour(REGISTERS* R)
+        {
+            try
+            {
+                Logger.Log($"{Game.CurrentFrame} {R->Stack<IntPtr>(0x10)} {R->Stack<IntPtr>(0x14)} {R->Stack<IntPtr>(0x10 - 0x14)} {R->Stack<IntPtr>(0x10 - 0x4)} {R->Stack<IntPtr>(0x10 - 0x8)} {R->Stack<uint>(0)} {(BlitterFlags)R->EDI}");
+                R->EDI = (uint)BlitterFlags.None;
+                // R->Stack<uint>(0x118, 2000);
+                R->Stack<uint>(0, ColorStruct.Red.ToColorAdd().Add2RGB565());
+                Pointer<BulletClass> pBullet = R->Stack<IntPtr>(0x10 - 0x4);
+                Logger.Log($"{Game.CurrentFrame} [{pBullet.Ref.Type.Ref.Base.Base.ID}] {ColorStruct.Red.ToColorAdd().Add2RGB565()}");
+                if (pBullet.TryGetStatus(out BulletStatusScript status))
+                {
+                    status.BulletClass_DrawVXL_Paintball(R);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
+
     }
 }
