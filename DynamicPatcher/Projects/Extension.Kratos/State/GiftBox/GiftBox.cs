@@ -39,7 +39,7 @@ namespace Extension.Script
         
         public override State<GiftBoxData> GetState(BulletStatusScript statusScript)
         {
-            return null;
+            return statusScript.GiftBoxState;
         }
 
     }

@@ -143,42 +143,49 @@ namespace Extension.Script
                 Mission mission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
                 bool scatter = !data.Remove || data.ForceMission == Mission.Move;
                 bool inheritAE = data.Remove && data.InheritAE;
+                // 随机投送位置
+                CellStruct cell = pCell.Ref.MapCoords;
+                CellStruct[] cellOffset = null;
+                int max = 0;
+                if (data.RandomRange > 0)
+                {
+                    cellOffset = new CellSpreadEnumerator((uint)data.RandomRange).ToArray();
+                    max = cellOffset.Count();
+                }
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
-                    // 随机选择周边的格子
-                    if (data.RandomRange > 0)
+                    Pointer<TechnoTypeClass> pType = IntPtr.Zero;
+                    if (id.IsNullOrEmptyOrNone() || (pType = TechnoTypeClass.ABSTRACTTYPE_ARRAY.Find(id)).IsNull)
                     {
-                        int landTypeCategory = pCell.Ref.LandType.Category();
-                        CellStruct cell = MapClass.Coord2Cell(location);
-                        CellStruct[] cellOffset = new CellSpreadEnumerator((uint)data.RandomRange).ToArray();
-                        int max = cellOffset.Count();
-                        for (int i = 0; i < max; i++)
+                        continue;
+                    }
+                    // 随机选择周边的格子
+                    CoordStruct putLocation = location;
+                    Pointer<CellClass> putCell = pCell;
+                    for (int i = 0; i < max; i++)
+                    {
+                        int index = MathEx.Random.Next(max - 1);
+                        CellStruct offset = cellOffset[index];
+                        // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
+                        if (offset == default)
                         {
-                            int index = MathEx.Random.Next(max - 1);
-                            CellStruct offset = cellOffset[index];
-                            // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
-                            if (offset == default)
+                            continue;
+                        }
+                        if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
+                        {
+                            SpeedType speedType = pType.Ref.SpeedType;
+                            if (pTargetCell.Ref.IsClearToMove(pType.Ref.SpeedType, pType.Ref.MovementZone))
                             {
-                                continue;
-                            }
-                            if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
-                            {
-                                if (pTargetCell.Ref.LandType.Category() != landTypeCategory
-                                    || (data.EmptyCell && !pTargetCell.Ref.GetContent().IsNull))
-                                {
-                                    // Logger.Log("获取到的格子被占用, 建筑{0}, 步兵{1}, 载具{2}", !pCell.Ref.GetBuilding().IsNull, !pCell.Ref.GetUnit(false).IsNull, !pCell.Ref.GetInfantry(false).IsNull);
-                                    continue;
-                                }
-                                pCell = pTargetCell;
-                                location = pCell.Ref.GetCoordsWithBridge();
+                                putCell = pTargetCell;
+                                putLocation = pCell.Ref.GetCoordsWithBridge();
                                 // Logger.Log("获取到的格子坐标{0}", location);
                                 break;
                             }
                         }
                     }
                     // 投送单位
-                    Pointer<TechnoClass> pGift = GiftBoxHelper.CreateAndPutTechno(id, pHouse, location, pCell);
+                    Pointer<TechnoClass> pGift = GiftBoxHelper.CreateAndPutTechno(pType, pHouse, putLocation, putCell);
                     if (!pGift.IsNull)
                     {
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成功释放礼物 [{id}]{pGift}, 位置 {location}");
@@ -347,9 +354,9 @@ namespace Extension.Script
                                     {
                                         // 分散到所在的格子里
                                         CoordStruct scatterPos = CoordStruct.Empty;
-                                        if (!pCell.IsNull)
+                                        if (!putCell.IsNull)
                                         {
-                                            scatterPos = pCell.Ref.GetCoordsWithBridge();
+                                            scatterPos = putCell.Ref.GetCoordsWithBridge();
                                         }
                                         pGift.Ref.Base.Scatter(scatterPos, true, false);
                                     }
@@ -359,7 +366,7 @@ namespace Extension.Script
                                 {
                                     if (pGift.Ref.Base.Base.WhatAmI() != AbstractType.Building)
                                     {
-                                        CoordStruct des = pDest.IsNull ? location : pDest.Ref.GetCoords();
+                                        CoordStruct des = pDest.IsNull ? putLocation : pDest.Ref.GetCoords();
                                         if (!pFocus.IsNull)
                                         {
                                             pGift.Ref.SetFocus(pFocus);
