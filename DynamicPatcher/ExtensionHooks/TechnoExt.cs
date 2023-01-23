@@ -370,7 +370,7 @@ namespace ExtensionHooks
             return 0;
         }
 
-        #region UnitClass Desguise
+        #region UnitClass Disguise
         [Hook(HookType.AresHook, Address = 0x6F422F, Size = 6)]
         public static unsafe UInt32 TechnoClass_Init_PermaDisguise(REGISTERS* R)
         {
@@ -443,7 +443,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x7466D8, Size = 0xA)]
-        public static unsafe UInt32 UnitClass_Set_Desguise(REGISTERS* R)
+        public static unsafe UInt32 UnitClass_Set_Disguise(REGISTERS* R)
         {
             Pointer<AbstractClass> pTarget = (IntPtr)R->ESI;
             if (pTarget.Ref.WhatAmI() == AbstractType.Unit)
@@ -468,7 +468,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x746AFF, Size = 0xA)]
-        public static unsafe UInt32 UnitClass_Desguise_Update_MoveToClear(REGISTERS* R)
+        public static unsafe UInt32 UnitClass_Disguise_Update_MoveToClear(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
             Pointer<ObjectTypeClass> pDisguise = pTechno.Ref.Disguise;
@@ -477,6 +477,25 @@ namespace ExtensionHooks
                 // Logger.Log($"{Game.CurrentFrame} 自动伪装 {pTechno.Ref.Disguise} {pTechno.Ref.DisguisedAsHouse}");
                 // Don't clear
                 return 0x746A9C;
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x746B6D, Size = 5)]
+        public static unsafe UInt32 UnitClass_Disguise_FullName(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            if (pTechno.Ref.Base.IsDisguised())
+            {
+                Pointer<HouseClass> pPlayer = HouseClass.Player;
+                Pointer<HouseClass> pHouse = IntPtr.Zero;
+                Pointer<HouseClass> pDHouse = IntPtr.Zero;
+                if ((pHouse = pTechno.Ref.Owner).IsNull || (pHouse != pPlayer && !pHouse.Ref.IsAlliedWith(pPlayer))
+                    || (pDHouse = pTechno.Ref.DisguisedAsHouse).IsNull || (pDHouse != pPlayer && !pDHouse.Ref.IsAlliedWith(pPlayer)))
+                {
+                    // 显示伪装对象的名字
+                    return 0x746B48;
+                }
             }
             return 0;
         }
