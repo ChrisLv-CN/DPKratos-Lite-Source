@@ -111,48 +111,19 @@ namespace Extension.Script
 
                 bool scatter = !data.Remove || data.ForceMission == Mission.Move;
                 // 随机投送位置
-                CellStruct cell = pCell.Ref.MapCoords;
-                CellStruct[] cellOffset = null;
-                int max = 0;
+                CellStruct cellPos = pCell.Ref.MapCoords;
+                CellStruct[] cellOffsets = null;
                 if (data.RandomRange > 0)
                 {
-                    cellOffset = new CellSpreadEnumerator((uint)data.RandomRange).ToArray();
-                    max = cellOffset.Count();
+                    cellOffsets = new CellSpreadEnumerator((uint)data.RandomRange).ToArray();
                 }
                 // 开始投送单位，每生成一个单位就选择一次位置
                 foreach (string id in gifts)
                 {
-                    Pointer<TechnoTypeClass> pType = IntPtr.Zero;
-                    if (id.IsNullOrEmptyOrNone() || (pType = TechnoTypeClass.ABSTRACTTYPE_ARRAY.Find(id)).IsNull)
-                    {
-                        continue;
-                    }
-                    // 随机选择周边的格子
-                    CoordStruct putLocation = location;
-                    Pointer<CellClass> putCell = pCell;
-                    for (int i = 0; i < max; i++)
-                    {
-                        int index = MathEx.Random.Next(max);
-                        CellStruct offset = cellOffset[index];
-                        // Logger.Log($"{Game.CurrentFrame} 随机获取周围格子索引{index}, 共{max}格, 尝试次数{i}, 获取的格子偏移{offset}, 单位当前坐标{cell}, 当前偏移{cellOffset[i]}, 偏移量[{string.Join(",", cellOffset)}]");
-                        if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
-                        {
-                            BulletEffectHelper.GreenCell(pTargetCell.Ref.GetCoordsWithBridge());
-                            if (!data.EmptyCell || pTargetCell.Ref.IsClearToMove(pType.Ref.SpeedType, pType.Ref.MovementZone))
-                            {
-                                putCell = pTargetCell;
-                                putLocation = pTargetCell.Ref.GetCoordsWithBridge();
-                                // Logger.Log($"{Game.CurrentFrame} 获取到的格子坐标{cell + offset}");
-                                break;
-                            }
-                        }
-                    }
                     // 投送单位
-                    Pointer<TechnoClass> pGift = GiftBoxHelper.CreateAndPutTechno(pType, pHouse, putLocation, putCell);
-                    if (!pGift.IsNull)
+                    if (GiftBoxHelper.ReleseGift(id, pHouse, location, pCell, cellPos, cellOffsets, data.EmptyCell, out Pointer<TechnoTypeClass> pGiftType, out Pointer<TechnoClass> pGift, out CoordStruct putLocation, out Pointer<CellClass> putCell))
                     {
                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成功释放礼物 [{id}]{pGift}, 位置 {location}");
-                        Pointer<TechnoTypeClass> pGiftType = pGift.Ref.Type;
                         TechnoStatusScript giftStatus = pGift.GetStatus();
 
                         // 同步朝向
