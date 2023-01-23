@@ -41,7 +41,6 @@ namespace Extension.Ext
 
         public double Chance; // 发生的概率
         public int Rate;
-        public int TriggeredTimes;
 
         public int LockDuration; // 锁定时间
         public bool Feedback; // 反噬
@@ -81,7 +80,6 @@ namespace Extension.Ext
 
             this.Chance = reader.GetChance(TITLE + "Chance", this.Chance);
             this.Rate = reader.Get(TITLE + "Rate", this.Rate);
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
 
             this.LockDuration = reader.Get(TITLE + "LockDuration", this.LockDuration);
             this.Feedback = reader.Get(TITLE + "Feedback", this.Feedback);

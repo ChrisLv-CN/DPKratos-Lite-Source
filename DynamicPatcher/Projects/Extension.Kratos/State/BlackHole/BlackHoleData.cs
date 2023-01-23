@@ -72,7 +72,6 @@ namespace Extension.Ext
 
         public CoordStruct Offset;
         public bool IsOnTurret;
-        public int TriggeredTimes;
         public bool DontScan;
 
         public double Weight;
@@ -106,7 +105,6 @@ namespace Extension.Ext
 
             this.Offset = default;
             this.IsOnTurret = true;
-            this.TriggeredTimes = -1;
             this.DontScan = false;
 
             this.Weight = -1;
@@ -168,8 +166,6 @@ namespace Extension.Ext
 
             this.Offset = reader.Get(TITLE + "Offset", this.Offset);
             this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
-            this.TriggeredTimes = reader.Get(TITLE + "Count", this.TriggeredTimes); // 兼容
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
             this.DontScan = reader.Get(TITLE + "DontScan", this.DontScan);
 
             this.Weight = reader.Get(TITLE + "Weight", this.Weight);

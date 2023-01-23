@@ -77,14 +77,10 @@ namespace Extension.Ext
         public BroadcastEntity Data;
         public BroadcastEntity EliteData;
 
-        public int TriggeredTimes;
-
         public BroadcastData()
         {
             this.Data = null;
             this.EliteData = null;
-
-            this.TriggeredTimes = -1;
 
             this.AffectBullet = false;
 
@@ -120,9 +116,6 @@ namespace Extension.Ext
             }
 
             this.Enable = null != this.Data || null != this.EliteData;
-
-            this.TriggeredTimes = reader.Get(TITLE + "Count", this.TriggeredTimes); // 兼容
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
         }
 
     }

@@ -45,7 +45,6 @@ namespace Extension.Ext
         public bool ToSource;
 
         public bool ActiveOnce;
-        public int TriggeredTimes;
 
         public string[] OnlyReactionWarheads;
 
@@ -70,7 +69,6 @@ namespace Extension.Ext
             this.ToSource = false;
 
             this.ActiveOnce = false;
-            this.TriggeredTimes = -1;
 
             this.OnlyReactionWarheads = null;
         }
@@ -101,7 +99,6 @@ namespace Extension.Ext
             this.ToSource = reader.Get(TITLE + "ToSource", this.ToSource);
 
             this.ActiveOnce = reader.Get(TITLE + "ActiveOnce", this.ActiveOnce);
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
 
             this.OnlyReactionWarheads = reader.GetList(TITLE + "OnlyReactionWarheads", this.OnlyReactionWarheads);
             if (null != OnlyReactionWarheads && OnlyReactionWarheads.Count() == 1 && OnlyReactionWarheads[0].IsNullOrEmptyOrNone())

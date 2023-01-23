@@ -64,7 +64,6 @@ namespace Extension.Ext
         public bool Super;
 
         public int Delay;
-        public int TriggeredTimes;
         public bool ClearTarget;
         public bool MoveForward;
 
@@ -79,7 +78,6 @@ namespace Extension.Ext
             this.Super = false;
 
             this.Delay = 0;
-            this.TriggeredTimes = -1;
             this.ClearTarget = true;
             this.MoveForward = true;
 
@@ -99,7 +97,6 @@ namespace Extension.Ext
             this.Super = reader.Get(TITLE + "Super", this.Super);
 
             this.Delay = reader.Get(TITLE + "Delay", this.Delay);
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
             this.ClearTarget = reader.Get(TITLE + "ClearTarget", this.ClearTarget);
             this.MoveForward = reader.Get(TITLE + "MoveForward", this.MoveForward);
 

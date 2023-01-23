@@ -54,7 +54,6 @@ namespace Extension.Ext
         public bool Remove;
         public string[] RemoveEffects;
 
-        public int TriggeredTimes;
         public bool RemoveAll;
 
 
@@ -72,7 +71,6 @@ namespace Extension.Ext
             this.Remove = false;
             this.RemoveEffects = null;
 
-            this.TriggeredTimes = -1;
             this.RemoveAll = true;
         }
 
@@ -97,7 +95,6 @@ namespace Extension.Ext
             this.RemoveEffects = reader.GetList(TITLE + "RemoveEffects", this.RemoveEffects);
             this.Remove = null != RemoveEffects && RemoveEffects.Any();
 
-            this.TriggeredTimes = reader.Get(TITLE + "TriggeredTimes", this.TriggeredTimes);
             this.RemoveAll = reader.Get(TITLE + "RemoveAll", this.RemoveAll);
 
             this.Enable = !Watch.IsNullOrEmptyOrNone() && (Attach || Remove);

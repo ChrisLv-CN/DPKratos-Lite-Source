@@ -32,6 +32,8 @@ namespace Extension.Script
         private BulletDamageData bulletDamageData = new BulletDamageData(1);
         private TimerStruct ROFTimer;
 
+        private int count;
+
         public override void OnEnable()
         {
             // 排除附着平民抛射体
@@ -83,6 +85,7 @@ namespace Extension.Script
                     Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
                     if (!Data.DeactiveWhenCivilian || !pHouse.IsCivilian())
                     {
+                        count++;
                         ROFTimer.Start(Data.ROF);
 
                         int realDamage = Data.Damage;
@@ -157,6 +160,7 @@ namespace Extension.Script
             {
                 if (ROFTimer.Expired())
                 {
+                    count++;
                     ROFTimer.Start(Data.ROF);
 
                     pBullet.GetStatus().TakeDamage(bulletDamageData);
@@ -176,8 +180,14 @@ namespace Extension.Script
             else
             {
                 Disable(location);
+                return;
             }
-
+            if (Data.TriggeredTimes > 0 && count >= Data.TriggeredTimes)
+            {
+                // 触发次数够了，移除自身
+                Disable(location);
+                return;
+            }
         }
     }
 }

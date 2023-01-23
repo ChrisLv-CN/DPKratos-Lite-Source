@@ -44,6 +44,8 @@ namespace Extension.Ext
     {
         public bool Enable;
 
+        public int TriggeredTimes; // 触发次数
+
         public bool Powered; // 建筑需要使用电力
 
         public AffectWho AffectWho;
@@ -58,6 +60,7 @@ namespace Extension.Ext
         public EffectData()
         {
             this.Enable = false;
+            this.TriggeredTimes = -1;
             this.Powered = false;
             this.AffectWho = AffectWho.MASTER;
             this.DeactiveWhenCivilian = false;
@@ -68,6 +71,7 @@ namespace Extension.Ext
         public virtual void Read(ISectionReader reader, string title)
         {
             this.Enable = reader.Get(title + "Enable", this.Enable);
+            this.TriggeredTimes = reader.Get(title + "TriggeredTimes", this.TriggeredTimes);
             this.Powered = reader.Get(title + "Powered", this.Powered);
             this.AffectWho = reader.Get(title + "AffectWho", this.AffectWho);
             this.DeactiveWhenCivilian = reader.Get(title + "DeactiveWhenCivilian", this.DeactiveWhenCivilian);
