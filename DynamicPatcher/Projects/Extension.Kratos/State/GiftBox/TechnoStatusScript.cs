@@ -165,21 +165,17 @@ namespace Extension.Script
                     Pointer<CellClass> putCell = pCell;
                     for (int i = 0; i < max; i++)
                     {
-                        int index = MathEx.Random.Next(max - 1);
+                        int index = MathEx.Random.Next(max);
                         CellStruct offset = cellOffset[index];
-                        // Logger.Log("随机获取周围格子索引{0}, 共{1}格, 获取的格子偏移{2}, 单位当前坐标{3}, 第一个格子的坐标{4}, 尝试次数{5}, 当前偏移{6}", index, max, offset, location, MapClass.Cell2Coord(cell + cellOffset[0]), i, cellOffset[i]);
-                        if (offset == default)
-                        {
-                            continue;
-                        }
+                        // Logger.Log($"{Game.CurrentFrame} 随机获取周围格子索引{index}, 共{max}格, 尝试次数{i}, 获取的格子偏移{offset}, 单位当前坐标{cell}, 当前偏移{cellOffset[i]}, 偏移量[{string.Join(",", cellOffset)}]");
                         if (MapClass.Instance.TryGetCellAt(cell + offset, out Pointer<CellClass> pTargetCell))
                         {
-                            SpeedType speedType = pType.Ref.SpeedType;
-                            if (pTargetCell.Ref.IsClearToMove(pType.Ref.SpeedType, pType.Ref.MovementZone))
+                            BulletEffectHelper.GreenCell(pTargetCell.Ref.GetCoordsWithBridge());
+                            if (!data.EmptyCell || pTargetCell.Ref.IsClearToMove(pType.Ref.SpeedType, pType.Ref.MovementZone))
                             {
                                 putCell = pTargetCell;
-                                putLocation = pCell.Ref.GetCoordsWithBridge();
-                                // Logger.Log("获取到的格子坐标{0}", location);
+                                putLocation = pTargetCell.Ref.GetCoordsWithBridge();
+                                // Logger.Log($"{Game.CurrentFrame} 获取到的格子坐标{cell + offset}");
                                 break;
                             }
                         }
