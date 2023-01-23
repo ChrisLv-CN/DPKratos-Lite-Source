@@ -839,6 +839,11 @@ namespace Extension.Script
             return marks.Any();
         }
 
+        public bool IsOnMark(string[] marks)
+        {
+            return TryGetMarks(out HashSet<string> hasMarks) && (marks.Intersect(hasMarks).Count() > 0);
+        }
+
         private bool IsOnMark(AttachEffectData data)
         {
             return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()

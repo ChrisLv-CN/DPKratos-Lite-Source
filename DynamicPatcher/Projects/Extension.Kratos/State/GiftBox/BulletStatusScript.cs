@@ -40,7 +40,7 @@ namespace Extension.Script
                 // 子弹的方向
                 GiftBoxState.BodyDir = pBullet.Facing();
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
-                if (!GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent && GiftBoxState.CanOpen())
+                if (GiftBoxState.CanOpen() && IsOnMark() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
                 {
                     // 开盒
                     GiftBoxState.IsOpen = true;
@@ -71,7 +71,7 @@ namespace Extension.Script
 
         public unsafe bool OnDetonate_GiftBox(Pointer<CoordStruct> pCoords)
         {
-            if (GiftBoxState.IsActive() && GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.IsOpen)
+            if (GiftBoxState.CanOpen() && IsOnMark() && GiftBoxState.Data.OpenWhenDestroyed)
             {
                 // 开盒
                 GiftBoxState.IsOpen = true;
@@ -83,6 +83,12 @@ namespace Extension.Script
                 }
             }
             return false;
+        }
+
+        private bool IsOnMark()
+        {
+            string[] marks = GiftBoxState.Data.OnlyOpenWhenMarks;
+            return null == marks || !marks.Any() || (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.IsOnMark(marks));
         }
 
         private void ReleseGift(List<string> gifts, GiftBoxData data)

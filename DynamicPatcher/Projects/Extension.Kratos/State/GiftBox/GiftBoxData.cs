@@ -101,6 +101,8 @@ namespace Extension.Ext
         public bool OpenWhenHealthPercent;
         public double OpenHealthPercent;
 
+        public string[] OnlyOpenWhenMarks;
+
         public bool IsTransform;
         public bool InheritHealth;
         public double HealthPercent;
@@ -135,6 +137,8 @@ namespace Extension.Ext
             this.OpenWhenDestroyed = false;
             this.OpenWhenHealthPercent = false;
             this.OpenHealthPercent = 0;
+
+            this.OnlyOpenWhenMarks = null;
 
             this.IsTransform = false;
             this.InheritHealth = false;
@@ -193,6 +197,8 @@ namespace Extension.Ext
             this.OpenWhenDestroyed = reader.Get(title + "OpenWhenDestroyed", this.OpenWhenDestroyed);
             this.OpenHealthPercent = reader.GetPercent(title + "OpenWhenHealthPercent", this.OpenHealthPercent);
             this.OpenWhenHealthPercent = OpenHealthPercent > 0 && OpenHealthPercent < 1;
+
+            this.OnlyOpenWhenMarks = reader.GetList(title + "OnlyOpenWhenMarks", this.OnlyOpenWhenMarks);
 
             this.IsTransform = reader.Get(title + "IsTransform", this.IsTransform);
             if (IsTransform || ForceTransform)

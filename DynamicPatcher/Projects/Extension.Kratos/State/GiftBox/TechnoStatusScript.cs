@@ -34,7 +34,7 @@ namespace Extension.Script
                 // 记录盒子的状态
                 GiftBoxState.SaveStatue(pTechno);
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
-                if (GiftBoxState.CanOpen() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
+                if (GiftBoxState.CanOpen() && IsOnMark() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
                 {
                     // 开盒
                     GiftBoxState.IsOpen = true;
@@ -75,7 +75,7 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamage2_GiftBox(Pointer<int> pRealDamage, Pointer<WarheadTypeClass> pWH, DamageState damageState, Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (!pTechno.IsDeadOrInvisible() && damageState != DamageState.NowDead && GiftBoxState.CanOpen() && GiftBoxState.Data.OpenWhenHealthPercent)
+            if (!pTechno.IsDeadOrInvisible() && damageState != DamageState.NowDead && GiftBoxState.CanOpen() && IsOnMark() && GiftBoxState.Data.OpenWhenHealthPercent)
             {
                 // 计算血量百分比是否达到开启条件
                 double healthPercent = pTechno.Ref.Base.GetHealthPercentage();
@@ -97,7 +97,7 @@ namespace Extension.Script
 
         public unsafe void OnReceiveDamageDestroy_GiftBox()
         {
-            if (GiftBoxState.CanOpen() && GiftBoxState.Data.OpenWhenDestroyed)
+            if (GiftBoxState.CanOpen() && IsOnMark() && GiftBoxState.Data.OpenWhenDestroyed)
             {
                 // 开盒
                 GiftBoxState.IsOpen = true;
@@ -108,6 +108,12 @@ namespace Extension.Script
                     ReleseGift(gifts, GiftBoxState.Data);
                 }
             }
+        }
+
+        private bool IsOnMark()
+        {
+            string[] marks = GiftBoxState.Data.OnlyOpenWhenMarks;
+            return null == marks || !marks.Any() || (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && aeManager.IsOnMark(marks));
         }
 
         private void ReleseGift(List<string> gifts, GiftBoxData data)
@@ -277,25 +283,35 @@ namespace Extension.Script
                         }
 
                         // 继承AE管理器
+                        AttachEffectScript giftAEM = null;
                         if (inheritAE)
                         {
                             inheritAE = false;
                             // 继承除了GiftBox之外的状态机
                             InheritedStatsTo(giftStatus);
                             // 继承AE
-                            AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
-                            AttachEffectScript boxAEM = pTechno.GetComponent<AttachEffectScript>();
-                            boxAEM.InheritedTo(giftAEM, true);
-                            // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
-                            // 移除指定的AE
-                            giftAEM.Disable(data.RemoveEffects);
+                            giftAEM = pGift.GetAEManegr();
+                            AttachEffectScript boxAEM = pTechno.GetAEManegr();
+                            if (null != giftAEM && null != boxAEM)
+                            {
+                                boxAEM.InheritedTo(giftAEM, true);
+                                // Logger.Log($"{Game.CurrentFrame} 礼物[{id}]{pGift} 继承盒子 [{section}]{pTechno} 的 AE管理器");
+                                // 移除指定的AE
+                                giftAEM.Disable(data.RemoveEffects);
+                            }
                         }
 
                         // 附加AE
                         if (null != data.AttachEffects)
                         {
-                            AttachEffectScript giftAEM = pGift.GetComponent<AttachEffectScript>();
-                            giftAEM.Attach(data.AttachEffects, data.AttachChances);
+                            if (null == giftAEM)
+                            {
+                                giftAEM = pGift.GetAEManegr();
+                            }
+                            if (null != giftAEM)
+                            {
+                                giftAEM.Attach(data.AttachEffects, data.AttachChances);
+                            }
                         }
 
                         if (data.ForceMission != Mission.None && data.ForceMission != Mission.Move)
