@@ -31,6 +31,7 @@ namespace Extension.Ext
 
         public bool Feedback = false;
 
+        public bool AffectsTerrain = true;
         public bool AffectsOwner = true;
         public bool AffectsAllies = true;
         public bool AffectsEnemies = true;
@@ -60,6 +61,7 @@ namespace Extension.Ext
 
             this.Feedback = reader.Get(title + "Feedback", this.Feedback);
 
+            this.AffectsTerrain = reader.Get(title + "AffectsTerrain", this.AffectsTerrain);
             this.AffectsAllies = reader.Get(title + "AffectsAllies", this.AffectsAllies);
             this.AffectsOwner = reader.Get(title + "AffectsOwner", this.AffectsAllies);
             this.AffectsEnemies = reader.Get(title + "AffectsEnemies", this.AffectsEnemies);

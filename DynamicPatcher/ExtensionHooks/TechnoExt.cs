@@ -217,6 +217,7 @@ namespace ExtensionHooks
                             return 0x6F3807; // 返回副武器
                         }
                         break;
+                    case AbstractType.Terrain:
                     case AbstractType.Cell:
                         SelectWeaponData selectWeaponData = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;
                         SelectWeaponData data = Ini.GetConfig<SelectWeaponData>(Ini.RulesDependency, pTechno.Ref.Type.Ref.Base.Base.ID).Data;

@@ -232,6 +232,13 @@ namespace Extension.Script
             AbstractType targetAbsType = pTarget.Ref.WhatAmI();
             switch (targetAbsType)
             {
+                case AbstractType.Terrain:
+                    // 检查伐木
+                    if (!weaponTypeData.AffectsTerrain)
+                    {
+                        canFire = false;
+                    }
+                    break;
                 case AbstractType.Cell:
                     // 检查A地板
                     if (weaponTypeData.CheckAG && !pWeapon.Ref.Projectile.Ref.AG)
@@ -378,18 +385,6 @@ namespace Extension.Script
             if (null != burst.Callback)
             {
                 burst.Callback(burst.Index, burst.Burst, pBullet, burst.pTarget);
-            }
-            // 树被击杀之后，指针仍然存在，IsNull判断失效，但指针已经过期，调用任何函数会导致崩溃，预判这一炮下去能打死树，手动移除保存的指针
-            if (burst.pTarget.Pointer.CastIf<TerrainClass>(AbstractType.Terrain, out Pointer<TerrainClass> pTerrain))
-            {
-                // Logger.Log($"{Game.CurrentFrame} pTerrain.Ref.Base.Health = {pTerrain.Ref.Base.Health}");
-                int damage = burst.pWeaponType.Ref.Damage;
-                Pointer<WarheadTypeClass> pWH = burst.pWeaponType.Ref.Warhead;
-                if (pTerrain.Convert<ObjectClass>().GetRealDamage(damage, pWH, false) >= pTerrain.Ref.Base.Health)
-                {
-                    // 这一炮下去树会死
-                    burst.pTarget.Pointer = IntPtr.Zero;
-                }
             }
             burst.CountOne();
         }
