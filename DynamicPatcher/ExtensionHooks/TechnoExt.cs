@@ -489,9 +489,8 @@ namespace ExtensionHooks
             {
                 Pointer<HouseClass> pPlayer = HouseClass.Player;
                 Pointer<HouseClass> pHouse = IntPtr.Zero;
-                Pointer<HouseClass> pDHouse = IntPtr.Zero;
-                if ((pHouse = pTechno.Ref.Owner).IsNull || (pHouse != pPlayer && !pHouse.Ref.IsAlliedWith(pPlayer))
-                    || (pDHouse = pTechno.Ref.DisguisedAsHouse).IsNull || (pDHouse != pPlayer && !pDHouse.Ref.IsAlliedWith(pPlayer)))
+                if ((pHouse = pTechno.Ref.Owner).IsNull
+                    || (pHouse != pPlayer && !pHouse.Ref.IsAlliedWith(pPlayer)))
                 {
                     // 显示伪装对象的名字
                     return 0x746B48;
