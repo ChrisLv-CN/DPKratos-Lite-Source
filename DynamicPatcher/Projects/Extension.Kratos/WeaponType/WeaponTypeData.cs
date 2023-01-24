@@ -10,7 +10,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public partial class WeaponTypeData : INIAutoConfig
+    public partial class WeaponTypeData : INIConfig
     {
         // YR
         // Ares
@@ -22,6 +22,20 @@ namespace Extension.Ext
         // Kratos
         public float RockerPitch = 0;
         public bool SelfLaunch = false;
+
+        public override void Read(IConfigReader reader)
+        {
+            ReadAttachFireData(reader);
+
+            this.Ammo = reader.Get("Ammo", this.Ammo);
+
+            this.LaserThickness = reader.Get("LaserThickness", this.LaserThickness);
+            this.LaserFade = reader.Get("LaserFade", this.LaserFade);
+            this.IsSupported = reader.Get("IsSupported", this.IsSupported);
+
+            this.RockerPitch = reader.Get("RockerPitch", this.RockerPitch);
+            this.SelfLaunch = reader.Get("SelfLaunch", this.SelfLaunch);
+        }
 
     }
 

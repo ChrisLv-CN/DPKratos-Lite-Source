@@ -87,8 +87,8 @@ namespace Extension.Ext
             this.Force = reader.Get(TITLE + "Force", this.Force);
             this.Count = reader.Get(TITLE + "Count", this.Count);
             this.TargetToCell = reader.Get(TITLE + "TargetToCell", this.TargetToCell);
-            this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsOwner);
             this.AffectsAllies = reader.Get(TITLE + "AffectsAllies", this.AffectsAllies);
+            this.AffectsOwner = reader.Get(TITLE + "AffectsOwner", this.AffectsAllies);
             this.AffectsEnemies = reader.Get(TITLE + "AffectsEnemies", this.AffectsEnemies);
             this.AffectsCivilian = reader.Get(TITLE + "AffectsCivilian", this.AffectsCivilian);
         }

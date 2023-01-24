@@ -104,11 +104,7 @@ namespace Extension.Utilities
                 if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
                     Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
-                    if (!pHouse.IsNull && !pTargetHouse.IsNull
-                        && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
-                    {
-                        return false;
-                    }
+                    return pHouse.CanAffectHouse(pTargetHouse, owner, allied, enemies, civilian);
                 }
                 else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet) && pBullet.TryGetStatus(out BulletStatusScript bulletStatus) && !bulletStatus.LifeData.IsDetonate)
                 {
@@ -116,11 +112,7 @@ namespace Extension.Utilities
                     if (!pHouse.IsNull && !(pTargetHouse = bulletStatus.pSourceHouse).IsNull)
                     {
                         // 检查原始所属
-                        if ((pTargetHouse.IsCivilian() && !civilian)
-                            || (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
-                        {
-                            return false;
-                        }
+                        return pHouse.CanAffectHouse(pTargetHouse, owner, allied, enemies, civilian);
                     }
                 }
                 else
@@ -181,12 +173,7 @@ namespace Extension.Utilities
             if (inRange || InRange(location, targetLocation, maxRange, minRange, fullAirspace, isInAir, abstractType))
             {
                 Pointer<HouseClass> pTargetHouse = pTechno.Ref.Owner;
-                if (!pHouse.IsNull && !pTargetHouse.IsNull
-                    && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
-                {
-                    return false;
-                }
-                return true;
+                return pHouse.CanAffectHouse(pTargetHouse, owner, allied, enemies, civilian);
             }
             return false;
         }
@@ -249,12 +236,10 @@ namespace Extension.Utilities
                     pCell.FindTechnoInCell((pTarget) =>
                     {
                         Pointer<HouseClass> pTargetHouse = pTarget.Ref.Owner;
-                        if (!pHouse.IsNull && !pTargetHouse.IsNull
-                            && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                        if (pHouse.CanAffectHouse(pTargetHouse, owner, allied, enemies, civilian))
                         {
-                            return false;
+                            pTechnoSet.Add(pTarget);
                         }
-                        pTechnoSet.Add(pTarget);
                         return false;
                     });
                 }
@@ -263,8 +248,7 @@ namespace Extension.Utilities
                 {
                     Pointer<TechnoClass> pJJ = pCell.Ref.Jumpjet.Convert<TechnoClass>();
                     Pointer<HouseClass> pTargetHouse = pJJ.Ref.Owner;
-                    if (!pHouse.IsNull && !pTargetHouse.IsNull
-                        && (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies)))
+                    if (!pHouse.CanAffectHouse(pTargetHouse, owner, allied, enemies, civilian))
                     {
                         continue;
                     }

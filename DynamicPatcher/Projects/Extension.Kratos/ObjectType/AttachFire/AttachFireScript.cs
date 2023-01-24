@@ -227,14 +227,46 @@ namespace Extension.Script
             Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh, FireBulletToTarget callback = null)
         {
             bool isFire = false;
-            // 检查护甲
-            if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
-                && pTarget.Ref.AbstractFlags.HasFlag(AbstractFlags.Techno)
-                && (pWeapon.Ref.Warhead.GetData().GetVersus(pTarget.Convert<ObjectClass>().Ref.Type.Ref.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) == 0.0 || !forceFire)
-            )
+            // 检查目标类型
+            bool canFire = true;
+            AbstractType targetAbsType = pTarget.Ref.WhatAmI();
+            switch (targetAbsType)
             {
-                // Logger.Log($"{Game.CurrentFrame} 弹头对试图攻击的目标比例为0，终止发射");
-                // 护甲为零，终止发射
+                case AbstractType.Cell:
+                    // 检查A地板
+                    if (weaponTypeData.CheckAG && !pWeapon.Ref.Projectile.Ref.AG)
+                    {
+                        canFire = false;
+                    }
+                    break;
+                case AbstractType.Building:
+                case AbstractType.Infantry:
+                case AbstractType.Unit:
+                case AbstractType.Aircraft:
+                    Pointer<TechnoClass> pTargetTechno = pTarget.Convert<TechnoClass>();
+                    // 检查护甲
+                    if (weaponTypeData.CheckVersus && !pWeapon.Ref.Warhead.IsNull
+                        && (pWeapon.Ref.Warhead.GetData().GetVersus(pTargetTechno.Ref.Type.Ref.Base.Armor, out bool forceFire, out bool retaliate, out bool passiveAcquire) == 0.0 || !forceFire)
+                    )
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} 弹头对试图攻击的目标比例为0，终止发射");
+                        // 护甲为零，终止发射
+                        canFire = false;
+                    }
+                    // 检查所属
+                    Pointer<HouseClass> pTargetHouse = pTargetTechno.Ref.Owner;
+                    if (!pAttackingHouse.CanAffectHouse(pTargetHouse, weaponTypeData.AffectsOwner, weaponTypeData.AffectsAllies, weaponTypeData.AffectsEnemies, weaponTypeData.AffectsCivilian))
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} [{(pAttackingHouse.IsNull ? "null" : pAttackingHouse.Ref.ArrayIndex)}]{pAttackingHouse}不可对该所属[{(pTargetHouse.IsNull ? "null" : pTargetHouse.Ref.ArrayIndex)}]{pTargetHouse}攻击，终止发射");
+                        // 不可对该所属攻击，终止发射
+                        canFire = false;
+                    }
+                    break;
+            }
+
+            // 不允许发射
+            if (!canFire)
+            {
                 return isFire;
             }
 

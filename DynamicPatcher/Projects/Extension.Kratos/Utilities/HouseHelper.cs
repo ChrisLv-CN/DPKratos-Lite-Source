@@ -26,7 +26,7 @@ namespace Extension.Utilities
     {
         public override bool ParseInitials(string t, ref Relation buffer)
         {
-            switch(t)
+            switch (t)
             {
                 case "O":
                     buffer = Relation.OWNER;
@@ -85,6 +85,19 @@ namespace Extension.Utilities
                 key = "PlayerAutoRepel";
             }
             return Ini.GetSection(Ini.RulesDependency, RulesClass.SectionCombatDamage).Get(key, false);
+        }
+
+
+        public static bool CanAffectHouse(this Pointer<HouseClass> pHouse, Pointer<HouseClass> pTargetHouse, bool owner, bool allied, bool enemies, bool civilian)
+        {
+            if (!pHouse.IsNull && !pTargetHouse.IsNull
+                && ((pTargetHouse.IsCivilian() && !civilian)
+                    || (pTargetHouse == pHouse ? !owner : (pTargetHouse.Ref.IsAlliedWith(pHouse) ? !allied : !enemies))
+                ))
+            {
+                return false;
+            }
+            return true;
         }
     }
 
