@@ -15,6 +15,7 @@ namespace Extension.Ext
     {
         public string[] AttachEffectTypes;
         public double[] AttachEffectChances; // 附加成功率，应该只对弹头有用
+        public bool AttachFullAirspace; // 搜索圆柱体范围
 
         // 单条AE
         public int StandTrainCabinLength; // 火车替身间隔
@@ -29,6 +30,7 @@ namespace Extension.Ext
         {
             this.AttachEffectTypes = null;
             this.AttachEffectChances = null;
+            this.AttachFullAirspace = false;
             // 单条
             this.StandTrainCabinLength = 512;
             this.AEMode = -1;
@@ -42,6 +44,7 @@ namespace Extension.Ext
         {
             this.AttachEffectTypes = reader.GetList("AttachEffectTypes", this.AttachEffectTypes);
             this.AttachEffectChances = reader.GetChanceList("AttachEffectChances", this.AttachEffectChances);
+            this.AttachFullAirspace = reader.Get("AttachFullAirspace", this.AttachFullAirspace);
 
             this.StandTrainCabinLength = reader.Get("StandTrainCabinLength", this.StandTrainCabinLength);
             // 乘客读取

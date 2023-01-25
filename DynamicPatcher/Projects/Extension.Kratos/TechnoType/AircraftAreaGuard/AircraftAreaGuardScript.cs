@@ -471,7 +471,7 @@ namespace Extension.Script
                     // 使用Cell搜索目标
                     bool canAA = (hasPrimary && pPrimary.Ref.WeaponType.Ref.Projectile.Ref.AA) || (hasSecondary && pSecondary.Ref.WeaponType.Ref.Projectile.Ref.AA);
                     // 检索范围内的单位类型
-                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(sourcePos, cellSpread, canAA, false);
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(sourcePos, cellSpread, false, canAA, false);
                     // TODO 对检索到的单位按威胁值排序
                     foreach (Pointer<TechnoClass> pTargetTechno in pTechnoList)
                     {

@@ -1382,6 +1382,7 @@ namespace Extension.Script
             AttachEffectTypeData aeTypeData = pWH.GetAEData();
             if (null != aeTypeData.AttachEffectTypes && aeTypeData.AttachEffectTypes.Length > 0)
             {
+                bool fullAirspace = aeTypeData.AttachFullAirspace;
                 bool findTechno = false;
                 bool findBullet = false;
                 // 快速检索是否需要查找单位或者抛射体清单
@@ -1398,7 +1399,7 @@ namespace Extension.Script
                     double cellSpread = pWH.Ref.CellSpread;
                     bool affectInAir = warheadTypeData.AffectInAir;
                     // 检索爆炸范围内的单位类型
-                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, cellSpread, affectInAir, false);
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(location, cellSpread, fullAirspace, affectInAir, false);
                     // 检索爆炸范围内的替身
                     if (warheadTypeData.AffectStand)
                     {
@@ -1475,7 +1476,7 @@ namespace Extension.Script
                             }
                         }
                         return false;
-                    }, location, pWH.Ref.CellSpread);
+                    }, location, pWH.Ref.CellSpread, 0, fullAirspace);
                 }
             }
         }

@@ -213,7 +213,7 @@ namespace Extension.Utilities
             while (!pObject.IsNull && !(pObject = pObject.Ref.NextObject).IsNull);
         }
 
-        public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool includeInAir, bool ignoreBulidingOuter,
+        public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool fullAirspace, bool includeInAir, bool ignoreBulidingOuter,
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
@@ -278,7 +278,7 @@ namespace Extension.Utilities
             foreach (Pointer<TechnoClass> pTechno in pTechnoSet)
             {
                 CoordStruct targetPos = pTechno.Ref.Base.Base.GetCoords();
-                double dist = targetPos.DistanceFrom(location);
+                double dist = targetPos.DistanceFrom(location, fullAirspace);
 
                 bool checkDistance = true;
                 AbstractType absType = pTechno.Ref.Base.Base.WhatAmI();
@@ -388,7 +388,7 @@ namespace Extension.Utilities
             else
             {
                 // 小范围搜索
-                pTechnoList = FinderHelper.GetCellSpreadTechnos(location, maxSpread, data.AffectInAir, false, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
+                pTechnoList = FinderHelper.GetCellSpreadTechnos(location, maxSpread, fullAirspace, data.AffectInAir, false, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
             }
             if (null != pTechnoList)
             {
