@@ -202,6 +202,11 @@ namespace Extension.Script
                                         loco.Move_To(targetPos);
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 变成CLEG，跳到目的地，{pTechno.Ref.ChronoLockRemaining}，冰冻时间 {teleportTimer.GetTimeLeft()}");
                                     }
+                                    // 通知AE管理器进行了跳跃
+                                    if(pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                                    {
+                                        aeManager.OnTeleport();
+                                    }
                                     TeleportState.Reload();
                                     teleportStep = TeleportStep.TELEPORTED;
                                 }

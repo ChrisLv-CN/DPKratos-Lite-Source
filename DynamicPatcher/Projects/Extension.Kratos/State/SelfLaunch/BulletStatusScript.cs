@@ -53,6 +53,8 @@ namespace Extension.Script
                     pSource.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                     // 强令停止移动
                     pSource.Convert<FootClass>().ForceStopMoving();
+                    // 清除移动目的地
+                    pSource.Ref.SetDestination(default(Pointer<CellClass>));
                     // Limbo发射者
                     pSource.Ref.Base.Remove();
                 }

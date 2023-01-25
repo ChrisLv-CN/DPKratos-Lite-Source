@@ -156,6 +156,7 @@ namespace Extension.Script
             }
 
             heir.locationMarks = this.locationMarks;
+            heir.lastLocation = this.lastLocation;
             heir.locationMarkDistance = this.locationMarkDistance;
             heir.totleMileage = this.totleMileage;
 
@@ -203,6 +204,7 @@ namespace Extension.Script
             this.location = pOwner.Ref.Base.GetCoords();
 
             this.locationMarks = new List<LocationMark>();
+            this.lastLocation = default;
             this.locationMarkDistance = 16;
             this.totleMileage = 0;
 
@@ -966,6 +968,23 @@ namespace Extension.Script
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 发生了传送，清理记录的位置信息
+        /// </summary>
+        public void OnTeleport()
+        {
+            if (null == this.locationMarks)
+            {
+                this.locationMarks = new List<LocationMark>();
+            }
+            else
+            {
+                this.locationMarks.Clear();
+            }
+            this.lastLocation = default;
+            this.totleMileage = 0;
         }
 
         public override void OnUpdate()
