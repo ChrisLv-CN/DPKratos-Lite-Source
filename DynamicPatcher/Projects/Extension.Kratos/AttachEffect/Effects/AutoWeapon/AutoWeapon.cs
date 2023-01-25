@@ -142,7 +142,8 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.Base.ID}] 即将向 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 发射自身的武器 {weaponIndex}");
                 // 检查武器是否存在，是否ROF结束
                 Pointer<WeaponStruct> pWeaponStruct = pShooterTechno.Ref.GetWeapon(weaponIndex);
-                if (!pWeaponStruct.IsNull && !pWeaponStruct.Ref.WeaponType.IsNull && CheckROF(pWeaponStruct.Ref.WeaponType))
+                Pointer<WeaponTypeClass> pWeapon = IntPtr.Zero;
+                if (!pWeaponStruct.IsNull && !(pWeapon = pWeaponStruct.Ref.WeaponType).IsNull && CheckROF(pWeapon))
                 {
                     // 可以发射
                     // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.Base.ID}] 向 [{pTarget.Convert<ObjectClass>().Ref.Type.Ref.Base.ID}] 发射自身的武器 {weaponIndex}");
@@ -163,11 +164,11 @@ namespace Extension.Script
                         AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
                         if (null != attachFire)
                         {
-                            attachFire.FireOwnWeapon(weaponIndex, pTarget);
+                            attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, pWeapon.GetData(), fireFLH);
                         }
                         weaponLaunch = true;
                         // 进入冷却
-                        ResetROF(pWeaponStruct.Ref.WeaponType, rofMult);
+                        ResetROF(pWeapon, rofMult);
                     }
                 }
             }

@@ -81,10 +81,6 @@ namespace Extension.Ext
 
             this.Types = reader.GetList(TITLE + "Types", this.Types);
             this.WeaponIndex = reader.Get(TITLE + "WeaponIndex", this.WeaponIndex);
-            if (WeaponIndex > 1)
-            {
-                WeaponIndex = 1;
-            }
 
             this.AttachEffects = reader.GetList<string>(TITLE + "AttachEffects", this.AttachEffects);
             this.AttachChances = reader.GetChanceList(TITLE + "AttachChances", this.AttachChances);
