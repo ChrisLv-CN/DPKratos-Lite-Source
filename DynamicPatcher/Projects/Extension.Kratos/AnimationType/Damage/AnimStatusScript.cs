@@ -56,19 +56,38 @@ namespace Extension.Script
             {
                 if (creater.IsNull)
                 {
-                    if (animDamageData.KillByCreater && !pAnim.Ref.OwnerObject.IsNull && pAnim.Ref.OwnerObject.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.IsDead())
+                    if (!(createrIsDeadth = !animDamageData.KillByCreater))
                     {
-                        createrExt = TechnoExt.ExtMap.Find(pTechno);
-                    }
-                    else
-                    {
-                        createrIsDeadth = true;
+                        Pointer<TechnoClass> pCreater = IntPtr.Zero;
+                        Pointer<ObjectClass> pOwner = pAttachOwner;
+                        if (pOwner.IsNull)
+                        {
+                            pOwner = pAnim.Ref.OwnerObject;
+                        }
+                        if (!pOwner.IsNull)
+                        {
+                            if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+                            {
+                                pCreater = pTechno;
+                            }
+                            else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet) && pBullet.TryGetStatus(out BulletStatusScript bulletStatus))
+                            {
+                                pCreater = bulletStatus.pSource;
+                            }
+                        }
+                        if (!pCreater.IsDead())
+                        {
+                            createrExt = TechnoExt.ExtMap.Find(pCreater);
+                        }
+                        else
+                        {
+                            createrIsDeadth = true;
+                        }
                     }
                 }
-                else if (creater.IsDead())
+                else if (createrIsDeadth = creater.IsDead())
                 {
                     createrExt = null;
-                    createrIsDeadth = true;
                 }
             }
         }
