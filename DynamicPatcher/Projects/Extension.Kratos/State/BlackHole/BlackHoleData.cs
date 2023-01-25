@@ -63,7 +63,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BlackHoleData : FilterEffectData, IStateData
+    public class BlackHoleData : EffectData, IStateData
     {
         public const string TITLE = "BlackHole.";
 

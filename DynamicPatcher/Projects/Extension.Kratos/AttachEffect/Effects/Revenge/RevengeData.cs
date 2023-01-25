@@ -28,7 +28,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class RevengeData : FilterEffectData, IStateData
+    public class RevengeData : EffectData, IStateData
     {
         public const string TITLE = "Revenge.";
 

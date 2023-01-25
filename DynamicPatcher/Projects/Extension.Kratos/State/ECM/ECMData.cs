@@ -34,7 +34,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class ECMData : FilterEffectData, IStateData
+    public class ECMData : EffectData, IStateData
     {
         public const string TITLE = "ECM.";
 

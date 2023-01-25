@@ -12,7 +12,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class HotKeyAttachEffectData : FilterEffectData
+    public class HotKeyAttachEffectData : EffectData
     {
 
         public string[] AttachEffects;

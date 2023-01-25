@@ -41,11 +41,6 @@ namespace Extension.Ext
         public bool Force;
         public int Count;
         public bool TargetToCell;
-        public bool AffectsOwner;
-        public bool AffectsAllies;
-        public bool AffectsEnemies;
-        public bool AffectsCivilian;
-
         public AttackBeaconData()
         {
             this.Types = null;

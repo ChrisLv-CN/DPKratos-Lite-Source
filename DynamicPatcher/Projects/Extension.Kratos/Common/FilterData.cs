@@ -12,7 +12,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class FilterEffectData : EffectData
+    public class FilterData : INIConfig
     {
         public string[] AffectTypes;
         public string[] NotAffectTypes;
@@ -40,7 +40,7 @@ namespace Extension.Ext
         public bool AffectsCivilian;
 
 
-        public FilterEffectData()
+        public FilterData()
         {
             this.AffectTypes = null;
             this.NotAffectTypes = null;
@@ -67,11 +67,10 @@ namespace Extension.Ext
             this.AffectsEnemies = true;
             this.AffectsCivilian = true;
         }
+        public override void Read(IConfigReader reader) { }
 
-        public override void Read(ISectionReader reader, string title)
+        public virtual void Read(ISectionReader reader, string title)
         {
-            base.Read(reader, title);
-
             this.AffectTypes = reader.GetList<string>(title + "AffectTypes", this.AffectTypes);
             this.NotAffectTypes = reader.GetList<string>(title + "NotAffectTypes", this.NotAffectTypes);
 
@@ -137,45 +136,48 @@ namespace Extension.Ext
 
         public bool CanAffectType(Pointer<BulletClass> pBullet)
         {
-            if (CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID))
+            return CanAffectType(pBullet.Ref.Type.Ref.Base.Base.ID) && CanAffectType(pBullet.WhatTypeAmI(), pBullet.Ref.Type.Ref.Level);
+        }
+
+        public bool CanAffectType(BulletType bulletType, bool isLevel)
+        {
+            switch (bulletType)
             {
-                BulletType bulletType = pBullet.WhatTypeAmI();
-                switch(bulletType)
-                {
-                    case BulletType.INVISO:
-                        return true;
-                    case BulletType.ARCING:
-                        return AffectCannon;
-                    case BulletType.BOMB:
-                        return AffectBomb;
-                    case BulletType.ROCKET:
-                    case BulletType.MISSILE:
-                        // 导弹和直线导弹都算Missile
-                        if (pBullet.Ref.Type.Ref.Level)
-                        {
-                            return AffectTorpedo;
-                        }
-                        return AffectMissile;
-                }
+                case BulletType.INVISO:
+                    return true;
+                case BulletType.ARCING:
+                    return AffectCannon;
+                case BulletType.BOMB:
+                    return AffectBomb;
+                case BulletType.ROCKET:
+                case BulletType.MISSILE:
+                    // 导弹和直线导弹都算Missile
+                    if (isLevel)
+                    {
+                        return AffectTorpedo;
+                    }
+                    return AffectMissile;
             }
             return false;
         }
 
         public bool CanAffectType(Pointer<TechnoClass> pTechno)
         {
-            if (CanAffectType(pTechno.Ref.Type.Ref.Base.Base.ID))
+            return CanAffectType(pTechno.Ref.Type.Ref.Base.Base.ID) && CanAffectType(pTechno.Ref.Base.Base.WhatAmI());
+        }
+
+        public bool CanAffectType(AbstractType absType)
+        {
+            switch (absType)
             {
-                switch (pTechno.Ref.Base.Base.WhatAmI())
-                {
-                    case AbstractType.Building:
-                        return AffectBuilding;
-                    case AbstractType.Infantry:
-                        return AffectInfantry;
-                    case AbstractType.Unit:
-                        return AffectUnit;
-                    case AbstractType.Aircraft:
-                        return AffectAircraft;
-                }
+                case AbstractType.Building:
+                    return AffectBuilding;
+                case AbstractType.Infantry:
+                    return AffectInfantry;
+                case AbstractType.Unit:
+                    return AffectUnit;
+                case AbstractType.Aircraft:
+                    return AffectAircraft;
             }
             return false;
         }

@@ -329,7 +329,7 @@ namespace Extension.Utilities
         // 搜索单位
         public static void FindTechnoOnMark(FoundAEM<TechnoClass> func,
             CoordStruct location, double maxSpread, double minSpread, bool fullAirspace,
-            Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
+            Pointer<HouseClass> pHouse, FilterData data, Pointer<ObjectClass> exclude)
         {
             List<Pointer<TechnoClass>> pTechnoList = null;
             if (maxSpread <= 0)
@@ -434,7 +434,7 @@ namespace Extension.Utilities
         // 搜索抛射体
         public static void FindBulletOnMark(FoundAEM<BulletClass> func, CoordStruct location,
             double maxSpread, double minSpread, bool fullAirspace,
-            Pointer<HouseClass> pHouse, FilterEffectData data, Pointer<ObjectClass> exclude)
+            Pointer<HouseClass> pHouse, FilterData data, Pointer<ObjectClass> exclude)
         {
             HashSet<Pointer<BulletClass>> pBulletSet = new HashSet<Pointer<BulletClass>>();
             BulletClass.Array.FindObject((pTarget) =>
@@ -462,7 +462,7 @@ namespace Extension.Utilities
             }
         }
 
-        private static bool IsOnMark(AttachEffectScript aeManager, FilterEffectData data)
+        private static bool IsOnMark(AttachEffectScript aeManager, FilterData data)
         {
             return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()
                 || (aeManager.TryGetMarks(out HashSet<string> marks)

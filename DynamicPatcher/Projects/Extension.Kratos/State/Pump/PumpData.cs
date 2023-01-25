@@ -26,7 +26,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class PumpData : FilterEffectData, IStateData
+    public class PumpData : EffectData, IStateData
     {
         public const string TITLE = "Pump.";
 

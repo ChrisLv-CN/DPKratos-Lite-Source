@@ -28,7 +28,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BounceData : FilterEffectData, IStateData
+    public class BounceData : EffectData, IStateData
     {
         public const string TITLE = "Bounce.";
 

@@ -26,7 +26,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class ScatterData : FilterEffectData, IStateData
+    public class ScatterData : EffectData, IStateData
     {
         public const string TITLE = "Scatter.";
 

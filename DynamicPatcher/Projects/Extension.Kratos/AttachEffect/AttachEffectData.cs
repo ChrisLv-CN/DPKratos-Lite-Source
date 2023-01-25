@@ -45,7 +45,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public partial class AttachEffectData : FilterEffectData
+    public partial class AttachEffectData : EffectData
     {
         static AttachEffectData()
         {

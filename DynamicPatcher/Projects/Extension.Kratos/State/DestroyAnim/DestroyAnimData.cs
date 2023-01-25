@@ -53,7 +53,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class DestroyAnimData : FilterEffectData, IStateData
+    public class DestroyAnimData : EffectData, IStateData
     {
         public const string TITLE = "DestroyAnim.";
 

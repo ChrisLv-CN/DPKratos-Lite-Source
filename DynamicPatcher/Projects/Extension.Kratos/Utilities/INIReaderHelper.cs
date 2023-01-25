@@ -151,7 +151,7 @@ namespace Extension.Utilities
             return chance;
         }
 
-        public static double[] GetChanceList(this ISectionReader reader, string key, double[] defVal, bool isChance = false)
+        public static double[] GetChanceList(this ISectionReader reader, string key, double[] defVal)
         {
             return reader.GetPercentList(key, defVal, true);
         }

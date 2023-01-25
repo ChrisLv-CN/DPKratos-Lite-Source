@@ -69,7 +69,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class BroadcastData : FilterEffectData
+    public class BroadcastData : EffectData
     {
 
         public const string TITLE = "Broadcast.";

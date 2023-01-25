@@ -10,7 +10,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public partial class WeaponTypeData : INIConfig
+    public partial class WeaponTypeData : FilterData
     {
         // YR
         // Ares

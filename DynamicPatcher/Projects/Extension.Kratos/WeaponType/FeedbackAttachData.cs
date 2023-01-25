@@ -12,7 +12,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class FeedbackAttachData : FilterEffectData
+    public class FeedbackAttachData : EffectData
     {
         public string[] AttachEffects;
         public double[] AttachChances;

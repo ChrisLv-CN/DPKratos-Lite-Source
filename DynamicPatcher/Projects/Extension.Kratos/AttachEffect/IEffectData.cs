@@ -16,7 +16,7 @@ namespace Extension.Ext
     [Serializable]
     public enum AffectWho
     {
-        MASTER = 0, STAND = 1, ALL = 2, 
+        MASTER = 0, STAND = 1, ALL = 2,
     }
 
     public class AffectWhoParser : KEnumParser<AffectWho>
@@ -40,7 +40,7 @@ namespace Extension.Ext
     }
 
     [Serializable]
-    public class EffectData : INIConfig, IEffectData
+    public class EffectData : FilterData, IEffectData
     {
         public bool Enable;
 
@@ -68,8 +68,10 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader) { }
 
-        public virtual void Read(ISectionReader reader, string title)
+        public override void Read(ISectionReader reader, string title)
         {
+            base.Read(reader, title);
+
             this.Enable = reader.Get(title + "Enable", this.Enable);
             this.TriggeredTimes = reader.Get(title + "TriggeredTimes", this.TriggeredTimes);
             this.Powered = reader.Get(title + "Powered", this.Powered);

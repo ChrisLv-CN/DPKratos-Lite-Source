@@ -12,7 +12,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class UploadAttachData : FilterEffectData
+    public class UploadAttachData : EffectData
     {
         public string[] AttachEffects;
         public bool SourceIsPassenger;
