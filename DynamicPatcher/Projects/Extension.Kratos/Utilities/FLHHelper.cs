@@ -128,7 +128,7 @@ namespace Extension.Utilities
             }
         }
 
-        private static unsafe Matrix3DStruct GetMatrix3D(Pointer<TechnoClass> pTechno)
+        public static unsafe Matrix3DStruct GetMatrix3D(this Pointer<TechnoClass> pTechno)
         {
             // Step 1: get body transform matrix
             Matrix3DStruct matrix3D = new Matrix3DStruct(true);

@@ -41,7 +41,7 @@ namespace Extension.Ext
             this.PrimaryFLH = reader.Get(title + "PrimaryFLH", this.PrimaryFLH);
             this.SecondaryFLH = reader.Get(title + "SecondaryFLH", this.SecondaryFLH);
 
-            for (int i = 0; i < 128; i++)
+            for (int i = 0; i < 127; i++)
             {
                 CoordStruct weaponFLH = reader.Get<CoordStruct>(title + "Weapon" + (i + 1) + "FLH", default);
                 if (default != weaponFLH)

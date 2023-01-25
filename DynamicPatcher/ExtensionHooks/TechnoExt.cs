@@ -352,6 +352,29 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // FLH自由
+        [Hook(HookType.AresHook, Address = 0x6F3B5C, Size = 6)]
+        public static unsafe UInt32 UnitClassClass_GetFLH_UnbindTurret(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBX;
+            if (!pTechno.IsNull)
+            {
+                if (pTechno.Ref.HasTurret())
+                {
+                    int weaponIdx = R->Stack<int>(0xE0);
+                    if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.IsUnbindTurret(weaponIdx))
+                    {
+                        Matrix3DStruct matrix = pTechno.GetMatrix3D();
+                        // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} has turret {pTechno.Ref.HasTurret()} {weaponIdx}");
+                        R->Stack(0x48, matrix);
+                        return 0x6F3C52;
+                    }
+                }
+                return 0x6F3B62;
+            }
+            return 0x6F3C1A;
+        }
+
         [Hook(HookType.AresHook, Address = 0x5194EF, Size = 5)]
         public static unsafe UInt32 InfantryClass_DrawIt_InAir_Shadow_Skip(REGISTERS* R)
         {

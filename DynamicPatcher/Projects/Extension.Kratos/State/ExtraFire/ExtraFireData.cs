@@ -57,7 +57,7 @@ namespace Extension.Ext
             this.Primary = reader.GetList(title + "Primary", this.Primary);
             this.Secondary = reader.GetList(title + "Secondary", this.Secondary);
 
-            for (int i = 0; i < 128; i++)
+            for (int i = 0; i < 127; i++)
             {
                 string[] weapons = reader.GetList<string>(title + "Weapon" + (i + 1), null);
                 if (null != weapons && weapons.Length > 0)
