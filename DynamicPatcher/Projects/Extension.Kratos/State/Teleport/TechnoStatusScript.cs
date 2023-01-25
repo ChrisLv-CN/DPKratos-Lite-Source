@@ -205,7 +205,7 @@ namespace Extension.Script
                                     // 通知AE管理器进行了跳跃
                                     if(pTechno.TryGetAEManager(out AttachEffectScript aeManager))
                                     {
-                                        aeManager.OnTeleport();
+                                        aeManager.ClearLocationMark();
                                     }
                                     TeleportState.Reload();
                                     teleportStep = TeleportStep.TELEPORTED;

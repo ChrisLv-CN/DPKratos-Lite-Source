@@ -971,9 +971,9 @@ namespace Extension.Script
         }
 
         /// <summary>
-        /// 发生了传送，清理记录的位置信息
+        /// 清理记录的位置信息
         /// </summary>
-        public void OnTeleport()
+        public void ClearLocationMark()
         {
             if (null == this.locationMarks)
             {
@@ -1183,6 +1183,7 @@ namespace Extension.Script
         public override void OnRemove()
         {
             location = pOwner.Ref.Base.GetCoords();
+            ClearLocationMark();
             foreach (AttachEffect ae in AttachEffects)
             {
                 if (ae.AEData.DiscardOnEntry)
