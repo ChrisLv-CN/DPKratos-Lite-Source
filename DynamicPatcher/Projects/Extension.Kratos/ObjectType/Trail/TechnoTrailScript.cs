@@ -92,7 +92,7 @@ namespace Extension.Script
                             }
                         }
                         CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pTechno, trail.FLH, trail.IsOnTurret);
-                        trail.DrawTrail(pTechno.Ref.Owner, sourcePos);
+                        trail.DrawTrail(pTechno, pTechno.Ref.Owner, sourcePos);
                     }
                 }
                 else

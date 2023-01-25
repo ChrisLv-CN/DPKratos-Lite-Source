@@ -37,14 +37,19 @@ namespace Extension.Script
         {
             if (null != trails && !pBullet.IsDeadOrInvisible() && pBullet.Ref.Base.GetHeight() >= 0)
             {
-                Pointer<HouseClass> pHouse = pBullet.GetStatus().pSourceHouse;
-
+                Pointer<TechnoClass> pSource = IntPtr.Zero;
+                Pointer<HouseClass> pHouse = IntPtr.Zero;
+                if (pBullet.TryGetStatus(out BulletStatusScript bulletStatus))
+                {
+                    pSource = bulletStatus.pSource;
+                    pHouse = bulletStatus.pSourceHouse;
+                }
                 CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
                 DirStruct bulletFacing = pBullet.Facing(location);
                 foreach (Trail trail in trails)
                 {
                     CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(location, trail.FLH, bulletFacing);
-                    trail.DrawTrail(pHouse, sourcePos);
+                    trail.DrawTrail(pSource, pHouse, sourcePos);
                 }
             }
         }

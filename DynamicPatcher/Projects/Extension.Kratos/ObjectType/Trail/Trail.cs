@@ -118,7 +118,7 @@ namespace Extension.Ext
             return canDraw;
         }
 
-        public void DrawTrail(Pointer<HouseClass> pHouse, CoordStruct currentPos)
+        public void DrawTrail(Pointer<TechnoClass> pCreater, Pointer<HouseClass> pHouse, CoordStruct currentPos)
         {
             // Logger.Log($"{Game.CurrentFrame} - 绘制尾巴 {sourcePos} {LastLocation}, {sourcePos.DistanceFrom(LastLocation)} > {Type.Distance}, CheckV {CheckVertical(sourcePos, LastLocation)}, IsOnLand {IsOnLand(sourcePos)}");
             if (default != currentPos)
@@ -134,7 +134,7 @@ namespace Extension.Ext
                             forceDraw = false;
                             if (IsOnLand(currentPos))
                             {
-                                RealDrawTrail(currentPos, behindPos, pHouse);
+                                RealDrawTrail(currentPos, behindPos, pHouse, pCreater);
                             }
                             drivingState = DrivingState.Moving;
                         }
@@ -148,7 +148,7 @@ namespace Extension.Ext
             }
         }
 
-        private void RealDrawTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse)
+        private void RealDrawTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pCreater)
         {
             // Logger.Log("{0} - Draw the Tail {1}", Game.CurrentFrame, Type);
             switch (Type.Mode)
@@ -190,12 +190,12 @@ namespace Extension.Ext
                     BulletEffectHelper.DrawParticele(currentPos, behindPos, Type.ParticleSystem);
                     break;
                 case TrailMode.ANIM:
-                    DrawAnimTrail(currentPos, behindPos, pHouse);
+                    DrawAnimTrail(currentPos, behindPos, pHouse, pCreater);
                     break;
             }
         }
 
-        public void DrawAnimTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse)
+        public void DrawAnimTrail(CoordStruct currentPos, CoordStruct behindPos, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pCreater)
         {
             // Logger.Log("{0} - Draw the Anim Tail {1}", Game.CurrentFrame, Type);
             string[] animTypes = Type.WhileDrivingAnim;
@@ -239,6 +239,7 @@ namespace Extension.Ext
                 {
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, currentPos);
                     pAnim.Ref.Owner = pHouse;
+                    pAnim.SetCreater(pCreater);
                 }
             }
         }
