@@ -75,10 +75,11 @@ namespace Extension.Ext
             }
             else if (UseRandomOffset)
             {
-                int range = RandomOffset.GetRandomValue(0);
-                if (range > 0)
+                int min = RandomOffset.X;
+                int max = RandomOffset.Y;
+                if (max > 0)
                 {
-                    return FLHHelper.RandomOffset(0, range);
+                    return FLHHelper.RandomOffset(min, max);
                 }
             }
             return Offset;
