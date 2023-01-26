@@ -157,6 +157,10 @@ namespace Extension.Ext
         public InfoEntity Stack;
 
 
+        public InfoEntity Ammo;
+        public InfoEntity Reload;
+        public InfoEntity ROF;
+
         public InfoEntity ID;
         public InfoEntity Armor;
         public InfoEntity Mission;
@@ -174,6 +178,10 @@ namespace Extension.Ext
             this.Delay = new InfoEntity();
             this.InitDelay = new InfoEntity();
             this.Stack = new InfoEntity();
+
+            this.Ammo = new InfoEntity();
+            this.Reload = new InfoEntity();
+            this.ROF = new InfoEntity();
 
             this.ID = new InfoEntity();
             this.Armor = new InfoEntity();
@@ -209,6 +217,10 @@ namespace Extension.Ext
             this.InitDelay.Read(reader, TITLE + "InitDelay.", watch);
             this.Stack.Read(reader, TITLE + "Stack.", watch);
 
+            this.Ammo.Read(reader, TITLE + "Ammo.", watch);
+            this.Reload.Read(reader, TITLE + "Reload.", watch);
+            this.ROF.Read(reader, TITLE + "ROF.", watch);
+
             this.ID.Read(reader, TITLE + "ID.", watch);
             this.Armor.Read(reader, TITLE + "Armor.", watch);
             this.Mission.Read(reader, TITLE + "Mission.", watch);
@@ -224,6 +236,10 @@ namespace Extension.Ext
                         || Delay.Mode != InfoMode.NONE
                         || InitDelay.Mode != InfoMode.NONE
                         || Stack.Mode != InfoMode.NONE
+
+                        || Ammo.Mode != InfoMode.NONE
+                        || Reload.Mode != InfoMode.NONE
+                        || ROF.Mode != InfoMode.NONE
 
                         || ID.Mode != InfoMode.NONE
                         || Armor.Mode != InfoMode.NONE

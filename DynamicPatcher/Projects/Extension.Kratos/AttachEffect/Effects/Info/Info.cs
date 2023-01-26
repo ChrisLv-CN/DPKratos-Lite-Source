@@ -185,25 +185,99 @@ namespace Extension.Script
                 RectangleStruct bounds = Surface.Current.Ref.GetRect();
                 bounds.Height -= 34;
 
+                // 显示单位信息
+                if (!AE.AEManager.IsBullet && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    // 显示弹药
+                    if (Data.Ammo.Mode != InfoMode.NONE && (Data.Ammo.ShowEnemy || isPlayerControl) && (!Data.Ammo.OnlySelected || isSelected))
+                    {
+                        int ammo = -1;
+                        if (pTechno.Ref.Type.Ref.Ammo > 0)
+                        {
+                            ammo = pTechno.Ref.Ammo;
+                        }
+                        if (ammo > -1)
+                        {
+                            PrintInfoNumber(ammo, houseColor, pos, Data.Ammo);
+                        }
+                    }
+                    // 显示装填时间
+                    if (Data.Reload.Mode != InfoMode.NONE && (Data.Reload.ShowEnemy || isPlayerControl) && (!Data.Reload.OnlySelected || isSelected))
+                    {
+                        int delay = -1;
+                        TimerStruct timer = pTechno.Ref.ReloadTimer;
+                        if (timer.InProgress())
+                        {
+                            delay = timer.GetTimeLeft();
+                        }
+                        if (delay > -1)
+                        {
+                            PrintInfoNumber(delay, houseColor, pos, Data.Ammo);
+                        }
+                    }
+                    // 显示ROF时间
+                    if (Data.ROF.Mode != InfoMode.NONE && (Data.ROF.ShowEnemy || isPlayerControl) && (!Data.ROF.OnlySelected || isSelected))
+                    {
+                        int delay = -1;
+                        TimerStruct timer = pTechno.Ref.ROFTimer;
+                        if (timer.InProgress())
+                        {
+                            delay = timer.GetTimeLeft();
+                        }
+                        if (delay > -1)
+                        {
+                            PrintInfoNumber(delay, houseColor, pos, Data.Ammo);
+                        }
+                    }
+
+                    // 写字
+                    // 显示Armor
+                    if (Data.Armor.Mode != InfoMode.NONE && (Data.Armor.ShowEnemy || isPlayerControl) && (!Data.Armor.OnlySelected || isSelected))
+                    {
+                        Armor armor = pOwner.Ref.Type.Ref.Armor;
+                        string armorName = WarheadTypeData.GetArmorName(armor);
+                        PrintInfoText(armorName, houseColor, pos, Data.Armor);
+                    }
+                    // 显示Mission
+                    if (Data.Mission.Mode != InfoMode.NONE && (Data.Mission.ShowEnemy || isPlayerControl) && (!Data.Mission.OnlySelected || isSelected))
+                    {
+                        Mission mission = pOwner.Ref.GetCurrentMission();
+                        PrintInfoText(mission.ToString(), houseColor, pos, Data.Mission);
+                    }
+
+                    // 画线
+                    // 显示移动目标连线
+                    if (Data.Dest.Mode != InfoMode.NONE && (Data.Dest.ShowEnemy || isPlayerControl) && (!Data.Dest.OnlySelected || isSelected))
+                    {
+                        Pointer<AbstractClass> pDest = IntPtr.Zero;
+                        if (AE.AEManager.IsFoot && !(pDest = pOwner.Convert<FootClass>().Ref.Destination).IsNull)
+                        {
+                            CoordStruct targetPos = pDest.Ref.GetCoords();
+                            Surface.Current.DrawDashedLine(pos, targetPos.ToClientPos(), Data.Dest.Color, bounds, true);
+                        }
+                    }
+                    // 显示单位朝向
+                    if (Data.BodyDir.Mode != InfoMode.NONE && (Data.BodyDir.ShowEnemy || isPlayerControl) && (!Data.BodyDir.OnlySelected || isSelected))
+                    {
+                        DirStruct dir = pTechno.Ref.Facing.current();
+                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
+                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
+                    }
+                    // 显示单位炮塔朝向
+                    if (Data.TurretDir.Mode != InfoMode.NONE && (Data.TurretDir.ShowEnemy || isPlayerControl) && (!Data.TurretDir.OnlySelected || isSelected))
+                    {
+                        DirStruct dir = pTechno.Ref.TurretFacing.current();
+                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
+                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
+                    }
+                }
+
                 // 写字
                 // 显示ID
                 if (Data.ID.Mode != InfoMode.NONE && (Data.ID.ShowEnemy || isPlayerControl) && (!Data.ID.OnlySelected || isSelected))
                 {
                     string id = pOwner.Ref.Type.Ref.Base.ID;
                     PrintInfoText(id.ToString(), houseColor, pos, Data.ID);
-                }
-                // 显示Armor
-                if (Data.Armor.Mode != InfoMode.NONE && (Data.Armor.ShowEnemy || isPlayerControl) && (!Data.Armor.OnlySelected || isSelected))
-                {
-                    Armor armor = pOwner.Ref.Type.Ref.Armor;
-                    string armorName = WarheadTypeData.GetArmorName(armor);
-                    PrintInfoText(armorName, houseColor, pos, Data.Armor);
-                }
-                // 显示Mission
-                if (Data.Mission.Mode != InfoMode.NONE && (Data.Mission.ShowEnemy || isPlayerControl) && (!Data.Mission.OnlySelected || isSelected))
-                {
-                    Mission mission = pOwner.Ref.GetCurrentMission();
-                    PrintInfoText(mission.ToString(), houseColor, pos, Data.Mission);
                 }
 
                 // 画线
@@ -230,16 +304,7 @@ namespace Extension.Script
                         }
                     }
                 }
-                // 显示移动目标连线
-                if (Data.Dest.Mode != InfoMode.NONE && (Data.Dest.ShowEnemy || isPlayerControl) && (!Data.Dest.OnlySelected || isSelected))
-                {
-                    Pointer<AbstractClass> pDest = IntPtr.Zero;
-                    if (AE.AEManager.IsFoot && !(pDest = pOwner.Convert<FootClass>().Ref.Destination).IsNull)
-                    {
-                        CoordStruct targetPos = pDest.Ref.GetCoords();
-                        Surface.Current.DrawDashedLine(pos, targetPos.ToClientPos(), Data.Dest.Color, bounds, true);
-                    }
-                }
+
                 // 显示单位位置
                 if (Data.Location.Mode != InfoMode.NONE && (Data.Location.ShowEnemy || isPlayerControl) && (!Data.Location.OnlySelected || isSelected))
                 {
@@ -264,26 +329,7 @@ namespace Extension.Script
                         }
                     }
                 }
-                // 显示单位朝向
-                if (Data.BodyDir.Mode != InfoMode.NONE && (Data.BodyDir.ShowEnemy || isPlayerControl) && (!Data.BodyDir.OnlySelected || isSelected))
-                {
-                    if (!AE.AEManager.IsBullet)
-                    {
-                        DirStruct dir = pOwner.Convert<TechnoClass>().Ref.Facing.current();
-                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
-                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
-                    }
-                }
-                // 显示单位炮塔朝向
-                if (Data.TurretDir.Mode != InfoMode.NONE && (Data.TurretDir.ShowEnemy || isPlayerControl) && (!Data.TurretDir.OnlySelected || isSelected))
-                {
-                    if (!AE.AEManager.IsBullet)
-                    {
-                        DirStruct dir = pOwner.Convert<TechnoClass>().Ref.TurretFacing.current();
-                        CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, new CoordStruct(1024, 0, 0), dir);
-                        Surface.Current.DrawLine(sourcePos, targetPos, Data.BodyDir.Color, bounds);
-                    }
-                }
+
             }
         }
 

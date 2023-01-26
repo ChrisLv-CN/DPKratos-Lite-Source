@@ -29,7 +29,7 @@ namespace Extension.Script
 
         public void OnUpdate_DestroySelf()
         {
-            if (DestroySelfState.AmIDead())
+            if (DestroySelfState.AmIDead() && !pTechno.IsDead())
             {
                 // 啊我死了
                 if (DestroySelfState.Data.Peaceful)
