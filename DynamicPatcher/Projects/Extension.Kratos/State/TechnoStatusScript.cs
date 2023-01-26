@@ -415,7 +415,8 @@ namespace Extension.Script
             _passengersData = null;
             _turretAngleData = null;
             _typeData = null;
-            _unbindTurretFLHData = null;
+            _fireFLHOnBodyData = null;
+            _fireFLHOnTargetData = null;
             // 重新初始化状态机
             InitState();
         }

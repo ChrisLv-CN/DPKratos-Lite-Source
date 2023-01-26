@@ -372,10 +372,11 @@ namespace ExtensionHooks
             Pointer<TechnoClass> pTechno = (IntPtr)R->EBX;
             if (!pTechno.IsNull)
             {
-                if (pTechno.Ref.HasTurret())
+                if (pTechno.TryGetStatus(out TechnoStatusScript status))
                 {
                     int weaponIdx = R->Stack<int>(0xE0);
-                    if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.IsUnbindTurret(weaponIdx))
+                    status.FLHIndex = weaponIdx;
+                    if (pTechno.Ref.HasTurret() && status.IsFLHOnBody(weaponIdx))
                     {
                         Matrix3DStruct matrix = pTechno.GetMatrix3D();
                         // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} has turret {pTechno.Ref.HasTurret()} {weaponIdx}");
@@ -386,6 +387,18 @@ namespace ExtensionHooks
                 return 0x6F3B62;
             }
             return 0x6F3C1A;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6F3D2F, Size = 5)]
+        public static unsafe UInt32 UnitClassClass_GetFLH_OnTarget(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EBX;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.IsFLHOnTarget())
+            {
+                Pointer<CoordStruct> pRenderCoord = (IntPtr)R->EAX;
+                pRenderCoord.Data = pTechno.Ref.Target.Ref.GetCoords();
+            }
+            return 0;
         }
 
         [Hook(HookType.AresHook, Address = 0x5194EF, Size = 5)]

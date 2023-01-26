@@ -11,7 +11,7 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class UnbindTurretFLHData : INIConfig
+    public class FireFLHOnBodyData : INIConfig
     {
 
         public bool Enable;
@@ -27,7 +27,7 @@ namespace Extension.Ext
 
 
 
-        public UnbindTurretFLHData()
+        public FireFLHOnBodyData()
         {
             this.Enable = false;
 
