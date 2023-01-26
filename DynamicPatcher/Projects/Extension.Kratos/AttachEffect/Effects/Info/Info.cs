@@ -196,7 +196,7 @@ namespace Extension.Script
                         {
                             ammo = pTechno.Ref.Ammo;
                         }
-                        if (ammo > -1)
+                        if (ammo > 0)
                         {
                             PrintInfoNumber(ammo, houseColor, pos, Data.Ammo);
                         }
