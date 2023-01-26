@@ -160,19 +160,21 @@ namespace Extension.Script
                 }
                 // 计算碰撞的半径，超过1格，确定搜索范围
                 int cellSpread = (proximityData.Arm / 256) + 1;
-                // Logger.Log("Arm = {0}，确定搜索范围 {1} 格", Proximity.Data.Arm, cellSpread);
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} Proximity Arm = {proximityData.Arm}，确定搜索范围 {cellSpread} 格");
 
                 // 每个格子只检查一次
                 if (MapClass.Instance.TryGetCellAt(sourcePos, out Pointer<CellClass> pCell) && pCell != proximity.pCheckedCell)
                 {
                     proximity.pCheckedCell.Pointer = pCell;
                     CoordStruct cellPos = pCell.Ref.Base.GetCoords();
+                    CellStruct currentCell = pCell.Ref.MapCoords;
 
                     // BulletEffectHelper.GreenCell(cellPos, 128, 1, 75);
 
                     // 获取这个格子上的所有对象
-                    HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
+                    List<Pointer<TechnoClass>> pTechnoList = FinderHelper.GetCellSpreadTechnos(currentCell, sourcePos, cellSpread, proximityData.Blade, proximityData.Blade || proximityData.Arm > Game.LevelHeight, false, pSourceHouse, proximityData.AffectsOwner, proximityData.AffectsAllies, proximityData.AffectsEnemies);
 
+                    /*
                     // 搜索范围加大一格，搜索需要排除四周格子上的建筑，只获取当前格子上找到的建筑
                     // 获取范围内的所有对象，不包括飞行器
                     CellSpreadEnumerator enumerator = new CellSpreadEnumerator((uint)cellSpread);
@@ -224,9 +226,10 @@ namespace Extension.Script
                         }
                         return false;
                     });
+                    */
 
                     // 筛选并处理找到的对象
-                    foreach (Pointer<TechnoClass> pTarget in pTechnoSet)
+                    foreach (Pointer<TechnoClass> pTarget in pTechnoList)
                     {
                         if (pTarget.IsDeadOrInvisible())
                         {
@@ -265,8 +268,9 @@ namespace Extension.Script
                             // BulletEffectHelper.RedCrosshair(sourceTestPos, 128, 1, 75);
                             // BulletEffectHelper.RedCrosshair(targetTestPos, 128, 1, 75);
                             // BulletEffectHelper.BlueLine(sourceTestPos, targetTestPos, 3, 75);
-                            hit = targetTestPos.DistanceFrom(sourceTestPos) <= proximityData.Arm;
-                            // Logger.Log("目标单位坐标加上修正值{0}, 与抛射体的距离{1}，检测半径{2}", Proximity.Data.ZOffset, targetTestPos.DistanceFrom(sourceTestPos), Proximity.Data.Arm);
+                            double dist = targetTestPos.DistanceFrom(sourceTestPos);
+                            hit = dist <= proximityData.Arm;
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pBullet} 与目标[{pTarget.Ref.Type.Ref.Base.Base.ID}]{pTarget}单位坐标加上修正值{proximityData.ZOffset}, 与抛射体的距离{dist}，检测半径{proximityData.Arm}");
                         }
 
                         // 敌我识别并引爆

@@ -214,16 +214,22 @@ namespace Extension.Utilities
         }
 
         public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CoordStruct location, double spread, bool fullAirspace, bool includeInAir, bool ignoreBulidingOuter,
+                    Pointer<HouseClass> pHouse = default,
+                    bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
+        {
+            CellStruct currentCell = MapClass.Coord2Cell(location);
+            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCurretCell))
+            {
+                currentCell = pCurretCell.Ref.MapCoords;
+            }
+            return GetCellSpreadTechnos(currentCell, location, spread, fullAirspace, includeInAir, ignoreBulidingOuter, pHouse, owner, allied, enemies, civilian);
+        }
+
+        public static List<Pointer<TechnoClass>> GetCellSpreadTechnos(CellStruct current, CoordStruct location, double spread, bool fullAirspace, bool includeInAir, bool ignoreBulidingOuter,
             Pointer<HouseClass> pHouse = default,
             bool owner = true, bool allied = true, bool enemies = true, bool civilian = true)
         {
             HashSet<Pointer<TechnoClass>> pTechnoSet = new HashSet<Pointer<TechnoClass>>();
-
-            CellStruct cur = MapClass.Coord2Cell(location);
-            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCurretCell))
-            {
-                cur = pCurretCell.Ref.MapCoords;
-            }
 
             uint range = (uint)(spread + 0.99);
             CellSpreadEnumerator enumerator = new CellSpreadEnumerator(range);
@@ -231,7 +237,7 @@ namespace Extension.Utilities
             do
             {
                 CellStruct offset = enumerator.Current;
-                if (MapClass.Instance.TryGetCellAt(cur + offset, out Pointer<CellClass> pCell))
+                if (MapClass.Instance.TryGetCellAt(current + offset, out Pointer<CellClass> pCell))
                 {
                     pCell.FindTechnoInCell((pTarget) =>
                     {
