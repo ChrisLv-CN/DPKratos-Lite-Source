@@ -37,7 +37,7 @@ namespace Extension.Script
             }
         }
 
-        private bool initFlag = false;
+        private bool active = false;
 
         private TimerStruct supportFireROF;
         private int flipY = 1;
@@ -57,7 +57,7 @@ namespace Extension.Script
         public override void LoadFromStream(IStream stream)
         {
             base.LoadFromStream(stream);
-            initFlag = false;
+            active = false;
         }
 
         public override void OnPut(Pointer<CoordStruct> pLocation, ref DirType dirType)
@@ -67,11 +67,13 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
+            active = true;
             EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }
 
         public override void OnRemove()
         {
+            active = false;
             EventSystem.Techno.RemoveTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
         }
 
@@ -86,7 +88,7 @@ namespace Extension.Script
 
         public override void OnUpdate()
         {
-            if (initFlag && !pTechno.IsDeadOrInvisible())
+            if (active && !pTechno.IsDeadOrInvisible())
             {
                 Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
                 if (!pSpawnOwner.IsDeadOrInvisible())
@@ -103,7 +105,7 @@ namespace Extension.Script
         public override void OnFire(Pointer<AbstractClass> pTarget, int weaponIndex)
         {
             Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
-            if (initFlag && !pSpawnOwner.IsDeadOrInvisible())
+            if (active && !pSpawnOwner.IsDeadOrInvisible())
             {
                 if (data.Enable && !data.Always)
                 {
