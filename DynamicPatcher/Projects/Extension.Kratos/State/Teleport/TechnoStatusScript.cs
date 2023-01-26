@@ -85,15 +85,14 @@ namespace Extension.Script
                             if (default != targetPos)
                             {
                                 // 传送距离检查
-                                CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
-                                double distance = targetPos.DistanceFrom(sourcePos);
+                                double distance = targetPos.DistanceFrom(location);
                                 if (distance > teleportData.RangeMin * 256 && (teleportData.RangeMax < 0 ? true : distance < teleportData.RangeMax * 256))
                                 {
                                     // 在可以传送的范围内
                                     if (teleportData.Distance > 0 && distance > teleportData.Distance)
                                     {
                                         // 有限距离的传送，重新计算目标位置
-                                        targetPos = FLHHelper.GetForwardCoords(sourcePos, targetPos, teleportData.Distance, distance);
+                                        targetPos = FLHHelper.GetForwardCoords(location, targetPos, teleportData.Distance, distance);
                                     }
                                 }
                                 else
@@ -105,6 +104,33 @@ namespace Extension.Script
                             bool teleporting = default != targetPos;
                             if (teleporting)
                             {
+                                // 跳跃位置偏移
+                                if (default != teleportData.Offset)
+                                {
+                                    DirStruct facing = default;
+                                    if (teleportData.IsOnTarget && pTechno.Ref.Target.TryGetTechnoStatus(out TechnoStatusScript technoStatus))
+                                    {
+                                        Pointer<TechnoClass> pTargetTechno = technoStatus.pTechno;
+                                        if (technoStatus.isAircraft || (teleportData.IsOnTurret && pTargetTechno.Ref.HasTurret()))
+                                        {
+                                            facing = pTargetTechno.Ref.TurretFacing.current();
+                                        }
+                                        else if (technoStatus.isJumpjet)
+                                        {
+                                            facing = pTargetTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>().Ref.LocomotionFacing.current();
+                                        }
+                                        else
+                                        {
+                                            facing = pTargetTechno.Ref.Facing.current();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        facing = FLHHelper.Point2Dir(location, targetPos);
+                                        targetPos = FLHHelper.GetFLHAbsoluteCoords(targetPos, teleportData.Offset, facing);
+                                    }
+                                }
+                                // 检查目的地是否可以着陆
                                 if (!teleportData.Super)
                                 {
                                     if (MapClass.Instance.TryGetCellAt(targetPos, out Pointer<CellClass> pCell) && !pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true))
@@ -127,7 +153,6 @@ namespace Extension.Script
                                     if (pTechno.InAir())
                                     {
                                         // 空中跳，自定义跳
-                                        CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                                         int height = pTechno.Ref.Base.GetHeight();
                                         targetPos.Z += height;
                                         // 移动位置
@@ -150,7 +175,7 @@ namespace Extension.Script
                                         }
                                         if (!pAnimType.IsNull)
                                         {
-                                            Pointer<AnimClass> pAnimOut = YRMemory.Create<AnimClass>(pAnimType, sourcePos);
+                                            Pointer<AnimClass> pAnimOut = YRMemory.Create<AnimClass>(pAnimType, location);
                                             pAnimOut.SetAnimOwner(pTechno);
 
                                             Pointer<AnimClass> pAnimIn = YRMemory.Create<AnimClass>(pAnimType, targetPos);
@@ -160,7 +185,7 @@ namespace Extension.Script
                                         int outSound = pTechno.Ref.Type.Ref.ChronoOutSound;
                                         if (outSound >= 0 || (outSound = RulesClass.Global().ChronoOutSound) >= 0)
                                         {
-                                            VocClass.PlayAt(outSound, sourcePos);
+                                            VocClass.PlayAt(outSound, location);
                                         }
                                         int inSound = pTechno.Ref.Type.Ref.ChronoInSound;
                                         if (inSound >= 0 || (inSound = RulesClass.Global().ChronoInSound) >= 0)
@@ -168,21 +193,25 @@ namespace Extension.Script
                                             VocClass.PlayAt(inSound, targetPos);
                                         }
                                         // 传送冷冻
-                                        int delay = typeData.ChronoMinimumDelay;
-                                        if (typeData.ChronoTrigger)
+                                        // 空中无法进行冷冻，JJ和飞机依旧会乱跑
+                                        if (!isJumpjet && !isAircraft)
                                         {
-                                            // 根据传送距离计算时间
-                                            double distance = targetPos.DistanceFrom(sourcePos);
-                                            if (distance > typeData.ChronoRangeMinimum)
+                                            int delay = typeData.ChronoMinimumDelay;
+                                            if (typeData.ChronoTrigger)
                                             {
-                                                // Logger.Log($"{Game.CurrentFrame} 重算冰冻时间, dist={distance}, RangeMin={typeData.ChronoRangeMinimum}, {typeData.ChronoDistanceFactor}, {typeData.ChronoDelay}");
-                                                int factor = Math.Max(typeData.ChronoDistanceFactor, 1);
-                                                delay = (int)(distance / factor);
+                                                // 根据传送距离计算时间
+                                                double distance = targetPos.DistanceFrom(location);
+                                                if (distance > typeData.ChronoRangeMinimum)
+                                                {
+                                                    // Logger.Log($"{Game.CurrentFrame} 重算冰冻时间, dist={distance}, RangeMin={typeData.ChronoRangeMinimum}, {typeData.ChronoDistanceFactor}, {typeData.ChronoDelay}");
+                                                    int factor = Math.Max(typeData.ChronoDistanceFactor, 1);
+                                                    delay = (int)(distance / factor);
+                                                }
                                             }
+                                            pTechno.Ref.WarpingOut = true;
+                                            teleportTimer.Start(delay);
+                                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自行传送完成，计算冷却，剩余时间 {teleportTimer.GetTimeLeft()}");
                                         }
-                                        pTechno.Ref.WarpingOut = true;
-                                        teleportTimer.Start(delay);
-                                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 自行传送完成，计算冷却，剩余时间 {teleportTimer.GetTimeLeft()}");
                                     }
                                     else if (teleportData.Super)
                                     {
@@ -203,7 +232,7 @@ namespace Extension.Script
                                         // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 变成CLEG，跳到目的地，{pTechno.Ref.ChronoLockRemaining}，冰冻时间 {teleportTimer.GetTimeLeft()}");
                                     }
                                     // 通知AE管理器进行了跳跃
-                                    if(pTechno.TryGetAEManager(out AttachEffectScript aeManager))
+                                    if (pTechno.TryGetAEManager(out AttachEffectScript aeManager))
                                     {
                                         aeManager.ClearLocationMark();
                                     }
@@ -309,6 +338,11 @@ namespace Extension.Script
                 // 记录下目的地
                 pDest = pTechno.Convert<FootClass>().Ref.Destination;
                 pFocus = pTechno.Ref.Focus;
+            }
+            // 移动到自身相对位置
+            if (default != teleportData.MoveTo)
+            {
+                targetPos = pTechno.GetFLHAbsoluteCoords(teleportData.MoveTo, teleportData.IsOnTurret);
             }
             return targetPos;
         }

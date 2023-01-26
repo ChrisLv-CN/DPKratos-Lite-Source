@@ -61,6 +61,13 @@ namespace Extension.Ext
         public const string TITLE = "Teleport.";
 
         public TeleportMode Mode;
+
+        public CoordStruct Offset;
+        public bool IsOnTarget;
+
+        public CoordStruct MoveTo;
+        public bool IsOnTurret;
+
         public bool Super;
 
         public int Delay;
@@ -75,6 +82,13 @@ namespace Extension.Ext
         public TeleportData()
         {
             this.Mode = TeleportMode.NONE;
+
+            this.Offset = default;
+            this.IsOnTarget = false;
+
+            this.MoveTo = default;
+            this.IsOnTurret = false;
+
             this.Super = false;
 
             this.Delay = 0;
@@ -94,6 +108,12 @@ namespace Extension.Ext
             this.Mode = reader.Get(TITLE + "Mode", this.Mode);
             this.Enable = Mode != TeleportMode.NONE;
 
+            this.Offset = reader.Get(TITLE + "Offset", this.Offset);
+            this.IsOnTarget = reader.Get(TITLE + "IsOnTarget", this.IsOnTarget);
+
+            this.MoveTo = reader.Get(TITLE + "MoveTo", this.MoveTo);
+            this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
+            
             this.Super = reader.Get(TITLE + "Super", this.Super);
 
             this.Delay = reader.Get(TITLE + "Delay", this.Delay);

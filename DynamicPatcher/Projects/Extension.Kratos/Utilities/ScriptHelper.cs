@@ -152,13 +152,13 @@ namespace Extension.Utilities
         public static bool TryGetTechnoStatus(this Pointer<AbstractClass> pTarget, out TechnoStatusScript technoStatus)
         {
             technoStatus = null;
-            return pTarget.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out technoStatus);
+            return !pTarget.IsNull && pTarget.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out technoStatus);
         }
 
         public static bool TryGetTechnoStatus(this Pointer<ObjectClass> pObject, out TechnoStatusScript technoStatus)
         {
             technoStatus = null;
-            return pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out technoStatus);
+            return !pObject.IsNull && pObject.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out technoStatus);
         }
         #endregion
 
