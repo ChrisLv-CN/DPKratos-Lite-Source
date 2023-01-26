@@ -94,6 +94,10 @@ namespace Extension.Script
         private void ReleseGift(List<string> gifts, GiftBoxData data)
         {
             Pointer<HouseClass> pHouse = pSourceHouse;
+            if (null != GiftBoxState.AE && !GiftBoxState.AE.AEData.ReceiverOwn)
+            {
+                pHouse = GiftBoxState.AE.pSourceHouse;
+            }
             CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
             // 获取投送单位的位置
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
