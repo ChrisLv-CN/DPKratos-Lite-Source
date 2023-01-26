@@ -1,3 +1,4 @@
+using System.Drawing;
 using System;
 using DynamicPatcher;
 using PatcherYRpp;
@@ -20,6 +21,8 @@ namespace Extension.Ext
 
         public CoordStruct Offset;
         public bool UseRandomOffset;
+        public Point2D RandomOffset;
+        public bool UseRandomOffsetFLH;
         public Point2D RandomOffsetF;
         public Point2D RandomOffsetL;
         public Point2D RandomOffsetH;
@@ -34,6 +37,8 @@ namespace Extension.Ext
 
             this.Offset = default;
             this.UseRandomOffset = false;
+            this.RandomOffset = default;
+            this.UseRandomOffsetFLH = false;
             this.RandomOffsetF = default;
             this.RandomOffsetL = default;
             this.RandomOffsetH = default;
@@ -51,21 +56,30 @@ namespace Extension.Ext
             this.RandomWeights = reader.GetList(title + "RandomWeights", RandomWeights);
 
             this.Offset = reader.Get(title + "Offset", this.Offset);
-            this.RandomOffsetF = reader.Get(title + "RandomOffsetF", this.RandomOffsetF);
-            this.RandomOffsetL = reader.Get(title + "RandomOffsetL", this.RandomOffsetL);
-            this.RandomOffsetH = reader.Get(title + "RandomOffsetH", this.RandomOffsetH);
-
-            this.UseRandomOffset = default != RandomOffsetF || default != RandomOffsetL || default != RandomOffsetH;
+            this.RandomOffset = reader.GetRange(title + "RandomOffset", this.RandomOffset);
+            this.UseRandomOffset = default != RandomOffset;
+            this.RandomOffsetF = reader.GetRange(title + "RandomOffsetF", this.RandomOffsetF);
+            this.RandomOffsetL = reader.GetRange(title + "RandomOffsetL", this.RandomOffsetL);
+            this.RandomOffsetH = reader.GetRange(title + "RandomOffsetH", this.RandomOffsetH);
+            this.UseRandomOffsetFLH = default != RandomOffsetF || default != RandomOffsetL || default != RandomOffsetH;
         }
 
         public CoordStruct GetOffset()
         {
-            if (UseRandomOffset)
+            if (UseRandomOffsetFLH)
             {
                 int f = RandomOffsetF.GetRandomValue(0);
                 int l = RandomOffsetL.GetRandomValue(0);
                 int h = RandomOffsetH.GetRandomValue(0);
                 return new CoordStruct(f, l, h);
+            }
+            else if (UseRandomOffset)
+            {
+                int range = RandomOffset.GetRandomValue(0);
+                if (range > 0)
+                {
+                    return FLHHelper.RandomOffset(0, range);
+                }
             }
             return Offset;
         }

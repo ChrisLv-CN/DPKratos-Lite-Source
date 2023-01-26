@@ -89,6 +89,20 @@ namespace Extension.Utilities
             return result;
         }
 
+        public static Point2D GetRange(this ISectionReader reader, string key, Point2D defVal)
+        {
+            Point2D val = reader.Get(key, defVal);
+            int min = val.X;
+            int max = val.Y;
+            if (min > max)
+            {
+                int temp = min;
+                val.Y = max;
+                val.X = temp;
+            }
+            return val;
+        }
+
         public static double GetPercent(this ISectionReader reader, string key, double defVal, bool allowNegative = false)
         {
             double percent = defVal;
