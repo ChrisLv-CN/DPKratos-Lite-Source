@@ -118,7 +118,15 @@ namespace Extension.Script
 
         private void ReleseGift(List<string> gifts, GiftBoxData data)
         {
-            Pointer<HouseClass> pHouse = null != GiftBoxState.AE ? GiftBoxState.AE.pSourceHouse : pTechno.Ref.Owner;
+            Pointer<HouseClass> pHouse = IntPtr.Zero;
+            if (null != GiftBoxState.AE && !GiftBoxState.AE.AEData.ReceiverOwn)
+            {
+                pHouse = GiftBoxState.AE.pSourceHouse;
+            }
+            else
+            {
+                pHouse = pTechno.Ref.Owner;
+            }
             CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
             Mission curretMission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
 
