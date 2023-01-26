@@ -178,6 +178,19 @@ namespace ExtensionHooks
         }
         #endregion
 
+        // Can not shoot to water when NavalTargeting = 6
+        [Hook(HookType.AresHook, Address = 0x6FC833, Size = 7)]
+        public static unsafe UInt32 TechnoClass_NavalTargeting(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+            Pointer<CellClass> pTarget = (IntPtr)R->EAX;
+            if (pTarget.Ref.LandType == LandType.Water && pTechno.Ref.Type.Ref.NavalTargeting == 6)
+            {
+                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 检查是否可以攻击水面");
+                return 0x6FC86A;
+            }
+            return 0;
+        }
 
         [Hook(HookType.AresHook, Address = 0x6F36DB, Size = 0xA)]
         public static unsafe UInt32 TechnoClass_SelectWeapon_AntiMissile(REGISTERS* R)
