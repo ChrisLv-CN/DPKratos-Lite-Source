@@ -46,7 +46,7 @@ namespace Extension.Script
 
         public void OnGScreenRender(object sender, EventArgs args)
         {
-            if (((GScreenEventArgs)args).IsLateRender)
+            if (((GScreenEventArgs)args).IsLateRender && !pOwner.IsInvisible())
             {
                 AttachEffectScript aem = AE.AEManager;
                 Pointer<HouseClass> pHouse = AE.pSourceHouse;
