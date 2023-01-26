@@ -16,11 +16,11 @@ namespace Extension.Ext
 
         public bool Enable;
 
-        public bool PrimaryFireOnTurret;
-        public bool ElitePrimaryFireOnTurret;
+        public bool PrimaryFireOnBody;
+        public bool ElitePrimaryFireOnBody;
 
-        public bool SecondaryFireOnTurret;
-        public bool EliteSecondaryFireOnTurret;
+        public bool SecondaryFireOnBody;
+        public bool EliteSecondaryFireOnBody;
 
         public List<int> WeaponIndexs;
         public List<int> EliteWeaponIndexs;
@@ -31,11 +31,11 @@ namespace Extension.Ext
         {
             this.Enable = false;
 
-            this.PrimaryFireOnTurret = true;
-            this.ElitePrimaryFireOnTurret = true;
+            this.PrimaryFireOnBody = false;
+            this.ElitePrimaryFireOnBody = false;
 
-            this.SecondaryFireOnTurret = true;
-            this.EliteSecondaryFireOnTurret = true;
+            this.SecondaryFireOnBody = false;
+            this.EliteSecondaryFireOnBody = false;
 
             this.WeaponIndexs = null;
             this.EliteWeaponIndexs = null;
@@ -43,17 +43,17 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            this.PrimaryFireOnTurret = reader.Get("PrimaryFireOnTurret", this.PrimaryFireOnTurret);
-            this.ElitePrimaryFireOnTurret = reader.Get("ElitePrimaryFireOnTurret", this.PrimaryFireOnTurret);
+            this.PrimaryFireOnBody = reader.Get("PrimaryFireOnBody", this.PrimaryFireOnBody);
+            this.ElitePrimaryFireOnBody = reader.Get("ElitePrimaryFireOnBody", this.PrimaryFireOnBody);
 
-            this.SecondaryFireOnTurret = reader.Get("SecondaryFireOnTurret", this.SecondaryFireOnTurret);
-            this.EliteSecondaryFireOnTurret = reader.Get("EliteSecondaryFireOnTurret", this.SecondaryFireOnTurret);
+            this.SecondaryFireOnBody = reader.Get("SecondaryFireOnBody", this.SecondaryFireOnBody);
+            this.EliteSecondaryFireOnBody = reader.Get("EliteSecondaryFireOnBody", this.SecondaryFireOnBody);
 
             for (int i = 0; i < 127; i++)
             {
                 int t = i + 1;
-                bool bind = reader.Get("Weapon" + t + "OnTurret", true);
-                if (!bind)
+                bool unbind = reader.Get("Weapon" + t + "OnBody", false);
+                if (unbind)
                 {
                     if (null == WeaponIndexs)
                     {
@@ -61,8 +61,8 @@ namespace Extension.Ext
                     }
                     WeaponIndexs.Add(i);
                 }
-                bind = reader.Get("EliteWeapon" + t + "OnTurret", bind);
-                if (!bind)
+                unbind = reader.Get("EliteWeapon" + t + "OnBody", unbind);
+                if (unbind)
                 {
                     if (null == EliteWeaponIndexs)
                     {
@@ -72,7 +72,7 @@ namespace Extension.Ext
                 }
             }
 
-            this.Enable = !PrimaryFireOnTurret || !ElitePrimaryFireOnTurret || !SecondaryFireOnTurret || !EliteSecondaryFireOnTurret
+            this.Enable = PrimaryFireOnBody || ElitePrimaryFireOnBody || SecondaryFireOnBody || EliteSecondaryFireOnBody
                         || null != WeaponIndexs || null != EliteWeaponIndexs;
         }
 

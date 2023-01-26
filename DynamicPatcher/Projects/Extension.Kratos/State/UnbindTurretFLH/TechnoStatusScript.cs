@@ -53,17 +53,17 @@ namespace Extension.Script
                 {
                     if (isElite)
                     {
-                        return !unbindTurretFLHData.ElitePrimaryFireOnTurret;
+                        return unbindTurretFLHData.ElitePrimaryFireOnBody;
                     }
-                    return !unbindTurretFLHData.PrimaryFireOnTurret;
+                    return unbindTurretFLHData.PrimaryFireOnBody;
                 }
                 else if (weaponIdx == 1)
                 {
                     if (isElite)
                     {
-                        return !unbindTurretFLHData.EliteSecondaryFireOnTurret;
+                        return unbindTurretFLHData.EliteSecondaryFireOnBody;
                     }
-                    return !unbindTurretFLHData.SecondaryFireOnTurret;
+                    return unbindTurretFLHData.SecondaryFireOnBody;
                 }
             }
             return false;
