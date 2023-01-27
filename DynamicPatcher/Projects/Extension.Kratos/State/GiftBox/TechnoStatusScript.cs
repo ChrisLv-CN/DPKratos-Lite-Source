@@ -32,7 +32,17 @@ namespace Extension.Script
             if (GiftBoxState.IsActive())
             {
                 // 记录盒子的状态
-                GiftBoxState.SaveStatue(pTechno);
+                GiftBoxState.IsSelected = pTechno.Ref.Base.IsSelected;
+                GiftBoxState.Group = pTechno.Ref.Group;
+                // 记录朝向
+                GiftBoxState.BodyDir = pTechno.Ref.Facing.current();
+                GiftBoxState.TurretDir = pTechno.Ref.TurretFacing.current();
+                // JJ有单独的Facing
+                if (isJumpjet)
+                {
+                    GiftBoxState.BodyDir = pTechno.Convert<FootClass>().Ref.Locomotor.ToLocomotionClass<JumpjetLocomotionClass>().Ref.LocomotionFacing.current();
+                    GiftBoxState.TurretDir = GiftBoxState.BodyDir;
+                }
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
                 if (GiftBoxState.CanOpen() && IsOnMark() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
                 {
@@ -175,33 +185,16 @@ namespace Extension.Script
                         if (data.IsTransform)
                         {
                             // 同步朝向
-                            if (pGift.CastIf(AbstractType.Aircraft, out Pointer<AircraftClass> pPlane))
+                            pGift.Ref.Facing.set(GiftBoxState.BodyDir);
+                            pGift.Ref.TurretFacing.set(GiftBoxState.TurretDir);
+                            // JJ朝向是单独的Facing
+                            if (pGift.CastToFoot(out Pointer<FootClass> pFoot))
                             {
-                                // 飞机朝向使用炮塔朝向
-                                pGift.Ref.GetRealFacing().set(GiftBoxState.BodyDir);
-                            }
-                            else if (pGift.CastToFoot(out Pointer<FootClass> pFoot))
-                            {
-                                pGift.Ref.Facing.set(GiftBoxState.BodyDir);
-                                if (pGift.Ref.HasTurret())
-                                {
-                                    pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
-                                }
-
                                 ILocomotion loco = pFoot.Ref.Locomotor;
                                 if (loco.ToLocomotionClass().Ref.GetClassID() == LocomotionClass.Jumpjet)
                                 {
-                                    // JJ朝向是单独的Facing
                                     Pointer<JumpjetLocomotionClass> pLoco = loco.ToLocomotionClass<JumpjetLocomotionClass>();
                                     pLoco.Ref.LocomotionFacing.set(GiftBoxState.BodyDir);
-                                }
-                            }
-                            else
-                            {
-                                pGift.Ref.Facing.set(GiftBoxState.BodyDir);
-                                if (pGift.Ref.HasTurret())
-                                {
-                                    pGift.Ref.TurretFacing.set(GiftBoxState.BodyDir);
                                 }
                             }
                             // 同步小队

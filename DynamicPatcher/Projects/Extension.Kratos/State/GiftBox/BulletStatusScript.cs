@@ -37,8 +37,9 @@ namespace Extension.Script
             }
             if (GiftBoxState.IsActive())
             {
-                // 子弹的方向
+                // 记录盒子的状态
                 GiftBoxState.BodyDir = pBullet.Facing();
+                GiftBoxState.TurretDir = GiftBoxState.BodyDir;
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 成为盒子，准备开盒");
                 if (GiftBoxState.CanOpen() && IsOnMark() && !GiftBoxState.Data.OpenWhenDestroyed && !GiftBoxState.Data.OpenWhenHealthPercent)
                 {
