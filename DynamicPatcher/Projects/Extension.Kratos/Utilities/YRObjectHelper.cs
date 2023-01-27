@@ -100,6 +100,15 @@ namespace Extension.Utilities
             return defVal;
         }
 
+        public static bool InFog(this CoordStruct location)
+        {
+            if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+            {
+                return pCell.Ref.Flags.HasFlag(CellFlags.Revealed);
+            }
+            return false;
+        }
+
     }
 
 }

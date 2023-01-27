@@ -35,33 +35,11 @@ namespace Extension.Ext
             this.Data = data;
         }
 
-        public bool CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound)
+        public bool CanPrintAndGetPos(RectangleStruct bound, out Point2D pos)
         {
-            offset = this.Offset;
-            pos = default;
-            bound = default;
-            if (LifeTimer.InProgress() && !LocationOutOfViewOrHiddenInFog(out pos, out bound))
-            {
-                return true;
-            }
-            return false;
-        }
-
-        public bool LocationOutOfViewOrHiddenInFog(out Point2D pos, out RectangleStruct bound)
-        {
-            // 视野外
-            pos = TacticalClass.Instance.Ref.CoordsToClient(Location);
-            bound = Surface.Composite.Ref.GetRect();
-            if (pos.X < 0 || pos.Y < 0 || pos.X > bound.Width || pos.Y > bound.Height - 32)
-            {
-                return true;
-            }
-            // 迷雾下
-            if (MapClass.Instance.TryGetCellAt(Location, out Pointer<CellClass> pCell))
-            {
-                return !pCell.Ref.Flags.HasFlag(CellFlags.Revealed);
-            }
-            return false;
+            pos = Location.ToClientPos();
+            // 视野外且不在迷雾下
+            return LifeTimer.InProgress() && pos.InRect(bound) && !Location.InFog();
         }
     }
 

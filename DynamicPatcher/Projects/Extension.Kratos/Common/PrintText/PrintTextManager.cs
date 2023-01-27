@@ -43,64 +43,99 @@ namespace Extension.Ext
             rollingTextQueue.Clear();
         }
 
+        /// <summary>
+        /// 下订单打印向上卷动字符
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="location"></param>
+        /// <param name="offset"></param>
+        /// <param name="rollSpeed"></param>
+        /// <param name="duration"></param>
+        /// <param name="data"></param>
         public static void RollingText(string text, CoordStruct location, Point2D offset, int rollSpeed, int duration, PrintTextData data)
         {
             RollingText rollingText = new RollingText(text, location, offset, rollSpeed, duration, data);
             PrintTextManager.rollingTextQueue.Enqueue(rollingText);
         }
 
-        public static void PrintText(object sender, EventArgs args)
+        public static void PrintRollingText(object sender, EventArgs args)
         {
             if (((GScreenEventArgs)args).IsLateRender)
             {
+                Pointer<Surface> pSurface = Surface.Current;
+                RectangleStruct bound = pSurface.Ref.GetRect();
+                bound.Height -= 34;
                 // 打印滚动文字
                 for (int i = 0; i < rollingTextQueue.Count; i++)
                 {
                     RollingText rollingText = rollingTextQueue.Dequeue();
-                    // 检查存活然后渲染
-                    if (rollingText.CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound))
+                    // 检查存活以及是否在视野内且没有被黑幕遮挡，然后渲染
+                    if (rollingText.CanPrintAndGetPos(bound, out Point2D pos))
                     {
                         // 获得锚点位置
-                        Point2D pos2 = pos + offset;
-                        Print(rollingText.Text, default, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), Surface.Current, false);
+                        Point2D pos2 = pos + rollingText.Offset;
+                        Print(rollingText.Text, default, rollingText.Data, pos2, Pointer<RectangleStruct>.AsPointer(ref bound), pSurface, false);
                         rollingTextQueue.Enqueue(rollingText);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// 在指定位置打印一个数字
+        /// </summary>
+        /// <param name="number"></param>
+        /// <param name="houseColor"></param>
+        /// <param name="data"></param>
+        /// <param name="pos"></param>
+        /// <param name="isBuilding"></param>
         public static void Print(int number, ColorStruct houseColor, PrintTextData data, Point2D pos, bool isBuilding = false)
         {
             Pointer<Surface> pSurface = Surface.Current;
             RectangleStruct rect = pSurface.Ref.GetRect();
             rect.Height -= 34;
-            if (data.UseSHP && data.SHPDrawStyle == SHPDrawStyle.PROGRESS)
+            if (pos.InRect(rect))
             {
-                string file = data.SHPFileName;
-                int idx = data.ZeroFrameIndex + number / data.Wrap;
-                if (data.MaxFrameIndex >= 0)
+                if (data.UseSHP && data.SHPDrawStyle == SHPDrawStyle.PROGRESS)
                 {
-                    idx = Math.Min(data.MaxFrameIndex, idx);
+                    string file = data.SHPFileName;
+                    int idx = data.ZeroFrameIndex + number / data.Wrap;
+                    if (data.MaxFrameIndex >= 0)
+                    {
+                        idx = Math.Min(data.MaxFrameIndex, idx);
+                    }
+                    if (!file.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
+                    {
+                        // Logger.Log($"{Game.CurrentFrame} - {data.ZeroFrameIndex} + {number} / {data.Wrap} 使用自定义SHP {file}, {idx}帧, 位置{pos}");
+                        // 显示对应的帧
+                        pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, rect.GetThisPointer());
+                    }
                 }
-                if (!file.IsNullOrEmptyOrNone() && FileSystem.TyrLoadSHPFile(file, out Pointer<SHPStruct> pCustomSHP))
+                else
                 {
-                    // Logger.Log($"{Game.CurrentFrame} - {data.ZeroFrameIndex} + {number} / {data.Wrap} 使用自定义SHP {file}, {idx}帧, 位置{pos}");
-                    // 显示对应的帧
-                    pSurface.Ref.DrawSHP(FileSystem.PALETTE_PAL, pCustomSHP, idx, pos, rect.GetThisPointer());
+                    // Logger.Log($"{Game.CurrentFrame} 渲染数字 {number}, 位置{pos}");
+                    Print(number.ToString(), houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
                 }
-            }
-            else
-            {
-                // Logger.Log($"{Game.CurrentFrame} 渲染数字 {number}, 位置{pos}");
-                Print(number.ToString(), houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
             }
         }
 
+        /// <summary>
+        /// 在指定位置打印一个文字
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="houseColor"></param>
+        /// <param name="data"></param>
+        /// <param name="pos"></param>
+        /// <param name="isBuilding"></param>
         public static void PrintOnlyText(string text, ColorStruct houseColor, PrintTextData data, Point2D pos, bool isBuilding = false)
         {
             Pointer<Surface> pSurface = Surface.Current;
             RectangleStruct rect = pSurface.Ref.GetRect();
-            Print(text, houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
+            rect.Height -= 34;
+            if (pos.InRect(rect))
+            {
+                Print(text, houseColor, data, pos, rect.GetThisPointer(), pSurface, isBuilding);
+            }
         }
 
         public static void Print(string text, ColorStruct houseColor, PrintTextData data, Point2D pos, Pointer<RectangleStruct> pBound, Pointer<Surface> pSurface, bool isBuilding)

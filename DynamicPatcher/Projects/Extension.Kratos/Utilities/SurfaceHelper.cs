@@ -81,10 +81,8 @@ namespace Extension.Utilities
                 bound = surface.Ref.GetRect();
             }
             Surface.ClipLine(ref point1, ref point2, bound);
-            bool point1InRect = point1.X >= bound.X && point1.X <= bound.X + bound.Width && point1.Y >= bound.Y && point1.Y <= bound.Y + bound.Height;
-            bool point2InRect = point2.X >= bound.X && point2.X <= bound.X + bound.Width && point2.Y >= bound.Y && point2.Y <= bound.Y + bound.Height;
             // point in rect then draw
-            if (point1InRect && point2InRect)
+            if (point1.InRect(bound) && point2.InRect(bound))
             {
                 int offset = 0;
                 if (blink)
@@ -122,16 +120,18 @@ namespace Extension.Utilities
                 bound = surface.Ref.GetRect();
             }
             Surface.ClipLine(ref point1, ref point2, bound);
-            bool point1InRect = point1.X >= bound.X && point1.X <= bound.X + bound.Width && point1.Y >= bound.Y && point1.Y <= bound.Y + bound.Height;
-            bool point2InRect = point2.X >= bound.X && point2.X <= bound.X + bound.Width && point2.Y >= bound.Y && point2.Y <= bound.Y + bound.Height;
             // point in rect then draw
-            if (point1InRect && point2InRect)
+            if (point1.InRect(bound) && point2.InRect(bound))
             {
                 return surface.Ref.DrawLine(point1, point2, dwColor);
             }
             return false;
         }
 
+        public static bool InRect(this Point2D point, RectangleStruct bound)
+        {
+            return point.X >= bound.X && point.X <= bound.X + bound.Width && point.Y >= bound.Y && point.Y <= bound.Y + bound.Height;
+        }
 
     }
 

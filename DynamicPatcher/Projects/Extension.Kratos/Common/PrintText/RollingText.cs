@@ -25,9 +25,9 @@ namespace Extension.Ext
             this.Data = data;
         }
 
-        public new bool CanPrint(out Point2D offset, out Point2D pos, out RectangleStruct bound)
+        public new bool CanPrintAndGetPos(RectangleStruct bound, out Point2D pos)
         {
-            if (base.CanPrint(out offset, out pos, out bound))
+            if (base.CanPrintAndGetPos(bound, out pos))
             {
                 this.Offset -= new Point2D(0, RollSpeed);
                 return true;

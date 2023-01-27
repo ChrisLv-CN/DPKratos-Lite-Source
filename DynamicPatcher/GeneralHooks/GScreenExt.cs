@@ -15,7 +15,7 @@ namespace ExtensionHooks
             EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, Kratos.SendActiveMessage);
             EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.SidebarRenderEvent, Kratos.DrawVersionText);
 
-            EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, PrintTextManager.PrintText);
+            EventSystem.GScreen.AddPermanentHandler(EventSystem.GScreen.GScreenRenderEvent, PrintTextManager.PrintRollingText);
         }
 
         [Hook(HookType.AresHook, Address = 0x4F4497, Size = 6)] // GScreenClass_Render
