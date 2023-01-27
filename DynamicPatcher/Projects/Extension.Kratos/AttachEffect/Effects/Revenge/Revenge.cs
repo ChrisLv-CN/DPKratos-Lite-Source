@@ -114,7 +114,7 @@ namespace Extension.Script
                                 {
                                     if (!weaponId.IsNullOrEmptyOrNone())
                                     {
-                                        attachFire.FireCustomWeapon(pRevenger, pRevengeTargetTechno.Convert<AbstractClass>(), pRevengerHouse, weaponId, Data.FireFLH);
+                                        attachFire.FireCustomWeapon(pRevenger, pRevengeTargetTechno.Convert<AbstractClass>(), pRevengerHouse, weaponId, Data.FireFLH, Data.IsOnTarget);
                                     }
                                 }
                             }

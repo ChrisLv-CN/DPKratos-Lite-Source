@@ -50,6 +50,69 @@ namespace ExtensionHooks
             return 0;
         }
 
+        // [Hook(HookType.AresHook, Address = 0x6B743E, Size = 6)]
+        public static unsafe UInt32 SpawnManagerClass_AI_PutSpawns(REGISTERS* R)
+        {
+            Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            int weaponIdx = (int)R->EBP;
+            if (weaponIdx > 0)
+            {
+                // wwsb 主武器没有Spawner，所以用副武器，继续检查其他武器
+                // 检查副武器有没有Spawner
+                Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIdx);
+                bool spawner = false;
+                if (!pWeapon.IsNull && !pWeapon.Ref.WeaponType.IsNull)
+                {
+                    spawner = pWeapon.Ref.WeaponType.Ref.Spawner;
+                }
+                if (!spawner)
+                {
+                    // 副武器上也没有Spawner，继续找盖特武器其他的武器
+                    int weaponCount = pTechno.Ref.Type.Ref.WeaponCount;
+                    if (weaponCount > 2)
+                    {
+                        for (int i = 2; i < weaponCount; i++)
+                        {
+                            pWeapon = pTechno.Ref.GetWeapon(i);
+                            Pointer<WeaponTypeClass> pWeaponType = IntPtr.Zero;
+                            if (!pWeapon.IsNull && !(pWeaponType = pWeapon.Ref.WeaponType).IsNull && pWeaponType.Ref.Spawner)
+                            {
+                                // 找到一个子机发射器
+                                spawner = true;
+                                weaponIdx = i;
+                                // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Weapon {i} / {weaponCount} = [{pWeapon.Ref.WeaponType.Ref.Base.ID}]");
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (spawner)
+                {
+                    // 找到另外的子机发射器，设置Index
+                    R->EBP = (uint)weaponIdx;
+                }
+                else if (pTechno.TryGetComponent(out AttachFireScript fireScript) && default != fireScript.ExtraSpawnerFLH)
+                {
+                    // 副武器和盖特武器上都没有子机发射器，检查子机是否由ExtraFire或者AutoWeapon发射
+                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 所有武器均不是子机发射器，查找ExtraFire或者AutoWeapon获取FLH");
+                    Pointer<CoordStruct> eax = (IntPtr)R->EAX;
+                    eax.Data = fireScript.ExtraSpawnerFLH;
+                    return 0x6B7498;
+                }
+            }
+            return 0;
+        }
+
+        // [Hook(HookType.AresHook, Address = 0x6B749A, Size = 6)]
+        // public static unsafe UInt32 SpawnManagerClass_AI_PutSpawns_FLH(REGISTERS* R)
+        // {
+        //     Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+        //     Pointer<TechnoClass> pTechno = pManager.Ref.Owner;
+        //     Pointer<CoordStruct> pCoord = (IntPtr)R->EAX;
+        //     Logger.Log($"{Game.CurrentFrame} -  [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} Put on {pCoord} {pCoord.Ref}");
+        //     return 0;
+        // }
+
         // [Hook(HookType.AresHook, Address = 0x6B7BB0, Size = 6)]
         // public static unsafe UInt32 SpawnManagerClass_Kamikaze_AI(REGISTERS* R)
         // {

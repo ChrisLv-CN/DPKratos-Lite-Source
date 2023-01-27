@@ -19,12 +19,19 @@ namespace Extension.Ext
         public CoordStruct SecondaryFLH;
         public Dictionary<int, CoordStruct> WeaponXFLH;
 
+        public bool PrimaryOnTarget;
+        public bool SecondaryOnTarget;
+        public List<int> WeaponIndexs;
 
         public ExtraFireFLH()
         {
             this.PrimaryFLH = default;
             this.SecondaryFLH = default;
             this.WeaponXFLH = null;
+
+            this.PrimaryOnTarget = false;
+            this.SecondaryOnTarget = false;
+            this.WeaponIndexs = null;
         }
 
         public ExtraFireFLH Clone()
@@ -33,6 +40,10 @@ namespace Extension.Ext
             data.PrimaryFLH = this.PrimaryFLH;
             data.SecondaryFLH = this.SecondaryFLH;
             data.WeaponXFLH = null != this.WeaponXFLH ? new Dictionary<int, CoordStruct>(this.WeaponXFLH) : null;
+
+            data.PrimaryOnTarget = this.PrimaryOnTarget;
+            data.SecondaryOnTarget = this.SecondaryOnTarget;
+            data.WeaponIndexs = null != this.WeaponIndexs ? new List<int>(this.WeaponIndexs) : null;
             return data;
         }
 
@@ -41,9 +52,13 @@ namespace Extension.Ext
             this.PrimaryFLH = reader.Get(title + "PrimaryFLH", this.PrimaryFLH);
             this.SecondaryFLH = reader.Get(title + "SecondaryFLH", this.SecondaryFLH);
 
+            this.PrimaryOnTarget = reader.Get(title + "PrimaryOnTarget", this.PrimaryOnTarget);
+            this.SecondaryOnTarget = reader.Get(title + "SecondaryOnTarget", this.SecondaryOnTarget);
+
             for (int i = 0; i < 127; i++)
             {
-                CoordStruct weaponFLH = reader.Get<CoordStruct>(title + "Weapon" + (i + 1) + "FLH", default);
+                int idx = i + 1;
+                CoordStruct weaponFLH = reader.Get<CoordStruct>(title + "Weapon" + idx + "FLH", default);
                 if (default != weaponFLH)
                 {
                     if (null == this.WeaponXFLH)
@@ -58,6 +73,15 @@ namespace Extension.Ext
                     {
                         this.WeaponXFLH.Add(i, weaponFLH);
                     }
+                }
+                bool onTarget = reader.Get(title + "Weapon" + idx + "OnTarget", false);
+                if (onTarget)
+                {
+                    if (null == this.WeaponIndexs)
+                    {
+                        this.WeaponIndexs = new List<int>();
+                    }
+                    this.WeaponIndexs.Add(i);
                 }
             }
 

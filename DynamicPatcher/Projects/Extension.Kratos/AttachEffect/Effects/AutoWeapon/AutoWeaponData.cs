@@ -90,6 +90,7 @@ namespace Extension.Ext
 
         public bool FireOnce; // 发射后销毁
         public bool FireToTarget; // 朝附加对象的目标开火，如果附加的对象没有目标，不开火
+        public bool IsOnTarget; // 相对目标
         public bool IsOnTurret; // 相对炮塔或者身体
         public bool IsOnWorld; // 相对世界
 
@@ -106,6 +107,7 @@ namespace Extension.Ext
 
             this.FireOnce = false;
             this.FireToTarget = false;
+            this.IsOnTarget = false;
             this.IsOnTurret = true;
             this.IsOnWorld = false;
 
@@ -142,6 +144,7 @@ namespace Extension.Ext
 
             this.FireOnce = reader.Get(TITLE + "FireOnce", this.FireOnce);
             this.FireToTarget = reader.Get(TITLE + "FireToTarget", this.FireToTarget);
+            this.IsOnTarget = reader.Get(TITLE + "IsOnTarget", this.IsOnTarget);
             this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
             this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.IsOnWorld);
 

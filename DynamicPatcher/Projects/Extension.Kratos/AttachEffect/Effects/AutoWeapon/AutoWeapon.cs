@@ -150,13 +150,8 @@ namespace Extension.Script
 
                     if (needFakeTarget && !pReceiverHouse.IsNull)
                     {
-                        // 准备发射，获取发射位置
-                        GetFireLocation(pShooterTechno, fireFLH, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
-                        if (default != fakeTargetPos)
-                        {
-                            // 需要创建假目标
-                            pTarget = MakeFakeTarget(pReceiverHouse, fakeTargetPos);
-                        }
+                        // 需要创建假目标
+                        pTarget = MakeFakeTarget(pReceiverHouse, pShooter, fireFLH, targetFLH);
                     }
                     if (!pTarget.IsNull)
                     {
@@ -176,8 +171,6 @@ namespace Extension.Script
             {
                 // 发射自定义的武器
                 // Logger.Log($"{Game.CurrentFrame} - [{pOwner.Ref.Type.Ref.Base.ID}]{pOwner} ({(isDead ? "Dead" : "Alive")}) 准备发射自动武器 [{string.Join(",", weaponTypes)}]");
-                // 准备发射，获取发射位置
-                GetFireLocation(pShooter, fireFLH, pTarget, targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos);
                 // 随机发射武器
                 if (randomNum > 0)
                 {
@@ -211,10 +204,10 @@ namespace Extension.Script
                             {
                                 // 可以发射
                                 FireBulletToTarget callback = null;
-                                if (needFakeTarget && !pReceiverHouse.IsNull && default != fakeTargetPos)
+                                if (needFakeTarget && !pReceiverHouse.IsNull)
                                 {
                                     // 需要创建假目标
-                                    pTarget = MakeFakeTarget(pReceiverHouse, fakeTargetPos);
+                                    pTarget = MakeFakeTarget(pReceiverHouse, pShooter, fireFLH, targetFLH);
                                     callback = FireBulletToTargetCallback;
                                 }
                                 if (!pTarget.IsNull)
@@ -224,7 +217,7 @@ namespace Extension.Script
                                     AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
                                     if (null != attachFire)
                                     {
-                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, callback);
+                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, Data.IsOnTarget, callback);
                                     }
                                     weaponLaunch = true;
                                     // 进入冷却
@@ -361,54 +354,46 @@ namespace Extension.Script
             return false;
         }
 
-        private void GetFireLocation(Pointer<ObjectClass> pShooter, CoordStruct fireFLH, Pointer<AbstractClass> pTarget, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
-        {
-            forceFirePos = default;
-            fakeTargetPos = default;
+        // private void GetFireLocation(Pointer<ObjectClass> pShooter, CoordStruct fireFLH, Pointer<AbstractClass> pTarget, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
+        // {
+        //     forceFirePos = default;
+        //     fakeTargetPos = default;
 
-            if (pShooter.CastToTechno(out Pointer<TechnoClass> pTechno))
-            {
-                // 武器从单位身上射出，按照单位获取开火坐标
-                GetFireLocation(pTechno, fireFLH, targetFLH, out forceFirePos, out fakeTargetPos);
-            }
-            else if (pShooter.CastToBullet(out Pointer<BulletClass> pBullet))
-            {
-                // 武器从抛射体上射出，按照抛射体速度朝向获取开火坐标
-                CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
-                DirStruct bulletDir = new DirStruct();
-                if (!Data.IsOnWorld)
-                {
-                    bulletDir = FLHHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
-                }
-                // 增加抛射体偏移值取下一帧所在实际位置
-                sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
-                forceFirePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
-                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
-            }
-        }
+        //     if (pShooter.CastToTechno(out Pointer<TechnoClass> pTechno))
+        //     {
+        //         // 武器从单位身上射出，按照单位获取开火坐标
+        //         GetFireLocation(pTechno, fireFLH, targetFLH, out forceFirePos, out fakeTargetPos);
+        //     }
+        //     else if (pShooter.CastToBullet(out Pointer<BulletClass> pBullet))
+        //     {
+        //         // 武器从抛射体上射出，按照抛射体速度朝向获取开火坐标
+        //         CoordStruct sourcePos = pBullet.Ref.Base.Base.GetCoords();
+        //         DirStruct bulletDir = new DirStruct();
+        //         if (!Data.IsOnWorld)
+        //         {
+        //             bulletDir = FLHHelper.Point2Dir(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords);
+        //         }
+        //         // 增加抛射体偏移值取下一帧所在实际位置
+        //         sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
+        //         forceFirePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, bulletDir);
+        //         fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, bulletDir);
+        //     }
+        // }
 
-        private void GetFireLocation(Pointer<TechnoClass> pShooter, CoordStruct fireFLH, CoordStruct targetFLH, out CoordStruct forceFirePos, out CoordStruct fakeTargetPos)
+        private Pointer<AbstractClass> MakeFakeTarget(Pointer<HouseClass> pHouse, Pointer<ObjectClass> pShooter, CoordStruct fireFLH, CoordStruct targetFLH)
         {
-            forceFirePos = default;
-            fakeTargetPos = default;
-            // 武器的攻击者和发射者可能不是同一个人，以发射者计算开火坐标和目标坐标
+            CoordStruct targetPos = default;
+            // 确定假想敌的位置
             if (Data.IsOnWorld)
             {
-                CoordStruct sourcePos = pShooter.Ref.Base.Base.GetCoords();
-                // 绑定世界坐标
-                DirStruct dir = new DirStruct();
-                forceFirePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, fireFLH, dir);
-                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, targetFLH, dir);
+                // 绑定世界坐标，以射手为参考移动位置
+                targetPos = FLHHelper.GetFLHAbsoluteCoords(pShooter.Ref.Base.GetCoords(), targetFLH, default);
             }
             else
             {
-                // 绑定单位身上或炮塔
-                fakeTargetPos = FLHHelper.GetFLHAbsoluteCoords(pShooter, targetFLH, Data.IsOnTurret);
+                // 以射手为参考获取相对位置
+                targetPos = pShooter.GetFLHAbsoluteCoords(targetFLH, Data.IsOnTurret);
             }
-        }
-
-        private Pointer<AbstractClass> MakeFakeTarget(Pointer<HouseClass> pHouse, CoordStruct targetPos)
-        {
             // 创建假想敌
             Pointer<OverlayTypeClass> pOverlayType = OverlayTypeClass.ABSTRACTTYPE_ARRAY.Array[0];
             if (!pOverlayType.IsNull)

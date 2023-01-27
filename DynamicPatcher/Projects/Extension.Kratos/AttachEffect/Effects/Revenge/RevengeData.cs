@@ -40,6 +40,7 @@ namespace Extension.Ext
         public string[] AttachEffects;
         public double[] AttachChances;
         public CoordStruct FireFLH;
+        public bool IsOnTarget;
         public bool Realtime;
         public bool FromSource;
         public bool ToSource;
@@ -64,6 +65,7 @@ namespace Extension.Ext
             this.AttachEffects = null;
             this.AttachChances = null;
             this.FireFLH = default;
+            this.IsOnTarget = false;
             this.Realtime = false;
             this.FromSource = false;
             this.ToSource = false;
@@ -90,6 +92,7 @@ namespace Extension.Ext
                 this.Enable = AffectTechno;
             }
             this.FireFLH = reader.Get(TITLE + "FireFLH", this.FireFLH);
+            this.IsOnTarget = reader.Get(TITLE + "IsOnTarget", this.IsOnTarget);
             this.Realtime = reader.Get(TITLE + "Realtime", this.Realtime);
             this.FromSource = reader.Get(TITLE + "FromSource", this.FromSource);
             this.ToSource = reader.Get(TITLE + "ToSource", this.ToSource);
