@@ -188,6 +188,15 @@ namespace Extension.Script
                 // 显示单位信息
                 if (!AE.AEManager.IsBullet && pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
+                    // 显示血量
+                    if (Data.Health.Mode != InfoMode.NONE && (Data.Health.ShowEnemy || isPlayerControl) && (!Data.Health.OnlySelected || isSelected))
+                    {
+                        int health = -1;
+                        if ((health = pTechno.Ref.Base.Health) > 0)
+                        {
+                            PrintInfoNumber(health, houseColor, pos, Data.Health);
+                        }
+                    }
                     // 显示弹药
                     if (Data.Ammo.Mode != InfoMode.NONE && (Data.Ammo.ShowEnemy || isPlayerControl) && (!Data.Ammo.OnlySelected || isSelected))
                     {

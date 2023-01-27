@@ -156,7 +156,7 @@ namespace Extension.Ext
         public InfoEntity InitDelay;
         public InfoEntity Stack;
 
-
+        public InfoEntity Health;
         public InfoEntity Ammo;
         public InfoEntity Reload;
         public InfoEntity ROF;
@@ -179,6 +179,7 @@ namespace Extension.Ext
             this.InitDelay = new InfoEntity();
             this.Stack = new InfoEntity();
 
+            this.Health = new InfoEntity();
             this.Ammo = new InfoEntity();
             this.Reload = new InfoEntity();
             this.ROF = new InfoEntity();
@@ -217,6 +218,7 @@ namespace Extension.Ext
             this.InitDelay.Read(reader, TITLE + "InitDelay.", watch);
             this.Stack.Read(reader, TITLE + "Stack.", watch);
 
+            this.Health.Read(reader, TITLE + "Health.", watch);
             this.Ammo.Read(reader, TITLE + "Ammo.", watch);
             this.Reload.Read(reader, TITLE + "Reload.", watch);
             this.ROF.Read(reader, TITLE + "ROF.", watch);
@@ -237,6 +239,7 @@ namespace Extension.Ext
                         || InitDelay.Mode != InfoMode.NONE
                         || Stack.Mode != InfoMode.NONE
 
+                        || Health.Mode != InfoMode.NONE
                         || Ammo.Mode != InfoMode.NONE
                         || Reload.Mode != InfoMode.NONE
                         || ROF.Mode != InfoMode.NONE
