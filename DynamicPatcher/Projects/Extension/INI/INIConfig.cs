@@ -25,7 +25,9 @@ namespace Extension.INI
     {
         string Section { get; }
         T Get<T>(string key, T def = default, IParser<T> parser = null);
+        bool TryGet<T>(string key, out T value, IParser<T> parser = null);
         T[] GetList<T>(string key, T[] def = default, IParser<T> parser = null);
+        bool TryGetList<T>(string key, out T[] value, IParser<T> parser = null);
     }
 
     public interface IConfigReader : INonaggressiveReader, ISectionReader

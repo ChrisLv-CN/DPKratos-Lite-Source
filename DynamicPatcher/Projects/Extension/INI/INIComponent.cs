@@ -59,6 +59,11 @@ namespace Extension.INI
             return GetReader().Get(key, def, parser);
         }
 
+        public bool TryGet<T>(string key, out T val, IParser<T> parser = null)
+        {
+            return GetReader().TryGet(key, out val, parser);
+        }
+
         /// <summary>
         /// get key values from ini
         /// </summary>
@@ -69,6 +74,11 @@ namespace Extension.INI
         public T[] GetList<T>(string key, T[] def = default, IParser<T> parser = null)
         {
             return GetReader().GetList(key, def, parser);
+        }
+
+        public bool TryGetList<T>(string key, out T[] val, IParser<T> parser = null)
+        {
+            return GetReader().TryGetList(key, out val, parser);
         }
 
         protected INIBufferReader GetReader()

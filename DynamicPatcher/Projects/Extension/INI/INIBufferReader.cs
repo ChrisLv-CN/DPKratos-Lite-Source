@@ -46,6 +46,11 @@ namespace Extension.INI
             return def;
         }
 
+        public bool TryGet<T>(string key, out T val, IParser<T> parser = null)
+        {
+            return GetBuffer().GetParsed(key, out val, parser ?? Parsers.GetParser<T>());
+        }
+
         /// <summary>
         /// get key values from ini
         /// </summary>
@@ -62,6 +67,11 @@ namespace Extension.INI
             }
 
             return def;
+        }
+
+        public bool TryGetList<T>(string key, out T[] val, IParser<T> parser = null)
+        {
+            return GetBuffer().GetParsedList(key, out val, parser ?? Parsers.GetParser<T>());
         }
 
         public override bool HasSection(string section)
