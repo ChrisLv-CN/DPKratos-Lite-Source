@@ -230,9 +230,15 @@ namespace Extension.Ext
             this.Versus = reader.GetPercentList("Verses", this.Versus);
             // Ares
             ReadAresVersus(reader);
-            this.AffectsAllies = reader.Get("AffectsAllies", this.AffectsAllies);
-            this.AffectsOwner = reader.Get("AffectsOwner", this.AffectsAllies);
-
+            if (reader.TryGet("AffectsAllies", out bool affectsAllies))
+            {
+                this.AffectsAllies = affectsAllies;
+                this.AffectsOwner = affectsAllies;
+            }
+            if (reader.TryGet("AffectsOwner", out bool affectsOwner))
+            {
+                this.AffectsOwner = affectsOwner;
+            }
             this.AffectsEnemies = reader.Get("AffectsEnemies", this.AffectsEnemies);
             this.EffectsRequireDamage = reader.Get("EffectsRequireDamage", this.EffectsRequireDamage);
             this.EffectsRequireVerses = reader.Get("EffectsRequireVerses", this.EffectsRequireVerses);
