@@ -294,7 +294,7 @@ namespace ExtensionHooks
             try
             {
                 Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
-                if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.VirtualUnit)
+                if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.VirtualUnit || status.Disappear))
                 {
                     // 虚单位不纳入可选择的范围
                     return 0x6DA440;

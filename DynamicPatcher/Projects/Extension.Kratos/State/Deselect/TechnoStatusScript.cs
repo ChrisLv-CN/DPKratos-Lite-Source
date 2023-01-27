@@ -17,6 +17,7 @@ namespace Extension.Script
 
         public State<DeselectData> DeselectState = new State<DeselectData>();
 
+        public bool Disappear;
         private bool disableSelectable;
 
         public void InitState_Deselect()
@@ -31,7 +32,14 @@ namespace Extension.Script
 
         public void OnUpdate_Deselect()
         {
-            this.disableSelectable = DeselectState.IsActive();
+            if (this.disableSelectable = DeselectState.IsActive())
+            {
+                Disappear = DeselectState.Data.Disappear;
+            }
+            else
+            {
+                Disappear = false;
+            }
             if (pTechno.Ref.Base.IsSelected && disableSelectable)
             {
                 pTechno.Ref.Base.Deselect();

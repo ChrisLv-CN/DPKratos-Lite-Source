@@ -31,10 +31,12 @@ namespace Extension.Ext
         public const string TITLE = "Select.";
 
         public bool Disable;
+        public bool Disappear;
 
         public DeselectData()
         {
             this.Disable = false;
+            this.Disappear = false;
 
             this.AffectWho = AffectWho.ALL;
         }
@@ -43,7 +45,8 @@ namespace Extension.Ext
         {
             base.Read(reader, TITLE);
 
-            this.Disable = reader.Get(TITLE + "Disable", false);
+            this.Disable = reader.Get(TITLE + "Disable", Disable);
+            this.Disappear = reader.Get(TITLE + "Disappear", Disappear);
             this.Enable = this.Disable;
         }
 
