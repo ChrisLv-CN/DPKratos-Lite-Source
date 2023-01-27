@@ -95,14 +95,20 @@ namespace Extension.Ext
                 this.AffectBullet = false;
             }
 
-
             this.AffectStand = reader.Get(title + "AffectStand", this.AffectStand);
             this.AffectSelf = reader.Get(title + "AffectSelf", this.AffectSelf);
             this.AffectInAir = reader.Get(title + "AffectInAir", this.AffectInAir);
             this.OnlyAffectMarks = reader.GetList(title + "OnlyAffectMarks", this.OnlyAffectMarks);
 
-            this.AffectsAllies = reader.Get(title + "AffectsAllies", this.AffectsAllies);
-            this.AffectsOwner = reader.Get(title + "AffectsOwner", this.AffectsAllies);
+            if (reader.TryGet(title + "AffectsAllies", out bool affectsAllies))
+            {
+                this.AffectsAllies = affectsAllies;
+                this.AffectsOwner = affectsAllies;
+            }
+            if (reader.TryGet(title + "AffectsOwner", out bool affectsOwner))
+            {
+                this.AffectsOwner = affectsOwner;
+            }
             this.AffectsEnemies = reader.Get(title + "AffectsEnemies", this.AffectsEnemies);
             this.AffectsCivilian = reader.Get(title + "AffectsCivilian", this.AffectsCivilian);
         }
