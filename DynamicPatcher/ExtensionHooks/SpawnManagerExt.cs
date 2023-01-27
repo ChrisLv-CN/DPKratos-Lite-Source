@@ -2,7 +2,7 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
@@ -50,7 +50,7 @@ namespace ExtensionHooks
             return 0;
         }
 
-        // [Hook(HookType.AresHook, Address = 0x6B743E, Size = 6)]
+        [Hook(HookType.AresHook, Address = 0x6B743E, Size = 6)]
         public static unsafe UInt32 SpawnManagerClass_AI_PutSpawns(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
@@ -91,13 +91,24 @@ namespace ExtensionHooks
                     // 找到另外的子机发射器，设置Index
                     R->EBP = (uint)weaponIdx;
                 }
-                else if (pTechno.TryGetComponent(out AttachFireScript fireScript) && default != fireScript.ExtraSpawnerFLH)
+                else if (pTechno.TryGetComponent(out AttachFireScript fireScript) && fireScript.SpawnerBurstFLH.Any())
                 {
-                    // 副武器和盖特武器上都没有子机发射器，检查子机是否由ExtraFire或者AutoWeapon发射
-                    // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 所有武器均不是子机发射器，查找ExtraFire或者AutoWeapon获取FLH");
-                    Pointer<CoordStruct> eax = (IntPtr)R->EAX;
-                    eax.Data = fireScript.ExtraSpawnerFLH;
-                    return 0x6B7498;
+                    Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+                    int index = 0;
+                    int count = pManager.Ref.SpawnCount;
+                    if (count > 1)
+                    {
+                        index = count - pManager.Ref.DrawState() - 1;
+                        // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 发射子机 {index} - {pManager.Ref.DrawState()}/{count}");
+                    }
+                    if (fireScript.SpawnerBurstFLH.ContainsKey(index))
+                    {
+                        // 副武器和盖特武器上都没有子机发射器，检查子机是否由ExtraFire或者AutoWeapon发射
+                        // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 发射子机{(pManager.Ref.SpawnCount - pManager.Ref.DrawState())}/{pManager.Ref.SpawnCount} 所有武器均不是子机发射器，查找ExtraFire或者AutoWeapon获取FLH，BurstIndex = {pTechno.Ref.CurrentBurstIndex}");
+                        Pointer<CoordStruct> eax = (IntPtr)R->EAX;
+                        eax.Data = fireScript.SpawnerBurstFLH[index];
+                        return 0x6B7498;
+                    }
                 }
             }
             return 0;

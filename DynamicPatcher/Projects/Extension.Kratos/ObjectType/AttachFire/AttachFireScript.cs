@@ -23,7 +23,7 @@ namespace Extension.Script
         public AttachFireScript(IExtension owner) : base(owner) { }
 
         // 发射过的子机发射器的开火坐标
-        public CoordStruct ExtraSpawnerFLH;
+        public Dictionary<int, CoordStruct> SpawnerBurstFLH = new Dictionary<int, CoordStruct>();
 
         // 发射自身武器的待发射的队列
         private Queue<DelayFireWeapon> delayFires = new Queue<DelayFireWeapon>();
@@ -394,7 +394,14 @@ namespace Extension.Script
                         // 记录下子机发射器的开火坐标
                         if (pWeapon.Ref.Spawner)
                         {
-                            ExtraSpawnerFLH = sourcePos;
+                            if (SpawnerBurstFLH.ContainsKey(0))
+                            {
+                                SpawnerBurstFLH[0] = sourcePos;
+                            }
+                            else
+                            {
+                                SpawnerBurstFLH.Add(0, sourcePos);
+                            }
                         }
                         if (null != callback)
                         {
@@ -424,8 +431,19 @@ namespace Extension.Script
         private void SimulateBurstFireOnce(SimulateBurst burst)
         {
             // Pointer<TechnoClass> pShooter = WhoIsShooter(pShooter);
-            CoordStruct sourcePos = GetSourcePos(burst, out DirStruct facingDir);
+            DirStruct facingDir = default;
+            CoordStruct sourcePos = default;
             CoordStruct targetPos = burst.pTarget.Ref.GetCoords();
+            if (burst.IsOnTarget)
+            {
+                CoordStruct location = pObject.Ref.Base.GetCoords(); // 射手的位置
+                sourcePos = GetSourcePosOnTarget(location, targetPos, burst.FLH, out facingDir, burst.FlipY);
+            }
+            else
+            {
+                sourcePos = GetSourcePos(burst.FLH, out facingDir, burst.FlipY);
+            }
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 模拟burst发射{burst.Index}/{burst.Burst}，获取发射位置 {burst.FLH} {burst.FlipY}");
             BulletVelocity bulletVelocity = default;
             // 扇形攻击
             if (burst.WeaponTypeData.RadialFire)
@@ -438,13 +456,20 @@ namespace Extension.Script
                 bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
             }
             // 发射武器
-            // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 发射自定义武器 [{burst.pWeaponType.Ref.Base.ID}], 攻击者 [{(burst.pAttacker.IsNull ? "Null" : burst.pAttacker.Ref.Type.Ref.Base.Base.ID)}]{burst.pAttacker}, 目标 [{(burst.pTarget.Pointer.CastToObject(out Pointer<ObjectClass> pTargetObject) ? burst.pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{burst.pTarget.Pointer}");
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 发射自定义武器 [{burst.pWeaponType.Ref.Base.ID}], {burst.Index}/{burst.Burst}, 攻击者 [{(burst.pAttacker.IsNull ? "Null" : burst.pAttacker.Ref.Type.Ref.Base.Base.ID)}]{burst.pAttacker}, 目标 [{(burst.pTarget.Pointer.CastToObject(out Pointer<ObjectClass> pTargetObject) ? burst.pTarget.Ref.WhatAmI() : pTargetObject.Ref.Type.Ref.Base.ID)}]{burst.pTarget.Pointer}");
             Pointer<WeaponTypeClass> pWeapon = burst.pWeaponType;
             Pointer<BulletClass> pBullet = WeaponHelper.FireBulletTo(pObject, burst.pAttacker, burst.pTarget, burst.pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
             // 记录下子机发射器的开火坐标
             if (pWeapon.Ref.Spawner)
             {
-                ExtraSpawnerFLH = sourcePos;
+                if (SpawnerBurstFLH.ContainsKey(burst.Index))
+                {
+                    SpawnerBurstFLH[burst.Index] = sourcePos;
+                }
+                else
+                {
+                    SpawnerBurstFLH.Add(burst.Index, sourcePos);
+                }
             }
             if (null != burst.Callback)
             {
@@ -453,17 +478,13 @@ namespace Extension.Script
             burst.CountOne();
         }
 
-        private CoordStruct GetSourcePos(SimulateBurst burst, out DirStruct facingDir)
-        {
-            return GetSourcePos(burst.FLH, out facingDir, burst.FlipY);
-        }
-
         private CoordStruct GetSourcePos(CoordStruct flh, out DirStruct facingDir, int flipY = 1)
         {
             CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
             facingDir = default;
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 获取单位上的FLH，{flh}, {flipY}");
                 sourcePos = pTechno.GetFLHAbsoluteCoords(flh, true, flipY);
                 facingDir = pTechno.Ref.GetRealFacing().current();
             }
@@ -472,6 +493,7 @@ namespace Extension.Script
                 facingDir = pBullet.Facing(sourcePos);
                 CoordStruct tempFLH = flh;
                 tempFLH.Y *= flipY;
+                // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 获取抛射体的FLH，{tempFLH}, {flipY}");
                 sourcePos = FLHHelper.GetFLHAbsoluteCoords(sourcePos, tempFLH, facingDir);
             }
             return sourcePos;
@@ -482,7 +504,8 @@ namespace Extension.Script
             facingDir = FLHHelper.Point2Dir(sourcePos, targetPos);
             CoordStruct tempFLH = flh;
             tempFLH.Y *= flipY;
-            return FLHHelper.GetFLHAbsoluteCoords(targetPos, flh, facingDir);
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 获取目标上的FLH，{tempFLH}, {flipY}");
+            return FLHHelper.GetFLHAbsoluteCoords(targetPos, tempFLH, facingDir);
         }
 
     }
