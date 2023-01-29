@@ -14,6 +14,9 @@ namespace Extension.Ext
     {
         [INIField(Key = "Missile.Homing")]
         public bool Homing = false;
+
+        [INIField(Key = "Missile.FacingTarget")]
+        public bool FacingTarget = false;
     }
 
 

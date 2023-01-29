@@ -22,6 +22,20 @@ namespace Extension.Script
         public bool IsHoming;
         public CoordStruct HomingTargetLocation;
 
+        private IConfigWrapper<MissileHomingData> _data;
+        private MissileHomingData data
+        {
+            get
+            {
+                if (null == _data)
+                {
+                    _data = Ini.GetConfig<MissileHomingData>(Ini.RulesDependency, section);
+                }
+                return _data.Data;
+            }
+        }
+
+        private bool initFlag;
 
         public override void Awake()
         {
@@ -32,12 +46,23 @@ namespace Extension.Script
                 GameObject.RemoveComponent(this);
                 return;
             }
-            MissileHomingData missileHomingData = Ini.GetConfig<MissileHomingData>(Ini.RulesDependency, section).Data;
-            this.IsHoming = missileHomingData.Homing;
+            this.IsHoming = data.Homing;
         }
 
         public override void OnUpdate()
         {
+            if (!initFlag)
+            {
+                initFlag = true;
+                if (data.FacingTarget)
+                {
+                    CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                    CoordStruct targetPos = pTechno.Convert<FootClass>().Ref.Locomotor.Destination();
+                    DirStruct dir = FLHHelper.Point2Dir(sourcePos, targetPos);
+                    pTechno.Ref.Facing.set(dir);
+                    pTechno.Ref.TurretFacing.set(dir);
+                }
+            }
             if (IsHoming && !pTechno.IsDeadOrInvisible())
             {
                 Pointer<AbstractClass> pTarget = pTechno.Ref.Target;
