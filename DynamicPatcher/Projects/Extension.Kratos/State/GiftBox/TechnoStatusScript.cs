@@ -50,7 +50,7 @@ namespace Extension.Script
                     GiftBoxState.IsOpen = true;
                     // 释放礼物
                     List<string> gifts = GiftBoxState.GetGiftList();
-                    if (null != gifts && gifts.Count > 0)
+                    if (null != gifts && gifts.Any())
                     {
                         ReleseGift(gifts, GiftBoxState.Data);
                     }
@@ -95,7 +95,7 @@ namespace Extension.Script
                     GiftBoxState.IsOpen = true;
                     // 释放礼物
                     List<string> gifts = GiftBoxState.GetGiftList();
-                    if (null != gifts && gifts.Count > 0)
+                    if (null != gifts && gifts.Any())
                     {
                         ReleseGift(gifts, GiftBoxState.Data);
                     }
@@ -113,7 +113,7 @@ namespace Extension.Script
                 GiftBoxState.IsOpen = true;
                 // 释放礼物
                 List<string> gifts = GiftBoxState.GetGiftList();
-                if (null != gifts && gifts.Count > 0)
+                if (null != gifts && gifts.Any())
                 {
                     ReleseGift(gifts, GiftBoxState.Data);
                 }

@@ -134,7 +134,11 @@ namespace Extension.Ext
                         // 计算概率
                         if (data.Chances.Bingo(index))
                         {
-                            gifts.Add(data.Gifts[index]);
+                            string id = data.Gifts[index];
+                            if (!id.IsNullOrEmptyOrNone())
+                            {
+                                gifts.Add(data.Gifts[index]);
+                            }
                         }
                     }
                 }
@@ -143,17 +147,20 @@ namespace Extension.Ext
                     for (int index = 0; index < giftCount; index++)
                     {
                         string id = data.Gifts[index];
-                        int times = 1;
-                        if (numsCount > 0 && index < numsCount)
+                        if (!id.IsNullOrEmptyOrNone())
                         {
-                            times = data.Nums[index];
-                        }
-                        for (int i = 0; i < times; i++)
-                        {
-                            // 计算概率
-                            if (data.Chances.Bingo(index))
+                            int times = 1;
+                            if (numsCount > 0 && index < numsCount)
                             {
-                                gifts.Add(id);
+                                times = data.Nums[index];
+                            }
+                            for (int i = 0; i < times; i++)
+                            {
+                                // 计算概率
+                                if (data.Chances.Bingo(index))
+                                {
+                                    gifts.Add(id);
+                                }
                             }
                         }
                     }
