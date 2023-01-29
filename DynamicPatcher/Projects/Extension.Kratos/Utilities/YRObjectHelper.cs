@@ -104,9 +104,9 @@ namespace Extension.Utilities
         {
             if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
             {
-                return pCell.Ref.Flags.HasFlag(CellFlags.Revealed);
+                return !pCell.Ref.Flags.HasFlag(CellFlags.Revealed);
             }
-            return false;
+            return true;
         }
 
     }
