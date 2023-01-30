@@ -39,7 +39,7 @@ namespace Extension.Script
 
         private bool active = false;
 
-        private TimerStruct supportFireROF;
+        private Dictionary<string, TimerStruct> weaponsROF = new Dictionary<string, TimerStruct>();
         private int flipY = 1;
 
         public override void Awake()
@@ -110,48 +110,80 @@ namespace Extension.Script
                 if (data.Enable && !data.Always)
                 {
                     SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
-                    FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, true);
+                    FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, false);
                 }
             }
         }
 
-        private void FireSupportWeaponToSpawn(Pointer<TechnoClass> pSpawnOwner, SupportSpawnsData data, SupportSpawnsFLHData flhData, bool useROF = false)
+        private void FireSupportWeaponToSpawn(Pointer<TechnoClass> pSpawnOwner, SupportSpawnsData data, SupportSpawnsFLHData flhData, bool checkROF = false)
         {
-            String weaponID = data.SupportWeapon;
+            string[] weapons = data.Weapons;
             CoordStruct flh = flhData.SupportWeaponFLH;
             CoordStruct hitFLH = flhData.SupportWeaponHitFLH;
             if (pSpawnOwner.Ref.Veterancy.IsElite())
             {
-                weaponID = data.EliteSupportWeapon;
+                weapons = data.EliteWeapons;
                 flh = flhData.EliteSupportWeaponFLH;
                 hitFLH = flhData.EliteSupportWeaponHitFLH;
             }
-            if (!weaponID.IsNullOrEmptyOrNone())
+            if (null != weapons && weapons.Any())
             {
                 if (data.SwitchFLH)
                 {
                     flh.Y = flh.Y * flipY;
                     flipY *= -1;
                 }
-                Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponID);
-                if (!pWeapon.IsNull)
+                Pointer<ObjectClass> pShooter = pSpawnOwner.Convert<ObjectClass>();
+                Pointer<TechnoClass> pAttacker = pSpawnOwner;
+                Pointer<HouseClass> pAttackingHouse = pSpawnOwner.Ref.Owner;
+                Pointer<AbstractClass> pTarget = pTechno.Convert<AbstractClass>();
+                foreach (string weaponId in weapons)
                 {
-                    if (useROF && supportFireROF.InProgress())
+                    if (!weaponId.IsNullOrEmptyOrNone())
                     {
-                        return;
-                    }
-                    // get source location
-                    CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pSpawnOwner, flh, true);
-                    // Logger.Log("Support Weapon FLH = {0}, hitFLH = {1}", flh, hitFLH);
-                    // get target location
-                    CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(pTechno, hitFLH, true);
-                    // get bullet velocity
-                    BulletVelocity bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
-                    // fire weapon
-                    WeaponHelper.FireBulletTo(pSpawnOwner.Convert<ObjectClass>(), pSpawnOwner, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, pWeapon, sourcePos, targetPos, bulletVelocity);
-                    if (useROF)
-                    {
-                        supportFireROF.Start(pWeapon.Ref.ROF);
+                        Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
+                        if (!pWeapon.IsNull)
+                        {
+                            WeaponTypeData weaponTypeData = pWeapon.GetData();
+                            // 目标筛选
+                            if (!weaponTypeData.CanFireToTarget(pAttacker, pTarget, pAttackingHouse, pWeapon))
+                            {
+                                continue;
+                            }
+                            // 检查ROF
+                            if (checkROF)
+                            {
+                                if (weaponsROF.TryGetValue(weaponId, out TimerStruct rofTimer))
+                                {
+                                    if (rofTimer.InProgress())
+                                    {
+                                        continue;
+                                    }
+                                }
+                            }
+                            // get source location
+                            CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pSpawnOwner, flh, true);
+                            // Logger.Log("Support Weapon FLH = {0}, hitFLH = {1}", flh, hitFLH);
+                            // get target location
+                            CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(pTechno, hitFLH, true);
+                            // get bullet velocity
+                            BulletVelocity bulletVelocity = WeaponHelper.GetBulletVelocity(sourcePos, targetPos);
+                            // fire weapon
+                            WeaponHelper.FireBulletTo(pShooter, pAttacker, pTarget, pAttackingHouse, pWeapon, sourcePos, targetPos, bulletVelocity);
+                            if (checkROF)
+                            {
+                                int rof = pWeapon.Ref.ROF;
+                                if (weaponsROF.TryGetValue(weaponId, out TimerStruct rofTimer))
+                                {
+                                    rofTimer.Start(rof);
+                                    weaponsROF[weaponId] = rofTimer;
+                                }
+                                else
+                                {
+                                    weaponsROF.Add(weaponId, new TimerStruct(rof));
+                                }
+                            }
+                        }
                     }
                 }
             }

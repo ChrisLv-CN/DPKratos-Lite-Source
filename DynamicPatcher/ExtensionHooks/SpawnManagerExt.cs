@@ -1,4 +1,5 @@
 
+using System.Security.Cryptography;
 using System;
 using System.Threading;
 using System.Collections.Generic;
@@ -14,20 +15,69 @@ namespace ExtensionHooks
     public class SpawnManagerExtHooks
     {
 
-        // [Hook(HookType.AresHook, Address = 0x6B7B90, Size = 7)]
-        // public static unsafe UInt32 SpawnManagerClass_Assign_Target(REGISTERS* R)
-        // {
-        //     Pointer<AbstractClass> pTarget = R->Stack<IntPtr>(0x4);
-        //     if (!pTarget.IsNull)
-        //     {
-        //         Logger.Log($"{Game.CurrentFrame} 子机管理器分配目标，目标 {pTarget} 类型 {pTarget.Ref.WhatAmI()}");
-        //     }
-        //     else
-        //     {
-        //         Logger.Log($"{Game.CurrentFrame} 子机管理器分配目标，目标 {pTarget}");
-        //     }
-        //     return 0;
-        // }
+        [Hook(HookType.AresHook, Address = 0x6B6D4D, Size = 6)]
+        public static unsafe UInt32 SpawnManagerClass_CreateSpawnNode_CreateAircraft(REGISTERS* R)
+        {
+            Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+            int i = R->Stack<int>(0x20 + 0x4);
+            string newId = null;
+            if (!pManager.Ref.Owner.TryGetStatus(out TechnoStatusScript status) || !status.TryGetSpawnType(i, out newId))
+            {
+                Pointer<TechnoTypeClass> pType = (IntPtr)R->ECX;
+                string id = pType.Ref.Base.Base.ID;
+                if (id.IndexOf(",") > -1)
+                {
+                    string[] ids = id.Split(',');
+                    int count = ids.Count();
+                    if (count > i)
+                    {
+                        newId = ids[i].Trim();
+                    }
+                }
+            }
+            if (!newId.IsNullOrEmptyOrNone())
+            {
+                Pointer<AircraftTypeClass> pNewType = AircraftTypeClass.ABSTRACTTYPE_ARRAY.Find(newId);
+                if (!pNewType.IsNull)
+                {
+                    pManager.Ref.SpawnType = pNewType;
+                    R->ECX = (uint)pNewType;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6B78E4, Size = 6)]
+        public static unsafe UInt32 SpawnManagerClass_Update_CreateAircraft(REGISTERS* R)
+        {
+            Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+            int i = (int)R->EBX;
+            string newId = null;
+            if (!pManager.Ref.Owner.TryGetStatus(out TechnoStatusScript status) || !status.TryGetSpawnType(i, out newId))
+            {
+                Pointer<TechnoTypeClass> pType = (IntPtr)R->ECX;
+                string id = pType.Ref.Base.Base.ID;
+                if (id.IndexOf(",") > -1)
+                {
+                    string[] ids = id.Split(',');
+                    int count = ids.Count();
+                    if (count > i)
+                    {
+                        newId = ids[i].Trim();
+                    }
+                }
+            }
+            if (!newId.IsNullOrEmptyOrNone())
+            {
+                Pointer<AircraftTypeClass> pNewType = AircraftTypeClass.ABSTRACTTYPE_ARRAY.Find(newId);
+                if (!pNewType.IsNull)
+                {
+                    pManager.Ref.SpawnType = pNewType;
+                    R->ECX = (uint)pNewType;
+                }
+            }
+            return 0;
+        }
 
         // [Hook(HookType.AresHook, Address = 0x6B7392, Size = 6)]
         // public static unsafe UInt32 SpawnManagerClass_AI(REGISTERS* R)
@@ -37,7 +87,7 @@ namespace ExtensionHooks
         // }
 
         [Hook(HookType.AresHook, Address = 0x6B7A32, Size = 5)]
-        public static unsafe UInt32 SpawnManagerClass_AI_Add_Missile_Target(REGISTERS* R)
+        public static unsafe UInt32 SpawnManagerClass_Update_Add_Missile_Target(REGISTERS* R)
         {
             Pointer<TechnoClass> pRocket = (IntPtr)R->ECX;
             Pointer<AbstractClass> pTarget = (IntPtr)R->EAX;
@@ -51,7 +101,7 @@ namespace ExtensionHooks
         }
 
         [Hook(HookType.AresHook, Address = 0x6B743E, Size = 6)]
-        public static unsafe UInt32 SpawnManagerClass_AI_PutSpawns(REGISTERS* R)
+        public static unsafe UInt32 SpawnManagerClass_Update_PutSpawns(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
             int weaponIdx = (int)R->EBP;
@@ -86,6 +136,8 @@ namespace ExtensionHooks
                         }
                     }
                 }
+                Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+                bool customFLH = false;
                 if (spawner)
                 {
                     // 找到另外的子机发射器，设置Index
@@ -93,7 +145,6 @@ namespace ExtensionHooks
                 }
                 else if (pTechno.TryGetComponent(out AttachFireScript fireScript) && fireScript.SpawnerBurstFLH.Any())
                 {
-                    Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
                     int index = 0;
                     int count = pManager.Ref.SpawnCount;
                     if (count > 1)
@@ -101,15 +152,39 @@ namespace ExtensionHooks
                         index = count - pManager.Ref.DrawState() - 1;
                         // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 发射子机 {index} - {pManager.Ref.DrawState()}/{count}");
                     }
-                    if (fireScript.SpawnerBurstFLH.ContainsKey(index))
+                    if (customFLH = fireScript.SpawnerBurstFLH.ContainsKey(index))
                     {
                         // 副武器和盖特武器上都没有子机发射器，检查子机是否由ExtraFire或者AutoWeapon发射
-                        // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 发射子机{(pManager.Ref.SpawnCount - pManager.Ref.DrawState())}/{pManager.Ref.SpawnCount} 所有武器均不是子机发射器，查找ExtraFire或者AutoWeapon获取FLH，BurstIndex = {pTechno.Ref.CurrentBurstIndex}");
+                        // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 发射子机{(pManager.Ref.SpawnCount - pManager.Ref.DrawState())}/{pManager.Ref.SpawnCount} 所有武器均不是子机发射器，查找ExtraFire或者AutoWeapon获取FLH {pManager.Ref.UpdateTimer.GetTimeLeft()} {pManager.Ref.SpawnTimer.GetTimeLeft()}");
                         Pointer<CoordStruct> eax = (IntPtr)R->EAX;
                         eax.Data = fireScript.SpawnerBurstFLH[index];
-                        return 0x6B7498;
                     }
                 }
+                // 重设子机发射延迟
+                if (pTechno.TryGetStatus(out TechnoStatusScript status))
+                {
+                    // 重设子机发射延迟
+                    if (status.SpawnData.SpwanDelay > -1)
+                    {
+                        pManager.Ref.SpawnTimer.Start(status.SpawnData.SpwanDelay);
+                    }
+                }
+                if (customFLH)
+                {
+                    return 0x6B7498;
+                }
+            }
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6B796A, Size = 5)]
+        public static unsafe UInt32 SpawnManagerClass_Update_PutSpawns_FireOnce(REGISTERS* R)
+        {
+            Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
+            if (pManager.Ref.DrawState() == 0 && pManager.Ref.Owner.TryGetStatus(out TechnoStatusScript status) && status.SpawnData.SpawnFireOnce)
+            {
+                pManager.Ref.Destination = IntPtr.Zero;
+                pManager.Ref.SetTarget(IntPtr.Zero);
             }
             return 0;
         }

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
 using Extension.Ext;
@@ -10,22 +12,36 @@ namespace Extension.Ext
 {
 
     [Serializable]
-    public class SupportSpawnsData : INIAutoConfig
+    public class SupportSpawnsData : INIConfig
     {
-        [INIField(Key = "SupportSpawns")]
+        public string TITLE = "SupportSpawns.";
+
         public bool Enable = false;
 
-        [INIField(Key = "SupportSpawns.Weapon")]
-        public string SupportWeapon = null;
+        public string[] Weapons = null;
+        public string[] EliteWeapons = null;
 
-        [INIField(Key = "SupportSpawns.EliteWeapon")]
-        public string EliteSupportWeapon = null;
-
-        [INIField(Key = "SupportSpawns.SwitchFLH")]
         public bool SwitchFLH = false;
-
-        [INIField(Key = "SupportSpawns.AlwaysFire")]
         public bool Always = false;
+
+        public SupportSpawnsData()
+        {
+            this.Enable = false;
+            this.Weapons = null;
+            this.EliteWeapons = null;
+            this.SwitchFLH = false;
+            this.Always = false;
+        }
+
+        public override void Read(IConfigReader reader)
+        {
+            this.Weapons = reader.GetList(TITLE + "Weapons", this.Weapons);
+            this.EliteWeapons = reader.GetList(TITLE + "EliteWeapons", this.EliteWeapons);
+            this.Enable = (null != Weapons && Weapons.Any()) || (null != EliteWeapons && EliteWeapons.Any());
+
+            this.SwitchFLH = reader.Get(TITLE + "SwitchFLH", this.SwitchFLH);
+            this.Always = reader.Get(TITLE + "Always", this.Always);
+        }
 
     }
 

@@ -869,8 +869,7 @@ namespace ExtensionHooks
             Pointer<SpawnManagerClass> pSpawnManager = pUnit.Ref.SpawnManager;
             if (pUnit.Ref.Type.Ref.Base.NoSpawnAlt && !pSpawnManager.IsNull && pSpawnManager.Ref.DrawState() < pSpawnManager.Ref.SpawnCount)
             {
-                SpawnAltData data = Ini.GetConfig<SpawnAltData>(Ini.RulesDependency, pUnit.Ref.Type.Ref.Base.Base.ID).Data;
-                if (data.NoShadowSpawnAlt)
+                if (pUnit.TryGetStatus(out TechnoStatusScript status) && status.SpawnData.NoShadowSpawnAlt)
                 {
                     // Logger.Log($"{Game.CurrentFrame} 跳过 WO的影子渲染 {pUnit.Ref.SpawnManager.Ref.DrawState()}");
                     // skip draw shadow

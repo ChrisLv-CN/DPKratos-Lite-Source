@@ -417,6 +417,7 @@ namespace Extension.Script
             _typeData = null;
             _fireFLHOnBodyData = null;
             _fireFLHOnTargetData = null;
+            _spawnData = null;
             // 重新初始化状态机
             InitState();
         }
