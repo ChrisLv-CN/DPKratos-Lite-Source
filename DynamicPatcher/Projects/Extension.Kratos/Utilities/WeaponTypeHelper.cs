@@ -39,7 +39,7 @@ namespace Extension.Utilities
         public static bool CanFireToTarget(this WeaponTypeData weaponTypeData, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon)
         {
-            bool canFire = false;
+            bool canFire = true;
             // 检查发射者的血量
             if (weaponTypeData.CheckShooterHP)
             {
