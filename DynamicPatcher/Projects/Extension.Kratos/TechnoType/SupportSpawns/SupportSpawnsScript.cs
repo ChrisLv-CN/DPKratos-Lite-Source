@@ -69,6 +69,7 @@ namespace Extension.Script
             }
             active = true;
             EventSystem.Techno.AddTemporaryHandler(EventSystem.Techno.TypeChangeEvent, OnTransform);
+            // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 启动子机支援武器 [{string.Join(", ", data.Weapons)}], Always = {data.AlwaysFire}");
         }
 
         public override void OnRemove()
@@ -93,7 +94,7 @@ namespace Extension.Script
                 Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
                 if (!pSpawnOwner.IsDeadOrInvisible())
                 {
-                    if (data.Enable && data.Always)
+                    if (data.Enable && data.AlwaysFire)
                     {
                         SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
                         FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, true);
@@ -107,7 +108,7 @@ namespace Extension.Script
             Pointer<TechnoClass> pSpawnOwner = pTechno.Ref.SpawnOwner;
             if (active && !pSpawnOwner.IsDeadOrInvisible())
             {
-                if (data.Enable && !data.Always)
+                if (data.Enable && !data.AlwaysFire)
                 {
                     SupportSpawnsFLHData flhData = pSpawnOwner.GetImageConfig<SupportSpawnsFLHData>();
                     FireSupportWeaponToSpawn(pSpawnOwner, data, flhData, false);
@@ -148,6 +149,7 @@ namespace Extension.Script
                             // 目标筛选
                             if (!weaponTypeData.CanFireToTarget(pAttacker, pTarget, pAttackingHouse, pWeapon))
                             {
+                                // Logger.Log($"{Game.CurrentFrame} 支援武器[{weaponId}]{pWeapon}不能攻击子机[{section}]{pTechno}, 换下一个");
                                 continue;
                             }
                             // 检查ROF
@@ -157,10 +159,12 @@ namespace Extension.Script
                                 {
                                     if (rofTimer.InProgress())
                                     {
+                                        // Logger.Log($"{Game.CurrentFrame} 支援武器[{weaponId}]{pWeapon}冷却中，不能攻击子机[{section}]{pTechno}, 换下一个");
                                         continue;
                                     }
                                 }
                             }
+                            // Logger.Log($"{Game.CurrentFrame} [{pShooter.Ref.Type.Ref.Base.ID}]{pShooter}发射支援武器[{weaponId}]{pWeapon}攻击子机[{section}]{pTechno}, checkROF = {checkROF}");
                             // get source location
                             CoordStruct sourcePos = FLHHelper.GetFLHAbsoluteCoords(pSpawnOwner, flh, true);
                             // Logger.Log("Support Weapon FLH = {0}, hitFLH = {1}", flh, hitFLH);
