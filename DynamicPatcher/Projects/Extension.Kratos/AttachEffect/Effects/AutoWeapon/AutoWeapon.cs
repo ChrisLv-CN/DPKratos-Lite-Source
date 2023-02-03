@@ -217,7 +217,7 @@ namespace Extension.Script
                                     AttachFireScript attachFire = pShooter.FindOrAllocate<AttachFireScript>();
                                     if (null != attachFire)
                                     {
-                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, Data.IsOnTarget, callback);
+                                        attachFire.FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, weaponId, fireFLH, !Data.IsOnTurret, Data.IsOnTarget, callback);
                                     }
                                     weaponLaunch = true;
                                     // 进入冷却

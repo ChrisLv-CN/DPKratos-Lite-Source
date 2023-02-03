@@ -55,6 +55,7 @@ namespace Extension.Script
 
                 string[] weapons = null;
                 CoordStruct customFLH = default;
+                bool isOnBody = false;
                 bool isOnTarget = false;
                 // 检查WeaponX
                 if (pTechno.Ref.Type.Ref.WeaponCount > 0)
@@ -69,7 +70,8 @@ namespace Extension.Script
                         {
                             flh.WeaponXFLH.TryGetValue(weaponIndex, out customFLH);
                         }
-                        isOnTarget = null != flh.WeaponIndexs && flh.WeaponIndexs.Contains(weaponIndex);
+                        isOnBody = null != flh.OnBodyIndexs && flh.OnBodyIndexs.Contains(weaponIndex);
+                        isOnTarget = null != flh.OnTargetIndexs && flh.OnTargetIndexs.Contains(weaponIndex);
                     }
                 }
                 else if (weaponIndex == 0)
@@ -78,6 +80,7 @@ namespace Extension.Script
                     if (null != flh)
                     {
                         customFLH = flh.PrimaryFLH;
+                        isOnBody = flh.PrimaryOnBody;
                         isOnTarget = flh.PrimaryOnTarget;
                     }
                 }
@@ -87,6 +90,7 @@ namespace Extension.Script
                     if (null != flh)
                     {
                         customFLH = flh.SecondaryFLH;
+                        isOnBody = flh.SecondaryOnBody;
                         isOnTarget = flh.SecondaryOnTarget;
                     }
                 }
@@ -140,11 +144,11 @@ namespace Extension.Script
                                         if (weaponTypeData.Feedback)
                                         {
                                             // 调转枪口干自己
-                                            attachFire.FireCustomWeapon(IntPtr.Zero, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, weaponId, customFLH, isOnTarget);
+                                            attachFire.FireCustomWeapon(IntPtr.Zero, pTechno.Convert<AbstractClass>(), pTechno.Ref.Owner, weaponId, customFLH, isOnBody, isOnTarget);
                                         }
                                         else
                                         {
-                                            attachFire.FireCustomWeapon(pTechno, pTarget, pTechno.Ref.Owner, weaponId, customFLH, isOnTarget);
+                                            attachFire.FireCustomWeapon(pTechno, pTarget, pTechno.Ref.Owner, weaponId, customFLH, isOnBody, isOnTarget);
                                         }
                                     }
                                 }

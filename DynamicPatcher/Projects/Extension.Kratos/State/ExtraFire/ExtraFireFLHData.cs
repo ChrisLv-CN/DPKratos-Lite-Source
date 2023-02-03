@@ -19,9 +19,13 @@ namespace Extension.Ext
         public CoordStruct SecondaryFLH;
         public Dictionary<int, CoordStruct> WeaponXFLH;
 
+        public bool PrimaryOnBody;
+        public bool SecondaryOnBody;
+        public List<int> OnBodyIndexs;
+
         public bool PrimaryOnTarget;
         public bool SecondaryOnTarget;
-        public List<int> WeaponIndexs;
+        public List<int> OnTargetIndexs;
 
         public ExtraFireFLH()
         {
@@ -29,9 +33,13 @@ namespace Extension.Ext
             this.SecondaryFLH = default;
             this.WeaponXFLH = null;
 
+            this.PrimaryOnBody = false;
+            this.SecondaryOnBody = false;
+            this.OnBodyIndexs = null;
+
             this.PrimaryOnTarget = false;
             this.SecondaryOnTarget = false;
-            this.WeaponIndexs = null;
+            this.OnTargetIndexs = null;
         }
 
         public ExtraFireFLH Clone()
@@ -41,9 +49,13 @@ namespace Extension.Ext
             data.SecondaryFLH = this.SecondaryFLH;
             data.WeaponXFLH = null != this.WeaponXFLH ? new Dictionary<int, CoordStruct>(this.WeaponXFLH) : null;
 
+            data.PrimaryOnBody = this.PrimaryOnBody;
+            data.SecondaryOnBody = this.SecondaryOnBody;
+            data.OnBodyIndexs = null != this.OnBodyIndexs ? new List<int>(this.OnBodyIndexs) : null;
+
             data.PrimaryOnTarget = this.PrimaryOnTarget;
             data.SecondaryOnTarget = this.SecondaryOnTarget;
-            data.WeaponIndexs = null != this.WeaponIndexs ? new List<int>(this.WeaponIndexs) : null;
+            data.OnTargetIndexs = null != this.OnTargetIndexs ? new List<int>(this.OnTargetIndexs) : null;
             return data;
         }
 
@@ -51,6 +63,39 @@ namespace Extension.Ext
         {
             this.PrimaryFLH = reader.Get(title + "PrimaryFLH", this.PrimaryFLH);
             this.SecondaryFLH = reader.Get(title + "SecondaryFLH", this.SecondaryFLH);
+
+            this.PrimaryOnBody = reader.Get(title + "PrimaryOnBody", this.PrimaryOnBody);
+            this.SecondaryOnBody = reader.Get(title + "SecondaryOnBody", this.SecondaryOnBody);
+
+            for (int i = 0; i < 127; i++)
+            {
+                int idx = i + 1;
+                CoordStruct weaponFLH = reader.Get<CoordStruct>(title + "Weapon" + idx + "FLH", default);
+                if (default != weaponFLH)
+                {
+                    if (null == this.WeaponXFLH)
+                    {
+                        this.WeaponXFLH = new Dictionary<int, CoordStruct>();
+                    }
+                    if (this.WeaponXFLH.ContainsKey(i))
+                    {
+                        this.WeaponXFLH[i] = weaponFLH;
+                    }
+                    else
+                    {
+                        this.WeaponXFLH.Add(i, weaponFLH);
+                    }
+                }
+                bool OnBody = reader.Get(title + "Weapon" + idx + "OnBody", false);
+                if (OnBody)
+                {
+                    if (null == this.OnBodyIndexs)
+                    {
+                        this.OnBodyIndexs = new List<int>();
+                    }
+                    this.OnBodyIndexs.Add(i);
+                }
+            }
 
             this.PrimaryOnTarget = reader.Get(title + "PrimaryOnTarget", this.PrimaryOnTarget);
             this.SecondaryOnTarget = reader.Get(title + "SecondaryOnTarget", this.SecondaryOnTarget);
@@ -77,11 +122,11 @@ namespace Extension.Ext
                 bool onTarget = reader.Get(title + "Weapon" + idx + "OnTarget", false);
                 if (onTarget)
                 {
-                    if (null == this.WeaponIndexs)
+                    if (null == this.OnTargetIndexs)
                     {
-                        this.WeaponIndexs = new List<int>();
+                        this.OnTargetIndexs = new List<int>();
                     }
-                    this.WeaponIndexs.Add(i);
+                    this.OnTargetIndexs.Add(i);
                 }
             }
 

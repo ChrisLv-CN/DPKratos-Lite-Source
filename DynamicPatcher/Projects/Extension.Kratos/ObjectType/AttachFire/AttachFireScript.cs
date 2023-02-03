@@ -203,14 +203,14 @@ namespace Extension.Script
         /// <param name="callback"></param>
         /// <returns></returns>
         public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
-            string weaponId, CoordStruct flh, bool isOnTarget, FireBulletToTarget callback = null)
+            string weaponId, CoordStruct flh, bool isOnBody, bool isOnTarget, FireBulletToTarget callback = null)
         {
             bool isFire = false;
             Pointer<WeaponTypeClass> pWeapon = WeaponTypeClass.ABSTRACTTYPE_ARRAY.Find(weaponId);
             if (!pWeapon.IsNull)
             {
                 WeaponTypeData weaponTypeData = pWeapon.GetData();
-                isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, isOnTarget, callback);
+                isFire = FireCustomWeapon(pAttacker, pTarget, pAttackingHouse, pWeapon, weaponTypeData, flh, isOnBody, isOnTarget, callback);
             }
             return isFire;
         }
@@ -227,7 +227,7 @@ namespace Extension.Script
         /// <param name="callback"></param>
         /// <returns></returns>
         public bool FireCustomWeapon(Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
-            Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh, bool isOnTarget = false, FireBulletToTarget callback = null)
+            Pointer<WeaponTypeClass> pWeapon, WeaponTypeData weaponTypeData, CoordStruct flh, bool isOnBody = false, bool isOnTarget = false, FireBulletToTarget callback = null)
         {
             bool isFire = false;
             // 不允许朝这个目标发射
@@ -271,7 +271,7 @@ namespace Extension.Script
                     // 模拟burst发射武器
                     TechnoExt attackerExt = !pAttacker.IsNull ? TechnoExt.ExtMap.Find(pAttacker) : null;
                     HouseExt attackingExt = !pAttackingHouse.IsNull ? HouseExt.ExtMap.Find(pAttackingHouse) : HouseExt.ExtMap.Find(HouseClass.FindSpecial());
-                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, attackingExt, pWeapon, flh, isOnTarget, burst, minRange, maxRange, weaponTypeData, flipY, callback);
+                    SimulateBurst newBurst = new SimulateBurst(attackerExt, pTarget, attackingExt, pWeapon, flh, isOnBody, isOnTarget, burst, minRange, maxRange, weaponTypeData, flipY, callback);
                     // Logger.Log("{0} - {1}{2}添加订单模拟Burst发射{3}发，目标类型{4}，入队", Game.CurrentFrame, pAttacker.IsNull ? "null" : pAttacker.Ref.Type.Ref.Base.Base.ID, pAttacker, burst, pAttacker.Ref.Target.IsNull ? "null" : pAttacker.Ref.Target.Ref.WhatAmI());
                     // 发射武器
                     SimulateBurstFire(newBurst);
@@ -356,7 +356,7 @@ namespace Extension.Script
             }
             else
             {
-                sourcePos = GetSourcePos(burst.FLH, out facingDir, burst.FlipY);
+                sourcePos = GetSourcePos(burst.FLH, out facingDir, !burst.IsOnBody, burst.FlipY);
             }
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 模拟burst发射{burst.Index}/{burst.Burst}，获取发射位置 {burst.FLH} {burst.FlipY}");
             BulletVelocity bulletVelocity = default;
@@ -393,14 +393,14 @@ namespace Extension.Script
             burst.CountOne();
         }
 
-        private CoordStruct GetSourcePos(CoordStruct flh, out DirStruct facingDir, int flipY = 1)
+        private CoordStruct GetSourcePos(CoordStruct flh, out DirStruct facingDir, bool isOnTurret = true, int flipY = 1)
         {
             CoordStruct sourcePos = pObject.Ref.Base.GetCoords();
             facingDir = default;
             if (pObject.CastToTechno(out Pointer<TechnoClass> pTechno))
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pObject} 获取单位上的FLH，{flh}, {flipY}");
-                sourcePos = pTechno.GetFLHAbsoluteCoords(flh, true, flipY);
+                sourcePos = pTechno.GetFLHAbsoluteCoords(flh, isOnTurret, flipY);
                 facingDir = pTechno.Ref.GetRealFacing().current();
             }
             else if (pObject.CastToBullet(out Pointer<BulletClass> pBullet))
