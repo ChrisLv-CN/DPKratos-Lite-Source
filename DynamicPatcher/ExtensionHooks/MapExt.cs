@@ -288,21 +288,14 @@ namespace ExtensionHooks
             return 0;
         }
 
-        [Hook(HookType.AresHook, Address = 0x6DA3FF, Size = 6)]
-        public static unsafe UInt32 TacticalClass_SelectAt_VirtualUnit(REGISTERS* R)
+        [Hook(HookType.AresHook, Address = 0x69251A, Size = 6)]
+        public static unsafe UInt32 ScrollClass_ProcessClickCoords_VirtualUnit(REGISTERS* R)
         {
-            try
+            Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+            if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.VirtualUnit || status.Disappear))
             {
-                Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
-                if (pTechno.TryGetStatus(out TechnoStatusScript status) && (status.VirtualUnit || status.Disappear))
-                {
-                    // 虚单位不纳入可选择的范围
-                    return 0x6DA440;
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.PrintException(e);
+                // 虚单位不可选择
+                R->EAX = 0;
             }
             return 0;
         }
