@@ -28,8 +28,11 @@ namespace Extension.Script
     [Serializable]
     public class DamageSelf : Effect<DamageSelfData>
     {
+        private int damage = 0;
+        private double fireMult = 1.0;
         private SwizzleablePointer<WarheadTypeClass> pWH = new SwizzleablePointer<WarheadTypeClass>(IntPtr.Zero);
         private BulletDamageData bulletDamageData = new BulletDamageData(1);
+
         private TimerStruct ROFTimer;
 
         private int count;
@@ -45,6 +48,13 @@ namespace Extension.Script
                     return;
                 }
             }
+            // 伤害倍率
+            if (Data.FirepowerMultiplier)
+            {
+                fireMult = AE.pSource.GetDamageMult();
+            }
+            // 伤害值
+            damage = (int)(Data.Damage * fireMult);
             // 伤害弹头
             pWH.Pointer = RulesClass.Instance.Ref.C4Warhead;
             if (!Data.Warhead.IsNullOrEmptyOrNone())
@@ -56,7 +66,7 @@ namespace Extension.Script
                 }
             }
             // 抛射体伤害
-            bulletDamageData.Damage = Data.Damage;
+            bulletDamageData.Damage = damage;
             bulletDamageData.Eliminate = false; // 非一击必杀
             bulletDamageData.Harmless = false; // 非和平处置
         }
@@ -88,7 +98,8 @@ namespace Extension.Script
                         count++;
                         ROFTimer.Start(Data.ROF);
 
-                        int realDamage = Data.Damage;
+                        int realDamage = damage;
+                        // 制造伤害
                         if (Data.Peaceful)
                         {
                             // 静默击杀，需要计算实际伤害

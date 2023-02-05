@@ -36,7 +36,7 @@ namespace Extension.Ext
         public bool WarheadAnim;
         public bool Decloak;
         public bool IgnoreArmor;
-
+        public bool FirepowerMultiplier;
         public bool Peaceful;
 
 
@@ -45,8 +45,10 @@ namespace Extension.Ext
             this.Damage = 0;
             this.ROF = 0;
             this.Warhead = null;
-            this.IgnoreArmor = true;
+            this.WarheadAnim = false;
             this.Decloak = false;
+            this.IgnoreArmor = true;
+            this.FirepowerMultiplier = false;
             this.Peaceful = false;
         }
 
@@ -64,8 +66,10 @@ namespace Extension.Ext
 
             this.ROF = reader.Get(TITLE + "ROF", this.ROF);
             this.Warhead = reader.Get(TITLE + "Warhead", this.Warhead);
-            this.IgnoreArmor = reader.Get(TITLE + "IgnoreArmor", this.IgnoreArmor);
+            this.WarheadAnim = reader.Get(TITLE + "WarheadAnim", this.WarheadAnim);
             this.Decloak = reader.Get(TITLE + "Decloak", this.Decloak);
+            this.IgnoreArmor = reader.Get(TITLE + "IgnoreArmor", this.IgnoreArmor);
+            this.FirepowerMultiplier = reader.Get(TITLE + "FirepowerMultiplier", this.FirepowerMultiplier);
             this.Peaceful = reader.Get(TITLE + "Peaceful", this.Peaceful);
         }
 
