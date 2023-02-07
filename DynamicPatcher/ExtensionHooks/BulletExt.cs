@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.Script;
 using Extension.Utilities;
@@ -148,6 +149,31 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x469D5C, Size = 6)]
+        public static unsafe UInt32 BulletClass_Detonate_WHVxlDebris_Remap(REGISTERS* R)
+        {
+            try
+            {
+                if (AudioVisual.Data.AllowMakeVoxelDebrisByKratos)
+                {
+                    Pointer<BulletClass> pBullet = (IntPtr)R->ESI;
+                    Pointer<WarheadTypeClass> pWH = (IntPtr)R->EAX;
+                    int times = (int)R->EBX;
+                    Pointer<HouseClass> pHouse = pBullet.GetSourceHouse();
+                    Pointer<TechnoClass> pCreater = pBullet.Ref.Owner;
+                    CoordStruct location = pBullet.Ref.Base.Base.GetCoords();
+                    ExpandAnims.PlayExpandDebirs(pWH.Ref.DebrisTypes, pWH.Ref.DebrisMaximums, times, location, pHouse, pCreater);
+                    R->EBX = 0;
+                    return 0x469E18;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x469EB4, Size = 6)]
         public static unsafe UInt32 BulletClass_Detonate_WHDebris_Remap(REGISTERS* R)
         {
@@ -159,6 +185,12 @@ namespace ExtensionHooks
                 {
                     pAnim.SetAnimOwner(pBullet);
                     pAnim.SetCreater(pBullet);
+                }
+                int i = (int)R->EBX;
+                // Logger.Log($"{Game.CurrentFrame} 剩余碎片数量 {i}");
+                if (i > 0)
+                {
+                    return 0x469E34;
                 }
             }
             catch (Exception e)

@@ -1057,6 +1057,30 @@ namespace ExtensionHooks
         #endregion
 
         #region Techno destroy debris
+        [Hook(HookType.AresHook, Address = 0x7022FE, Size = 5)]
+        public static unsafe UInt32 TechnoClass_Destroy_VxlDebris_Remap(REGISTERS* R)
+        {
+            try
+            {
+                if (AudioVisual.Data.AllowMakeVoxelDebrisByKratos)
+                {
+                    Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
+                    Pointer<TechnoTypeClass> pType = pTechno.Ref.Type;
+                    int times = (int)R->EBX;
+                    Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                    ExpandAnims.PlayExpandDebirs(pType.Ref.DebrisTypes, pType.Ref.DebrisMaximums, times, location, pHouse, pTechno);
+                    R->EBX = 0;
+                    return 0x7023E5;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x70256C, Size = 6)]
         public static unsafe UInt32 TechnoClass_Destroy_Debris_Remap(REGISTERS* R)
         {
@@ -1068,6 +1092,12 @@ namespace ExtensionHooks
                 if (!pAnim.IsNull)
                 {
                     pAnim.Ref.Owner = pTechno.Ref.Owner;
+                }
+                int i = (int)R->EBX;
+                // Logger.Log($"{Game.CurrentFrame} 剩余碎片数量 {i}");
+                if (i > 0)
+                {
+                    return 0x7024E0;
                 }
             }
             catch (Exception e)
@@ -1088,6 +1118,12 @@ namespace ExtensionHooks
                 if (!pAnim.IsNull)
                 {
                     pAnim.Ref.Owner = pTechno.Ref.Owner;
+                }
+                int i = (int)R->EBP;
+                // Logger.Log($"{Game.CurrentFrame} 剩余碎片数量 {i}");
+                if (i > 0)
+                {
+                    return 0x70240C;
                 }
             }
             catch (Exception e)

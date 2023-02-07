@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DynamicPatcher;
 using PatcherYRpp;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Script;
@@ -80,6 +81,97 @@ namespace Extension.Ext
                             Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnimType, location + offset);
                             pNewAnim.Ref.Owner = pHouse;
                         }
+                    }
+                }
+            }
+        }
+
+        public static void PlayExpandDebirs(DynamicVectorClass<Pointer<VoxelAnimTypeClass>> types, DynamicVectorClass<int> nums, int times, CoordStruct location, Pointer<HouseClass> pHouse, Pointer<TechnoClass> pCreater)
+        {
+            int numsCount = nums.Count;
+            int max = 0;
+            Dictionary<Pointer<VoxelAnimTypeClass>, int> debirTypes = new Dictionary<Pointer<VoxelAnimTypeClass>, int>();
+            for (int i = 0; i < types.Count; i++)
+            {
+                if (i < numsCount)
+                {
+                    int num = nums[i];
+                    max += num;
+                    debirTypes.Add(types[i], num);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            // 刷碎片
+            if (max <= times)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 刷vxl碎片 {times} - {max} = {times - max}");
+                // 刷出所有的vxl碎片
+                foreach (KeyValuePair<Pointer<VoxelAnimTypeClass>, int> kv in debirTypes)
+                {
+                    Pointer<VoxelAnimTypeClass> pAnimType = kv.Key;
+                    for (int i = 0; i < kv.Value; i++)
+                    {
+                        Pointer<VoxelAnimClass> pAnim = YRMemory.Create<VoxelAnimClass>(pAnimType, location, pHouse);
+                    }
+                }
+                // 剩余的从shp碎片中随机
+                int lastTimes = times - max;
+                if (lastTimes > 0)
+                {
+                    DynamicVectorClass<Pointer<AnimTypeClass>> debirs = RulesClass.Instance.Ref.MetallicDebris;
+                    int count = debirs.Count;
+                    if (count > 0)
+                    {
+                        for (int i = 0; i < lastTimes; i++)
+                        {
+                            int index = MathEx.Random.Next(count);
+                            Pointer<AnimTypeClass> pAnimType = debirs[index];
+                            Pointer<AnimClass> pNewAnim = YRMemory.Create<AnimClass>(pAnimType, location);
+                            pNewAnim.Ref.Owner = pHouse;
+                            pNewAnim.SetCreater(pCreater);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Logger.Log($"{Game.CurrentFrame} 按权重随机刷vxl碎片 {times} - {max} = {times - max}");
+                // 按照权重随机
+                Dictionary<int, int> marks = new Dictionary<int, int>();
+                // 权重标靶
+                Dictionary<Point2D, int> targetPad = debirTypes.Values.ToArray().MakeTargetPad(debirTypes.Count(), out int maxValue);
+                for (int i = 0; i < times; i++)
+                {
+                    bool spawn = false;
+                    Pointer<VoxelAnimTypeClass> pAnimType = IntPtr.Zero;
+                    int index = targetPad.Hit(maxValue);
+                    if (!marks.ContainsKey(index))
+                    {
+                        spawn = true;
+                        marks.Add(index, 1);
+                        pAnimType = debirTypes.ElementAt(index).Key;
+                    }
+                    else
+                    {
+                        int count = marks[index];
+                        KeyValuePair<Pointer<VoxelAnimTypeClass>, int> kv = debirTypes.ElementAt(index);
+                        if (count < kv.Value)
+                        {
+                            spawn = true;
+                            marks[index]++;
+                            pAnimType = kv.Key;
+                        }
+                        else
+                        {
+                            i--;
+                        }
+                    }
+                    if (spawn)
+                    {
+                        Pointer<VoxelAnimClass> pAnim = YRMemory.Create<VoxelAnimClass>(pAnimType, location, pHouse);
                     }
                 }
             }
