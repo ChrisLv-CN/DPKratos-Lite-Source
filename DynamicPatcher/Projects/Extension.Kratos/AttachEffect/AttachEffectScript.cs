@@ -38,16 +38,16 @@ namespace Extension.Script
 
         public Pointer<ObjectClass> pOwner => pObject;
 
-        public IConfigWrapper<AttachEffectTypeData> aeTypeData = null;
-        public AttachEffectTypeData AETypeData
+        public IConfigWrapper<AttachEffectTypeData> _aeTypeData = null;
+        public AttachEffectTypeData aeTypeData
         {
             get
             {
-                if (null == aeTypeData)
+                if (null == _aeTypeData)
                 {
-                    aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section);
+                    _aeTypeData = Ini.GetConfig<AttachEffectTypeData>(Ini.RulesDependency, section);
                 }
-                return aeTypeData.Data;
+                return _aeTypeData.Data;
             }
         }
         public List<AttachEffect> AttachEffects; // 所有有效的AE
@@ -83,16 +83,16 @@ namespace Extension.Script
         private int locationMarkDistance; // 多少格记录一个位置
         private double totleMileage; // 总里程
 
-        private IConfigWrapper<AttachEffectTypeTypeData> aeTypeTypeData = null;
-        private AttachEffectTypeTypeData AETypeTypeData
+        private IConfigWrapper<AttachEffectTypeTypeData> _aeTypeTypeData = null;
+        private AttachEffectTypeTypeData aeTypeTypeData
         {
             get
             {
-                if (null == aeTypeTypeData)
+                if (null == _aeTypeTypeData)
                 {
-                    aeTypeTypeData = Ini.GetConfig<AttachEffectTypeTypeData>(Ini.RulesDependency, section);
+                    _aeTypeTypeData = Ini.GetConfig<AttachEffectTypeTypeData>(Ini.RulesDependency, section);
                 }
-                return aeTypeTypeData.Data;
+                return _aeTypeTypeData.Data;
             }
         }
         private bool attachEffectOnceFlag = false; // 已经在Update事件中附加过一次section上写的AE
@@ -871,7 +871,7 @@ namespace Extension.Script
                         // 查找该乘客身上的AEMode设置
                         if (pPassenger.Convert<TechnoClass>().TryGetAEManager(out AttachEffectScript pAEM))
                         {
-                            int aeMode = pAEM.AETypeData.AEMode;
+                            int aeMode = pAEM.aeTypeData.AEMode;
                             if (aeMode >= 0)
                             {
                                 passengerIds.Add(aeMode);
@@ -954,8 +954,8 @@ namespace Extension.Script
                 if (!pTechno.IsNull && pTechno.Convert<ObjectClass>() == pOwner)
                 {
                     attachEffectOnceFlag = false;
-                    aeTypeTypeData = null;
-                    aeTypeData = null;
+                    _aeTypeTypeData = null;
+                    _aeTypeData = null;
                     // Logger.Log($"{Game.CurrentFrame} [{section}]发生了类型改变，当前类型[{pObject.Ref.Type.Ref.Base.ID}]");
                     // 移除不保留的AE
                     for (int i = Count() - 1; i >= 0; i--)
@@ -1007,7 +1007,7 @@ namespace Extension.Script
                     }
                 }
                 // 添加section自带AE，无分组的
-                Attach(AETypeData);
+                Attach(aeTypeData);
                 // 检查乘客并附加乘客带来的AE
                 if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
@@ -1035,15 +1035,15 @@ namespace Extension.Script
                     });
                 }
                 // 添加分组的
-                if (AETypeTypeData.Enable)
+                if (aeTypeTypeData.Enable)
                 {
                     // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组");
-                    foreach (AttachEffectTypeData typeData in AETypeTypeData.Datas.Values)
+                    foreach (AttachEffectTypeData typeData in aeTypeTypeData.Datas.Values)
                     {
                         if (typeData.AttachByPassenger)
                         {
                             // 需要乘客激活
-                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {passengerIds.Count()} 个，[{string.Join(", ", passengerIds)}]");
+                            // Logger.Log($"{Game.CurrentFrame} [{section}]{pOwner} 添加分组AE，一共有{aeTypeTypeData.Datas.Count()}组，需要乘客才能激活，收集到乘客ID有 {PassengerIds.Count()} 个，[{string.Join(", ", PassengerIds)}]");
                             int aeMode = typeData.AEModeIndex;
                             if (null != PassengerIds && PassengerIds.Any() && PassengerIds.Contains(aeMode))
                             {

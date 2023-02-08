@@ -54,11 +54,11 @@ namespace Extension.Ext
         // 多组AE
         public void Read(ISectionReader reader, int index)
         {
-            string title = "AttachEffectTypes" + index + ".";
+            string title = "AttachEffectTypes" + index;
             this.AttachEffectTypes = reader.GetList(title, this.AttachEffectTypes);
-            this.AttachEffectChances = reader.GetChanceList(title + "Chances", this.AttachEffectChances);
+            this.AttachEffectChances = reader.GetChanceList(title + ".Chances", this.AttachEffectChances);
 
-            this.AttachByPassenger = reader.Get(title + "AttachByPassenger", this.AttachByPassenger); // 默认值为true
+            this.AttachByPassenger = reader.Get(title + ".AttachByPassenger", this.AttachByPassenger); // 默认值为true
             this.AEModeIndex = index;
         }
 
