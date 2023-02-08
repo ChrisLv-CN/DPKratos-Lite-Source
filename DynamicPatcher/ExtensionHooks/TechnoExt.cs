@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using DynamicPatcher;
 using PatcherYRpp;
 using PatcherYRpp.FileFormats;
+using PatcherYRpp.Utilities;
 using Extension.Ext;
 using Extension.INI;
 using Extension.Utilities;
@@ -1057,7 +1058,8 @@ namespace ExtensionHooks
         #endregion
 
         #region Techno destroy debris
-        [Hook(HookType.AresHook, Address = 0x7022FE, Size = 5)]
+        // [Hook(HookType.AresHook, Address = 0x7022FE, Size = 5)]
+        [Hook(HookType.AresHook, Address = 0x702299, Size = 0xA)] // Phobos hook here but why? So stupid
         public static unsafe UInt32 TechnoClass_Destroy_VxlDebris_Remap(REGISTERS* R)
         {
             try
@@ -1066,11 +1068,19 @@ namespace ExtensionHooks
                 {
                     Pointer<TechnoClass> pTechno = (IntPtr)R->ESI;
                     Pointer<TechnoTypeClass> pType = pTechno.Ref.Type;
-                    int times = (int)R->EBX;
-                    Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
-                    CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                    ExpandAnims.PlayExpandDebirs(pType.Ref.DebrisTypes, pType.Ref.DebrisMaximums, times, location, pHouse, pTechno);
-                    R->EBX = 0;
+                    // int times = (int)R->EBX;
+                    // Phobos要自己算随机数
+                    int max = pType.Ref.MaxDebris;
+                    int min = pType.Ref.MinDebris;
+                    int times = MathEx.Random.Next(min, max);
+                    DynamicVectorClass<Pointer<VoxelAnimTypeClass>> debrisTypes = pType.Ref.DebrisTypes;
+                    if (debrisTypes.Count > 0)
+                    {
+                        Pointer<HouseClass> pHouse = pTechno.Ref.Owner;
+                        CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+                        ExpandAnims.PlayExpandDebirs(debrisTypes, pType.Ref.DebrisMaximums, times, location, pHouse, pTechno);
+                    }
+                    R->EBX = (uint)times;
                     return 0x7023E5;
                 }
             }
