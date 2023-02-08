@@ -506,6 +506,8 @@ namespace Extension.Script
                     if (aeTypes.Contains(ae.AEData.Name))
                     {
                         ae.Disable(location);
+                        AttachEffects.Remove(ae);
+                        ReduceStackCount(ae);
                     }
                 }
             }
