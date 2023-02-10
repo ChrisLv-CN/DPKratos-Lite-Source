@@ -32,6 +32,7 @@ namespace Extension.Ext
         public bool AffectStand;
         public bool AffectSelf;
         public bool AffectInAir;
+        public string[] NotAffectMarks;
         public string[] OnlyAffectMarks;
 
         public bool AffectsOwner;
@@ -60,6 +61,7 @@ namespace Extension.Ext
             this.AffectStand = false;
             this.AffectSelf = false;
             this.AffectInAir = true;
+            this.NotAffectMarks = null;
             this.OnlyAffectMarks = null;
 
             this.AffectsOwner = true;
@@ -98,6 +100,7 @@ namespace Extension.Ext
             this.AffectStand = reader.Get(title + "AffectStand", this.AffectStand);
             this.AffectSelf = reader.Get(title + "AffectSelf", this.AffectSelf);
             this.AffectInAir = reader.Get(title + "AffectInAir", this.AffectInAir);
+            this.NotAffectMarks = reader.GetList(title + "NotAffectMarks", this.NotAffectMarks);
             this.OnlyAffectMarks = reader.GetList(title + "OnlyAffectMarks", this.OnlyAffectMarks);
 
             if (reader.TryGet(title + "AffectsAllies", out bool affectsAllies))
@@ -190,26 +193,35 @@ namespace Extension.Ext
 
         public bool IsOnMark(Pointer<ObjectClass> pObject)
         {
-            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+            return (null == OnlyAffectMarks || !OnlyAffectMarks.Any())
+                && (null == NotAffectMarks || !NotAffectMarks.Any())
                 || (pObject.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
         }
 
         public bool IsOnMark(Pointer<BulletClass> pBullet)
         {
-            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+            return (null == OnlyAffectMarks || !OnlyAffectMarks.Any())
+                && (null == NotAffectMarks || !NotAffectMarks.Any())
                 || (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
         }
 
         public bool IsOnMark(Pointer<TechnoClass> pTechno)
         {
-            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
+            return (null == OnlyAffectMarks || !OnlyAffectMarks.Any())
+                && (null == NotAffectMarks || !NotAffectMarks.Any())
                 || (pTechno.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager));
         }
 
         public bool IsOnMark(AttachEffectScript aeManager)
         {
-            return null == OnlyAffectMarks || !OnlyAffectMarks.Any()
-                || aeManager.TryGetMarks(out HashSet<string> marks) && OnlyAffectMarks.Intersect(marks).Count() > 0;
+            bool hasWhiteList = null != OnlyAffectMarks && OnlyAffectMarks.Any();
+            bool hasBlackList = null != NotAffectMarks && NotAffectMarks.Any();
+            HashSet<string> marks = null;
+            return (!hasWhiteList && !hasBlackList)
+                || aeManager.TryGetMarks(out marks) ? (
+                        (!hasWhiteList || OnlyAffectMarks.Intersect(marks).Count() > 0)
+                        && (!hasBlackList || NotAffectMarks.Intersect(marks).Count() <= 0)
+                    ) : !hasWhiteList;
         }
 
     }

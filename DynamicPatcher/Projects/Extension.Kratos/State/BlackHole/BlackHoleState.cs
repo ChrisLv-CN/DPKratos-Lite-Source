@@ -131,20 +131,12 @@ namespace Extension.Ext
 
         public bool IsOnMark(Pointer<BulletClass> pTarget)
         {
-            return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
-                || (pTarget.TryGetAEManager(out AttachEffectScript aem)
-                    && aem.TryGetMarks(out HashSet<string> marks)
-                    && (Data.OnlyAffectMarks.Intersect(marks).Count() > 0)
-                );
+            return Data.IsOnMark(pTarget);
         }
 
         public bool IsOnMark(Pointer<TechnoClass> pTarget)
         {
-            return null == Data.OnlyAffectMarks || !Data.OnlyAffectMarks.Any()
-                || (pTarget.TryGetAEManager(out AttachEffectScript aem)
-                    && aem.TryGetMarks(out HashSet<string> marks)
-                    && (Data.OnlyAffectMarks.Intersect(marks).Count() > 0)
-                );
+            return Data.IsOnMark(pTarget);
         }
 
     }

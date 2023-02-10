@@ -338,7 +338,7 @@ namespace Extension.Script
                 return;
             }
             // 是否需要标记
-            if (!IsOnMark(data))
+            if (!data.IsOnMark(this))
             {
                 return;
             }
@@ -846,14 +846,6 @@ namespace Extension.Script
         public bool IsOnMark(string[] marks)
         {
             return TryGetMarks(out HashSet<string> hasMarks) && (marks.Intersect(hasMarks).Count() > 0);
-        }
-
-        private bool IsOnMark(AttachEffectData data)
-        {
-            return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()
-                || (TryGetMarks(out HashSet<string> marks)
-                    && (data.OnlyAffectMarks.Intersect(marks).Count() > 0)
-                );
         }
 
         private bool CheckPassanger(Pointer<TechnoClass> pTechno, out List<int> passengerIds, Found<ObjectClass> foundPassanger = null)

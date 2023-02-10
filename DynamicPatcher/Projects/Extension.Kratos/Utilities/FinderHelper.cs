@@ -425,7 +425,7 @@ namespace Extension.Utilities
                         }
                     }
                     // 可影响
-                    if (data.CanAffectType(pTarget) && pTarget.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager, data))
+                    if (data.CanAffectType(pTarget) && pTarget.TryGetAEManager(out AttachEffectScript aeManager) && data.IsOnMark(aeManager))
                     {
                         // 执行动作
                         if (func(pTarget, aeManager))
@@ -457,7 +457,7 @@ namespace Extension.Utilities
             }, location, maxSpread, minSpread, fullAirspace, pHouse, data.AffectsOwner, data.AffectsAllies, data.AffectsEnemies, data.AffectsCivilian);
             foreach (Pointer<BulletClass> pBullet in pBulletSet)
             {
-                if (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && IsOnMark(aeManager, data))
+                if (pBullet.TryGetAEManager(out AttachEffectScript aeManager) && data.IsOnMark(aeManager))
                 {
                     // 执行动作
                     if (func(pBullet, aeManager))
@@ -466,14 +466,6 @@ namespace Extension.Utilities
                     }
                 }
             }
-        }
-
-        private static bool IsOnMark(AttachEffectScript aeManager, FilterData data)
-        {
-            return null == data.OnlyAffectMarks || !data.OnlyAffectMarks.Any()
-                || (aeManager.TryGetMarks(out HashSet<string> marks)
-                    && (data.OnlyAffectMarks.Intersect(marks).Count() > 0)
-                );
         }
 
     }
