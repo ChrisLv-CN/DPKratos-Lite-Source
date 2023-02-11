@@ -17,7 +17,7 @@ namespace Extension.Ext
         public bool MultiSpawns;
         public string[] Spwans;
 
-        public int SpwanDelay;
+        public int SpawnDelay;
 
 
 
@@ -29,7 +29,7 @@ namespace Extension.Ext
         {
             this.Spwans = null;
 
-            this.SpwanDelay = -1;
+            this.SpawnDelay = -1;
 
             this.NoShadowSpawnAlt = false;
             this.SpawnFireOnce = false;
@@ -40,7 +40,7 @@ namespace Extension.Ext
             this.Spwans = reader.GetList("Spawns", this.Spwans);
             this.MultiSpawns = null != Spwans && Spwans.Count() > 1;
 
-            this.SpwanDelay = reader.Get("SpawnDelay", this.SpwanDelay);
+            this.SpawnDelay = reader.Get("SpawnDelay", this.SpawnDelay);
 
             this.NoShadowSpawnAlt = reader.Get("NoShadowSpawnAlt", this.NoShadowSpawnAlt);
             this.SpawnFireOnce = reader.Get("SpawnFireOnce", this.SpawnFireOnce);

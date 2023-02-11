@@ -104,7 +104,9 @@ namespace ExtensionHooks
         public static unsafe UInt32 SpawnManagerClass_Update_PutSpawns(REGISTERS* R)
         {
             Pointer<TechnoClass> pTechno = (IntPtr)R->ECX;
+            Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
             int weaponIdx = (int)R->EBP;
+            bool customFLH = false;
             if (weaponIdx > 0)
             {
                 // wwsb 主武器没有Spawner，所以用副武器，继续检查其他武器
@@ -136,8 +138,6 @@ namespace ExtensionHooks
                         }
                     }
                 }
-                Pointer<SpawnManagerClass> pManager = (IntPtr)R->ESI;
-                bool customFLH = false;
                 if (spawner)
                 {
                     // 找到另外的子机发射器，设置Index
@@ -160,19 +160,19 @@ namespace ExtensionHooks
                         eax.Data = fireScript.SpawnerBurstFLH[index];
                     }
                 }
+            }
+            // 重设子机发射延迟
+            if (pTechno.TryGetStatus(out TechnoStatusScript status))
+            {
                 // 重设子机发射延迟
-                if (pTechno.TryGetStatus(out TechnoStatusScript status))
+                if (status.SpawnData.SpawnDelay > -1)
                 {
-                    // 重设子机发射延迟
-                    if (status.SpawnData.SpwanDelay > -1)
-                    {
-                        pManager.Ref.SpawnTimer.Start(status.SpawnData.SpwanDelay);
-                    }
+                    pManager.Ref.SpawnTimer.Start(status.SpawnData.SpawnDelay);
                 }
-                if (customFLH)
-                {
-                    return 0x6B7498;
-                }
+            }
+            if (customFLH)
+            {
+                return 0x6B7498;
             }
             return 0;
         }
