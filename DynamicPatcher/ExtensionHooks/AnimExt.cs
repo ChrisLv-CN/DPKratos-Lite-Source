@@ -127,16 +127,11 @@ namespace ExtensionHooks
             {
                 if (pAnim.Ref.IsBuildingAnim)
                 {
-                    CoordStruct location = pAnim.Ref.Base.Base.GetCoords();
-                    if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
+                    if (pAnim.TryGetStatus(out AnimStatusScript status)
+                        && status.TryGetCreater(out Pointer<TechnoClass> pCreater)
+                        && pCreater.TryGetStatus(out TechnoStatusScript technoStatus))
                     {
-                        Pointer<BuildingClass> pBuilding = pCell.Ref.GetBuilding();
-                        if (!pBuilding.IsNull && pBuilding.Convert<TechnoClass>().TryGetStatus(out TechnoStatusScript status))
-                        {
-                            status.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
-                            // TechnoExt ext = TechnoExt.ExtMap.Find(pBuilding.Convert<TechnoClass>());
-                            // ext?.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
-                        }
+                        technoStatus.TechnoClass_DrawSHP_Paintball_BuildAnim(R);
                     }
                 }
                 else if (pAnim.TryGetStatus(out AnimStatusScript status))

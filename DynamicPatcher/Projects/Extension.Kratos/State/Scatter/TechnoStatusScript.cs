@@ -15,7 +15,7 @@ namespace Extension.Script
     public partial class TechnoStatusScript
     {
 
-        public ScatterState ScatterState = new ScatterState();
+        public State<ScatterData> ScatterState = new State<ScatterData>();
 
         private bool forceMoving;
         private bool panic;

@@ -986,6 +986,26 @@ namespace ExtensionHooks
             return 0x706879;
         }
 
+        [Hook(HookType.AresHook, Address = 0x45197B, Size = 6)]
+        public static unsafe UInt32 BuildingClass_UpdateAnim_SetOwner(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<AnimClass> pBuildingAnim = (IntPtr)R->EBP;
+                if (!pBuildingAnim.IsNull)
+                {
+                    Pointer<TechnoClass> pBuilding = (IntPtr)R->ESI;
+                    pBuildingAnim.SetAnimOwner(pBuilding);
+                    pBuildingAnim.SetCreater(pBuilding);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         #region Draw colour
         // case VISUAL_NORMAL
         [Hook(HookType.AresHook, Address = 0x7063FF, Size = 7)]

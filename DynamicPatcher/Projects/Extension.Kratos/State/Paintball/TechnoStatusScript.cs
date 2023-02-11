@@ -74,7 +74,7 @@ namespace Extension.Script
                 {
                     if (buildingWasEMP)
                     {
-                        buildingWasEMP = true;
+                        buildingWasEMP = false;
                         pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
@@ -82,7 +82,7 @@ namespace Extension.Script
                 if (PaintballState.IsActive())
                 {
                     // Logger.Log($"{Game.CurrentFrame} - {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}, ForceShilded {pTechno.Ref.IsForceShilded}");
-                    if (!buildingWasColor)
+                    if (!buildingWasColor || PaintballState.IsReset())
                     {
                         buildingWasColor = true;
                         pTechno.Ref.Base.NeedsRedraw = true;
@@ -92,7 +92,7 @@ namespace Extension.Script
                 {
                     if (buildingWasColor)
                     {
-                        buildingWasColor = true;
+                        buildingWasColor = false;
                         pTechno.Ref.Base.NeedsRedraw = true;
                     }
                 }
@@ -207,7 +207,7 @@ namespace Extension.Script
                 return;
             }
 
-            // Logger.Log($"{Game.CurrentFrame} - {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Color} {changeColor}, change bright {changeBright}");
+            // Logger.Log($"{Game.CurrentFrame} - {pTechno} {pTechno.Ref.Type.Ref.Base.Base.ID} change color {PaintballState.Data.Color} {changeColor}, change bright {changeBright}");
             if (changeColor)
             {
                 R->EBP = PaintballState.Data.GetColor();

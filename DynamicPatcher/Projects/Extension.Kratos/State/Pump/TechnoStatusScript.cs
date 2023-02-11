@@ -15,7 +15,7 @@ namespace Extension.Script
     public partial class TechnoStatusScript
     {
 
-        public PumpState PumpState = new PumpState();
+        public State<PumpData> PumpState = new State<PumpData>();
         public bool Jumping;
 
         private PumpData pumpData;

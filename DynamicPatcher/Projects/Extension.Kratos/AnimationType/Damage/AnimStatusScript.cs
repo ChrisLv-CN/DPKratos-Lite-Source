@@ -35,10 +35,16 @@ namespace Extension.Script
 
         public void SetCreater(Pointer<TechnoClass> pTechno)
         {
-            if (animDamageData.KillByCreater && !pTechno.IsNull)
+            if (!pTechno.IsNull)
             {
                 createrExt = TechnoExt.ExtMap.Find(pTechno);
             }
+        }
+
+        public bool TryGetCreater(out Pointer<TechnoClass> pCreater)
+        {
+            pCreater = creater;
+            return !pCreater.IsNull;
         }
 
         public void OnUpdate_Damage()

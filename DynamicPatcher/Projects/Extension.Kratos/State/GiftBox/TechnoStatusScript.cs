@@ -137,7 +137,15 @@ namespace Extension.Script
             {
                 pHouse = pTechno.Ref.Owner;
             }
-            CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
+            CoordStruct location = default;
+            if (data.RealCoords)
+            {
+                location = pTechno.Ref.Base.Location;
+            }
+            else
+            {
+                location = pTechno.Ref.Base.Base.GetCoords();
+            }
             Mission curretMission = pTechno.Convert<MissionClass>().Ref.CurrentMission;
 
             // 获取投送单位的位置

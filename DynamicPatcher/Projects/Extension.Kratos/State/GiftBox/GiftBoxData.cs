@@ -95,6 +95,7 @@ namespace Extension.Ext
         public GiftBoxEntity EliteData;
         public bool Remove;
         public bool Destroy;
+        public bool RealCoords;
         public int RandomRange;
         public bool EmptyCell;
         public bool OpenWhenDestroyed;
@@ -132,6 +133,7 @@ namespace Extension.Ext
 
             this.Remove = true;
             this.Destroy = false;
+            this.RealCoords = false;
             this.RandomRange = 0;
             this.EmptyCell = false;
             this.OpenWhenDestroyed = false;
@@ -191,6 +193,7 @@ namespace Extension.Ext
             // 通用设置
             this.Remove = reader.Get(title + "Remove", this.Remove);
             this.Destroy = reader.Get(title + "Explodes", this.Destroy);
+            this.RealCoords = reader.Get(title + "RealCoords", this.RealCoords);
             this.RandomRange = reader.Get(title + "RandomRange", this.RandomRange);
             this.EmptyCell = reader.Get(title + "RandomToEmptyCell", this.EmptyCell);
 

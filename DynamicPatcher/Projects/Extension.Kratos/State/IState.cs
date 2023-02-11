@@ -34,6 +34,8 @@ namespace Extension.Ext
         private bool infinite;
         private TimerStruct timer;
 
+        private bool resetFlag;
+
         private int frame; // 当前帧
 
         public State()
@@ -41,6 +43,8 @@ namespace Extension.Ext
             this.active = false;
             this.infinite = false;
             this.timer.Start(0);
+
+            this.resetFlag = false;
         }
 
         // 由AE亲自开启
@@ -77,6 +81,7 @@ namespace Extension.Ext
             ResetDuration(duration);
             this.frame = Game.CurrentFrame;
             // Logger.Log($"{Game.CurrentFrame} Enable State {(null != Data ? Data.GetType().Name : "Null")}, duration = {duration}, token {Token}");
+            this.resetFlag = true;
             OnEnable();
         }
 
@@ -151,6 +156,16 @@ namespace Extension.Ext
                 }
             }
             return active;
+        }
+
+        public bool IsReset()
+        {
+            bool reset = resetFlag;
+            if (resetFlag)
+            {
+                resetFlag = false;
+            }
+            return reset;
         }
 
     }

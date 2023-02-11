@@ -127,7 +127,7 @@ namespace Extension.Script
             this.OverrideWeaponState = new OverrideWeaponState();
             // 分散
             heir.ScatterState = this.ScatterState;
-            this.ScatterState = new ScatterState();
+            this.ScatterState = new State<ScatterData>();
             // 传送
             heir.TeleportState = this.TeleportState;
             this.TeleportState = new TeleportState();
