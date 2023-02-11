@@ -40,12 +40,14 @@ namespace Extension.Script
 
         public bool NonInheritable;
 
-        private bool active;
+        private bool active; // 有效
         private int duration; // 寿命
         private bool immortal; // 永生
         private TimerStruct lifeTimer;
         private TimerStruct initialDelayTimer;
-        private bool delayToEnable; // 延迟激活中
+        private bool delayToEnable; // 延迟开启
+        private bool inBuilding; // 是否在建造中
+        private bool enableFlag; // 运行中
 
         private List<IEffect> effects = new List<IEffect>();
 
@@ -114,6 +116,21 @@ namespace Extension.Script
             }
         }
 
+        public bool DelayToEnable()
+        {
+            // 检查初始延迟计时器
+            if (delayToEnable)
+            {
+                delayToEnable = initialDelayTimer.InProgress();
+            }
+            // 检查建筑状态
+            if (inBuilding)
+            {
+                inBuilding = AEManager.InBuilding;
+            }
+            return delayToEnable || inBuilding;
+        }
+
         public void Enable(AttachEffectScript AEManager, Pointer<TechnoClass> pSource, Pointer<HouseClass> pSourceHouse, CoordStruct warheadLocation, int aeMode, bool fromPassenger)
         {
             this.active = true;
@@ -124,16 +141,16 @@ namespace Extension.Script
             this.FromWarhead = default != WarheadLocation;
             this.AEMode = aeMode;
             this.FromPassenger = fromPassenger;
-            if (!delayToEnable || initialDelayTimer.Expired())
+            this.inBuilding = AEManager.InBuilding;
+            if (this.enableFlag = !DelayToEnable())
             {
-
                 EnableEffects();
             }
         }
 
         private void EnableEffects()
         {
-            delayToEnable = false;
+            this.enableFlag = true;
             SetupLifeTimer();
             foreach (IEffect effect in effects)
             {
@@ -146,7 +163,7 @@ namespace Extension.Script
         public void Disable(CoordStruct location)
         {
             this.active = false;
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -161,7 +178,7 @@ namespace Extension.Script
             if (active)
             {
                 // Logger.Log("AE Type {0} {1} and {2}", Type.Name, IsDeath() ? "is death" : "not dead", IsAlive() ? "is alive" : "not alive");
-                active = delayToEnable || (!IsDeath() && IsAlive());
+                active = DelayToEnable() || (!IsDeath() && IsAlive());
             }
             return active;
         }
@@ -234,7 +251,7 @@ namespace Extension.Script
         public bool TryGetInitDelayTimeLeft(out int timeLeft)
         {
             timeLeft = -1;
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 timeLeft = initialDelayTimer.GetTimeLeft();
             }
@@ -253,7 +270,7 @@ namespace Extension.Script
 
         public void MergeDuation(int otherDuration)
         {
-            if (delayToEnable || otherDuration == 0)
+            if (DelayToEnable() || otherDuration == 0)
             {
                 // Logger.Log("{0}延迟激活中，不接受时延修改", Name);
                 return;
@@ -329,7 +346,7 @@ namespace Extension.Script
 
         public void LoadFromStream(IStream stream)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -342,7 +359,7 @@ namespace Extension.Script
 
         public void OnGScreenRender(CoordStruct location)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -356,9 +373,9 @@ namespace Extension.Script
         public void OnUpdate(CoordStruct location, bool isDead)
         {
             this.Location = location;
-            if (delayToEnable)
+            if (!enableFlag)
             {
-                if (initialDelayTimer.InProgress())
+                if (DelayToEnable())
                 {
                     return;
                 }
@@ -373,7 +390,7 @@ namespace Extension.Script
 
         public void OnWarpUpdate(CoordStruct location, bool isDead)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -385,7 +402,7 @@ namespace Extension.Script
 
         public void OnTemporalUpdate(Pointer<TemporalClass> pTemporal)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -397,7 +414,7 @@ namespace Extension.Script
 
         public void OnTemporalEliminate(Pointer<TemporalClass> pTemporal)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -409,7 +426,7 @@ namespace Extension.Script
 
         public void OnRocketExplosion()
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -421,7 +438,7 @@ namespace Extension.Script
 
         public void OnPut(Pointer<CoordStruct> location, DirType dirType)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -433,7 +450,7 @@ namespace Extension.Script
 
         public void OnRemove()
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -446,7 +463,7 @@ namespace Extension.Script
         public void OnReceiveDamage(Pointer<int> pDamage, int distanceFromEpicenter, Pointer<WarheadTypeClass> pWH,
             Pointer<ObjectClass> pAttacker, bool ignoreDefenses, bool preventPassengerEscape, Pointer<HouseClass> pAttackingHouse)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -460,7 +477,7 @@ namespace Extension.Script
             DamageState damageState,
             Pointer<ObjectClass> pAttacker, Pointer<HouseClass> pAttackingHouse)
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -472,7 +489,7 @@ namespace Extension.Script
 
         public void OnReceiveDamageDestroy()
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -484,7 +501,7 @@ namespace Extension.Script
 
         public void OnGuardCommand()
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }
@@ -496,7 +513,7 @@ namespace Extension.Script
 
         public void OnStopCommand()
         {
-            if (delayToEnable)
+            if (DelayToEnable())
             {
                 return;
             }

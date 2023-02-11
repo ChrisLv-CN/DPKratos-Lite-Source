@@ -211,10 +211,10 @@ namespace Extension.Script
             ExplodesOrDisappear(false);
         }
 
-        private void ExplodesOrDisappear(bool remove)
+        private void ExplodesOrDisappear(bool peaceful)
         {
             // Logger.Log($"{Game.CurrentFrame} {AE.AEData.Name} 替身 [{Data.Type}]{pStand} 注销");
-            bool explodes = (Data.Explodes || notBeHuman || (masterIsRocket && Data.ExplodesWithRocket)) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
+            bool explodes = !peaceful && (Data.Explodes || notBeHuman || (masterIsRocket && Data.ExplodesWithRocket)) && !pStand.Ref.BeingWarpedOut && !pStand.Ref.WarpingOut;
             if (pStand.TryGetStatus(out TechnoStatusScript standStatus))
             {
                 // Logger.Log($"{Game.CurrentFrame} 阿伟 [{Data.Type}]{pStand} 要死了 explodes = {explodes}");
@@ -230,10 +230,6 @@ namespace Extension.Script
                 {
                     // Logger.Log($"{Game.CurrentFrame} {AEType.Name} 替身 {pStand}[{Type.Type}] 自爆, 没有发现EXT");
                     pStand.Ref.Base.TakeDamage(pStand.Ref.Base.Health + 1, pStand.Ref.Type.Ref.Crewed);
-                    if (remove)
-                    {
-                        pStand.Ref.Base.Remove();
-                    }
                 }
                 else
                 {
@@ -428,6 +424,12 @@ namespace Extension.Script
             if (pMaster.Ref.IsSinking && Data.RemoveAtSinking)
             {
                 // Logger.Log($"{Game.CurrentFrame} 船沉了，自爆吧！");
+                ExplodesOrDisappear(true);
+                return;
+            }
+            if (masterIsDead && AE.AEManager.InSelling)
+            {
+                // Logger.Log($"{Game.CurrentFrame} 建筑卖了，消失吧！");
                 ExplodesOrDisappear(true);
                 return;
             }

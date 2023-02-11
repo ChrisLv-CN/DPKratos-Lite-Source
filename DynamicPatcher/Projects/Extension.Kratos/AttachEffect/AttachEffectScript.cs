@@ -71,6 +71,36 @@ namespace Extension.Script
         public bool IsBuilding => AbsType == AbstractType.Building;
         public bool IsFoot => !IsBullet && !IsBuilding;
 
+        public bool InBuilding
+        {
+            get
+            {
+                if (!isDead && IsBuilding)
+                {
+                    Pointer<BuildingClass> pBuilding = pObject.Convert<BuildingClass>();
+                    MissionClass mission = pBuilding.Ref.BaseMission;
+                    // Logger.Log($"{Game.CurrentFrame} 建筑 [{section}]{pOwner} 是否在建筑, BState = {pBuilding.Ref.BState}, Mission = {mission.CurrentMission}, MissionStatus = {mission.MissionStatus}");
+                    return pBuilding.Ref.BState == BStateType.CONSTRUCTION && mission.CurrentMission != Mission.Selling;
+                }
+                return false;
+            }
+        }
+
+        public bool InSelling
+        {
+            get
+            {
+                if (IsBuilding)
+                {
+                    Pointer<BuildingClass> pBuilding = pObject.Convert<BuildingClass>();
+                    MissionClass mission = pBuilding.Ref.BaseMission;
+                    // Logger.Log($"{Game.CurrentFrame} 建筑 [{section}]{pOwner} 是否在出售, BState = {pBuilding.Ref.BState}, Mission = {mission.CurrentMission}, MissionStatus = {mission.MissionStatus}");
+                    return pBuilding.Ref.BState == BStateType.CONSTRUCTION && mission.CurrentMission == Mission.Selling && mission.MissionStatus > 0;
+                }
+                return false;
+            }
+        }
+
         public bool PowerOff;
 
         public List<int> PassengerIds; // 乘客持有的ID
@@ -110,12 +140,14 @@ namespace Extension.Script
                     }
                     else
                     {
-                        _isDead = pObject.Convert<TechnoClass>().IsDead();
+                        // 出售中的建筑也判定为死亡
+                        _isDead = pObject.Convert<TechnoClass>().IsDead() || InSelling;
                     }
                 }
                 return _isDead;
             }
         }
+
 
         private int locationSpace; // 替身火车的车厢间距
 
