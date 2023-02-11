@@ -164,6 +164,7 @@ namespace Extension.Ext
         public bool AffectStand;
 
         public bool ClearTarget;
+        public bool ClearDisguise;
 
         public Mission ForceMission;
 
@@ -207,6 +208,7 @@ namespace Extension.Ext
             this.AffectStand = false;
 
             this.ClearTarget = false;
+            this.ClearDisguise = false;
 
             this.ForceMission = Mission.None;
 
@@ -251,6 +253,7 @@ namespace Extension.Ext
             this.AffectStand = reader.Get("AffectStand", this.AffectStand);
 
             this.ClearTarget = reader.Get("ClearTarget", this.ClearTarget);
+            this.ClearDisguise = reader.Get("ClearDisguise", this.ClearDisguise);
 
             this.ForceMission = reader.Get("ForceMission", this.ForceMission);
 

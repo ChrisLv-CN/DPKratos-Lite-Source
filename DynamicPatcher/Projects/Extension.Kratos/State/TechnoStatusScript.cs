@@ -296,6 +296,11 @@ namespace Extension.Script
                             pTechno.ClearAllTarget();
                         }
                     }
+                    // 清理伪装弹头
+                    if (warheadTypeData.ClearDisguise && pTechno.Ref.Base.IsDisguised())
+                    {
+                        pTechno.Ref.Disguised = false;
+                    }
                     // 欠揍弹头
                     if (warheadTypeData.Lueluelue && !pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTargetTechno) && pTechno.CanAttack(pTargetTechno))
                     {
