@@ -323,8 +323,8 @@ namespace Extension.Script
         /// <param name="fromPassenger">绑定乘客</param>
         public void Attach(string type, Pointer<ObjectClass> pSource = default, Pointer<HouseClass> pSourceHouse = default, bool attachOnceFlag = false, CoordStruct warheadLocation = default, int aeMode = -1, bool fromPassenger = false)
         {
-            // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE [{type}]. attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
             IConfigWrapper<AttachEffectData> aeDate = Ini.GetConfig<AttachEffectData>(Ini.RulesDependency, type);
+            // Logger.Log($"{Game.CurrentFrame} 为 [{section}]{pOwner} 附加 AE [{type}]. attachOnce = {aeDate.Data.AttachOnceInTechnoType} attachOnceFlag = {attachOnceFlag}, 来源 {pSource}");
             if (attachOnceFlag && aeDate.Data.AttachOnceInTechnoType)
             {
                 return;
