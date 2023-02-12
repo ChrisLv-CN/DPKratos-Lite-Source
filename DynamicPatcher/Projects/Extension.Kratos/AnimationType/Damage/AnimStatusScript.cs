@@ -26,8 +26,8 @@ namespace Extension.Script
             }
         }
 
-        private TechnoExt createrExt;
-        private Pointer<TechnoClass> creater => null != createrExt ? createrExt.OwnerObject : default;
+        public TechnoExt Creater;
+        private Pointer<TechnoClass> creater => null != Creater ? Creater.OwnerObject : default;
         private bool createrIsDeadth = false;
 
         private TimerStruct weaponDelay;
@@ -37,7 +37,7 @@ namespace Extension.Script
         {
             if (!pTechno.IsNull)
             {
-                createrExt = TechnoExt.ExtMap.Find(pTechno);
+                Creater = TechnoExt.ExtMap.Find(pTechno);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Extension.Script
                         }
                         if (!pCreater.IsDead())
                         {
-                            createrExt = TechnoExt.ExtMap.Find(pCreater);
+                            Creater = TechnoExt.ExtMap.Find(pCreater);
                         }
                         else
                         {
@@ -93,7 +93,7 @@ namespace Extension.Script
                 }
                 else if (createrIsDeadth = creater.IsDead())
                 {
-                    createrExt = null;
+                    Creater = null;
                 }
             }
         }

@@ -140,7 +140,7 @@ namespace Extension.Script
             CoordStruct location = default;
             if (data.RealCoords)
             {
-                location = pTechno.Ref.Base.Location;
+                location = pTechno.Ref.Base.GetRenderCoords();
             }
             else
             {

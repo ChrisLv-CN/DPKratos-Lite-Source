@@ -996,7 +996,15 @@ namespace ExtensionHooks
                 {
                     Pointer<TechnoClass> pBuilding = (IntPtr)R->ESI;
                     pBuildingAnim.SetAnimOwner(pBuilding);
-                    pBuildingAnim.SetCreater(pBuilding);
+                    if (pBuildingAnim.TryGetStatus(out AnimStatusScript status))
+                    {
+                        TechnoExt ext = TechnoExt.ExtMap.Find(pBuilding);
+                        if (null != ext)
+                        {
+                            status.AttachOwner = ext;
+                            status.Creater = ext;
+                        }
+                    }
                 }
             }
             catch (Exception e)

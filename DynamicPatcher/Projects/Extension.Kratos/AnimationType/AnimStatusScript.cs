@@ -36,7 +36,15 @@ namespace Extension.Script
             // 如果有附着对象的话，移动动画的位置
             if (!pAttachOwner.IsDead())
             {
-                CoordStruct location = pAttachOwner.Ref.Base.GetCoords();
+                CoordStruct location = default;
+                if (pAnim.Ref.IsBuildingAnim)
+                {
+                    location = pAttachOwner.Ref.GetRenderCoords();
+                }
+                else
+                {
+                    location = pAttachOwner.Ref.Base.GetCoords();
+                }
                 pAnim.Ref.Base.SetLocation(location);
             }
             OnUpdate_Visibility();
