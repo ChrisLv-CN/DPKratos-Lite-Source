@@ -94,8 +94,8 @@ namespace Extension.Ext
             {
                 this.Data = data;
             }
-
-            OverrideWeapon elite = null != this.Data ? Data.Clone() : new OverrideWeapon();
+            // 精英武器不克隆，需要单独写
+            OverrideWeapon elite = new OverrideWeapon();
             elite.Read(reader, TITLE + "Elite");
             if (null != elite.Types && elite.Types.Length > 0)
             {
