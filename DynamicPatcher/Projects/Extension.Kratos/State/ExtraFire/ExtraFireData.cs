@@ -111,8 +111,8 @@ namespace Extension.Ext
             {
                 this.Data = data;
             }
-
-            ExtraFireEntity elite = null != this.Data ? Data.Clone() : new ExtraFireEntity();
+            // 精英武器不克隆，需要单独写
+            ExtraFireEntity elite = new ExtraFireEntity();
             elite.Read(reader, TITLE + "Elite");
             if (null != elite && elite.IsEnable())
             {
