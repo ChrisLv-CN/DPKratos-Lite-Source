@@ -231,7 +231,7 @@ namespace Extension.Script
         {
             bool isFire = false;
             // 不允许朝这个目标发射
-            if (!weaponTypeData.CanFireToTarget(pAttacker, pTarget, pAttackingHouse, pWeapon))
+            if (!weaponTypeData.CanFireToTarget(pObject, pAttacker, pTarget, pAttackingHouse, pWeapon))
             {
                 return isFire;
             }

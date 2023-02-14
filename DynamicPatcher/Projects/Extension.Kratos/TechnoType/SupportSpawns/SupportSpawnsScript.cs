@@ -147,7 +147,7 @@ namespace Extension.Script
                         {
                             WeaponTypeData weaponTypeData = pWeapon.GetData();
                             // 目标筛选
-                            if (!weaponTypeData.CanFireToTarget(pAttacker, pTarget, pAttackingHouse, pWeapon))
+                            if (!weaponTypeData.CanFireToTarget(pShooter, pAttacker, pTarget, pAttackingHouse, pWeapon))
                             {
                                 // Logger.Log($"{Game.CurrentFrame} 支援武器[{weaponId}]{pWeapon}不能攻击子机[{section}]{pTechno}, 换下一个");
                                 continue;

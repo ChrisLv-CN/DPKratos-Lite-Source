@@ -36,14 +36,22 @@ namespace Extension.Utilities
             return new WeaponTypeData();
         }
 
-        public static bool CanFireToTarget(this WeaponTypeData weaponTypeData, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
+        public static bool CanFireToTarget(this WeaponTypeData weaponTypeData, Pointer<ObjectClass> pShooter, Pointer<TechnoClass> pAttacker, Pointer<AbstractClass> pTarget, Pointer<HouseClass> pAttackingHouse,
             Pointer<WeaponTypeClass> pWeapon)
         {
             bool canFire = true;
             // 检查发射者的血量
             if (weaponTypeData.CheckShooterHP)
             {
-                double hp = pAttacker.Ref.Base.GetHealthPercentage();
+                double hp = 1;
+                if (pAttacker.IsNull)
+                {
+                    hp = pShooter.Ref.GetHealthPercentage();
+                }
+                else
+                {
+                    hp = pAttacker.Ref.Base.GetHealthPercentage();
+                }
                 if (hp < weaponTypeData.OnlyFireWhenHP.X || hp > weaponTypeData.OnlyFireWhenHP.Y)
                 {
                     canFire = false;
