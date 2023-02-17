@@ -300,6 +300,25 @@ namespace ExtensionHooks
             return 0;
         }
 
+        [Hook(HookType.AresHook, Address = 0x6DA3FF, Size = 6)]
+        public static unsafe UInt32 TacticalClass_SelectAt_VirtualUnit(REGISTERS* R)
+        {
+            try
+            {
+                Pointer<TechnoClass> pTechno = (IntPtr)R->EAX;
+                if (pTechno.TryGetStatus(out TechnoStatusScript status) && status.VirtualUnit)
+                {
+                    // 虚单位不纳入可选择的范围
+                    return 0x6DA440;
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.PrintException(e);
+            }
+            return 0;
+        }
+
         [Hook(HookType.AresHook, Address = 0x6D5116, Size = 5)]
         public static unsafe UInt32 TacticalClass_Draw_Placement_Recheck(REGISTERS* R)
         {
