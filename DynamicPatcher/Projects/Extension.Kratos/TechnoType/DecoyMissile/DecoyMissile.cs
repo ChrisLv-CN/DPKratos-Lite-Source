@@ -30,9 +30,10 @@ namespace Extension.Ext
         // public int Distance;
 
         // control
-        public int Delay;
-        public int Bullets;
-        public int Reloading;
+        private int bullets;
+        private TimerStruct delayTimer;
+        private TimerStruct reloadTimer;
+
         public bool Fire;
 
         public bool Elite;
@@ -53,9 +54,7 @@ namespace Extension.Ext
             {
                 this.UseWeapon = this.Weapon;
             }
-            this.Delay = data.Delay;
-            this.Bullets = UseWeapon.Ref.Burst;
-            this.Reloading = 0;
+            this.bullets = UseWeapon.Ref.Burst;
             this.Fire = data.AlwaysFire;
             this.Elite = elite;
             Decoys = new List<BulletExt>();
@@ -80,11 +79,11 @@ namespace Extension.Ext
 
         public bool DropOne()
         {
-            if (--this.Reloading <= 0 && --this.Delay <= 0)
+            if (reloadTimer.Expired() && delayTimer.Expired())
             {
-                if (--this.Bullets >= 0)
+                if (--this.bullets >= 0)
                 {
-                    this.Delay = Data.Delay;
+                    delayTimer.Start(Data.Delay);
                     return true;
                 }
                 Reload();
@@ -94,8 +93,9 @@ namespace Extension.Ext
 
         public void Reload()
         {
-            this.Bullets = this.UseWeapon.Ref.Burst;
-            this.Reloading = this.UseWeapon.Ref.ROF;
+            this.bullets = this.UseWeapon.Ref.Burst;
+            this.reloadTimer.Start(this.UseWeapon.Ref.ROF);
+            this.delayTimer.Stop();
             this.Fire = this.Data.AlwaysFire;
         }
 
