@@ -923,6 +923,44 @@ namespace ExtensionHooks
         }
         #endregion
 
+        /*
+        [Hook(HookType.AresHook, Address = 0x4B015D, Size = 7)]
+        public static unsafe UInt32 DriveLocomotor_NotTilter(REGISTERS* R)
+        {
+            Matrix3DStruct matrix3D = R->Stack<Matrix3DStruct>(0x80);
+            // Pointer<float> theta = (IntPtr)R->EDX;
+            Logger.Log($"{Game.CurrentFrame} 绘制矩阵，旋转X轴 {R->EDX} , RX = {matrix3D.GetXRotation()} RY = {matrix3D.GetYRotation()} RZ = {matrix3D.GetZRotation()}");
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x73BBAC, Size = 5)]
+        public static unsafe UInt32 UnitClass_Draw(REGISTERS* R)
+        {
+            Logger.Log("OOXXXX");
+            Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->lea_Stack(0x108);
+            Pointer<float> theta = (IntPtr)R->ESP;
+            Logger.Log($"{Game.CurrentFrame} 绘制Unit，旋转Y轴 {theta.Ref}, RX = {pMatrix3D.Ref.GetXRotation()} RY = {pMatrix3D.Ref.GetYRotation()} RZ = {pMatrix3D.Ref.GetZRotation()}");
+            pMatrix3D.Ref.RotateZ(-pMatrix3D.Ref.GetZRotation());
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x5AEF60, Size = 7)]
+        public static unsafe UInt32 Matrix_RotateX(REGISTERS* R)
+        {
+            Pointer<Matrix3DStruct> pMatrix3D = (IntPtr)R->ESI;
+            Logger.Log($"{Game.CurrentFrame} {pMatrix3D}旋转X轴 {R->Stack<float>(0xC)}, RX = {pMatrix3D.Ref.GetXRotation()} RY = {pMatrix3D.Ref.GetYRotation()} RZ = {pMatrix3D.Ref.GetZRotation()}");
+            return 0;
+        }
+
+        [Hook(HookType.AresHook, Address = 0x6F3E80, Size = 5)]
+        public static unsafe UInt32 UnitClass_GetFireCoords(REGISTERS* R)
+        {
+            Pointer<Matrix3DStruct> pMatrix3D = R->Stack<IntPtr>(0);
+            Logger.Log($"{Game.CurrentFrame} {pMatrix3D} 获取开火坐标, RX = {pMatrix3D.Ref.GetXRotation()} RY = {pMatrix3D.Ref.GetYRotation()} RZ = {pMatrix3D.Ref.GetZRotation()}");
+            return 0;
+        }
+        */
+
         #region Techno shadow resize in air
         [Hook(HookType.AresHook, Address = 0x73C4FF, Size = 5)] // InAir
         [Hook(HookType.AresHook, Address = 0x73C595, Size = 5)] // OnGround
@@ -1001,6 +1039,8 @@ namespace ExtensionHooks
                         TechnoExt ext = TechnoExt.ExtMap.Find(pBuilding);
                         if (null != ext)
                         {
+                            Pointer<CoordStruct> pOffset = (IntPtr)R->EBX;
+                            status.Offset = pOffset.Ref;
                             status.AttachOwner = ext;
                             status.Creater = ext;
                         }

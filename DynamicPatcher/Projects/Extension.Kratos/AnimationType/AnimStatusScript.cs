@@ -30,6 +30,7 @@ namespace Extension.Script
                 return AttachOwner.OwnerObject;
             }
         }
+        public CoordStruct Offset;
 
         public override void OnUpdate()
         {
@@ -45,7 +46,7 @@ namespace Extension.Script
                 {
                     location = pAttachOwner.Ref.Base.GetCoords();
                 }
-                pAnim.Ref.Base.SetLocation(location);
+                pAnim.Ref.Base.SetLocation(location + Offset);
             }
             OnUpdate_Visibility();
             OnUpdate_Damage();
