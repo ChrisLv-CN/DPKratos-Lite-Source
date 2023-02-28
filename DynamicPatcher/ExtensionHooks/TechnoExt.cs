@@ -927,8 +927,14 @@ namespace ExtensionHooks
         public static unsafe UInt32 DriveLocomotor_Process_NotTilter(REGISTERS* R)
         {
             Pointer<UnitClass> pUnit = R->Stack<IntPtr>(0x8 - 0x4);
-            // Logger.Log($"{Game.CurrentFrame} [{pTechno.Ref.Type.Ref.Base.Base.ID}]{pTechno} 所占据的格子的倾斜角度 {R->ECX}");
-            if (!pUnit.Ref.Type.Ref.IsTilter || !pUnit.Ref.Base.Base.IsVoxel())
+            // Logger.Log($"{Game.CurrentFrame} [{pUnit.Ref.Type.Ref.Base.Base.Base.ID}]{pUnit} 所占据的格子的倾斜角度 {R->ECX}");
+            if (!pUnit.Ref.Type.Ref.IsTilter || !pUnit.Ref.Base.Base.IsVoxel()
+                // 替身跟随jojo的倾斜设置
+                || (pUnit.Convert<TechnoClass>().AmIStand(out TechnoStatusScript status, out StandData standData) && standData.SameTilter
+                    && status.MyMaster.CastToUnit(out Pointer<UnitClass> pMaster)
+                    && (!pMaster.Ref.Type.Ref.IsTilter || !pMaster.Ref.Base.Base.IsVoxel())
+                )
+            )
             {
                 R->ECX = 0;
             }
