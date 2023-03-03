@@ -172,7 +172,8 @@ namespace Extension.Utilities
             }
             if (!immune)
             {
-                immune = pTechno.Ref.Base.IsIronCurtained() || pTechno.Ref.IsForceShilded;
+                // IsForceShilded不能用于判断是否整处于护盾状态，因为启用一次之后永久为1
+                immune = pTechno.Ref.Base.IsIronCurtained();
             }
             return immune;
         }

@@ -116,7 +116,8 @@ namespace Extension.Script
             // {
             //     return;
             // }
-            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.IsForceShilded || pTechno.Ref.Base.IsIronCurtained())
+            // pTechno.Ref.ForceShielded 在护盾启用一次后，一直是1，所以不能用来判断是否正处于护盾状态，只能通过判断pTechno.Ref.Base.IsIronCurtained()来判断处于无敌状态
+            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.Base.IsIronCurtained())
             {
                 return;
             }
@@ -202,7 +203,8 @@ namespace Extension.Script
                 R->Stack<uint>(0x38, (uint)GetBright(bright, deactivateDimEMP));
             }
 
-            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.IsForceShilded || pTechno.Ref.Base.IsIronCurtained())
+            // pTechno.Ref.ForceShielded 在护盾启用一次后，一直是1，所以不能用来判断是否正处于护盾状态，只能通过判断pTechno.Ref.Base.IsIronCurtained()来判断处于无敌状态
+            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.Base.IsIronCurtained())
             {
                 return;
             }
@@ -235,7 +237,8 @@ namespace Extension.Script
                 }
             }
 
-            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.IsForceShilded || pTechno.Ref.Base.IsIronCurtained())
+            // pTechno.Ref.ForceShielded 在护盾启用一次后，一直是1，所以不能用来判断是否正处于护盾状态，只能通过判断pTechno.Ref.Base.IsIronCurtained()来判断处于无敌状态
+            if (!PaintballState.NeedPaint(out bool changeColor, out bool changeBright) || pTechno.Ref.Berzerk || pTechno.Ref.Base.IsIronCurtained())
             {
                 return;
             }
