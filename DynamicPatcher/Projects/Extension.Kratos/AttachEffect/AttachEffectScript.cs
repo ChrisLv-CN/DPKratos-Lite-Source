@@ -925,7 +925,11 @@ namespace Extension.Script
                     location = MarkLocation();
                 }
                 // 专门执行替身的定位工作
+                // 没有分组的堆叠定位，以AE的名字为索引，取第一个AE的位置做偏移
                 Dictionary<string, CoordStruct> standPosMarks = new Dictionary<string, CoordStruct>();
+                // 有分组的堆叠定位，以分组为索引，取第一个分组的位置做偏移
+                Dictionary<int, CoordStruct> standPosGroupMarks = new Dictionary<int, CoordStruct>();
+                // 火车的位置索引
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
                 {
@@ -941,8 +945,38 @@ namespace Extension.Script
                                 // 获取挂载对象当前的位置和方向
                                 LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
                                 // 堆叠偏移
-                                if (default != stand.Data.StackOffset)
+                                int stackGroup = stand.Data.StackGroup;
+                                if (-1 < stackGroup)
                                 {
+                                    // 分组堆叠
+                                    if (standPosGroupMarks.ContainsKey(stackGroup))
+                                    {
+                                        // 有记录，往上堆叠
+                                        CoordStruct location = standPosGroupMarks[stackGroup];
+                                        location += stand.Data.StackOffset;
+                                        locationMark.Location = location;
+                                        standPosGroupMarks[stackGroup] = location;
+                                    }
+                                    else
+                                    {
+                                        // 没有记录，取最后一个组，然后加上组偏移
+                                        int count = standPosGroupMarks.Count();
+                                        if (count > 0)
+                                        {
+                                            CoordStruct location = standPosGroupMarks[count - 1];
+                                            location += stand.Data.StackGroupOffset;
+                                            locationMark.Location = location;
+                                            standPosGroupMarks.Add(stackGroup, location);
+                                        }
+                                        else
+                                        {
+                                            standPosGroupMarks.Add(stackGroup, locationMark.Location);
+                                        }
+                                    }
+                                }
+                                else if (default != stand.Data.StackOffset)
+                                {
+                                    // 无分组堆叠
                                     string aeName = ae.AEData.Name;
                                     if (standPosMarks.ContainsKey(aeName))
                                     {
