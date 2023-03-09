@@ -30,6 +30,7 @@ namespace Extension.Script
                 return AttachOwner.OwnerObject;
             }
         }
+        public AnimationEntity AttachData;
         public CoordStruct Offset;
 
         public override void OnUpdate()
@@ -40,13 +41,20 @@ namespace Extension.Script
                 CoordStruct location = default;
                 if (pAnim.Ref.IsBuildingAnim)
                 {
-                    location = pAttachOwner.Ref.GetRenderCoords();
+                    location = pAttachOwner.Ref.GetRenderCoords() + Offset;
                 }
                 else
                 {
-                    location = pAttachOwner.Ref.Base.GetCoords();
+                    if (null != AttachData)
+                    {
+                        location = pAttachOwner.GetRelativeLocation(Offset, 0, AttachData.IsOnTurret, AttachData.IsOnWorld).Location;
+                    }
+                    else
+                    {
+                        location = pAttachOwner.Ref.Base.GetCoords() + Offset;
+                    }
                 }
-                pAnim.Ref.Base.SetLocation(location + Offset);
+                pAnim.Ref.Base.SetLocation(location);
             }
             OnUpdate_Visibility();
             OnUpdate_Damage();

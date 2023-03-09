@@ -28,6 +28,60 @@ namespace Extension.Ext
     /// AE动画
     /// </summary>
     [Serializable]
+    public class AnimationEntity
+    {
+        public string Type; // 动画类型
+        public CoordStruct Offset; // 动画相对位置
+
+        public CoordStruct StackOffset; // 堆叠偏移
+        public int StackGroup; // 分组堆叠
+        public CoordStruct StackGroupOffset; // 分组堆叠偏移
+
+        public bool IsOnTurret; // 相对炮塔或者身体
+        public bool IsOnWorld; // 相对世界
+
+        public bool RemoveInCloak; // 隐形时移除
+        public bool TranslucentInCloak; // 隐形时调整透明度为50
+        public Relation Visibility; // 谁能看见持续动画
+
+        public AnimationEntity()
+        {
+            this.Type = null;
+            this.Offset = default;
+
+            this.StackOffset = default;
+            this.StackGroup = -1;
+            this.StackGroupOffset = default;
+
+            this.IsOnTurret = false;
+            this.IsOnWorld = false;
+
+            this.RemoveInCloak = true;
+            this.TranslucentInCloak = false;
+            this.Visibility = Relation.All;
+        }
+
+        public void Read(ISectionReader reader, string title, string anim)
+        {
+            this.Type = reader.Get(title + "Type", anim);
+            this.Offset = reader.Get(title + "Offset", this.Offset);
+
+            this.StackOffset = reader.Get(title + "StackOffset", this.StackOffset);
+            this.StackGroup = reader.Get(title + "StackGroup", this.StackGroup);
+            this.StackGroupOffset = reader.Get(title + "StackGroupOffset", this.StackGroupOffset);
+
+            this.IsOnTurret = reader.Get(title + "IsOnTurret", this.IsOnTurret);
+            this.IsOnWorld = reader.Get(title + "IsOnWorld", this.IsOnWorld);
+
+            this.RemoveInCloak = reader.Get(title + "RemoveInCloak", this.RemoveInCloak);
+            this.TranslucentInCloak = reader.Get(title + "TranslucentInCloak", this.TranslucentInCloak);
+            this.Visibility = reader.Get(title + "Visibility", this.Visibility);
+        }
+
+    }
+
+
+    [Serializable]
     public class AnimationData : EffectData
     {
         static AnimationData()
@@ -35,14 +89,10 @@ namespace Extension.Ext
             new RelationParser().Register();
         }
 
-        public string IdleAnim; // 持续动画
-        public string ActiveAnim; // 激活时播放的动画
-        public string HitAnim; // 被击中时播放的动画
-        public string DoneAnim; // 结束时播放的动画
-
-        public bool RemoveInCloak; // 隐形时移除
-        public bool TranslucentInCloak; // 隐形时调整透明度为50
-        public Relation Visibility; // 谁能看见持续动画
+        public AnimationEntity IdleAnim; // 持续动画
+        public AnimationEntity ActiveAnim; // 激活时播放的动画
+        public AnimationEntity HitAnim; // 被击中时播放的动画
+        public AnimationEntity DoneAnim; // 结束时播放的动画
 
         public AnimationData()
         {
@@ -50,10 +100,6 @@ namespace Extension.Ext
             this.ActiveAnim = null;
             this.HitAnim = null;
             this.DoneAnim = null;
-
-            this.RemoveInCloak = true;
-            this.TranslucentInCloak = false;
-            this.Visibility = Relation.All;
         }
 
         public AnimationData(IConfigReader reader) : this()
@@ -63,17 +109,40 @@ namespace Extension.Ext
 
         public override void Read(IConfigReader reader)
         {
-            this.IdleAnim = reader.Get("Animation", this.IdleAnim);
-            this.ActiveAnim = reader.Get("ActiveAnim", this.ActiveAnim);
-            this.HitAnim = reader.Get("HitAnim", this.HitAnim);
-            this.DoneAnim = reader.Get("DoneAnim", this.DoneAnim);
+            string idle = reader.Get<string>("Animation", null);
+            AnimationEntity idleAnim = new AnimationEntity();
+            idleAnim.Read(reader, "Anim.", idle);
+            idleAnim.Read(reader, "Anim.Idle.", idle);
+            if (!idleAnim.Type.IsNullOrEmptyOrNone())
+            {
+                this.IdleAnim = idleAnim;
+            }
 
-            this.Enable = !IdleAnim.IsNullOrEmptyOrNone() || !ActiveAnim.IsNullOrEmptyOrNone() || !HitAnim.IsNullOrEmptyOrNone() || !DoneAnim.IsNullOrEmptyOrNone();
+            string active = reader.Get<string>("ActiveAnim", null);
+            AnimationEntity activeAnim = new AnimationEntity();
+            activeAnim.Read(reader, "Anim.Active.", active);
+            if (!activeAnim.Type.IsNullOrEmptyOrNone())
+            {
+                this.ActiveAnim = activeAnim;
+            }
 
-            this.RemoveInCloak = reader.Get("Anim.RemoveInCloak", this.RemoveInCloak);
-            this.TranslucentInCloak = reader.Get("Anim.TranslucentInCloak", this.TranslucentInCloak);
+            string hit = reader.Get<string>("HitAnim", null);
+            AnimationEntity hitAnim = new AnimationEntity();
+            hitAnim.Read(reader, "Anim.Hit.", active);
+            if (!hitAnim.Type.IsNullOrEmptyOrNone())
+            {
+                this.HitAnim = hitAnim;
+            }
 
-            this.Visibility = reader.Get("Anim.Visibility", this.Visibility);
+            string done = reader.Get<string>("DoneAnim", null);
+            AnimationEntity doneAnim = new AnimationEntity();
+            doneAnim.Read(reader, "Anim.Done.", active);
+            if (!doneAnim.Type.IsNullOrEmptyOrNone())
+            {
+                this.DoneAnim = doneAnim;
+            }
+
+            this.Enable = null != IdleAnim || null != ActiveAnim || null != HitAnim || null != DoneAnim;
         }
 
     }

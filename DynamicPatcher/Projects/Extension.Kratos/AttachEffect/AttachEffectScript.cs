@@ -943,9 +943,16 @@ namespace Extension.Script
                 }
                 // 专门执行替身的定位工作
                 // 没有分组的堆叠定位，以AE的名字为索引，取第一个AE的位置做偏移
-                Dictionary<string, CoordStruct> standPosMarks = new Dictionary<string, CoordStruct>();
+                Dictionary<string, CoordStruct> standOffsetMarks = new Dictionary<string, CoordStruct>();
                 // 有分组的堆叠定位，以分组为索引，取第一个分组的位置做偏移
-                Dictionary<int, CoordStruct> standPosGroupMarks = new Dictionary<int, CoordStruct>();
+                Dictionary<int, CoordStruct> standOffsetGroupMarks = new Dictionary<int, CoordStruct>();
+
+                // 专门执行动画的定位工作
+                // 没有分组的堆叠定位，以AE的名字为索引，取第一个AE的位置做偏移
+                Dictionary<string, CoordStruct> animOffsetMarks = new Dictionary<string, CoordStruct>();
+                // 有分组的堆叠定位，以分组为索引，取第一个分组的位置做偏移
+                Dictionary<int, CoordStruct> animOffsetGroupMarks = new Dictionary<int, CoordStruct>();
+
                 // 火车的位置索引
                 int markIndex = 0;
                 for (int i = Count() - 1; i >= 0; i--)
@@ -959,61 +966,72 @@ namespace Extension.Script
                             // 调整位置
                             if (!UpdateTrainStandLocation(stand, ref markIndex))
                             {
-                                // 获取挂载对象当前的位置和方向
-                                LocationMark locationMark = pObject.GetRelativeLocation(stand.Offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
+                                // 获取替身的偏移位置
+                                CoordStruct offset = stand.Offset;
                                 // 堆叠偏移
-                                int stackGroup = stand.Data.StackGroup;
-                                if (-1 < stackGroup)
-                                {
-                                    // 分组堆叠
-                                    if (standPosGroupMarks.ContainsKey(stackGroup))
-                                    {
-                                        // 有记录，往上堆叠
-                                        CoordStruct location = standPosGroupMarks[stackGroup];
-                                        location += stand.Data.StackOffset;
-                                        locationMark.Location = location;
-                                        standPosGroupMarks[stackGroup] = location;
-                                    }
-                                    else
-                                    {
-                                        // 没有记录，取最后一个组，然后加上组偏移
-                                        int count = standPosGroupMarks.Count();
-                                        if (count > 0)
-                                        {
-                                            CoordStruct location = standPosGroupMarks[count - 1];
-                                            location += stand.Data.StackGroupOffset;
-                                            locationMark.Location = location;
-                                            standPosGroupMarks.Add(stackGroup, location);
-                                        }
-                                        else
-                                        {
-                                            standPosGroupMarks.Add(stackGroup, locationMark.Location);
-                                        }
-                                    }
-                                }
-                                else if (default != stand.Data.StackOffset)
-                                {
-                                    // 无分组堆叠
-                                    string aeName = ae.AEData.Name;
-                                    if (standPosMarks.ContainsKey(aeName))
-                                    {
-                                        CoordStruct location = standPosMarks[aeName];
-                                        location += stand.Data.StackOffset;
-                                        locationMark.Location = location;
-                                        standPosMarks[aeName] = location;
-                                    }
-                                    else
-                                    {
-                                        standPosMarks.Add(aeName, locationMark.Location);
-                                    }
-                                }
+                                offset = StackOffset(ae.AEData.Name, offset, stand.Data.StackOffset, stand.Data.StackGroup, stand.Data.StackGroupOffset, standOffsetMarks, standOffsetGroupMarks);
+                                LocationMark locationMark = pObject.GetRelativeLocation(offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
                                 stand.UpdateLocation(locationMark);
                             }
+                        }
+                        Animation anim = ae.Animation;
+                        if (null != anim && null != anim.Data.IdleAnim)
+                        {
+                            // 获取偏移
+                            CoordStruct offset = anim.Data.IdleAnim.Offset;
+                            // 堆叠偏移
+                            offset = StackOffset(ae.AEData.Name, offset, anim.Data.IdleAnim.StackOffset, anim.Data.IdleAnim.StackGroup, anim.Data.IdleAnim.StackGroupOffset, animOffsetMarks, animOffsetGroupMarks);
+                            anim.UpdateLocationOffset(offset);
                         }
                         ae.OnGScreenRender(location);
                     }
                 }
             }
+        }
+
+        private CoordStruct StackOffset(string aeName, CoordStruct offset, CoordStruct stackOffset, int stackGroup, CoordStruct stackGroupOffset, Dictionary<string, CoordStruct> offsetMarks, Dictionary<int, CoordStruct> offsetGroupMarks)
+        {
+            if (-1 < stackGroup)
+            {
+                // 分组堆叠
+                if (offsetGroupMarks.ContainsKey(stackGroup))
+                {
+                    // 有记录，往上堆叠
+                    CoordStruct offsetMark = offsetGroupMarks[stackGroup];
+                    offset = offsetMark + stackOffset;
+                    offsetGroupMarks[stackGroup] = offsetMark;
+                }
+                else
+                {
+                    // 没有记录，取最后一个组，然后加上组偏移
+                    int count = offsetGroupMarks.Count();
+                    if (count > 0)
+                    {
+                        CoordStruct offsetMark = offsetGroupMarks[count - 1];
+                        offset = offsetMark + stackGroupOffset;
+                        offsetGroupMarks.Add(stackGroup, offset);
+                    }
+                    else
+                    {
+                        offsetGroupMarks.Add(stackGroup, offset);
+                    }
+                }
+            }
+            else if (default != stackOffset)
+            {
+                // 无分组堆叠
+                if (offsetMarks.ContainsKey(aeName))
+                {
+                    CoordStruct offsetMark = offsetMarks[aeName];
+                    offset = offsetMark + stackOffset;
+                    offsetMarks[aeName] = offset;
+                }
+                else
+                {
+                    offsetMarks.Add(aeName, offset);
+                }
+            }
+            return offset;
         }
 
         /// <summary>

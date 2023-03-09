@@ -54,12 +54,14 @@ namespace Extension.Script
         {
             // 激活动画
             // Logger.Log("效果激活，播放激活动画{0}", Data.ActiveAnim);
-            if (!Data.ActiveAnim.IsNullOrEmptyOrNone())
+            if (null != Data.ActiveAnim)
             {
-                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.ActiveAnim);
+                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.ActiveAnim.Type);
                 if (!pAnimType.IsNull)
                 {
-                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pOwner.Ref.Base.GetCoords());
+                    // 获取激活动画的位置
+                    LocationMark locationMark = pOwner.GetRelativeLocation(Data.ActiveAnim.Offset, 0, Data.ActiveAnim.IsOnTurret, Data.ActiveAnim.IsOnWorld);
+                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, locationMark.Location);
                     pAnim.Ref.SetOwnerObject(pOwner);
                     pAnim.SetAnimOwner(pOwner);
                 }
@@ -75,19 +77,19 @@ namespace Extension.Script
                 // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]持续动画[{Data.IdleAnim}]已存在，清除再重新创建");
                 KillIdleAnim();
             }
-            if (!fource && (string.IsNullOrEmpty(Data.IdleAnim) || pOwner.IsInvisible() || (Data.RemoveInCloak && OnwerIsCloakable)))
+            if (!fource && (null == Data.IdleAnim || pOwner.IsInvisible() || (Data.IdleAnim.RemoveInCloak && OnwerIsCloakable)))
             {
                 // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]持续动画[{Data.IdleAnim}]无法创建");
                 return;
             }
             // 创建动画
             // Logger.Log($"{Game.CurrentFrame} AE[{AE.AEData.Name}]创建持续动画[{Data.IdleAnim}]");
-            Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.IdleAnim);
+            Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.IdleAnim.Type);
             if (!pAnimType.IsNull)
             {
                 if (default == location)
                 {
-                    location = pOwner.Ref.Base.GetCoords();
+                    location = pOwner.GetRelativeLocation(Data.IdleAnim.Offset, 0, Data.IdleAnim.IsOnTurret, Data.IdleAnim.IsOnWorld).Location;
                 }
                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                 // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]成功创建持续动画[{Data.IdleAnim}], 指针 {pAnim}");
@@ -96,13 +98,15 @@ namespace Extension.Script
                 pAnim.Ref.Loops = 0xFF;
                 // Logger.Log(" - 设置动画{0}的剩余迭代次数为{1}", Data.IdleAnim, 0xFF);
                 pAnim.SetAnimOwner(pOwner);
-                pAnim.Show(Data.Visibility);
+                pAnim.Show(Data.IdleAnim.Visibility);
                 this.animFlags = pAnim.Ref.AnimFlags; // 记录下动画的渲染参数
 
                 this.animExt = AnimExt.ExtMap.Find(pAnim);
                 // 设置动画的附着对象，由动画自身去位移
                 AnimStatusScript status = animExt.GameObject.GetComponent<AnimStatusScript>();
                 status.AttachOwner = AE.AEManager.Owner;
+                status.AttachData = Data.IdleAnim;
+                status.Offset = Data.IdleAnim.Offset;
                 // Logger.Log(" - 缓存动画{0}的实例对象指针", Data.IdleAnim);
             }
         }
@@ -120,17 +124,31 @@ namespace Extension.Script
             }
         }
 
+        public void UpdateLocationOffset(CoordStruct offset)
+        {
+            if (!pAnim.IsNull && pAnim.TryGetStatus(out AnimStatusScript status))
+            {
+                // 调整动画的位置，加上偏移值
+                status.Offset = offset;
+            }
+        }
+
         public override void OnDisable(CoordStruct location)
         {
             // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]效果结束，移除持续动画[{Data.IdleAnim}]");
             KillIdleAnim();
             // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]效果结束，播放结束动画[{Data.DoneAnim}]");
             // 结束动画
-            if (!string.IsNullOrEmpty(Data.DoneAnim))
+            if (null != Data.DoneAnim)
             {
-                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.DoneAnim);
+                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.DoneAnim.Type);
                 if (!pAnimType.IsNull)
                 {
+                    // 获取结束动画的位置
+                    if (!pOwner.IsNull)
+                    {
+                        location = pOwner.GetRelativeLocation(Data.DoneAnim.Offset, 0, Data.DoneAnim.IsOnTurret, Data.DoneAnim.IsOnWorld).Location;
+                    }
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                     // pAnim.Ref.SetOwnerObject(pObject);
                 }
@@ -156,11 +174,11 @@ namespace Extension.Script
                         if (OnwerIsCloakable)
                         {
                             OnwerIsCloakable = false;
-                            if (Data.RemoveInCloak)
+                            if (Data.IdleAnim.RemoveInCloak)
                             {
                                 CreateIdleAnim();
                             }
-                            else if (Data.TranslucentInCloak)
+                            else if (Data.IdleAnim.TranslucentInCloak)
                             {
                                 // 恢复不透明
                                 pAnim.Ref.AnimFlags = animFlags;
@@ -172,11 +190,11 @@ namespace Extension.Script
                         if (!OnwerIsCloakable)
                         {
                             OnwerIsCloakable = true;
-                            if (Data.RemoveInCloak)
+                            if (Data.IdleAnim.RemoveInCloak)
                             {
                                 KillIdleAnim();
                             }
-                            else if (Data.TranslucentInCloak)
+                            else if (Data.IdleAnim.TranslucentInCloak)
                             {
                                 // 半透明
                                 pAnim.Ref.AnimFlags |= BlitterFlags.TransLucent50;
@@ -197,17 +215,24 @@ namespace Extension.Script
         {
             // Logger.Log("播放受击动画{0}", Data.HitAnim);
             // 受击动画
-            if (!string.IsNullOrEmpty(Data.HitAnim))
+            if (null != Data.HitAnim)
             {
-                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.HitAnim);
+                Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.HitAnim.Type);
                 if (!pAnimType.IsNull)
                 {
-                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, pOwner.Ref.Base.GetCoords());
-                    pAnim.Ref.SetOwnerObject(pOwner);
-                    if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno) && !pTechno.Ref.Owner.IsNull)
-                    {
-                        pAnim.Ref.Owner = pTechno.Ref.Owner;
-                    }
+                    // 获取受击动画的位置
+                    LocationMark locationMark = pOwner.GetRelativeLocation(Data.HitAnim.Offset, 0, Data.HitAnim.IsOnTurret, Data.HitAnim.IsOnWorld);
+                    Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, locationMark.Location);
+
+                    pAnim.SetAnimOwner(pOwner);
+                    pAnim.Show(Data.HitAnim.Visibility);
+
+                    this.animExt = AnimExt.ExtMap.Find(pAnim);
+                    // 设置动画的附着对象，由动画自身去位移
+                    AnimStatusScript status = animExt.GameObject.GetComponent<AnimStatusScript>();
+                    status.AttachOwner = AE.AEManager.Owner;
+                    status.AttachData = Data.HitAnim;
+                    status.Offset = Data.HitAnim.Offset;
                 }
             }
         }
