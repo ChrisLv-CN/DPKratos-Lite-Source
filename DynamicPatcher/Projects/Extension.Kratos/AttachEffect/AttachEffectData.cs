@@ -12,7 +12,7 @@ namespace Extension.Ext
     [Serializable]
     public enum CumulativeMode
     {
-        NO = 0, YES = 1, ATTACKER = 2
+        NO = 0, YES = 1, ATTACKER = 2, HOUSE = 3
     }
     public class CumulativeModeParser : KEnumParser<CumulativeMode>
     {
@@ -32,6 +32,9 @@ namespace Extension.Ext
                     return true;
                 case "A": // attacker
                     buffer = CumulativeMode.ATTACKER;
+                    return true;
+                case "H": // house
+                    buffer = CumulativeMode.HOUSE;
                     return true;
             }
             return false;

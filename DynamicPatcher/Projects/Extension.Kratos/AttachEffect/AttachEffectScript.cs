@@ -433,13 +433,11 @@ namespace Extension.Script
             {
                 // 不同攻击者是否叠加
                 bool isAttackMark = fromPassenger || data.Cumulative == CumulativeMode.ATTACKER && !pAttacker.IsNull && pAttacker.Ref.Base.IsAlive;
+                // 不同所属是否叠加
+                bool isHouseMark = data.Cumulative == CumulativeMode.HOUSE;
                 // 攻击者标记AE名称相同，但可以来自不同的攻击者，可以叠加，不检查Delay
-                // if (isAttackMark)
-                // {
-                //     Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}] 来源 {pAttacker} fromPassenger = {fromPassenger}");
-                // }
                 // 检查冷却计时器
-                if (!isAttackMark && DisableDelayTimers.TryGetValue(data.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
+                if (!isAttackMark && !isHouseMark && DisableDelayTimers.TryGetValue(data.Name, out TimerStruct delayTimer) && delayTimer.InProgress())
                 {
                     // Logger.Log($"{Game.CurrentFrame} 单位 [{section}]{pObject} 添加AE类型[{data.Name}]，该类型尚在冷却中，无法添加");
                     return;
@@ -460,7 +458,25 @@ namespace Extension.Script
                             {
                                 if (temp.pSource == pAttacker)
                                 {
-                                    // 是攻击者标记，且相同的攻击者，重置持续时间
+                                    // 是攻击者标记，且相同的攻击者，重置持续时间，跳出循环
+                                    if (temp.AEData.ResetDurationOnReapply)
+                                    {
+                                        temp.ResetDuration();
+                                        AttachEffects[i] = temp;
+                                    }
+                                    break;
+                                }
+                                else
+                                {
+                                    // 当前条的攻击者不同，设置标记后，继续循环，直到检查完所有的AE
+                                    find = false;
+                                }
+                            }
+                            else if (isHouseMark)
+                            {
+                                if (temp.pSourceHouse == pAttackingHouse)
+                                {
+                                    // 是所属标记，且所属相同，重置持续时间，跳出循环
                                     if (temp.AEData.ResetDurationOnReapply)
                                     {
                                         temp.ResetDuration();
@@ -475,12 +491,13 @@ namespace Extension.Script
                             }
                             else
                             {
-                                // 不是攻击者标记，重置持续时间
+                                // 不是标记，重置已存在的AE的持续时间，跳出循环
                                 if (temp.AEData.ResetDurationOnReapply)
                                 {
                                     temp.ResetDuration();
                                     AttachEffects[i] = temp;
                                 }
+                                break;
                             }
                         }
                     }
