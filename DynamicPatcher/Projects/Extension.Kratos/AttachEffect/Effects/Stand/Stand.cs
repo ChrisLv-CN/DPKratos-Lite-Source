@@ -30,7 +30,6 @@ namespace Extension.Script
     {
         public TechnoExt StandExt;
         public Pointer<TechnoClass> pStand => null != StandExt ? StandExt.OwnerObject : default;
-        public CoordStruct Offset => Data.Offset;
 
         private Pointer<ObjectClass> pMaster => AE.pOwner;
 
@@ -145,7 +144,8 @@ namespace Extension.Script
                     }
 
                     // 放置到指定位置
-                    LocationMark locationMark = pMaster.GetRelativeLocation(Offset, Data.Direction, Data.IsOnTurret, Data.IsOnWorld);
+                    OffsetData offsetData = Data.Offset;
+                    LocationMark locationMark = pMaster.GetRelativeLocation(offsetData);
                     if (default != locationMark.Location)
                     {
                         SetLocation(locationMark.Location);
@@ -260,7 +260,7 @@ namespace Extension.Script
                         float t = 0f;
                         // Logger.Log($"{Game.CurrentFrame} 替身 朝向 {Type.Direction}, forwards = {forwards}, sideways = {sideways}");
                         // 计算方向
-                        switch (Data.Direction)
+                        switch (Data.Offset.Direction)
                         {
                             case 0: // 正前 N
                                 break;

@@ -156,13 +156,13 @@ namespace Extension.Script
         {
             // 动画没有朝向，固定朝北
             DirStruct targetDir = new DirStruct();
-            CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(location, data.Offset, targetDir);
+            CoordStruct targetPos = FLHHelper.GetFLHAbsoluteCoords(location, data.Offset.Offset, targetDir);
             pStand.Ref.Base.SetLocation(targetPos);
         }
 
         private void SetDirection()
         {
-            DirStruct targetDir = FLHHelper.DirNormalized(data.Direction, 16);
+            DirStruct targetDir = FLHHelper.DirNormalized(data.Offset.Direction, 16);
             pStand.Ref.Facing.set(targetDir);
             pStand.Ref.TurretFacing.set(targetDir);
         }

@@ -60,7 +60,8 @@ namespace Extension.Script
                 if (!pAnimType.IsNull)
                 {
                     // 获取激活动画的位置
-                    LocationMark locationMark = pOwner.GetRelativeLocation(Data.ActiveAnim.Offset, 0, Data.ActiveAnim.IsOnTurret, Data.ActiveAnim.IsOnWorld);
+                    OffsetData offsetData = Data.ActiveAnim.Offset;
+                    LocationMark locationMark = pOwner.GetRelativeLocation(offsetData);
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, locationMark.Location);
                     pAnim.Ref.SetOwnerObject(pOwner);
                     pAnim.SetAnimOwner(pOwner);
@@ -87,9 +88,10 @@ namespace Extension.Script
             Pointer<AnimTypeClass> pAnimType = AnimTypeClass.ABSTRACTTYPE_ARRAY.Find(Data.IdleAnim.Type);
             if (!pAnimType.IsNull)
             {
+                OffsetData offsetData = Data.IdleAnim.Offset;
                 if (default == location)
                 {
-                    location = pOwner.GetRelativeLocation(Data.IdleAnim.Offset, 0, Data.IdleAnim.IsOnTurret, Data.IdleAnim.IsOnWorld).Location;
+                    location = pOwner.GetRelativeLocation(offsetData).Location;
                 }
                 Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                 // Logger.Log($"{Game.CurrentFrame} AE[{AEData.Name}]成功创建持续动画[{Data.IdleAnim}], 指针 {pAnim}");
@@ -105,8 +107,7 @@ namespace Extension.Script
                 // 设置动画的附着对象，由动画自身去位移
                 AnimStatusScript status = animExt.GameObject.GetComponent<AnimStatusScript>();
                 status.AttachOwner = AE.AEManager.Owner;
-                status.AttachData = Data.IdleAnim;
-                status.Offset = Data.IdleAnim.Offset;
+                status.AttachOffsetData = offsetData;
                 // Logger.Log(" - 缓存动画{0}的实例对象指针", Data.IdleAnim);
             }
         }
@@ -147,7 +148,8 @@ namespace Extension.Script
                     // 获取结束动画的位置
                     if (!pOwner.IsNull)
                     {
-                        location = pOwner.GetRelativeLocation(Data.DoneAnim.Offset, 0, Data.DoneAnim.IsOnTurret, Data.DoneAnim.IsOnWorld).Location;
+                        OffsetData offsetData = Data.DoneAnim.Offset;
+                        location = pOwner.GetRelativeLocation(offsetData).Location;
                     }
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, location);
                     // pAnim.Ref.SetOwnerObject(pObject);
@@ -221,7 +223,8 @@ namespace Extension.Script
                 if (!pAnimType.IsNull)
                 {
                     // 获取受击动画的位置
-                    LocationMark locationMark = pOwner.GetRelativeLocation(Data.HitAnim.Offset, 0, Data.HitAnim.IsOnTurret, Data.HitAnim.IsOnWorld);
+                    OffsetData offsetData = Data.HitAnim.Offset;
+                    LocationMark locationMark = pOwner.GetRelativeLocation(offsetData);
                     Pointer<AnimClass> pAnim = YRMemory.Create<AnimClass>(pAnimType, locationMark.Location);
 
                     pAnim.SetAnimOwner(pOwner);
@@ -231,8 +234,7 @@ namespace Extension.Script
                     // 设置动画的附着对象，由动画自身去位移
                     AnimStatusScript status = animExt.GameObject.GetComponent<AnimStatusScript>();
                     status.AttachOwner = AE.AEManager.Owner;
-                    status.AttachData = Data.HitAnim;
-                    status.Offset = Data.HitAnim.Offset;
+                    status.AttachOffsetData = offsetData;
                 }
             }
         }

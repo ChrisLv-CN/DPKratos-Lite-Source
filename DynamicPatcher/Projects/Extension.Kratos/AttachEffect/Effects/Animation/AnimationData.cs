@@ -31,14 +31,8 @@ namespace Extension.Ext
     public class AnimationEntity
     {
         public string Type; // 动画类型
-        public CoordStruct Offset; // 动画相对位置
+        public OffsetData Offset; // 动画相对位置
 
-        public CoordStruct StackOffset; // 堆叠偏移
-        public int StackGroup; // 分组堆叠
-        public CoordStruct StackGroupOffset; // 分组堆叠偏移
-
-        public bool IsOnTurret; // 相对炮塔或者身体
-        public bool IsOnWorld; // 相对世界
 
         public bool RemoveInCloak; // 隐形时移除
         public bool TranslucentInCloak; // 隐形时调整透明度为50
@@ -47,14 +41,7 @@ namespace Extension.Ext
         public AnimationEntity()
         {
             this.Type = null;
-            this.Offset = default;
-
-            this.StackOffset = default;
-            this.StackGroup = -1;
-            this.StackGroupOffset = default;
-
-            this.IsOnTurret = false;
-            this.IsOnWorld = false;
+            this.Offset = new OffsetData();
 
             this.RemoveInCloak = true;
             this.TranslucentInCloak = false;
@@ -64,14 +51,7 @@ namespace Extension.Ext
         public void Read(ISectionReader reader, string title, string anim)
         {
             this.Type = reader.Get(title + "Type", anim);
-            this.Offset = reader.Get(title + "Offset", this.Offset);
-
-            this.StackOffset = reader.Get(title + "StackOffset", this.StackOffset);
-            this.StackGroup = reader.Get(title + "StackGroup", this.StackGroup);
-            this.StackGroupOffset = reader.Get(title + "StackGroupOffset", this.StackGroupOffset);
-
-            this.IsOnTurret = reader.Get(title + "IsOnTurret", this.IsOnTurret);
-            this.IsOnWorld = reader.Get(title + "IsOnWorld", this.IsOnWorld);
+            this.Offset.Read(reader, title);
 
             this.RemoveInCloak = reader.Get(title + "RemoveInCloak", this.RemoveInCloak);
             this.TranslucentInCloak = reader.Get(title + "TranslucentInCloak", this.TranslucentInCloak);

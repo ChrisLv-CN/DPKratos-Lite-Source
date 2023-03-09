@@ -681,7 +681,7 @@ namespace Extension.Script
                 lastLocation = location;
                 double tempMileage = totleMileage + mileage;
                 // 记录下当前的位置信息
-                LocationMark locationMark = pOwner.GetRelativeLocation(default, 0, false, false);
+                LocationMark locationMark = new LocationMark(location, pOwner.GetRelativeDir());
                 // 入队
                 locationMarks.Insert(0, locationMark);
 
@@ -966,21 +966,18 @@ namespace Extension.Script
                             // 调整位置
                             if (!UpdateTrainStandLocation(stand, ref markIndex))
                             {
-                                // 获取替身的偏移位置
-                                CoordStruct offset = stand.Offset;
                                 // 堆叠偏移
-                                offset = StackOffset(ae.AEData.Name, offset, stand.Data.StackOffset, stand.Data.StackGroup, stand.Data.StackGroupOffset, standOffsetMarks, standOffsetGroupMarks);
-                                LocationMark locationMark = pObject.GetRelativeLocation(offset, stand.Data.Direction, stand.Data.IsOnTurret, stand.Data.IsOnWorld);
+                                OffsetData offsetData = stand.Data.Offset;
+                                CoordStruct offset = StackOffset(ae.AEData.Name, offsetData, standOffsetMarks, standOffsetGroupMarks);
+                                LocationMark locationMark = pObject.GetRelativeLocation(offsetData, offset);
                                 stand.UpdateLocation(locationMark);
                             }
                         }
                         Animation anim = ae.Animation;
                         if (null != anim && null != anim.Data.IdleAnim)
                         {
-                            // 获取偏移
-                            CoordStruct offset = anim.Data.IdleAnim.Offset;
                             // 堆叠偏移
-                            offset = StackOffset(ae.AEData.Name, offset, anim.Data.IdleAnim.StackOffset, anim.Data.IdleAnim.StackGroup, anim.Data.IdleAnim.StackGroupOffset, animOffsetMarks, animOffsetGroupMarks);
+                            CoordStruct offset = StackOffset(ae.AEData.Name, anim.Data.IdleAnim.Offset, animOffsetMarks, animOffsetGroupMarks);
                             anim.UpdateLocationOffset(offset);
                         }
                         ae.OnGScreenRender(location);
@@ -989,17 +986,18 @@ namespace Extension.Script
             }
         }
 
-        private CoordStruct StackOffset(string aeName, CoordStruct offset, CoordStruct stackOffset, int stackGroup, CoordStruct stackGroupOffset, Dictionary<string, CoordStruct> offsetMarks, Dictionary<int, CoordStruct> offsetGroupMarks)
+        private CoordStruct StackOffset(string aeName, OffsetData offsetData, Dictionary<string, CoordStruct> offsetMarks, Dictionary<int, CoordStruct> offsetGroupMarks)
         {
-            if (-1 < stackGroup)
+            CoordStruct offset = offsetData.Offset;
+            if (-1 < offsetData.StackGroup)
             {
                 // 分组堆叠
-                if (offsetGroupMarks.ContainsKey(stackGroup))
+                if (offsetGroupMarks.ContainsKey(offsetData.StackGroup))
                 {
                     // 有记录，往上堆叠
-                    CoordStruct offsetMark = offsetGroupMarks[stackGroup];
-                    offset = offsetMark + stackOffset;
-                    offsetGroupMarks[stackGroup] = offsetMark;
+                    CoordStruct offsetMark = offsetGroupMarks[offsetData.StackGroup];
+                    offset = offsetMark + offsetData.StackOffset;
+                    offsetGroupMarks[offsetData.StackGroup] = offset;
                 }
                 else
                 {
@@ -1008,22 +1006,22 @@ namespace Extension.Script
                     if (count > 0)
                     {
                         CoordStruct offsetMark = offsetGroupMarks[count - 1];
-                        offset = offsetMark + stackGroupOffset;
-                        offsetGroupMarks.Add(stackGroup, offset);
+                        offset = offsetMark + offsetData.StackGroupOffset;
+                        offsetGroupMarks.Add(offsetData.StackGroup, offset);
                     }
                     else
                     {
-                        offsetGroupMarks.Add(stackGroup, offset);
+                        offsetGroupMarks.Add(offsetData.StackGroup, offset);
                     }
                 }
             }
-            else if (default != stackOffset)
+            else if (default != offsetData.StackOffset)
             {
                 // 无分组堆叠
                 if (offsetMarks.ContainsKey(aeName))
                 {
                     CoordStruct offsetMark = offsetMarks[aeName];
-                    offset = offsetMark + stackOffset;
+                    offset = offsetMark + offsetData.StackOffset;
                     offsetMarks[aeName] = offset;
                 }
                 else

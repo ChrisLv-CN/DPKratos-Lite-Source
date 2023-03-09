@@ -206,13 +206,18 @@ namespace Extension.Utilities
         #endregion
 
         #region 获取绑定在身上的相对位置
-        public static unsafe LocationMark GetRelativeLocation(this Pointer<ObjectClass> pOwner, CoordStruct offset, int dir, bool isOnTurret, bool isOnWorld = false)
+        public static unsafe LocationMark GetRelativeLocation(this Pointer<ObjectClass> pOwner, OffsetData data, CoordStruct offset = default)
         {
+            if (default == offset)
+            {
+                offset = data.Offset;
+            }
+
             CoordStruct sourcePos = pOwner.Ref.Location;
 
             CoordStruct targetPos = sourcePos;
             DirStruct targetDir = default;
-            if (isOnWorld)
+            if (data.IsOnWorld)
             {
                 // 绑定世界坐标，朝向固定北向
                 targetDir = new DirStruct();
@@ -223,8 +228,8 @@ namespace Extension.Utilities
                 // 绑定单体坐标
                 if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
                 {
-                    targetDir = pTechno.GetDirectionRelative(dir, isOnTurret);
-                    targetPos = pTechno.GetFLHAbsoluteCoords(offset, isOnTurret);
+                    targetDir = pTechno.GetDirectionRelative(data.Direction, data.IsOnTurret);
+                    targetPos = pTechno.GetFLHAbsoluteCoords(offset, data.IsOnTurret);
                 }
                 else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
                 {
@@ -236,6 +241,33 @@ namespace Extension.Utilities
                 }
             }
             return new LocationMark(targetPos, targetDir);
+        }
+
+        public static unsafe DirStruct GetRelativeDir(this Pointer<ObjectClass> pOwner, int dir = 0, bool isOnTurret = false, bool isOnWorld = false)
+        {
+            DirStruct targetDir = default;
+            if (isOnWorld)
+            {
+                // 绑定世界坐标，朝向固定北向
+                targetDir = new DirStruct();
+            }
+            else
+            {
+                // 绑定单体坐标
+                if (pOwner.CastToTechno(out Pointer<TechnoClass> pTechno))
+                {
+                    targetDir = pTechno.GetDirectionRelative(dir, isOnTurret);
+                }
+                else if (pOwner.CastToBullet(out Pointer<BulletClass> pBullet))
+                {
+                    // 增加抛射体偏移值取下一帧所在实际位置
+                    CoordStruct sourcePos = pOwner.Ref.Location;
+                    sourcePos += pBullet.Ref.Velocity.ToCoordStruct();
+                    // 获取面向
+                    targetDir = Point2Dir(sourcePos, pBullet.Ref.TargetCoords);
+                }
+            }
+            return targetDir;
         }
 
         public static DirStruct GetDirectionRelative(this Pointer<TechnoClass> pMaster, int dir, bool isOnTurret)

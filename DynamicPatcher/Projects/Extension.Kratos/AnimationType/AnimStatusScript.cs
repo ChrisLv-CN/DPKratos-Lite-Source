@@ -30,7 +30,21 @@ namespace Extension.Script
                 return AttachOwner.OwnerObject;
             }
         }
-        public AnimationEntity AttachData;
+
+        // 动画附着定位
+        private OffsetData _attachOffsetData;
+        public OffsetData AttachOffsetData
+        {
+            set
+            {
+                _attachOffsetData = value;
+                Offset = _attachOffsetData.Offset;
+            }
+            get
+            {
+                return _attachOffsetData;
+            }
+        }
         public CoordStruct Offset;
 
         public override void OnUpdate()
@@ -45,9 +59,9 @@ namespace Extension.Script
                 }
                 else
                 {
-                    if (null != AttachData)
+                    if (null != AttachOffsetData)
                     {
-                        location = pAttachOwner.GetRelativeLocation(Offset, 0, AttachData.IsOnTurret, AttachData.IsOnWorld).Location;
+                        location = pAttachOwner.GetRelativeLocation(AttachOffsetData, Offset).Location;
                     }
                     else
                     {

@@ -87,21 +87,10 @@ namespace Extension.Ext
         public const string TITLE = "Stand.";
 
         public string Type; // 替身类型
-        public CoordStruct Offset; // 替身相对位置
+        public OffsetData Offset; // 替身相对位置
 
-        public CoordStruct StackOffset; // 堆叠偏移
-        public int StackGroup; // 分组堆叠
-        public CoordStruct StackGroupOffset; // 分组堆叠偏移
-
-        // public Point2D OffsetRandomF; // 随机F
-        // public Point2D OffsetRandomL; // 随机L
-        // public Point2D OffsetRandomH; // 随机H
-
-        public int Direction; // 相对朝向，16分圆，[0-15]
         public bool LockDirection; // 强制朝向，不论替身在做什么
         public bool FreeDirection; // 完全不控制朝向
-        public bool IsOnTurret; // 相对炮塔或者身体
-        public bool IsOnWorld; // 相对世界
 
         public Layer DrawLayer; // 渲染的层
         public int ZOffset; // ZAdjust偏移值
@@ -149,21 +138,10 @@ namespace Extension.Ext
         public StandData()
         {
             this.Type = null;
-            this.Offset = default;
+            this.Offset = new OffsetData();
 
-            this.StackOffset = default;
-            this.StackGroup = -1;
-            this.StackGroupOffset = default;
-
-            // this.OffsetRandomF = default;
-            // this.OffsetRandomL = default;
-            // this.OffsetRandomH = default;
-
-            this.Direction = 0;
             this.LockDirection = false;
             this.FreeDirection = false;
-            this.IsOnTurret = false;
-            this.IsOnWorld = false;
 
             this.DrawLayer = Layer.None;
             this.ZOffset = 14;
@@ -225,21 +203,10 @@ namespace Extension.Ext
 
             if (this.Enable = !Type.IsNullOrEmptyOrNone())
             {
-                this.Offset = reader.Get(TITLE + "Offset", this.Offset);
+                this.Offset.Read(reader, TITLE);
 
-                this.StackOffset = reader.Get(TITLE + "StackOffset", this.StackOffset);
-                this.StackGroup = reader.Get(TITLE + "StackGroup", this.StackGroup);
-                this.StackGroupOffset = reader.Get(TITLE + "StackGroupOffset", this.StackGroupOffset);
-
-                // this.OffsetRandomF = reader.Get(TITLE + "OffsetRandomF", this.OffsetRandomF);
-                // this.OffsetRandomL = reader.Get(TITLE + "OffsetRandomL", this.OffsetRandomL);
-                // this.OffsetRandomH = reader.Get(TITLE + "OffsetRandomH", this.OffsetRandomH);
-
-                this.Direction = reader.GetDir16(TITLE + "Direction", this.Direction);
                 this.LockDirection = reader.Get(TITLE + "LockDirection", this.LockDirection);
                 this.FreeDirection = reader.Get(TITLE + "FreeDirection", this.FreeDirection);
-                this.IsOnTurret = reader.Get(TITLE + "IsOnTurret", this.IsOnTurret);
-                this.IsOnWorld = reader.Get(TITLE + "IsOnWorld", this.IsOnWorld);
 
                 this.DrawLayer = reader.Get(TITLE + "DrawLayer", this.DrawLayer);
                 this.ZOffset = reader.Get(TITLE + "ZOffset", this.ZOffset);
