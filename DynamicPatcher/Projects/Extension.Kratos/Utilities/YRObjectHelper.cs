@@ -32,7 +32,7 @@ namespace Extension.Utilities
                 CoordStruct tempTarget = targetPos;
                 tempSource.Z = 0;
                 tempTarget.Z = 0;
-                return tempSource.DistanceFrom(targetPos);
+                return tempSource.DistanceFrom(tempTarget);
             }
             return sourcePos.DistanceFrom(targetPos);
         }
