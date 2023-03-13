@@ -43,6 +43,35 @@ namespace Extension.Ext
     }
 
     [Serializable]
+    public enum PumpActionMode
+    {
+        NO = 0, YES = 1, LOBBER = 2
+    }
+    public class PumpActionModeParser : KEnumParser<PumpActionMode>
+    {
+        public override bool ParseInitials(string t, ref PumpActionMode buffer)
+        {
+            switch (t)
+            {
+                case "1":
+                case "T": // true
+                case "Y": // yes
+                    buffer = PumpActionMode.YES;
+                    return true;
+                case "0":
+                case "F": // false
+                case "N": // no
+                    buffer = PumpActionMode.NO;
+                    return true;
+                case "L": // Lobber
+                    buffer = PumpActionMode.LOBBER;
+                    return true;
+            }
+            return false;
+        }
+    }
+
+    [Serializable]
     public class AresVersus
     {
         public double Versus = 1.0;
@@ -69,6 +98,7 @@ namespace Extension.Ext
         {
             new DamageReactionModeParser().Register();
             new ExpLevelParser().Register();
+            new PumpActionModeParser().Register();
         }
 
         // 储存ares护甲的注册表，护甲的对应关系
@@ -181,6 +211,8 @@ namespace Extension.Ext
         public bool Teleporter;
         // 弹头捕获标记
         public bool Capturer;
+        // 弹射起步
+        public PumpActionMode PumpAction;
         // 不触发复仇
         public bool IgnoreRevenge;
         // 不触发伤害响应
@@ -221,6 +253,7 @@ namespace Extension.Ext
 
             this.Teleporter = false;
             this.Capturer = false;
+            this.PumpAction = PumpActionMode.NO;
             this.IgnoreRevenge = false;
             this.IgnoreDamageReaction = false;
             this.IgnoreDamageReactionModes = null;
@@ -266,6 +299,7 @@ namespace Extension.Ext
 
             this.Teleporter = reader.Get("Teleporter", this.Teleporter);
             this.Capturer = reader.Get("Capturer", this.Capturer);
+            this.PumpAction = reader.Get("PumpAction", this.PumpAction);
             this.IgnoreRevenge = reader.Get("IgnoreRevenge", this.IgnoreRevenge);
             this.IgnoreDamageReaction = reader.Get("IgnoreDamageReaction", this.IgnoreDamageReaction);
             this.IgnoreDamageReactionModes = reader.GetList("IgnoreDamageReaction.Modes", this.IgnoreDamageReactionModes);

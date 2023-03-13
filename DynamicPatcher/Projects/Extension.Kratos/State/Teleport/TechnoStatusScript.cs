@@ -347,7 +347,7 @@ namespace Extension.Script
             return targetPos;
         }
 
-        public void Teleport(Pointer<CoordStruct> pLocation, Pointer<WarheadTypeClass> pWH)
+        public bool Teleport(Pointer<CoordStruct> pLocation, Pointer<WarheadTypeClass> pWH)
         {
             if (teleportStep == TeleportStep.READY)
             {
@@ -357,9 +357,11 @@ namespace Extension.Script
                     if (pWH.GetData().Teleporter)
                     {
                         this.warpTo = location;
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
     }

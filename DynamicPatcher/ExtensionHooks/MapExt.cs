@@ -35,10 +35,10 @@ namespace ExtensionHooks
                     TechnoStatusScript.FindAndDamageStandOrVUnit(pLocation.Data, damage, pAttacker, pWH, pAttackingHouse);
                     // Find and Attach Effects.
                     AttachEffectScript.FindAndAttach(pLocation.Data, damage, pWH, pAttacker, pAttackingHouse);
-                    // Teleport
-                    if (!pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out TechnoStatusScript statue))
+
+                    if (!pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out TechnoStatusScript status))
                     {
-                        statue.Teleport(pLocation, pWH);
+                        bool action = status.PumpAction(pLocation, pWH) || status.Teleport(pLocation, pWH);
                     }
                 }
             }

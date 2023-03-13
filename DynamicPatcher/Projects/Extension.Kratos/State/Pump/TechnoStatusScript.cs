@@ -18,10 +18,9 @@ namespace Extension.Script
         public State<PumpData> PumpState = new State<PumpData>();
         public bool Jumping;
 
-        private PumpData pumpData;
+        private int gravity;
         private BulletVelocity velocity; // 初始向量
         private CoordStruct jumpTo; // 跳到的目的地
-        private TimerStruct flyTimer; // 滞空时间
 
         private bool pumpLock; // 不再接受新的状态
 
@@ -63,8 +62,10 @@ namespace Extension.Script
                     pFoot.ForceStopMoving();
                     // ILocomotion loco = pFoot.Ref.Locomotor;
                     // LocomotionClass.ChangeLocomotorTo(pFoot, LocomotionClass.Jumpjet);
-                    // 计算下一个坐标点
-                    CoordStruct nextPos = GetNextPos(sourcePos);
+
+                    // 初速度削减重力，下一个坐标位置
+                    velocity.Z -= gravity;
+                    CoordStruct nextPos = sourcePos + velocity.ToCoordStruct();
                     if (default == nextPos)
                     {
                         // 没算出速度
@@ -117,6 +118,39 @@ namespace Extension.Script
                     }
                 }
             }
+        }
+
+        public bool PumpAction(Pointer<CoordStruct> pLocation, Pointer<WarheadTypeClass> pWH)
+        {
+            if (!isBuilding && !pTechno.Ref.Base.IsFallingDown)
+            {
+                WarheadTypeData whData = pWH.GetData();
+                if (whData.PumpAction != PumpActionMode.NO)
+                {
+                    // 强制跳跃
+                    if (!pumpLock && !AmIStand())
+                    {
+                        CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+                        CoordStruct targetPos = pLocation.Data;
+                        int gravity = RulesClass.Global().Gravity;
+                        bool isLobber = whData.PumpAction == PumpActionMode.LOBBER;
+                        // 计算初速度
+                        BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, gravity, isLobber, false, 0, 0, gravity, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
+                        // 跳
+                        if (straightDistance > 256 && Jump(targetPos, velocity, gravity, straightDistance))
+                        {
+                            // 从占据的格子中移除自己
+                            pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
+                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                            // 停止移动
+                            pFoot.ForceStopMoving();
+                            // pTechno.Ref.BaseMission.ForceMission(Mission.None);
+                        }
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void ActivePump(PumpData data, Pointer<HouseClass> pAttackingHouse, CoordStruct powerPos = default)
@@ -181,23 +215,28 @@ namespace Extension.Script
                 }
             }
             // Logger.Log($"{Game.CurrentFrame} 得到弹道初速度 {velocity}");
-            if (default != velocity)
+            if (Jump(targetPos, velocity, data.Gravity, straightDistance))
             {
-                this.velocity = velocity;
-                this.jumpTo = targetPos;
-                this.pumpData = data;
-                this.Jumping = true;
-                pTechno.Ref.Base.IsFallingDown = false; // 强设为false
-                // 飞行时间
-                realSpeed = realSpeed == 0 ? Math.Sqrt(straightDistance * data.Gravity * 1.2) : realSpeed;
-                int frames = (int)(straightDistance / realSpeed);
-                // Logger.Log($"{Game.CurrentFrame} 飞行速度 {realSpeed}, 直线距离{straightDistance}, 飞 {frames} 帧");
-                this.flyTimer.Start(frames / 2);
                 // 清空所有目标和任务
                 Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
                 pTechno.ClearAllTarget();
                 pMission.Ref.ForceMission(Mission.None);
             }
+
+        }
+
+        private bool Jump(CoordStruct targetPos, BulletVelocity velocity, int gravity, double straightDistance)
+        {
+            if (default != velocity)
+            {
+                this.jumpTo = targetPos;
+                this.velocity = velocity;
+                this.gravity = gravity;
+                this.Jumping = true;
+                pTechno.Ref.Base.IsFallingDown = false; // 强设为false
+                return true;
+            }
+            return false;
         }
 
         private void CancelPump()
@@ -206,8 +245,7 @@ namespace Extension.Script
             this.Jumping = false;
             this.velocity = default;
             this.jumpTo = default;
-            this.pumpData = null;
-            this.flyTimer.Stop();
+            this.gravity = 0;
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 取消移动");
             if (!CaptureByBlackHole && !pTechno.IsDeadOrInvisible())
             {
@@ -285,21 +323,6 @@ namespace Extension.Script
                     }
                 }
             }
-        }
-
-        public CoordStruct GetNextPos(CoordStruct sourcePos)
-        {
-            // 初速度削减重力，下一个坐标位置
-            if (flyTimer.Expired())
-            {
-                velocity.Z -= pumpData.Gravity;
-            }
-            else
-            {
-                velocity.Z += pumpData.Gravity;
-            }
-            // Logger.Log($"移动速度{velocity}, 移动距离 {velocity.ToCoordStruct()}");
-            return sourcePos + velocity.ToCoordStruct();
         }
 
 

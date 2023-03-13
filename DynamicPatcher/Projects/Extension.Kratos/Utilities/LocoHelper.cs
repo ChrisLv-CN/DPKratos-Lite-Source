@@ -24,6 +24,7 @@ namespace Extension.Utilities
             {
                 // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 受黑洞 [{pBlackHole.Ref.Type.Ref.Base.ID}] {pBlackHole.Pointer} 的影响 speed={loco.Apparent_Speed()} IsMoving={loco.Is_Moving()} IsMovingNow={loco.Is_Moving_Now()} IsReallyMovingNow={loco.Is_Really_Moving_Now()}");
                 pFoot.Ref.Base.SetDestination(default(Pointer<CellClass>));
+                pFoot.Ref.Destination = default;
                 loco.ForceStopMoving();
             }
         }
