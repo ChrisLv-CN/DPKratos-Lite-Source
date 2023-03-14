@@ -396,6 +396,7 @@ namespace Extension.Script
             OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
+            OnFire_Pump(pTarget, weaponIndex);
             OnFire_RockerPitch(pTarget, weaponIndex);
         }
 

@@ -120,6 +120,43 @@ namespace Extension.Script
             }
         }
 
+        public void OnFire_Pump(Pointer<AbstractClass> pTarget, int weaponIndex)
+        {
+            if (isUnit || isAircraft)
+            {
+                Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
+                Pointer<WeaponTypeClass> pWeaponType = IntPtr.Zero;
+                if (!pWeapon.IsNull && !(pWeaponType = pWeapon.Ref.WeaponType).IsNull)
+                {
+                    // 读取人间大炮的参数
+                    WeaponTypeData data = pWeaponType.GetData();
+                    if (data.HumanCannon && !data.SelfLaunch)
+                    {
+                        HumanCannon(pTechno.Ref.Base.GetFLH(weaponIndex, default), pTarget.Ref.GetCoords(), pWeaponType.Ref.Lobber);
+                    }
+                }
+            }
+        }
+
+        public void HumanCannon(CoordStruct sourcePos, CoordStruct targetPos, bool isLobber = false)
+        {
+            if (pTechno.Ref.Passengers.NumPassengers > 0)
+            {
+                // 人间大炮一级准备
+                Pointer<FootClass> pPassenger = pTechno.Ref.Passengers.RemoveFirstPassenger();
+                DirStruct facing = pTechno.Ref.GetRealFacing().current();
+                ++Game.IKnowWhatImDoing;
+                pPassenger.Ref.Base.Base.Put(sourcePos, facing.ToDirType());
+                --Game.IKnowWhatImDoing;
+                // 人间大炮二级准备
+                if (pPassenger.Convert<TechnoClass>().TryGetStatus(out TechnoStatusScript status))
+                {
+                    // 人间大炮发射
+                    status.PumpAction(targetPos, isLobber);
+                }
+            }
+        }
+
         public bool PumpAction(Pointer<CoordStruct> pLocation, Pointer<WarheadTypeClass> pWH)
         {
             if (!isBuilding && !pTechno.Ref.Base.IsFallingDown)
@@ -130,25 +167,32 @@ namespace Extension.Script
                     // 强制跳跃
                     if (!pumpLock && !AmIStand())
                     {
-                        CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
                         CoordStruct targetPos = pLocation.Data;
-                        int gravity = RulesClass.Global().Gravity;
                         bool isLobber = whData.PumpAction == PumpActionMode.LOBBER;
-                        // 计算初速度
-                        BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, gravity, isLobber, false, 0, 0, gravity, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
                         // 跳
-                        if (straightDistance > 256 && Jump(targetPos, velocity, gravity, straightDistance))
-                        {
-                            // 从占据的格子中移除自己
-                            pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
-                            Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
-                            // 停止移动
-                            pFoot.ForceStopMoving();
-                            // pTechno.Ref.BaseMission.ForceMission(Mission.None);
-                        }
-                        return true;
+                        return PumpAction(targetPos, isLobber);
                     }
                 }
+            }
+            return false;
+        }
+
+        public bool PumpAction(CoordStruct targetPos, bool isLobber)
+        {
+            CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
+            int gravity = RulesClass.Global().Gravity;
+            // 计算初速度
+            BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, gravity, isLobber, false, 0, 0, gravity, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
+            // 跳
+            if (straightDistance > 256 && Jump(targetPos, velocity, gravity, straightDistance))
+            {
+                // 从占据的格子中移除自己
+                pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
+                Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
+                // 停止移动
+                pFoot.ForceStopMoving();
+                // pTechno.Ref.BaseMission.ForceMission(Mission.None);
+                return true;
             }
             return false;
         }

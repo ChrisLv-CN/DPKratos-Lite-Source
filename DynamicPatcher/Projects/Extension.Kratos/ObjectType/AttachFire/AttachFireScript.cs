@@ -318,6 +318,11 @@ namespace Extension.Script
                                 SpawnerBurstFLH.Add(0, sourcePos);
                             }
                         }
+                        // 人间大炮
+                        if (weaponTypeData.HumanCannon && !weaponTypeData.SelfLaunch && pObject.TryGetTechnoStatus(out TechnoStatusScript status))
+                        {
+                            status.HumanCannon(sourcePos, targetPos, pWeapon.Ref.Lobber);
+                        }
                         if (null != callback)
                         {
                             callback(i, burst, pBullet, pTarget);
@@ -385,6 +390,11 @@ namespace Extension.Script
                 {
                     SpawnerBurstFLH.Add(burst.Index, sourcePos);
                 }
+            }
+            // 人间大炮
+            if (burst.WeaponTypeData.HumanCannon && !burst.WeaponTypeData.SelfLaunch && pObject.TryGetTechnoStatus(out TechnoStatusScript status))
+            {
+                status.HumanCannon(sourcePos, targetPos, pWeapon.Ref.Lobber);
             }
             if (null != burst.Callback)
             {
