@@ -99,7 +99,9 @@ namespace Extension.Utilities
             if (pTechno.Ref.Base.Base.WhatAmI() == AbstractType.Building)
             {
                 // 建筑不能使用矩阵方法测算FLH
-                return GetFLHAbsoluteCoords(pTechno.Ref.Base.Base.GetCoords(), flh, pTechno.Ref.Facing.current(), turretOffset);
+                CoordStruct tempFLH = flh;
+                tempFLH.Y *= flipY;
+                return GetFLHAbsoluteCoords(pTechno.Ref.Base.Base.GetCoords(), tempFLH, pTechno.Ref.Facing.current(), turretOffset);
             }
             else
             {
@@ -115,10 +117,6 @@ namespace Extension.Utilities
                     RotateMatrix3D(ref matrix3D, pTechno, isOnTurret);
                     // Step 4: apply FLH offset
                     CoordStruct tempFLH = flh;
-                    if (pTechno.Convert<AbstractClass>().Ref.WhatAmI() == AbstractType.Building)
-                    {
-                        tempFLH.Z += Game.LevelHeight;
-                    }
                     tempFLH.Y *= flipY;
                     SingleVector3D offset = GetFLHOffset(ref matrix3D, tempFLH);
                     // Step 5: offset techno location
