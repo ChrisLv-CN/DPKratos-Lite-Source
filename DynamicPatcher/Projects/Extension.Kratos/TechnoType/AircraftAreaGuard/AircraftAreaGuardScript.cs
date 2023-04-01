@@ -175,7 +175,7 @@ namespace Extension.Script
                     if (pTarget.IsNull)
                     {
                         // 目标不存在，带着蛋飞，切换状态
-                        if (default != destCenter && pTechno.Ref.Ammo >= data.MaxAmmo)
+                        if (default != destCenter && pTechno.Ref.Ammo > data.MinAmmo)
                         {
                             // 返回巡航状态
                             this.State = AircraftGuardState.GUARD;

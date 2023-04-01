@@ -22,6 +22,7 @@ namespace Extension.Ext
         public int GuardRange;
         public bool AutoFire;
         public int MaxAmmo;
+        public int MinAmmo;
         public int GuardRadius;
         public bool FindRangeAroundSelf;
         public int ChaseRange;
@@ -38,6 +39,7 @@ namespace Extension.Ext
             this.GuardRange = 5;
             this.AutoFire = true;
             this.MaxAmmo = 1;
+            this.MinAmmo = 0;
             this.GuardRadius = 5;
             this.FindRangeAroundSelf = false;
             this.ChaseRange = 30;
@@ -56,6 +58,7 @@ namespace Extension.Ext
             this.GuardRange = reader.Get(TITLE + "GuardRange", this.GuardRange);
             this.AutoFire = reader.Get(TITLE + "AutoFire", this.AutoFire);
             this.MaxAmmo = reader.Get(TITLE + "Ammo", this.MaxAmmo);
+            this.MaxAmmo = reader.Get(TITLE + "HoldAmmo", this.MaxAmmo);
             this.GuardRadius = reader.Get(TITLE + "GuardRadius", this.GuardRadius);
             this.FindRangeAroundSelf = reader.Get(TITLE + "FindRangeAroundSelf", this.FindRangeAroundSelf);
             this.ChaseRange = reader.Get(TITLE + "ChaseRange", this.ChaseRange);
