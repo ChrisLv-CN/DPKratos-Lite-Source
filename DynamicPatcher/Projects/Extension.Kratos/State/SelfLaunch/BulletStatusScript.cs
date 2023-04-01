@@ -21,26 +21,49 @@ namespace Extension.Script
         private bool limboFlag;
         private bool shooterIsSelected;
 
-        public void InitState_SelfLaunch()
+        private bool movingSelfInitFlag;
+
+        public void OnUpdate_SelfLaunchOrPumpAction()
         {
-            if (!selfLaunch && !pBullet.Ref.WeaponType.IsNull)
+            if (!movingSelfInitFlag)
             {
-                WeaponTypeData weaponTypeData = pBullet.Ref.WeaponType.GetData();
-                if (weaponTypeData.SelfLaunch && !pSource.IsDeadOrInvisible() && pSource.CastToFoot(out Pointer<FootClass> pFoot) && !pSource.AmIStand())
+                movingSelfInitFlag = true;
+                Pointer<WeaponTypeClass> pWeapon = pBullet.Ref.WeaponType;
+                if (!pWeapon.IsNull)
                 {
-                    // 抛射体生成时没有消耗弹药，所以在抛射体开始运行后，再移除发射者
-                    selfLaunch = true;
-                    if (pSource.Ref.Base.IsSelected && !pSource.Ref.Owner.IsNull && pSource.Ref.Owner.Ref.ControlledByPlayer())
+                    WeaponTypeData weaponTypeData = pBullet.Ref.WeaponType.GetData();
+
+                    if ((weaponTypeData.SelfLaunch || weaponTypeData.PumpAction || weaponTypeData.HumanCannon > -1)
+                        && !pSource.IsDeadOrInvisible()
+                        && pSource.TryGetStatus(out TechnoStatusScript status)
+                        && status.AbsType != AbstractType.Building
+                    )
                     {
-                        pSource.Ref.WasSelected = true;
-                        shooterIsSelected = true;
+                        if (weaponTypeData.SelfLaunch)
+                        {
+                            this.selfLaunch = !status.AmIStand();
+                            if (selfLaunch)
+                            {
+                                // 抛射体生成时没有消耗弹药，所以在抛射体开始运行后，再移除发射者
+                                if (pSource.Ref.Base.IsSelected && !pSource.Ref.Owner.IsNull && pSource.Ref.Owner.Ref.ControlledByPlayer())
+                                {
+                                    pSource.Ref.WasSelected = true;
+                                    shooterIsSelected = true;
+                                }
+                            }
+                        }
+                        else if (weaponTypeData.PumpAction)
+                        {
+                            status.PumpAction(pBullet.Ref.TargetCoords, pWeapon.Ref.Lobber);
+                        }
+                        // 人间大炮可以和自身移动一起生效
+                        if (weaponTypeData.HumanCannon > -1)
+                        {
+                            status.HumanCannon(pBullet.Ref.SourceCoords, pBullet.Ref.TargetCoords, weaponTypeData.HumanCannon, pWeapon.Ref.Lobber);
+                        }
                     }
                 }
             }
-        }
-
-        public void OnUpdate_SelfLaunch()
-        {
             if (selfLaunch && !limboFlag)
             {
                 limboFlag = true;
@@ -63,7 +86,7 @@ namespace Extension.Script
 
         public bool OnDetonate_SelfLaunch(Pointer<CoordStruct> pCoords)
         {
-            if (selfLaunch && !pSource.IsDead() && pSource.CastToFoot(out Pointer<FootClass> pFoot) && !pSource.AmIStand())
+            if (selfLaunch && !pSource.IsDead())
             {
                 // Logger.Log($"{Game.CurrentFrame} 抛射体[{section}]{pBullet}爆炸，所属 {pBullet.Ref.Owner}，原始所属 {pSource}");
                 // 发射者Limbo会移除抛射体的所属，要加回去
@@ -99,7 +122,7 @@ namespace Extension.Script
                     // 从占据的格子中移除自己
                     pSource.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                     // 停止移动
-                    pFoot.ForceStopMoving();
+                    pSource.Convert<FootClass>().ForceStopMoving();
                     bool onBridge = false;
                     if (MapClass.Instance.TryGetCellAt(nextPos, out Pointer<CellClass> pCell))
                     {
@@ -120,10 +143,14 @@ namespace Extension.Script
                         pSource.Ref.Base.Select();
                     }
                 }
-                if (!pSource.Ref.Target.IsNull)
+                if (pSource.TryGetStatus(out TechnoStatusScript status) && !status.FallingDown(0, false))
                 {
-                    pSource.Ref.BaseMission.QueueMission(Mission.Attack, false);
+                    if (!pSource.Ref.Target.IsNull)
+                    {
+                        pSource.Ref.BaseMission.QueueMission(Mission.Attack, false);
+                    }
                 }
+
             }
             return false;
         }

@@ -49,7 +49,13 @@ namespace Extension.Utilities
             {
                 targetPos.Z = pTargetCell.Ref.GetCoordsWithBridge().Z;
             }
+            return GetBulletArcingVelocity(sourcePos, targetPos, speed, gravity, lobber, zOffset, out straightDistance, out realSpeed);
+        }
 
+        public static unsafe BulletVelocity GetBulletArcingVelocity(CoordStruct sourcePos, CoordStruct targetPos,
+            double speed, int gravity, bool lobber,
+            int zOffset, out double straightDistance, out double realSpeed)
+        {
             // 重算抛物线弹道
             if (gravity == 0)
             {

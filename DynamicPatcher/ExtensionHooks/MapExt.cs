@@ -38,7 +38,7 @@ namespace ExtensionHooks
                     // Those action won't effects Stand.
                     if (!pAttacker.IsNull && pAttacker.CastToTechno(out Pointer<TechnoClass> pTechno) && pTechno.TryGetStatus(out TechnoStatusScript status))
                     {
-                        bool action = status.PumpAction(pLocation, pWH) || status.Teleport(pLocation, pWH);
+                        status.Teleport(pLocation, pWH);
                     }
                 }
             }

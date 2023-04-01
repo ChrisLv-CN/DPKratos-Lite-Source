@@ -22,7 +22,8 @@ namespace Extension.Ext
         // Kratos
         public float RockerPitch = 0;
         public bool SelfLaunch = false;
-        public bool HumanCannon = false;
+        public bool PumpAction = false;
+        public int HumanCannon = -1;
 
         public override void Read(IConfigReader reader)
         {
@@ -36,6 +37,7 @@ namespace Extension.Ext
 
             this.RockerPitch = reader.Get("RockerPitch", this.RockerPitch);
             this.SelfLaunch = reader.Get("SelfLaunch", this.SelfLaunch);
+            this.PumpAction = reader.Get("PumpAction", this.PumpAction);
             this.HumanCannon = reader.Get("HumanCannon", this.HumanCannon);
         }
 

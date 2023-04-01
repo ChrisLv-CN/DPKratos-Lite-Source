@@ -214,7 +214,6 @@ namespace Extension.Script
                 InitState_GiftBox();
                 InitState_Paintball();
                 InitState_Proximity();
-                InitState_SelfLaunch();
                 // 弹道初始化
                 if (isMissile)
                 {
@@ -319,7 +318,7 @@ namespace Extension.Script
                 OnUpdate_ECM();
                 OnUpdate_GiftBox();
                 OnUpdate_RecalculateStatus();
-                OnUpdate_SelfLaunch();
+                OnUpdate_SelfLaunchOrPumpAction();
             }
         }
 

@@ -18,6 +18,9 @@ namespace Extension.Script
         public State<PumpData> PumpState = new State<PumpData>();
         public bool Jumping;
 
+        private bool isHumanCannon; // 人间大炮
+        private TimerStruct flyTimer; // 飞行时间
+
         private int gravity;
         private BulletVelocity velocity; // 初始向量
         private CoordStruct jumpTo; // 跳到的目的地
@@ -48,7 +51,7 @@ namespace Extension.Script
                 }
                 if (Jumping)
                 {
-                    if (CaptureByBlackHole)
+                    if (CaptureByBlackHole || (isHumanCannon && flyTimer.Expired()))
                     {
                         CancelPump();
                         return;
@@ -120,25 +123,7 @@ namespace Extension.Script
             }
         }
 
-        public void OnFire_Pump(Pointer<AbstractClass> pTarget, int weaponIndex)
-        {
-            if (isUnit || isAircraft)
-            {
-                Pointer<WeaponStruct> pWeapon = pTechno.Ref.GetWeapon(weaponIndex);
-                Pointer<WeaponTypeClass> pWeaponType = IntPtr.Zero;
-                if (!pWeapon.IsNull && !(pWeaponType = pWeapon.Ref.WeaponType).IsNull)
-                {
-                    // 读取人间大炮的参数
-                    WeaponTypeData data = pWeaponType.GetData();
-                    if (data.HumanCannon && !data.SelfLaunch)
-                    {
-                        HumanCannon(pTechno.Ref.Base.GetFLH(weaponIndex, default), pTarget.Ref.GetCoords(), pWeaponType.Ref.Lobber);
-                    }
-                }
-            }
-        }
-
-        public void HumanCannon(CoordStruct sourcePos, CoordStruct targetPos, bool isLobber = false)
+        public void HumanCannon(CoordStruct sourcePos, CoordStruct targetPos, int height, bool isLobber = false)
         {
             if (pTechno.Ref.Passengers.NumPassengers > 0)
             {
@@ -152,40 +137,37 @@ namespace Extension.Script
                 if (pPassenger.Convert<TechnoClass>().TryGetStatus(out TechnoStatusScript status))
                 {
                     // 人间大炮发射
-                    status.PumpAction(targetPos, isLobber);
+                    targetPos += new CoordStruct(0, 0, height);
+                    status.Jump(targetPos, isLobber, true);
                 }
             }
-        }
-
-        public bool PumpAction(Pointer<CoordStruct> pLocation, Pointer<WarheadTypeClass> pWH)
-        {
-            if (!isBuilding && !pTechno.Ref.Base.IsFallingDown)
-            {
-                WarheadTypeData whData = pWH.GetData();
-                if (whData.PumpAction != PumpActionMode.NO)
-                {
-                    // 强制跳跃
-                    if (!pumpLock && !AmIStand())
-                    {
-                        CoordStruct targetPos = pLocation.Data;
-                        bool isLobber = whData.PumpAction == PumpActionMode.LOBBER;
-                        // 跳
-                        return PumpAction(targetPos, isLobber);
-                    }
-                }
-            }
-            return false;
         }
 
         public bool PumpAction(CoordStruct targetPos, bool isLobber)
         {
+            if (!isBuilding && !pTechno.Ref.Base.IsFallingDown && !pumpLock && !AmIStand())
+            {
+                // 跳
+                return Jump(targetPos, isLobber);
+            }
+            return false;
+        }
+
+        private bool Jump(CoordStruct targetPos, bool isLobber, bool isHumanCannon = false)
+        {
             CoordStruct sourcePos = pTechno.Ref.Base.Base.GetCoords();
             int gravity = RulesClass.Global().Gravity;
             // 计算初速度
-            BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, ref targetPos, 0, gravity, isLobber, false, 0, 0, gravity, out double straightDistance, out double realSpeed, out Pointer<CellClass> pTargetCell);
+            BulletVelocity velocity = WeaponHelper.GetBulletArcingVelocity(sourcePos, targetPos, 0, gravity, isLobber, gravity, out double straightDistance, out double realSpeed);
             // 跳
-            if (straightDistance > 256 && Jump(targetPos, velocity, gravity, straightDistance))
+            if (straightDistance > 256 && JumpAction(targetPos, velocity, gravity, straightDistance))
             {
+                if (this.isHumanCannon = isHumanCannon)
+                {
+                    // 计算飞行时间
+                    int frame = (int)(straightDistance / realSpeed);
+                    this.flyTimer.Start(frame);
+                }
                 // 从占据的格子中移除自己
                 pTechno.Ref.Base.UnmarkAllOccupationBits(sourcePos);
                 Pointer<FootClass> pFoot = pTechno.Convert<FootClass>();
@@ -259,7 +241,7 @@ namespace Extension.Script
                 }
             }
             // Logger.Log($"{Game.CurrentFrame} 得到弹道初速度 {velocity}");
-            if (Jump(targetPos, velocity, data.Gravity, straightDistance))
+            if (JumpAction(targetPos, velocity, data.Gravity, straightDistance))
             {
                 // 清空所有目标和任务
                 Pointer<MissionClass> pMission = pTechno.Convert<MissionClass>();
@@ -269,7 +251,7 @@ namespace Extension.Script
 
         }
 
-        private bool Jump(CoordStruct targetPos, BulletVelocity velocity, int gravity, double straightDistance)
+        private bool JumpAction(CoordStruct targetPos, BulletVelocity velocity, int gravity, double straightDistance)
         {
             if (default != velocity)
             {
@@ -293,80 +275,10 @@ namespace Extension.Script
             // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 取消移动");
             if (!CaptureByBlackHole && !pTechno.IsDeadOrInvisible())
             {
-                // 摔死
-                // 检查是否在悬崖上摔死
-                bool canPass = true;
-                bool isWater = false;
-                CoordStruct location = pTechno.Ref.Base.Base.GetCoords();
-                if (MapClass.Instance.TryGetCellAt(location, out Pointer<CellClass> pCell))
-                {
-                    CoordStruct cellPos = pCell.Ref.GetCoordsWithBridge();
-                    pTechno.Ref.Base.OnBridge = pCell.Ref.ContainsBridge();
-                    // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于桥上 {pCell.Ref.ContainsBridge()} {pTechno.Ref.Base.GetHeight()}， 桥高 {cellPos.Z}");
-                    if (cellPos.Z >= location.Z)
-                    {
-                        CoordStruct targetPos = location;
-                        targetPos.Z = cellPos.Z;
-                        // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  位于地下 {pTechno.Ref.Base.GetHeight()}，调整回地表");
-                        pTechno.Ref.Base.SetLocation(targetPos);
-                    }
-                    // 当前格子所在的位置不可通行，炸了它
-                    canPass = pCell.Ref.IsClearToMove(pTechno.Ref.Type.Ref.SpeedType, pTechno.Ref.Type.Ref.MovementZone, true, true);
-                    // Logger.Log($"{Game.CurrentFrame} 单位  [{section}] {pTechno}  当前格子可通行 = {canPass}");
-                    if (canPass && !pCell.Ref.GetBuilding().IsNull)
-                    {
-                        canPass = false;
-                    }
-                    if (!canPass)
-                    {
-                        isWater = pCell.Ref.TileIs(TileType.Water);
-                    }
-                }
-                if (canPass)
-                {
-                    // 掉地上
-                    if (pTechno.Ref.Base.GetHeight() > 0)
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} [{section}]{pTechno} 掉落");
-                        pTechno.Ref.Base.IsFallingDown = true;
-                    }
-                }
-                else
-                {
-                    // 底下是水吗
-                    if (isWater)
-                    {
-                        // Logger.Log($"{Game.CurrentFrame} [{section}] {pTechno} 下方是水 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
-                        switch (locoType)
-                        {
-                            case LocoType.Hover:
-                            case LocoType.Ship:
-                                // 船和悬浮不下沉
-                                break;
-                            case LocoType.Jumpjet:
-                                if (!pTechno.Ref.Type.Ref.BalloonHover)
-                                {
-                                    pTechno.Ref.IsSinking = true;
-                                    // 摔死
-                                    pumpLock = true;
-                                }
-                                break;
-                            default:
-                                pTechno.Ref.IsSinking = true;
-                                // 摔死
-                                pumpLock = true;
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        // 摔死
-                        pumpLock = true;
-                        // Logger.Log($"{Game.CurrentFrame} [{section}] {pTechno} 下方不可通行 高度 {pTechno.Ref.Base.GetHeight()}，弄死");
-                        pTechno.Ref.Base.DropAsBomb();
-                    }
-                }
+                FallingDown(0, isHumanCannon);
             }
+            this.isHumanCannon = false;
+            this.flyTimer.Stop();
         }
 
 

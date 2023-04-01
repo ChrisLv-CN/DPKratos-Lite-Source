@@ -41,7 +41,7 @@ namespace Extension.Script
         }
 
         private AbstractType _absType;
-        private AbstractType absType
+        public AbstractType AbsType
         {
             get
             {
@@ -53,10 +53,10 @@ namespace Extension.Script
             }
         }
 
-        private bool isBuilding => absType == AbstractType.Building;
-        private bool isInfantry => absType == AbstractType.Infantry;
-        private bool isUnit => absType == AbstractType.Unit;
-        private bool isAircraft => absType == AbstractType.Aircraft;
+        private bool isBuilding => AbsType == AbstractType.Building;
+        private bool isInfantry => AbsType == AbstractType.Infantry;
+        private bool isUnit => AbsType == AbstractType.Unit;
+        private bool isAircraft => AbsType == AbstractType.Aircraft;
 
         private bool isVoxel;
         private bool isFearless;
@@ -396,7 +396,6 @@ namespace Extension.Script
             OnFire_ExtraFire(pTarget, weaponIndex);
             OnFire_FireSuper(pTarget, weaponIndex);
             OnFire_OverrideWeapon(pTarget, weaponIndex);
-            OnFire_Pump(pTarget, weaponIndex);
             OnFire_RockerPitch(pTarget, weaponIndex);
         }
 
