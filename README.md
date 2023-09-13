@@ -1,4 +1,10 @@
-[![license](https://www.gnu.org/graphics/gplv3-or-later.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+[![license](https://www.gnu.org/graphics/gplv3-or-later.png)](https://www.gnu.org/licenses/gpl-3.0.en.html)  
+
+敬告（Attention）
+============
+**由于作者懒癌晚期，该项目已经停止维护。**  
+**Due to the author's late stage cancer of laziness, the project has been discontinued for maintenance.**
+
 
 关于Kratos-Lite（About Kratos-Lite）
 ============
