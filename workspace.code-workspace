@@ -15,6 +15,7 @@
 			"**/*.mix": true,
 			"**/*.reg": true,
 			"**/*.zip": true
-		}
+		},
+		"dotnet.preferCSharpExtension": true
 	}
 }
